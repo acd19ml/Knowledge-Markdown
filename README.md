@@ -22,11 +22,11 @@ Knowledge-Markdown/
 ├── README.md                    # English master index (this file)
 ├── README_zh.md                 # Chinese master index
 │
-├── Agent_skills/                # Building custom skills for Claude Code
+├── Agent_Skills/                # Building custom skills for Claude Code
 │   ├── The-Complete-Guide-to-Building-Skill-for-Claude.md
 │   └── The-Complete-Guide-to-Building-Skill-for-Claude_zh.md
 │
-├── Agent_Memory/                # Foundation Agent Memory (survey + structured notes)
+├── Agent_Memory/                # Foundation Agent Memory — English (survey + structured notes)
 │   ├── README.md                # Knowledge base index & navigation
 │   ├── 00_survey-overview.md    # Paper metadata, abstract, structure map
 │   ├── 01_background.md         # Foundation agents, memory concepts, cognitive science roots
@@ -44,7 +44,10 @@ Knowledge-Markdown/
 │   ├── 07_applications.md       # 11 application domains
 │   └── 08_future-directions.md  # 6 open challenges
 │
-├── Self_Evolve/                 # Self-Evolving Agents (survey + structured notes)
+├── Agent_Memory_zh/             # Foundation Agent Memory — Chinese translation
+│   └── (mirrors Agent_Memory/ structure)
+│
+├── Self_Evolve/                 # Self-Evolving Agents — English (survey + structured notes)
 │   ├── README.md                # Knowledge base index & navigation
 │   ├── 00_survey-overview.md    # Paper metadata, taxonomy, key results
 │   ├── 01_background.md         # Preliminaries: agent definition, MDP, problem framing
@@ -63,6 +66,9 @@ Knowledge-Markdown/
 │   ├── 06_challenges.md         # Section VII: Discussion, Challenges, Future Frontiers
 │   └── 07_benchmarks.md         # Sections VIII–IX: Benchmarks + OSS libraries
 │
+├── Self_Evolve_zh/              # Self-Evolving Agents — Chinese translation
+│   └── (mirrors Self_Evolve/ structure)
+│
 └── Claude_API/                  # Claude API features and best practices
     └── Tool_Use/
         ├── advanced-tool-use-features.md
@@ -71,22 +77,42 @@ Knowledge-Markdown/
 
 ## Quick Index
 
+### Agent Skills
+
 | Topic | File | Tags |
 |---|---|---|
-| The Complete Guide to Building Skills for Claude | [Agent_skills/The-Complete-Guide-to-Building-Skill-for-Claude.md](Agent_skills/The-Complete-Guide-to-Building-Skill-for-Claude.md) | skills, slash-commands, claude-code |
+| The Complete Guide to Building Skills for Claude | [Agent_Skills/The-Complete-Guide-to-Building-Skill-for-Claude.md](Agent_Skills/The-Complete-Guide-to-Building-Skill-for-Claude.md) | skills, slash-commands, claude-code |
+
+### Claude API
+
+| Topic | File | Tags |
+|---|---|---|
 | Advanced Tool Use Features (PTC, Tool Search, Examples, Dynamic Filtering) | [Claude_API/Tool_Use/advanced-tool-use-features.md](Claude_API/Tool_Use/advanced-tool-use-features.md) | api, tool-use, tokens, performance |
+
+### Agent Memory (English)
+
+| Topic | File | Tags |
+|---|---|---|
 | Agent Memory Survey — Overview & Index | [Agent_Memory/README.md](Agent_Memory/README.md) | agent-memory, survey, LLM, research |
 | Memory Substrates (External/Internal) | [Agent_Memory/02_taxonomy/2.1_memory-substrates.md](Agent_Memory/02_taxonomy/2.1_memory-substrates.md) | memory, RAG, KV-cache, vector-store |
 | Cognitive Mechanisms (5 types) | [Agent_Memory/02_taxonomy/2.2_cognitive-mechanisms.md](Agent_Memory/02_taxonomy/2.2_cognitive-mechanisms.md) | episodic, semantic, working, procedural |
+| Memory Subjects (User-centric / Agent-centric) | [Agent_Memory/02_taxonomy/2.3_memory-subjects.md](Agent_Memory/02_taxonomy/2.3_memory-subjects.md) | user-memory, agent-memory, personalization |
 | Memory Operations (single & multi-agent) | [Agent_Memory/03_operations/](Agent_Memory/03_operations/) | operations, multi-agent, routing |
 | Memory Learning Policy (Prompting/SFT/RL) | [Agent_Memory/04_learning-policy.md](Agent_Memory/04_learning-policy.md) | learning, RL, fine-tuning, prompting |
+| Scaling Challenges | [Agent_Memory/05_scaling.md](Agent_Memory/05_scaling.md) | scaling, context, multi-agent |
 | Evaluation Benchmarks (30+ annotated) | [Agent_Memory/06_evaluation.md](Agent_Memory/06_evaluation.md) | benchmarks, evaluation, metrics |
 | Applications (11 domains) | [Agent_Memory/07_applications.md](Agent_Memory/07_applications.md) | healthcare, robotics, finance, science |
 | Future Research Directions (6 challenges) | [Agent_Memory/08_future-directions.md](Agent_Memory/08_future-directions.md) | research, future, open-problems |
+
+### Self-Evolving Agents (English)
+
+| Topic | File | Tags |
+|---|---|---|
 | Self-Evolving Agents Survey — Overview & Index | [Self_Evolve/README.md](Self_Evolve/README.md) | self-evolution, survey, LLM, agents |
 | Inference-Based Evolution (Test-Time Scaling) | [Self_Evolve/02_model-centric/2.1_inference-based.md](Self_Evolve/02_model-centric/2.1_inference-based.md) | inference, CoT, tree-search, self-correction |
 | Training-Based Evolution (SFT/RL) | [Self_Evolve/02_model-centric/2.2_training-based.md](Self_Evolve/02_model-centric/2.2_training-based.md) | self-instruct, STaR, GRPO, WebRL |
 | Environment-Centric Evolution | [Self_Evolve/03_env-centric/](Self_Evolve/03_env-centric/) | RAG, experience, memory-arch, MAS-topology |
 | Model-Environment Co-Evolution | [Self_Evolve/04_co-evolution.md](Self_Evolve/04_co-evolution.md) | co-evolution, adaptive-curriculum, MARL |
 | Applications (Science, SWE, Open-World) | [Self_Evolve/05_applications.md](Self_Evolve/05_applications.md) | science, software-engineering, gaming |
+| Challenges & Future Frontiers | [Self_Evolve/06_challenges.md](Self_Evolve/06_challenges.md) | challenges, model-collapse, future-work |
 | Benchmarks (40+ annotated) | [Self_Evolve/07_benchmarks.md](Self_Evolve/07_benchmarks.md) | benchmarks, evaluation, SWE-bench, WebArena |
