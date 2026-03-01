@@ -44,6 +44,25 @@ Knowledge-Markdown/
 │   ├── 07_applications.md       # 11 application domains
 │   └── 08_future-directions.md  # 6 open challenges
 │
+├── Self_Evolve/                 # Self-Evolving Agents (survey + structured notes)
+│   ├── README.md                # Knowledge base index & navigation
+│   ├── 00_survey-overview.md    # Paper metadata, taxonomy, key results
+│   ├── 01_background.md         # Preliminaries: agent definition, MDP, problem framing
+│   ├── 02_model-centric/        # Section III: Model-Centric Self-Evolution
+│   │   ├── README.md
+│   │   ├── 2.1_inference-based.md  # Parallel sampling, self-correction, structured reasoning
+│   │   └── 2.2_training-based.md   # Synthesis-driven offline, exploration-driven online
+│   ├── 03_env-centric/          # Section IV: Environment-Centric Self-Evolution
+│   │   ├── README.md
+│   │   ├── 3.1_static-knowledge.md   # Agentic RAG, Deep Research
+│   │   ├── 3.2_dynamic-experience.md # Offline/Online/Lifelong experience evolution
+│   │   ├── 3.3_modular-arch.md       # Interaction protocols, memory arch, tool-augmented
+│   │   └── 3.4_agentic-topology.md   # Offline search, runtime adaptation, structural state
+│   ├── 04_co-evolution.md       # Section V: Model-Environment Co-Evolution
+│   ├── 05_applications.md       # Section VI: Science, Software Engineering, Open-World
+│   ├── 06_challenges.md         # Section VII: Discussion, Challenges, Future Frontiers
+│   └── 07_benchmarks.md         # Sections VIII–IX: Benchmarks + OSS libraries
+│
 └── Claude_API/                  # Claude API features and best practices
     └── Tool_Use/
         ├── advanced-tool-use-features.md
@@ -64,3 +83,10 @@ Knowledge-Markdown/
 | Evaluation Benchmarks (30+ annotated) | [Agent_Memory/06_evaluation.md](Agent_Memory/06_evaluation.md) | benchmarks, evaluation, metrics |
 | Applications (11 domains) | [Agent_Memory/07_applications.md](Agent_Memory/07_applications.md) | healthcare, robotics, finance, science |
 | Future Research Directions (6 challenges) | [Agent_Memory/08_future-directions.md](Agent_Memory/08_future-directions.md) | research, future, open-problems |
+| Self-Evolving Agents Survey — Overview & Index | [Self_Evolve/README.md](Self_Evolve/README.md) | self-evolution, survey, LLM, agents |
+| Inference-Based Evolution (Test-Time Scaling) | [Self_Evolve/02_model-centric/2.1_inference-based.md](Self_Evolve/02_model-centric/2.1_inference-based.md) | inference, CoT, tree-search, self-correction |
+| Training-Based Evolution (SFT/RL) | [Self_Evolve/02_model-centric/2.2_training-based.md](Self_Evolve/02_model-centric/2.2_training-based.md) | self-instruct, STaR, GRPO, WebRL |
+| Environment-Centric Evolution | [Self_Evolve/03_env-centric/](Self_Evolve/03_env-centric/) | RAG, experience, memory-arch, MAS-topology |
+| Model-Environment Co-Evolution | [Self_Evolve/04_co-evolution.md](Self_Evolve/04_co-evolution.md) | co-evolution, adaptive-curriculum, MARL |
+| Applications (Science, SWE, Open-World) | [Self_Evolve/05_applications.md](Self_Evolve/05_applications.md) | science, software-engineering, gaming |
+| Benchmarks (40+ annotated) | [Self_Evolve/07_benchmarks.md](Self_Evolve/07_benchmarks.md) | benchmarks, evaluation, SWE-bench, WebArena |
