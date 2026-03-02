@@ -69,6 +69,10 @@ Knowledge-Markdown/
 │   ├── 06_challenges.md
 │   └── 07_benchmarks.md
 │
+├── Industry_Insights/           # 从业者视角：播客、演讲、行业分析
+│   ├── 2025-12_CUA-Slow-Thinking-Podcast.md     # 英文
+│   └── 2025-12_CUA-Slow-Thinking-Podcast_zh.md  # 中文
+│
 └── Claude_API/                  # Claude API 功能与最佳实践
     └── Tool_Use/
         ├── advanced-tool-use-features.md       # 英文
@@ -103,6 +107,12 @@ Knowledge-Markdown/
 | 评估基准（30+ 条目） | [Agent_Memory_zh/06_evaluation.md](Agent_Memory_zh/06_evaluation.md) | benchmarks, evaluation, metrics |
 | 应用场景（11 个领域） | [Agent_Memory_zh/07_applications.md](Agent_Memory_zh/07_applications.md) | healthcare, robotics, finance, science |
 | 未来研究方向（6 大挑战） | [Agent_Memory_zh/08_future-directions.md](Agent_Memory_zh/08_future-directions.md) | research, future, open-problems |
+
+### 行业洞察
+
+| 主题 | 文件 | 标签 |
+|------|------|------|
+| CUA 慢思考实录 —— Ungrounded 播客第 1 期 | [Industry_Insights/2025-12_CUA-Slow-Thinking-Podcast_zh.md](Industry_Insights/2025-12_CUA-Slow-Thinking-Podcast_zh.md) | CUA, GUI-agent, benchmark, business-model, GenUI, continual-learning, startup |
 
 ### 自演化智能体（中文）
 

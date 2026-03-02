@@ -75,7 +75,8 @@ Knowledge-Markdown/
 │       └── advanced-tool-use-features_zh.md
 │
 └── Industry_Insights/           # Practitioner perspectives: podcasts, talks, articles
-    └── 2025-12_CUA-Slow-Thinking-Podcast.md  # Computer Use Agent roundtable (Ungrounded Ep.1)
+    ├── 2025-12_CUA-Slow-Thinking-Podcast.md     # Computer Use Agent roundtable (Ungrounded Ep.1)
+    └── 2025-12_CUA-Slow-Thinking-Podcast_zh.md  # Chinese version
 ```
 
 ## Quick Index
@@ -125,3 +126,4 @@ Knowledge-Markdown/
 | Topic | File | Tags |
 |---|---|---|
 | Computer Use Agent: Slow-Thinking Roundtable (Ungrounded Ep.1) | [Industry_Insights/2025-12_CUA-Slow-Thinking-Podcast.md](Industry_Insights/2025-12_CUA-Slow-Thinking-Podcast.md) | CUA, GUI-agent, benchmark, business-model, GenUI, continual-learning, startup |
+| Computer Use Agent: Slow-Thinking Roundtable — Chinese | [Industry_Insights/2025-12_CUA-Slow-Thinking-Podcast_zh.md](Industry_Insights/2025-12_CUA-Slow-Thinking-Podcast_zh.md) | CUA, GUI-agent, benchmark, business-model, GenUI, continual-learning, startup |
