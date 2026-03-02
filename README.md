@@ -69,10 +69,13 @@ Knowledge-Markdown/
 ├── Self_Evolve_zh/              # Self-Evolving Agents — Chinese translation
 │   └── (mirrors Self_Evolve/ structure)
 │
-└── Claude_API/                  # Claude API features and best practices
-    └── Tool_Use/
-        ├── advanced-tool-use-features.md
-        └── advanced-tool-use-features_zh.md
+├── Claude_API/                  # Claude API features and best practices
+│   └── Tool_Use/
+│       ├── advanced-tool-use-features.md
+│       └── advanced-tool-use-features_zh.md
+│
+└── Industry_Insights/           # Practitioner perspectives: podcasts, talks, articles
+    └── 2025-12_CUA-Slow-Thinking-Podcast.md  # Computer Use Agent roundtable (Ungrounded Ep.1)
 ```
 
 ## Quick Index
@@ -116,3 +119,9 @@ Knowledge-Markdown/
 | Applications (Science, SWE, Open-World) | [Self_Evolve/05_applications.md](Self_Evolve/05_applications.md) | science, software-engineering, gaming |
 | Challenges & Future Frontiers | [Self_Evolve/06_challenges.md](Self_Evolve/06_challenges.md) | challenges, model-collapse, future-work |
 | Benchmarks (40+ annotated) | [Self_Evolve/07_benchmarks.md](Self_Evolve/07_benchmarks.md) | benchmarks, evaluation, SWE-bench, WebArena |
+
+### Industry Insights
+
+| Topic | File | Tags |
+|---|---|---|
+| Computer Use Agent: Slow-Thinking Roundtable (Ungrounded Ep.1) | [Industry_Insights/2025-12_CUA-Slow-Thinking-Podcast.md](Industry_Insights/2025-12_CUA-Slow-Thinking-Podcast.md) | CUA, GUI-agent, benchmark, business-model, GenUI, continual-learning, startup |
