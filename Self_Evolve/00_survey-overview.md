@@ -1,118 +1,118 @@
-# Survey Overview
+# 综述概览
 
-> Section: Introduction (pages 1–4)
+> 章节：引言（第 1–4 页）
 
 ---
 
-## Paper Metadata
+## 论文基本信息
 
-| Field | Value |
+| 字段 | 内容 |
 |---|---|
-| Title | A Systematic Survey of Self-Evolving Agents: From Model-Centric to Environment-Driven Co-Evolution |
-| Focus | Self-evolving LLM-based agents |
-| Length | 26 pages |
-| Key Tables | Table I (Training-Based Methods), Table II (Dynamic Experience), Table III (Applications), Table IV (Benchmarks), Table V (OSS Libraries) |
+| 标题 | 自演化智能体系统综述：从以模型为中心到环境驱动的协同进化 |
+| 关注点 | 基于 LLM 的自演化智能体 |
+| 篇幅 | 26 页 |
+| 关键表格 | 表 I（基于训练的方法）、表 II（动态经验）、表 III（应用）、表 IV（基准）、表 V（开源库） |
 
 ---
 
-## The Supervision Bottleneck
+## 监督瓶颈
 
-The core motivation for self-evolving agents:
+自演化智能体的核心动机：
 
-> "Post-training still relies heavily on human oversight: SFT limits models to imitation, while RL depends on sparse and human-defined rewards that can be fragile or exploitable."
+> "后训练仍然严重依赖人工监督：SFT 将模型限制于模仿，而 RL 依赖稀疏的、由人类定义的奖励，这些奖励可能脆弱或可被利用。"
 
-**Current limitations**:
-- SFT: Bounded by quality and quantity of human demonstrations — models learn to imitate, not to generalize
-- RLHF: Reward models reflect human biases, are expensive to scale, and can be exploited through reward hacking
+**当前局限**：
+- SFT：受人工演示质量和数量的限制 —— 模型学习模仿，而非泛化
+- RLHF：奖励模型反映了人类偏见，扩展成本高昂，且可能被奖励黑客利用
 
-**Self-evolution answer**: Agents that generate their own training signals through interaction, discovering policies beyond the initial training distribution.
-
----
-
-## Core Definition
-
-> "Self-Evolving Agents: systems that autonomously improve their capabilities through continual interaction, self-assessment, and experience accumulation — without requiring perpetual human supervision."
-
-Three fundamental pathways for evolution:
-1. **Within the model** — optimizing internal representations and policies (Model-Centric)
-2. **Through environmental interaction** — leveraging external feedback (Environment-Centric)
-3. **Via joint co-evolution** — model and environment developing together (Co-Evolution)
+**自演化的答案**：智能体通过交互生成自己的训练信号，发现超越初始训练分布的策略。
 
 ---
 
-## Three-Paradigm Taxonomy
+## 核心定义
+
+> "自演化智能体：通过持续交互、自我评估和经验积累自主提升能力的系统 —— 无需持续的人工监督。"
+
+三种基本演化路径：
+1. **在模型内部** —— 优化内部表征和策略（以模型为中心）
+2. **通过环境交互** —— 利用外部反馈（以环境为中心）
+3. **通过联合协同进化** —— 模型与环境共同发展（协同进化）
+
+---
+
+## 三范式分类体系
 
 ```
-           SELF-EVOLVING AGENTS
-                    │
-    ┌───────────────┼───────────────────┐
-    │               │                   │
-Model-Centric   Env-Centric      Co-Evolution
-(Internal)      (External)       (Joint)
-    │               │                   │
-Inference +    Static +          Multi-Agent +
-Training       Dynamic +         Environment
-               Modular +         Training
-               Topology
+           自演化智能体
+                  │
+    ┌─────────────┼──────────────────┐
+    │             │                  │
+以模型为中心  以环境为中心      协同进化
+ （内部）      （外部）         （联合）
+    │             │                  │
+推理 +        静态 +          多智能体 +
+训练          动态 +          环境
+              模块化 +        训练
+              拓扑
 ```
 
-### Why three paradigms?
+### 为什么是三种范式？
 
-| Paradigm | Strength | Limitation |
+| 范式 | 优势 | 局限 |
 |---|---|---|
-| Model-Centric | Fast, no env setup needed | Bounded by initial capacity; risks model collapse |
-| Environment-Centric | External signal prevents self-reinforcing bias | Static envs cause saturation |
-| Co-Evolution | Open-ended growth; no ceiling | Requires sophisticated env engineering |
+| 以模型为中心 | 快速，无需环境搭建 | 受初始容量限制；有模型崩溃风险 |
+| 以环境为中心 | 外部信号防止自我强化偏差 | 静态环境导致饱和 |
+| 协同进化 | 开放式增长，无上限 | 需要复杂的环境工程 |
 
 ---
 
-## Paper Structure Map
+## 论文结构映射
 
-| Section | Content | Pages |
+| 章节 | 内容 | 页码 |
 |---|---|---|
-| I. Introduction | Motivation, overview | 1–4 |
-| II. Preliminaries | Agent def, MDP, problem setup | 4–5 |
-| III. Model-Centric | Inference-Based + Training-Based | 5–9 |
-| IV. Environment-Centric | Static + Dynamic + Modular + Topology | 9–12 |
-| V. Co-Evolution | Multi-Agent Policy + Environment Training | 10–11 |
-| VI. Applications | Science, SWE, Open-World | 11–12 |
-| VII. Discussion | Tensions, Challenges, Future | 12–13 |
-| VIII. Benchmarks | Intrinsic + Agentic (Table IV) | 13–16 |
-| IX. Open Source Libraries | Table V (13 key libraries) | 17–18 |
-| X. Conclusion | Summary | 19 |
-| References | 353 cited works | 19–26 |
+| I. 引言 | 动机、概览 | 1–4 |
+| II. 预备知识 | 智能体定义、MDP、问题设置 | 4–5 |
+| III. 以模型为中心 | 基于推理 + 基于训练 | 5–9 |
+| IV. 以环境为中心 | 静态 + 动态 + 模块化 + 拓扑 | 9–12 |
+| V. 协同进化 | 多智能体策略 + 环境训练 | 10–11 |
+| VI. 应用 | 科学、软件工程、开放世界 | 11–12 |
+| VII. 讨论 | 张力、挑战、未来 | 12–13 |
+| VIII. 基准 | 内在 + 智能体（表 IV） | 13–16 |
+| IX. 开源库 | 表 V（13 个关键库） | 17–18 |
+| X. 结论 | 总结 | 19 |
+| 参考文献 | 353 篇引用文献 | 19–26 |
 
 ---
 
-## Figure 6: Advantages of Co-Evolution
+## 图 6：协同进化的优势
 
-The paper's central diagram comparing all three paradigms:
+论文中比较所有三种范式的核心图表：
 
-| Problem | Model-Centric | Env-Centric | Co-Evolution |
+| 问题 | 以模型为中心 | 以环境为中心 | 协同进化 |
 |---|---|---|---|
-| Verification | Lacks external verification | Gets env feedback | Gets grounded feedback |
-| Data ceiling | Self-bounded | Fixed env complexity | Adaptive difficulty |
-| Training disconnect | Error accumulation in iteration | Static env limitation | Targeted feedback on demand |
-| Scalability | Non-scalable (single-task) | Limited | Scalable multi-task |
+| 验证 | 缺乏外部验证 | 获得环境反馈 | 获得有依据的反馈 |
+| 数据上限 | 自我限制 | 固定的环境复杂度 | 自适应难度 |
+| 训练脱节 | 迭代中错误积累 | 静态环境限制 | 按需提供有针对性的反馈 |
+| 可扩展性 | 不可扩展（单任务） | 有限 | 可扩展的多任务 |
 
 ---
 
-## Key Metrics and Results Referenced
+## 参考的关键指标与结果
 
-- **VOYAGER**: 15.3× faster task progression in Minecraft vs baselines
-- **GITM**: +47.5% success on Diamond-level Minecraft tasks
-- **GNoME**: 2.2 million new stable crystal structures discovered
-- **A-Lab**: 71% synthesis success rate over 17-day continuous run
-- **AlphaProof**: IMO 2024 silver-level mathematical reasoning
-- **CRESt**: 9.3× cost-performance gain in catalysis discovery
+- **VOYAGER**：在 Minecraft 中任务进展速度比基线快 **15.3 倍**
+- **GITM**：在 Minecraft 钻石级任务上成功率提升 **+47.5%**
+- **GNoME**：发现 **220 万种**新的稳定晶体结构
+- **A-Lab**：在 17 天持续运行中，合成成功率达 **71%**
+- **AlphaProof**：IMO 2024 **银牌级**数学推理
+- **CRESt**：催化剂发现中实现 **9.3 倍**的性价比提升
 
 ---
 
-## Related Surveys
+## 相关综述
 
-| Survey | Focus | Relationship |
+| 综述 | 关注点 | 关联关系 |
 |---|---|---|
-| Foundation Agent Memory (this repo: [Agent_Memory/](../Agent_Memory/)) | Memory mechanisms in LLM agents | Complementary: memory is a key substrate for self-evolution |
-| LLM Post-Training Survey | SFT, RL, alignment methods | Foundations for Training-Based evolution (Section III-B) |
-| Survey of LLMs | General LLM capabilities | Background context |
-| Scientific Discovery Survey | AI for science | Application domain (Section VI-A) |
+| 基础智能体记忆（本仓库：[Agent_Memory/](../Agent_Memory/)） | LLM 智能体的记忆机制 | 互补：记忆是自演化的关键基底 |
+| LLM 后训练综述 | SFT、RL、对齐方法 | 基于训练的演化（第 III-B 节）的基础 |
+| LLM 综述 | 通用 LLM 能力 | 背景与上下文 |
+| 科学发现综述 | AI 用于科学 | 应用领域（第 VI-A 节） |

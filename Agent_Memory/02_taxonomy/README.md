@@ -1,85 +1,85 @@
-# Taxonomy of Memory in Foundation Agents
+# 基础智能体记忆分类体系
 
-> Paper Section 3 (pages 8–20) | 218 papers surveyed
+> 论文第 3 节（第 8–20 页）| 综述 218 篇论文
 
 ---
 
-## Three Orthogonal Dimensions
+## 三个正交维度
 
-The survey categorizes memory along **three independent axes**, each answering a different design question:
+本综述沿 **三个独立轴** 对记忆进行分类，每个轴回答不同的设计问题：
 
-| Axis | Question | File |
+| 轴 | 问题 | 文件 |
 |---|---|---|
-| **Memory Substrate** | *Where / in what form* is memory stored? | [2.1_memory-substrates.md](2.1_memory-substrates.md) |
-| **Cognitive Mechanism** | *What function* does memory serve in the pipeline? | [2.2_cognitive-mechanisms.md](2.2_cognitive-mechanisms.md) |
-| **Memory Subject** | *Whose information* is memory designed to capture? | [2.3_memory-subjects.md](2.3_memory-subjects.md) |
+| **记忆基底** | 记忆存储在 *何处 / 以何种形式*？ | [2.1_memory-substrates.md](2.1_memory-substrates.md) |
+| **认知机制** | 记忆在流水线中服务于 *何种功能*？ | [2.2_cognitive-mechanisms.md](2.2_cognitive-mechanisms.md) |
+| **记忆主体** | 记忆被设计来捕获 *谁的信息*？ | [2.3_memory-subjects.md](2.3_memory-subjects.md) |
 
 ---
 
-## Full Taxonomy Map (Figure 4 in paper)
+## 完整分类图谱（论文图 4）
 
 ```
-Foundation Agent Memory System
+基础智能体记忆系统
 │
-├── Memory Substrates (§3.1)
-│   ├── External Memory (§3.1.1)
-│   │   ├── Vector Index        — RAG-style, embedding similarity
-│   │   ├── Text-Record         — Human-readable summaries + episodic logs
-│   │   ├── Structural Store    — Relational tables, knowledge graphs, trees
-│   │   └── Hierarchical Store  — Multi-module (episodic + semantic + procedural + ...)
-│   └── Internal Memory (§3.1.2)
-│       ├── Weights             — Parametric knowledge (continual learning, model editing)
-│       ├── Latent-State        — Hidden activations, inference-time state
-│       └── KV Cache            — Per-layer attention keys/values
+├── 记忆基底（§3.1）
+│   ├── 外部记忆（§3.1.1）
+│   │   ├── 向量索引        —— RAG 风格，基于嵌入相似度
+│   │   ├── 文本记录         —— 人类可读摘要 + 情节日志
+│   │   ├── 结构化存储       —— 关系表、knowledge graph、树结构
+│   │   └── 层次化存储       —— 多模块（情节 + 语义 + 程序 + ...）
+│   └── 内部记忆（§3.1.2）
+│       ├── 权重             —— 参数化知识（持续学习、模型编辑）
+│       ├── 潜在状态         —— 隐藏激活值、推理时状态
+│       └── KV 缓存          —— 每层注意力的键/值
 │
-├── Cognitive Mechanisms (§3.2)
-│   ├── Short-Term
-│   │   ├── Sensory Memory (§3.2.1)  — Perceptual buffer, temporal gating
-│   │   └── Working Memory (§3.2.2)  — Active context, KV state management
-│   └── Long-Term
-│       ├── Episodic Memory (§3.2.3) — Episode recording, contextual retrieval
-│       ├── Semantic Memory (§3.2.4) — Knowledge graphs, facts, schemas
-│       └── Procedural Memory (§3.2.5)— Skills, workflows, action policies
+├── 认知机制（§3.2）
+│   ├── 短期
+│   │   ├── 感觉记忆（§3.2.1）—— 感知缓冲区、时序门控
+│   │   └── 工作记忆（§3.2.2）—— 主动上下文、KV 状态管理
+│   └── 长期
+│       ├── 情节记忆（§3.2.3）—— 情节录制、情境化检索
+│       ├── 语义记忆（§3.2.4）—— knowledge graph、事实、模式
+│       └── 程序记忆（§3.2.5）—— 技能、工作流、行动策略
 │
-└── Memory Subjects (§3.3)
-    ├── User-Centric (§3.3.1)   — Dialogue, personalization, preference
-    └── Agent-Centric (§3.3.2)  — Task trajectories, skills, domain knowledge
+└── 记忆主体（§3.3）
+    ├── 以用户为中心（§3.3.1）—— 对话、个性化、偏好
+    └── 以智能体为中心（§3.3.2）—— 任务轨迹、技能、领域知识
 ```
 
 ---
 
-## Representative Works by Category
+## 各类别代表性工作
 
-| Category | Key Systems |
+| 类别 | 关键系统 |
 |---|---|
-| External Memory | S3, Memolet, MemTree, R3Mem, SeCom, Egolife |
-| Internal Memory | vLLMPA, ChemDFM, MemoryLLM, MAC, WISE, Titans, LMLM |
-| Sensory | UBSLLM, LightMem, M2PA, HMT, VIPeR |
-| Working | RAP, FOT, ATFS, MemReasoner, ChunkKV, LM2, ACON |
-| Episodic | Synapse, AgentCF, WarAgent, COMEDY, MemoryOS, Nemori |
-| Semantic | ChatDB, FinMem, QuantAgent, Meminsight, CAM, MoM |
-| Procedural | MetaGPT, G-Memory, MIRIX, Memp, ReasoningBank, BREW |
-| User-Centric | RoleLLM, MAUMB, MemoCRS, RET-LLM, Zep, A-Mem, Echo |
-| Agent-Centric | JARVIS-1, BoT, AWM, HippoRAG2, Cognee, Branch-and-Browse |
+| 外部记忆 | S3、Memolet、MemTree、R3Mem、SeCom、Egolife |
+| 内部记忆 | vLLMPA、ChemDFM、MemoryLLM、MAC、WISE、Titans、LMLM |
+| 感觉记忆 | UBSLLM、LightMem、M2PA、HMT、VIPeR |
+| 工作记忆 | RAP、FOT、ATFS、MemReasoner、ChunkKV、LM2、ACON |
+| 情节记忆 | Synapse、AgentCF、WarAgent、COMEDY、MemoryOS、Nemori |
+| 语义记忆 | ChatDB、FinMem、QuantAgent、Meminsight、CAM、MoM |
+| 程序记忆 | MetaGPT、G-Memory、MIRIX、Memp、ReasoningBank、BREW |
+| 以用户为中心 | RoleLLM、MAUMB、MemoCRS、RET-LLM、Zep、A-Mem、Echo |
+| 以智能体为中心 | JARVIS-1、BoT、AWM、HippoRAG2、Cognee、Branch-and-Browse |
 
 ---
 
-## Cross-Dimension Interactions
+## 跨维度交叉关系
 
-These three dimensions are **orthogonal but interact**:
+这三个维度 **相互正交，但彼此交互**：
 
-- A **vector store** (substrate: external) can hold **episodic memories** (mechanism) for a **user** (subject)
-- **Model weights** (substrate: internal) encode **semantic knowledge** (mechanism) used for **agent reasoning** (subject)
-- **KV cache** (substrate: internal, latent) supports **working memory** (mechanism) during **single-agent task** execution
+- **向量存储**（基底：外部）可以为**用户**（主体）存储**情节记忆**（机制）
+- **模型权重**（基底：内部）编码供**智能体推理**（主体）使用的**语义知识**（机制）
+- **KV 缓存**（基底：内部潜态）在**单智能体任务**执行（主体）期间支持**工作记忆**（机制）
 
 ---
 
-## Tradeoffs Across Substrates (§3.1.3)
+## 各基底的权衡对比（§3.1.3）
 
-| Substrate | Speed | Scalability | Updatability | Best For |
+| 基底 | 速度 | 可扩展性 | 可更新性 | 最适合 |
 |---|---|---|---|---|
-| Parametric (Weights) | Fast recall | Fixed size | Expensive retraining | Stable, general knowledge |
-| Latent State (hidden/KV) | Very fast | Limited (linear w/ seq length) | Ephemeral | Within-session state |
-| External (vector/text/graph) | Slower (retrieval latency) | Highly scalable | Easy edit/update | Long-term experience |
+| 参数化（权重） | 快 | 固定大小 | 昂贵（需重新训练） | 稳定的通用知识 |
+| 潜态（隐藏/KV） | 非常快 | 有限（随序列长度线性增长） | 短暂（重置即失） | 会话内状态 |
+| 外部（向量/文本/图） | 较慢（检索延迟） | 高度可扩展 | 易于编辑/更新 | 长期经验存储 |
 
-> **No single substrate dominates.** Effective systems adopt **hybrid architectures**: parametric for general knowledge, latent for fast short-term reasoning, external for scalable experience storage.
+> **没有任何单一基底能占据绝对优势。** 有效系统采用**混合架构**：参数化记忆用于通用知识，潜态记忆用于快速短期推理，外部记忆用于可扩展的经验存储。

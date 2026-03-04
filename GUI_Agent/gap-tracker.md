@@ -29,10 +29,10 @@
   - 论文 Section 4："Given the diversity of currently available applications and websites, it is impractical to collect a large amount of data for training in every unfamiliar GUI environment."
   - [comparison-matrix.md](comparison-matrix.md) 观察 2：AppAgent/MobileGPT/AutoDroid 的知识均不可跨 App 迁移
 - **潜在研究方向**：
-  - 构建跨 App 的通用 GUI 元素知识图谱（"返回按钮通常在左上角"类型的通用规律）
+  - 构建跨 App 的通用 GUI 元素knowledge graph（"返回按钮通常在左上角"类型的通用规律）
   - 使用 Self-Evolving 机制：探索多个 App 后，提炼通用 GUI 操作规律（类比 [Self_Evolve/](../Self_Evolve/) 中的知识泛化）
 - **可行性评估**：中（需要大规模跨 App 探索数据 + 知识提炼机制设计）
-- **所需资源**：多 App 探索数据集、知识图谱构建工具
+- **所需资源**：多 App 探索数据集、knowledge graph构建工具
 
 ---
 

@@ -1,127 +1,127 @@
-# Survey Overview
+# 综述概览
 
-## Paper Info
+## 论文基本信息
 
-| Field | Detail |
+| 字段 | 详情 |
 |---|---|
-| **Title** | Rethinking Memory Mechanisms of Foundation Agents in the Second Half: A Survey |
-| **arXiv** | 2502.06250 (Feb 10, 2026) |
+| **标题** | 重新思考基础智能体在下半场的记忆机制：一项综述 |
+| **arXiv** | 2502.06250（2026 年 2 月 10 日） |
 | **GitHub** | [AgentMemoryWorld/Awesome-Agent-Memory](https://github.com/AgentMemoryWorld/Awesome-Agent-Memory) |
-| **Scope** | 218 papers, 2023 Q1 – 2025 Q4 |
-| **Core Institutions** | UIC, UIUC, Stanford, UCLA, Google, Salesforce, Meta, Roblox, Cisco |
-| **Key Authors** | Weizhi Zhang (project organizer), Philip S. Yu & Kai Shu (supervisors) |
+| **覆盖范围** | 218 篇论文，2023 Q1 – 2025 Q4 |
+| **核心机构** | UIC、UIUC、Stanford、UCLA、Google、Salesforce、Meta、Roblox、Cisco |
+| **主要作者** | Weizhi Zhang（项目负责人），Philip S. Yu & Kai Shu（导师） |
 
 ---
 
-## Abstract (condensed)
+## 摘要（精简版）
 
-AI is entering the **"second half"** — shifting from benchmark scores to real-world utility. The central challenge: agents operating in **long-horizon, dynamic, and user-dependent environments** face **context explosion** and must continuously accumulate, manage, and selectively reuse large volumes of information.
+AI 正步入 **"下半场"** —— 从追求基准分数转向现实世界的实用价值。核心挑战：在 **长时域、动态且高度用户依赖** 的环境中运行的智能体，面临 **上下文爆炸** 问题，必须持续积累、管理并有选择地复用大量信息。
 
-Memory, with hundreds of papers released in 2025 alone, emerges as the critical solution.
+记忆，仅 2025 年就有数百篇相关论文发表，已成为关键解决方案。
 
-This survey provides a **unified view of foundation agent memory** along three dimensions:
-1. **Memory substrate** — internal vs. external
-2. **Cognitive mechanism** — episodic, semantic, sensory, working, procedural
-3. **Memory subject** — agent-centric vs. user-centric
-
----
-
-## The "Second Half" Framing
-
-### First Half (2017–2023)
-- Focus: architecture innovation, benchmark scores, scaling
-- Recipe: massive pre-training + post-training alignment
-- Result: LLMs/agents hit 90%+ on MMLU, MATH, etc.
-
-### Second Half (2024–now)
-- Focus: **real-world utility**, long-horizon reliability, user personalization
-- Challenge: context windows explode; static memory insufficient
-- Critical capability: **accumulate, retain, selectively reuse** across extended interactions
-
-> "In the first half, progress was driven by training methods, scaling, and model architectures. In the second half, the focus shifts from improving training recipes to solving the critical utility problem in reality."
+本综述从三个维度提供了 **基础智能体记忆的统一视角**：
+1. **记忆基底** —— 内部 vs 外部
+2. **认知机制** —— 情节、语义、感觉、工作、程序
+3. **记忆主体** —— 以智能体为中心 vs 以用户为中心
 
 ---
 
-## Core Thesis
+## "下半场"框架
 
-Real-world agents operate in environments where context grows along **three scaling axes**:
-1. **Interaction horizon** — multi-session, multi-month tasks
-2. **Environmental complexity** — heterogeneous data, tool states, structured artifacts
-3. **System quantity** — multiple agents + human collaborators
+### 上半场（2017–2023）
+- 关注点：架构创新、基准分数、规模扩展
+- 路径：大规模预训练 + 后训练对齐
+- 成果：LLM/智能体在 MMLU、MATH 等测试上达到 90% 以上
 
-Memory architecture must evolve from:
-- Static, predefined, simple → Self-adaptive, self-evolving, flexible
-- Intelligently store, load, summarize, forget, and refine
+### 下半场（2024–至今）
+- 关注点：**现实世界实用性**、长时域可靠性、用户个性化
+- 挑战：context window爆炸；静态记忆已不足够
+- 关键能力：在长期交互中 **积累、保留、有选择地复用**
+
+> "上半场的进步由训练方法、规模扩展和模型架构驱动。下半场的焦点从改进训练方案转向解决现实中的关键实用性问题。"
 
 ---
 
-## Three-Dimensional Taxonomy
+## 核心论点
+
+现实世界的智能体在环境中运行，上下文沿 **三个规模轴** 持续增长：
+1. **交互时域** —— 多会话、跨月的任务
+2. **环境复杂度** —— 异构数据、工具状态、结构化制品
+3. **系统规模** —— 多智能体 + 人类协作者
+
+记忆架构必须从以下方向演进：
+- 静态、预定义、简单 → 自适应、自演化、灵活
+- 智能地存储、加载、摘要、遗忘和精炼
+
+---
+
+## 三维分类体系
 
 ```
-                    Foundation Agent Memory System
-                              │
-     ┌────────────────────────┼────────────────────────┐
-     │                        │                        │
-Memory Substrate       Cognitive Mechanism        Memory Subject
-(WHERE/HOW stored)     (WHAT FUNCTION)            (WHO it serves)
-     │                        │                        │
-External    Internal    Short-term  Long-term    User    Agent
-  ↓ ↓ ↓       ↓ ↓ ↓      ↓    ↓    ↓  ↓  ↓    Centric  Centric
-Vector   Weights    Sensory Working  Epi Sem Pro
-Text     Latent
-Struct   KV Cache
-Hierch
+                基础智能体记忆系统
+                          │
+     ┌────────────────────┼────────────────────┐
+     │                    │                    │
+  记忆基底            认知机制              记忆主体
+（WHERE/HOW 存储）  （WHAT FUNCTION）      （WHO 服务对象）
+     │                    │                    │
+外部      内部       短期    长期         用户    智能体
+↓ ↓ ↓     ↓ ↓ ↓    ↓    ↓   ↓  ↓  ↓   为中心  为中心
+向量   权重    感觉  工作   情节 语义 程序
+文本   潜态
+结构   KV缓存
+层次
 ```
 
-→ See [02_taxonomy/README.md](02_taxonomy/README.md) for full detail.
+→ 详见 [02_taxonomy/README.md](02_taxonomy/README.md)
 
 ---
 
-## Paper Structure Map
+## 论文结构映射
 
-| Section | Title | Pages | Notes File |
+| 章节 | 标题 | 页码 | 笔记文件 |
 |---|---|---|---|
-| 1 | Introduction | 3–5 | This file |
-| 2 | Background | 5–8 | [01_background.md](01_background.md) |
-| 3 | Taxonomy | 8–20 | [02_taxonomy/](02_taxonomy/) |
-| 4 | Memory Operation Mechanism | 20–26 | [03_operations/](03_operations/) |
-| 5 | Memory Learning Policy | 26–30 | [04_learning-policy.md](04_learning-policy.md) |
-| 6 | Scaling | 30–33 | [05_scaling.md](05_scaling.md) |
-| 7 | Evaluation | 33–39 | [06_evaluation.md](06_evaluation.md) |
-| 8 | Applications | 39–44 | [07_applications.md](07_applications.md) |
-| 9 | Future Directions | 44–48 | [08_future-directions.md](08_future-directions.md) |
-| 10 | Conclusions | 48 | (summarized below) |
+| 1 | 引言 | 3–5 | 本文件 |
+| 2 | 背景 | 5–8 | [01_background.md](01_background.md) |
+| 3 | 分类体系 | 8–20 | [02_taxonomy/](02_taxonomy/) |
+| 4 | 记忆操作机制 | 20–26 | [03_operations/](03_operations/) |
+| 5 | 记忆学习策略 | 26–30 | [04_learning-policy.md](04_learning-policy.md) |
+| 6 | 规模扩展 | 30–33 | [05_scaling.md](05_scaling.md) |
+| 7 | 评估 | 33–39 | [06_evaluation.md](06_evaluation.md) |
+| 8 | 应用 | 39–44 | [07_applications.md](07_applications.md) |
+| 9 | 未来方向 | 44–48 | [08_future-directions.md](08_future-directions.md) |
+| 10 | 结论 | 48 | （见下方摘要） |
 
 ---
 
-## Conclusions (Section 10)
+## 结论（第 10 节）
 
-Memory is becoming the **key component** for foundation agents in long-horizon, context-exploded, user-dependent environments. The survey:
-- Unifies design along 3 dimensions (substrate, mechanism, subject)
-- Analyzes operation under single/multi-agent topologies
-- Shows the growing role of prompting/SFT/RL-based learning policies
-- Summarizes metrics and benchmarks
-- Lists **6 key future challenges** for reliable, scalable, self-evolving, trustworthy memory
-
----
-
-## Publication Trends
-
-- Research volume: **exponential acceleration** through 2025
-- 2025 Q4 saw a dramatic peak
-- Distribution across three dimensions:
-  - **Substrate**: External memory dominates
-  - **Cognitive**: Episodic and semantic most common
-  - **Subject**: Both user-centric and agent-centric growing rapidly
+记忆正成为基础智能体在长时域、上下文爆炸、用户依赖环境中的 **关键组件**。本综述：
+- 从 3 个维度统一了设计框架（基底、机制、主体）
+- 分析了单/多智能体拓扑下的操作方式
+- 展示了基于提示/SFT/RL 的学习策略的日益重要性
+- 总结了评估指标和benchmark
+- 列出了可靠、可扩展、自演化、可信赖记忆的 **6 个关键未来挑战**
 
 ---
 
-## Related Surveys (context)
+## 发表趋势
 
-| Survey | Focus | Gaps addressed by this paper |
+- 研究量：2025 年呈现**指数级加速**
+- 2025 年 Q4 出现显著峰值
+- 三个维度的分布情况：
+  - **基底**：外部记忆占主导
+  - **认知**：情节记忆和语义记忆最为常见
+  - **主体**：以用户为中心和以智能体为中心均快速增长
+
+---
+
+## 相关综述（背景对比）
+
+| 综述 | 关注点 | 本文补充的内容 |
 |---|---|---|
-| Zhang et al. (2025o) | Memory management strategies | No substrate or subject distinction |
-| Du et al. (2025) | Task applications | No substrate or subject distinction |
-| Wu et al. (2025g) | Neuroscience-inspired | Doesn't model memory subject |
-| Liang et al. (2025) | Memory lifecycle | Doesn't model memory subject |
-| Hu et al. (2025d) | Forms/functions/temporal | Focuses on agent-centric only, misses user-centric |
+| Zhang et al. (2025o) | 记忆管理策略 | 未区分基底或主体 |
+| Du et al. (2025) | 任务应用 | 未区分基底或主体 |
+| Wu et al. (2025g) | 神经科学启发 | 未建模记忆主体 |
+| Liang et al. (2025) | 记忆生命周期 | 未建模记忆主体 |
+| Hu et al. (2025d) | 形式/功能/时序 | 仅关注以智能体为中心，忽略以用户为中心 |

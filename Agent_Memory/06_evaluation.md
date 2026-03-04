@@ -1,170 +1,170 @@
-# Evaluation: Metrics and Benchmarks
+# 评估：指标与基准
 
-> Paper Section 7 (pages 33–39)
+> 论文第 7 节（第 33–39 页）
 
-> "Evaluating foundation agent memory is fundamentally about measuring whether stored information and experience are accurate, useful, reliable, and efficiently accessible under long-horizon interactions."
-
----
-
-## 7.1 Metrics
-
-Three categories of metrics used in memory evaluation:
-
-### Accuracy-Based Metrics
-
-For tasks with clear objective outcomes:
-
-| Metric | Use Case | Notes |
-|---|---|---|
-| **Accuracy / Memory Accuracy** | Long-history QA, factual recall | Direct alignment with ground truth |
-| **F1** | When responses have variance | Partial overlap at token level |
-| **Recall@K** | Explicit memory module evaluation | Did the system retrieve at least one relevant item in top-K? |
-| **MAP** (Mean Average Precision) | Ranked retrieval quality | Considers both relevance and ranking |
-| **NDCG@K** | Ranked retrieval quality | Discounted gain — rewards relevant items appearing earlier |
-| **Success Rate (SR)** | Interactive agents | Did the agent finish the task end-to-end? |
-| **Goal Completion (GC)** | Interactive agents | Environment-defined success |
-| **Pass@K** | Code / tool-use settings | At least one of top-K attempts solves the task |
-| **Resolved Rate (RR)** | SW engineering (SWE-bench) | Issue resolution rate |
-| **Memory Integrity** | Memory-centric benchmarks | Do extracted memories cover required memory points? |
-| **False Memory Rate** | Memory hallucination | How often does the system introduce fabricated or incorrect memories? |
-
-### Similarity-Based Metrics
-
-For dialogue generation and summarization where exact correctness doesn't apply:
-
-| Metric | What It Measures | Limitation |
-|---|---|---|
-| **BLEU** | Lexical overlap with reference | Can underestimate valid paraphrases |
-| **ROUGE / ROUGE-L** | Lexical overlap | Can overestimate fluent but ungrounded responses |
-| **Distinct-n** | Lexical diversity | Discourages repetitive generation |
-| **BERTScore** | Embedding-based semantic similarity | Better for paraphrases than BLEU/ROUGE |
-| **FactScore** | Atomic factual claim agreement | Good for summarization as compression mechanism |
-| **Perplexity** | Likelihood-based generation quality | Indirect; doesn't verify historical grounding |
-
-### LLM-as-a-Judge Metrics
-
-For open-ended outputs where reference answers are insufficient:
-- Score response correctness or preference adherence using LLM evaluator
-- Examples: LongMemEval, PrefEval, MemoryBench, ConvoMem
-- **Advantage**: Expands coverage to realistic assistant behavior
-- **Risk**: Sensitive to evaluator model choice and rubric design
+> "评估基础智能体记忆，从根本上是衡量所存储的信息和经验在长时域交互下是否准确、有用、可靠且可被高效访问。"
 
 ---
 
-## Core Memory Abilities Being Evaluated
+## 7.1 评估指标
 
-Six core memory abilities tracked across benchmarks (Table 3 in paper):
+记忆评估中使用的三类指标：
 
-| Ability | Abbreviation | Description |
+### 基于准确性的指标
+
+适用于有明确客观结果的任务：
+
+| 指标 | 应用场景 | 备注 |
 |---|---|---|
-| **Memory Extraction** | ME | Correctly extract facts from interaction history |
-| **Memory Retrieval** | MR | Find relevant memories at query time |
-| **Memory Update** | MU | Correctly update memory when information changes |
-| **Abstention Behavior** | AB | Know when to abstain under missing evidence |
-| **Compression** | CS | Efficiently compress memory |
-| **Forgetting / Retention** | FR | Selectively forget while preserving important items |
+| **准确率 / 记忆准确率** | 长历史 QA、事实回忆 | 与真实值直接对齐 |
+| **F1** | 响应存在差异时 | token 级别的部分重叠 |
+| **Recall@K** | 显式记忆模块评估 | 系统是否在 top-K 中检索到至少一个相关条目？ |
+| **MAP**（平均精度均值） | 排序检索质量 | 同时考虑相关性和排名 |
+| **NDCG@K** | 排序检索质量 | 折扣增益 —— 奖励相关条目靠前出现 |
+| **成功率（SR）** | 交互式智能体 | 智能体是否端到端完成任务？ |
+| **目标完成度（GC）** | 交互式智能体 | 环境定义的成功 |
+| **Pass@K** | 代码/工具使用场景 | top-K 次尝试中至少一次解决任务 |
+| **解决率（RR）** | 软件工程（SWE-bench） | 问题解决率 |
+| **记忆完整性** | 以记忆为中心的基准 | 提取的记忆是否覆盖了所需的记忆点？ |
+| **虚假记忆率** | 记忆幻觉 | 系统引入捏造或错误记忆的频率 |
 
-**Evaluation gaps**:
-- CS and FR are **comparatively under-evaluated** in current benchmark designs
-- AB is inconsistently required — few benchmarks reward abstention under missing evidence
-- Most benchmarks reduce evaluation to ME and MR
+### 基于相似度的指标
+
+适用于对话生成和摘要提炼（精确正确性不适用）：
+
+| 指标 | 衡量内容 | 局限性 |
+|---|---|---|
+| **BLEU** | 与参考的词汇重叠 | 可能低估有效的改写 |
+| **ROUGE / ROUGE-L** | 词汇重叠 | 可能高估流畅但缺乏依据的响应 |
+| **Distinct-n** | 词汇多样性 | 不鼓励重复生成 |
+| **BERTScore** | 基于嵌入的语义相似度 | 对改写的评估优于 BLEU/ROUGE |
+| **FactScore** | 原子事实声明的一致性 | 适合作为压缩机制的摘要评估 |
+| **困惑度** | 基于似然的生成质量 | 间接衡量；不验证历史依据 |
+
+### LLM 作为评判者的指标
+
+适用于参考答案不充分的开放性输出：
+- 使用 LLM 评估器对响应正确性或偏好遵从度打分
+- 示例：LongMemEval、PrefEval、MemoryBench、ConvoMem
+- **优势**：扩展了对真实助手行为的覆盖
+- **风险**：对评估模型选择和评分标准设计敏感
 
 ---
 
-## 7.2 User-Centric Benchmarks
+## 核心记忆能力评估
 
-Evaluate memory from the **user's perspective** — personalization, dialogue consistency, preference following.
+benchmark中追踪的六项核心记忆能力（论文表 3）：
 
-| Benchmark | Focus | Metrics | Notes |
+| 能力 | 缩写 | 描述 |
+|---|---|---|
+| **记忆提取** | ME | 从交互历史中正确提取事实 |
+| **记忆检索** | MR | 在查询时找到相关记忆 |
+| **记忆更新** | MU | 信息变化时正确更新记忆 |
+| **弃权行为** | AB | 在证据缺失时知道何时应弃权 |
+| **压缩** | CS | 高效压缩记忆 |
+| **遗忘/保留** | FR | 选择性遗忘同时保留重要条目 |
+
+**评估差距**：
+- CS 和 FR 在现有基准设计中**相对被低估**
+- AB 要求不一致 —— 很少有基准奖励在证据缺失时的弃权行为
+- 大多数基准将评估简化为 ME 和 MR
+
+---
+
+## 7.2 以用户为中心的基准
+
+从**用户视角**评估记忆 —— 个性化、对话一致性、偏好遵从。
+
+| 基准 | 关注点 | 指标 | 备注 |
 |---|---|---|---|
-| **DuLeMon** (Xu et al., 2022b) | Long-term dialogue memory | Accuracy, Similarity | User consistency over sessions |
-| **MemoryBank** (Zhong et al., 2024) | Explicit memory records + operations | Memory accuracy, operation-level search | Searchable memory evaluation |
-| **PerLTQA** (Du et al., 2024) | Personal long-term memory QA | Accuracy, F1, Recall@K | Multi-type user memory QA |
-| **LoCoMo** (Maharana et al., 2024) | Long-form conversation memory | Accuracy, F1, BERTScore | Multi-session, multi-type questions |
-| **DialSim** (Kim et al., 2024a) | Dialog-based memory simulation | Accuracy | Simulated long-term dialogue |
-| **LongMemEval** (Wu et al., 2025b) | Long-term memory evaluation | Accuracy, Recall@K, LLM-judge | Explicit question-type categorization by memory ability |
-| **HaluMem** (Chen et al., 2025a) | Memory hallucination detection | Memory Accuracy, Integrity, False Memory Rate | Only benchmark explicitly tracking false memory rate |
-| **PersonaMem** (Jiang et al., 2025a) | Persona-based memory | Accuracy, F1 | Persona consistency across sessions |
-| **MemoryBench** (Ai et al., 2025) | Memory capacity + efficiency | Similarity, LLM-judge | Capacity/cost trade-offs |
-| **MemoryAgentBench** (Hu et al., 2025c) | Comprehensive agent memory | Accuracy, Similarity, LLM-judge | Combines multiple memory abilities |
-| **PrefEval** (Zhao et al., 2025c) | Preference following in memory | LLM-judge | User preference adherence |
-| **Mem-Gallery** (Bei et al., 2026) | Memory gallery evaluation | Accuracy | Cross-type memory assessment |
-| **LOCCO** (Jia et al., 2025b) | Memory retention evaluation | Memory Retention Score (MRS) | Explicit retention measurement |
-| **MemBench** (Tan et al., 2025a) | Memory capacity + efficiency | Capacity, Efficiency | Cost/performance tradeoffs |
-| **ConvoMem** (Pakhomov et al., 2025) | Conversational memory | LLM-judge | Long-form conversation evaluation |
-| **MADial-Bench** (He et al., 2025a) | Multi-aspect dialogue | Similarity | Diversity in evaluation |
+| **DuLeMon** (Xu et al., 2022b) | 长期对话记忆 | 准确率、相似度 | 跨会话用户一致性 |
+| **MemoryBank** (Zhong et al., 2024) | 显式记忆记录 + 操作 | 记忆准确率、操作级搜索 | 可搜索记忆评估 |
+| **PerLTQA** (Du et al., 2024) | 个人长期记忆 QA | 准确率、F1、Recall@K | 多类型用户记忆 QA |
+| **LoCoMo** (Maharana et al., 2024) | 长对话记忆 | 准确率、F1、BERTScore | 多会话、多类型问题 |
+| **DialSim** (Kim et al., 2024a) | 对话记忆模拟 | 准确率 | 模拟长期对话 |
+| **LongMemEval** (Wu et al., 2025b) | 长期记忆评估 | 准确率、Recall@K、LLM 评判 | 按记忆能力显式分类问题 |
+| **HaluMem** (Chen et al., 2025a) | 记忆幻觉检测 | 记忆准确率、完整性、虚假记忆率 | 唯一显式追踪虚假记忆率的基准 |
+| **PersonaMem** (Jiang et al., 2025a) | 基于人格的记忆 | 准确率、F1 | 跨会话人格一致性 |
+| **MemoryBench** (Ai et al., 2025) | 记忆容量 + 效率 | 相似度、LLM 评判 | 容量/成本权衡 |
+| **MemoryAgentBench** (Hu et al., 2025c) | 综合智能体记忆 | 准确率、相似度、LLM 评判 | 综合多种记忆能力 |
+| **PrefEval** (Zhao et al., 2025c) | 记忆中的偏好遵从 | LLM 评判 | 用户偏好遵从度 |
+| **Mem-Gallery** (Bei et al., 2026) | 记忆画廊评估 | 准确率 | 跨类型记忆评估 |
+| **LOCCO** (Jia et al., 2025b) | 记忆保留评估 | 记忆保留得分（MRS） | 显式保留度量 |
+| **MemBench** (Tan et al., 2025a) | 记忆容量 + 效率 | 容量、效率 | 成本/性能权衡 |
+| **ConvoMem** (Pakhomov et al., 2025) | 对话记忆 | LLM 评判 | 长对话评估 |
+| **MADial-Bench** (He et al., 2025a) | 多维度对话 | 相似度 | 评估多样性 |
 
 ---
 
-## 7.2.2 Agent-Centric Benchmarks
+## 7.2.2 以智能体为中心的基准
 
-Evaluate foundation models as **semi-autonomous agents** executing multi-step actions in an environment.
+将基础模型评估为在环境中执行**多步动作的半自主智能体**。
 
-**Key principle**: Correctness defined by environment state — not user preference. Same task, same success signal across different users.
+**关键原则**：正确性由环境状态定义 —— 不依赖用户偏好。相同任务、相同成功信号，跨不同用户一致。
 
-### Benchmark Annotation Tags
+### 基准标注标签
 
-| Tag | Meaning |
+| 标签 | 含义 |
 |---|---|
-| TEMP | Temporal/sequence reasoning over event order and time dependencies |
-| STATE | Tracking and updating environment/task state across multi-step interaction |
-| GROUND | Grounding natural-language instructions into concrete environment targets/actions |
-| PLAN | Planning and re-planning multi-step actions toward a goal |
-| TOOL | Selecting and correctly invoking tools/APIs |
-| MHOP | Multi-hop reasoning composing multiple evidence pieces |
-| DIAL | Goal-directed dialogue management (clarification, consistency across turns) |
-| ACT | Executing correct environment actions (click/type/select) |
-| TTL | Test-time learning: improve later performance by accumulating experience without parameter updates |
+| TEMP | 对事件顺序和时间依赖的时序/序列推理 |
+| STATE | 在多步交互中追踪和更新环境/任务状态 |
+| GROUND | 将自然语言指令落地为具体环境目标/动作 |
+| PLAN | 规划和重新规划多步行动以达成目标 |
+| TOOL | 选择并正确调用工具/API |
+| MHOP | 组合多个证据片段的多跳推理 |
+| DIAL | 目标导向的对话管理（澄清、跨轮一致性） |
+| ACT | 执行正确的环境动作（点击/输入/选择） |
+| TTL | 测试时学习：无参数更新地通过积累经验提升后续性能 |
 
-### Key Agent-Centric Benchmarks
+### 关键以智能体为中心的基准
 
-| Benchmark | #Data | Environment | Core Abilities | Evaluation |
+| 基准 | 数据量 | 环境 | 核心能力 | 评估指标 |
 |---|---|---|---|---|
-| **HotpotQA** | 113K | TEXT | MHOP, STATE | Accuracy, F1 |
-| **2WikiMultiHopQA** | 193K | TEXT | MHOP, STATE | Accuracy, F1 |
-| **MuSiQue** | 25K | TEXT | MHOP, STATE | F1 |
-| **HLE** | 2.5K | TEXT | MHOP, STATE | Accuracy, RMSE |
-| **BrowseComp** | 1,266 | WEB | PLAN, TOOL, MHOP, STATE | Accuracy, PR |
-| **Mind2Web** | 2.35K | WEB (GUI) | GROUND, PLAN, STATE | Accuracy, F1, SR |
-| **WebArena** | 812 | WEB (GUI, SIM) | GROUND, PLAN, STATE | SR |
-| **WebShop** | 12.1K | WEB (GUI, MIX) | GROUND, PLAN, STATE | TaskScore, SR |
-| **GAIA** | 466 | WEB | TOOL, MHOP, PLAN, STATE | Accuracy, SR |
-| **OSWorld** | 369 | OS (GUI, MM) | GROUND, PLAN, STATE | SR |
-| **AppWorld** | 750 | APP (API, MT) | TOOL, CODEGEN, PLAN, STATE | SR |
-| **τ-Bench** | 165 | APP (API, MT) | TOOL, PLAN, STATE, DIAL | Pass^1, Pass^k |
-| **HumanEval** | 164 | CODE | CODEGEN, DEBUG | Pass@1 |
-| **SWE-Bench** | 2.3K | CODE | PATCH, DEBUG, STATE | RR |
-| **ALFRED** | 25.7K | ROBOT (ACT, MM) | GROUND, PLAN, STATE | SR, GC |
-| **ALFWorld** | 3.8K | ROBOT (ACT, MT) | PLAN, STATE, GROUND | SR |
-| **MineDojo** | 3.1K | GAME (ACT, MM) | PLAN, STATE, GROUND | SR |
-| **EgoSchema** | 5,031 | VIDEO | TEMP | Accuracy |
-| **MT-Mind2Web** | 720 | WEB (GUI, MT) | GROUND, PLAN, STATE, DIAL | Accuracy, F1, SR |
-| **Evo-Memory** | ~3,700 | TEXT | TTL, PLAN, STATE | Accuracy, SR |
-| **LifelongAgentBench** | 1,396 | APP/OS | TTL, TOOL, PLAN, STATE | SR |
-| **OdysseyBench** | 602 | APP (GUI, MT) | PLAN, TOOL, STATE, TEMP | PR |
+| **HotpotQA** | 113K | 文本 | MHOP, STATE | 准确率, F1 |
+| **2WikiMultiHopQA** | 193K | 文本 | MHOP, STATE | 准确率, F1 |
+| **MuSiQue** | 25K | 文本 | MHOP, STATE | F1 |
+| **HLE** | 2.5K | 文本 | MHOP, STATE | 准确率, RMSE |
+| **BrowseComp** | 1,266 | 网页 | PLAN, TOOL, MHOP, STATE | 准确率, PR |
+| **Mind2Web** | 2.35K | 网页（GUI） | GROUND, PLAN, STATE | 准确率, F1, SR |
+| **WebArena** | 812 | 网页（GUI, SIM） | GROUND, PLAN, STATE | SR |
+| **WebShop** | 12.1K | 网页（GUI, MIX） | GROUND, PLAN, STATE | TaskScore, SR |
+| **GAIA** | 466 | 网页 | TOOL, MHOP, PLAN, STATE | 准确率, SR |
+| **OSWorld** | 369 | OS（GUI, MM） | GROUND, PLAN, STATE | SR |
+| **AppWorld** | 750 | App（API, MT） | TOOL, CODEGEN, PLAN, STATE | SR |
+| **τ-Bench** | 165 | App（API, MT） | TOOL, PLAN, STATE, DIAL | Pass^1, Pass^k |
+| **HumanEval** | 164 | 代码 | CODEGEN, DEBUG | Pass@1 |
+| **SWE-Bench** | 2.3K | 代码 | PATCH, DEBUG, STATE | RR |
+| **ALFRED** | 25.7K | 机器人（ACT, MM） | GROUND, PLAN, STATE | SR, GC |
+| **ALFWorld** | 3.8K | 机器人（ACT, MT） | PLAN, STATE, GROUND | SR |
+| **MineDojo** | 3.1K | 游戏（ACT, MM） | PLAN, STATE, GROUND | SR |
+| **EgoSchema** | 5,031 | 视频 | TEMP | 准确率 |
+| **MT-Mind2Web** | 720 | 网页（GUI, MT） | GROUND, PLAN, STATE, DIAL | 准确率, F1, SR |
+| **Evo-Memory** | ~3,700 | 文本 | TTL, PLAN, STATE | 准确率, SR |
+| **LifelongAgentBench** | 1,396 | App/OS | TTL, TOOL, PLAN, STATE | SR |
+| **OdysseyBench** | 602 | App（GUI, MT） | PLAN, TOOL, STATE, TEMP | PR |
 
 ---
 
-## Evaluation Gaps and Future Needs
+## 评估差距与未来需求
 
-### Current Gaps
+### 现有差距
 
-1. **Most benchmarks reduce evaluation to final answer accuracy** — doesn't attribute success/failure to memory mechanism
-2. **CS (Compression) and FR (Forgetting/Retention)** are rarely explicitly evaluated
-3. **AB (Abstention Behavior)** inconsistently required — hallucination-safe memory behavior undervalued
-4. **Benchmark time horizons** are too short — few test cross-session or multi-month interactions
+1. **大多数基准将评估简化为最终答案准确率** —— 无法将成功/失败归因于记忆机制
+2. **CS（压缩）和 FR（遗忘/保留）** 很少被显式评估
+3. **AB（弃权行为）** 要求不一致 —— 防幻觉的记忆行为被低估
+4. **基准时间视野太短** —— 很少测试跨会话或跨月交互
 
-### What Next-Generation Benchmarks Need
+### 下一代基准需要什么
 
-Two critical additional dimensions for memory-centric analysis:
+以记忆为中心的分析需要额外的两个关键维度：
 
-1. **Dependency distance**: How far apart is the required information from its later use? (within-turn, cross-turn, cross-session)
-2. **Memory correctness under interaction**: Do stored items remain faithful, non-contradictory, and policy-consistent as the environment evolves?
+1. **依赖距离**：所需信息距其后续使用有多远？（轮内、跨轮、跨会话）
+2. **交互中的记忆正确性**：随着环境演化，存储的条目是否保持准确、无矛盾且策略一致？
 
-**Recommended memory-sensitive measurements**:
-- Retrieval faithfulness and coverage for required facts/tool outputs
-- Error modes in state tracking (drift, omission, contradiction)
-- Persistence under interruptions (resume after long gaps)
-- Efficiency trade-offs (memory size, update frequency, retrieval cost)
+**推荐的记忆敏感测量方式**：
+- 必需事实/工具输出的检索忠实度和覆盖率
+- 状态追踪的错误模式（漂移、遗漏、矛盾）
+- 中断后的持久性（长时间间隔后恢复）
+- 效率权衡（记忆大小、更新频率、检索成本）
 
-→ See [08_future-directions.md §6: Real-World Benchmarking](08_future-directions.md#6-real-world-benchmarking-and-evaluations) for detailed research agenda.
+→ 见 [08_future-directions.md §6：现实世界基准与评估](08_future-directions.md#6-现实世界基准与评估) 的详细研究议程。

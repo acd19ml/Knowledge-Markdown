@@ -1,161 +1,161 @@
-# Benchmarks and Open Source Libraries
+# 基准与开源库
 
-> Paper Sections VIII–IX (pages 13–18) | Tables IV–V in paper
-
----
-
-## Overview
-
-The paper categorizes benchmarks into two dimensions:
-
-1. **Intrinsic Capability Benchmarks** — assess base model reasoning/coding proficiency → primarily for evaluating **Model-Centric** methods
-2. **Agentic Reasoning Capabilities Benchmarks** — evaluate evolution through interaction with external worlds → for **Environment-Centric and Co-Evolution** methods
+> 论文第 VIII–IX 节（第 13–18 页）| 论文表 IV–V
 
 ---
 
-## A. Intrinsic Capability Benchmarks
+## 概览
 
-> "These benchmarks primarily evaluate the effectiveness of Model-Centric Self-Evolution methods, focusing on static datasets requiring complex reasoning."
+论文从两个维度对基准进行分类：
 
-### 1. General Knowledge
+1. **内在能力基准** —— 评估基础模型推理/编码水平 → 主要用于评估**以模型为中心**的方法
+2. **智能体推理能力基准** —— 评估通过与外部世界交互的演化 → 用于**以环境为中心和协同进化**方法
 
-| Benchmark | Key Feature | Task Format | Why It Matters |
+---
+
+## A. 内在能力基准
+
+> "这些基准主要评估以模型为中心的自演化方法的有效性，专注于需要复杂推理的静态数据集。"
+
+### 1. 通用知识
+
+| 基准 | 关键特点 | 任务格式 | 重要性 |
 |---|---|---|---|
-| **MMLU-Pro** | 12,000 questions across 14 domains, 10 answer choices (vs 4 in MMLU) | MCQ | Discriminates advanced reasoning; low noise |
-| **HotpotQA** | Multi-hop reasoning over Wikipedia | Extractive QA | Requires reasoning across multiple documents + supporting facts |
-| **LongBench** | 21 datasets, up to 2M word contexts | Mixed | Tests long-context understanding, extended reasoning |
-| **AGIEval** | 20 high-standard admission exams (SAT, LSAT, etc.) | MCQ | Measures human-level cognitive ability |
-| **ARC** | Grid-based visual puzzles | Visual grid | Abstract reasoning with minimal examples; fluid intelligence |
-| **ARC-AGI** | Grid transformation tasks | Visual | AI-hard but human-easy; measures general intelligence |
+| **MMLU-Pro** | 14 个领域的 12,000 道题，10 个选项（vs MMLU 的 4 个） | MCQ | 区分高级推理；低噪声 |
+| **HotpotQA** | 基于维基百科的多跳推理 | 抽取式 QA | 需要跨多文档推理 + 支持事实 |
+| **LongBench** | 21 个数据集，最长 200 万词的上下文 | 混合 | 测试长上下文理解、扩展推理 |
+| **AGIEval** | 20 项高标准入学考试（SAT、LSAT 等） | MCQ | 衡量人类水平认知能力 |
+| **ARC** | 基于网格的视觉谜题 | 视觉网格 | 样本极少的抽象推理；流体智能 |
+| **ARC-AGI** | 网格变换任务 | 视觉 | AI 难但人类容易；衡量通用智能 |
 
-### 2. Scientific Reasoning
+### 2. 科学推理
 
-| Benchmark | Domain | Key Feature |
+| 基准 | 领域 | 关键特点 |
 |---|---|---|
-| **GPQA** | Biology, Physics, Chemistry | Google-proof: non-expert + search = 34%; expert = 65% |
-| **SuperGPQA** | 285 graduate disciplines | Light industry + agriculture included |
-| **SciBench** | Physics/Chemistry/Math | ~700 problems from textbooks; multi-step calculation |
-| **ChemBench** | Chemistry | Autonomous lab focus |
+| **GPQA** | 生物、物理、化学 | Google 防作弊：非专家 + 搜索 = 34%；专家 = 65% |
+| **SuperGPQA** | 285 个研究生学科 | 含轻工业 + 农业 |
+| **SciBench** | 物理/化学/数学 | ~700 道教材题；多步骤计算 |
+| **ChemBench** | 化学 | 关注自主实验室 |
 
-### 3. Mathematical Reasoning
+### 3. 数学推理
 
-| Benchmark | Level | Key Feature |
+| 基准 | 难度 | 关键特点 |
 |---|---|---|
-| **MATH** | High school competition | Multi-step; LaTeX format |
-| **AIME** | Pre-olympiad competition | Long-chain logical deduction |
-| **OlympiadBench** | International olympiad | Bilingual + multimodal (images + text) |
-| **GSM8K** | Grade school | Chain-of-thought focus; wide baseline |
+| **MATH** | 高中竞赛 | 多步骤；LaTeX 格式 |
+| **AIME** | 预奥林匹克竞赛 | 长链逻辑推演 |
+| **OlympiadBench** | 国际奥林匹克 | 双语 + 多模态（图像 + 文本） |
+| **GSM8K** | 小学 | 思维链关注；广泛的基线 |
 
-### 4. Code Generation
+### 4. 代码生成
 
-| Benchmark | Key Feature | Evaluation Metric |
+| 基准 | 关键特点 | 评估指标 |
 |---|---|---|
-| **LiveCodeBench** | Contamination-free; live problems from LeetCode/AtCoder | Self-repair, execution, output prediction |
-| **BigCodeBench** | 1,140 tasks; 139 libraries across 7 domains | Real-world software development |
-| **HumanEval** | 164 hand-written problems with unit tests | pass@k metric |
-| **MBPP** | Basic programming semantic understanding | pass@k |
-| **EvalPlus** | 80× more test cases than HumanEval | Rigorous correctness |
-| **MultiPL-E** | 18+ programming languages | Polyglot evaluation |
+| **LiveCodeBench** | 无污染；来自 LeetCode/AtCoder 的实时题目 | 自我修复、执行、输出预测 |
+| **BigCodeBench** | 7 个领域 139 个库的 1140 个任务 | 真实软件开发 |
+| **HumanEval** | 164 道手写题目，带单元测试 | pass@k 指标 |
+| **MBPP** | 基础编程语义理解 | pass@k |
+| **EvalPlus** | 比 HumanEval 多 80 倍的测试用例 | 严格正确性 |
+| **MultiPL-E** | 18+ 种编程语言 | 多语言评估 |
 
 ---
 
-## B. Agentic Reasoning Capabilities Benchmarks
+## B. 智能体推理能力基准
 
-> "These benchmarks provide dynamic environments for Environment-Centric and Co-Evolution paradigms — they function as gyms providing observations, actions, and feedback signals essential for RL and lifelong evolution."
+> "这些基准为以环境为中心和协同进化范式提供动态环境 —— 它们作为提供观察、行动和反馈信号的训练场，对 RL 和终身演化至关重要。"
 
-### Web Navigation and Tool Use
+### 网页导航与工具使用
 
-| Benchmark | Key Feature | Agent Capability Tested |
+| 基准 | 关键特点 | 测试的智能体能力 |
 |---|---|---|
-| **WebArena** | Fully functional web ecosystem; 800+ long-horizon tasks | Cross-site planning, real web interaction |
-| **WebShop** | E-commerce simulation | Decision making, product search |
-| **WebVoyager** | End-to-end web agent; screenshot-based | Visual navigation + text interaction |
-| **VisualWebArena** | Visual + HTML hybrid interaction | Multimodal web agents |
-| **Mind2Web** | Real DOM from 2000+ real-world websites | Generalist web agent |
-| **MT-Mind2Web** | Multi-turn instruction following | Conversational web agents |
-| **ToolLLM** | 16,000+ real-world APIs | Large-scale API mastery |
+| **WebArena** | 完全功能的网页生态系统；800+ 长时域任务 | 跨站点规划、真实网页交互 |
+| **WebShop** | 电商仿真 | 决策、商品搜索 |
+| **WebVoyager** | 端到端网页智能体；基于截图 | 视觉导航 + 文本交互 |
+| **VisualWebArena** | 视觉 + HTML 混合交互 | 多模态网页智能体 |
+| **Mind2Web** | 来自 2000+ 真实网站的真实 DOM | 通用网页智能体 |
+| **MT-Mind2Web** | 多轮指令跟随 | 对话式网页智能体 |
+| **ToolLLM** | 16000+ 真实世界 API | 大规模 API 掌握 |
 
-### Unified Evaluation Frameworks
+### 统一评估框架
 
-| Benchmark | Key Feature | Scope |
+| 基准 | 关键特点 | 范围 |
 |---|---|---|
-| **AgentGym** | 14 environments, 89 tasks; unified interface; enables self-evolution via RL | Multi-domain |
-| **AgentBoard** | Fine-grained progress feedback; interaction visualization | Partially observable envs |
-| **ReasoningGym** | Algorithmic tasks; dynamic generation; cheat-resistant | Logic/reasoning |
-| **ALFWorld** | Text-based household tasks; aligns text and embodied envs | Embodied + text |
-| **AgentBench** | Comprehensive multi-environment evaluation | Multi-domain |
-| **GAIA** | 466 real-world questions; requires multi-capability reasoning + tools | General AI assistant |
-| **DeepResearchBench** | Long-form web research + citation evaluation | Research agents |
+| **AgentGym** | 14 个环境，89 个任务；统一接口；支持通过 RL 自演化 | 多领域 |
+| **AgentBoard** | 细粒度进展反馈；交互可视化 | 部分可观测环境 |
+| **ReasoningGym** | 算法任务；动态生成；防作弊 | 逻辑/推理 |
+| **ALFWorld** | 基于文本的家庭任务；对齐文本和具身环境 | 具身 + 文本 |
+| **AgentBench** | 全面的多环境评估 | 多领域 |
+| **GAIA** | 466 个真实世界问题；需要多能力推理 + 工具 | 通用 AI 助手 |
+| **DeepResearchBench** | 长篇网页研究 + 引用评估 | 研究智能体 |
 
-### Software Engineering and OS Operations
+### 软件工程与操作系统操作
 
-| Benchmark | Key Feature | Task Format |
+| 基准 | 关键特点 | 任务格式 |
 |---|---|---|
-| **SWE-bench** | 2,294 real GitHub issues across 12 Python repos; patch generation | Real codebase navigation |
-| **SWE-bench Verified** | 500 human-validated high-quality samples (filtered) | Higher reliability |
-| **Terminal-Bench** | Linux terminal tasks (server config, kernel compilation); Docker sandbox | OS-level autonomy |
-| **OSWorld** | Cross-app full OS control; GUI interaction | Multi-app desktop tasks |
+| **SWE-bench** | 来自 12 个 Python 仓库的 2294 个真实 GitHub 问题；补丁生成 | 真实代码库导航 |
+| **SWE-bench Verified** | 500 个人工验证的高质量样本（经过筛选） | 更高可靠性 |
+| **Terminal-Bench** | Linux 终端任务（服务器配置、内核编译）；Docker 沙盒 | OS 级自主 |
+| **OSWorld** | 跨应用完整 OS 控制；GUI 交互 | 多应用桌面任务 |
 
 ---
 
-## C. Open Source Libraries (Table V)
+## C. 开源库（表 V）
 
-> "To facilitate future research and deployment of Self-Evolving Agents, key open-source libraries are summarized by category."
+> "为了促进未来自演化智能体的研究和部署，按类别总结关键开源库。"
 
-### Foundational Agent Orchestration
+### 基础智能体编排
 
-| Library | Key Features |
+| 库 | 关键特点 |
 |---|---|
-| **LangGraph** | Multi-actor applications with cyclic graphs (overcomes DAG limitations); enables loops, persistent memory, human-in-the-loop |
-| **LlamaIndex** | Context-augmented LLM applications; data connectors, index structures, query engines for RAG |
-| **AutoGen** | Multi-agent conversations; customizable agents integrating LLMs, tools, human inputs |
-| **MetaGPT** | SOPs encoded into LLMs; role-based (PM, Architect, Engineer) software development lifecycle |
+| **LangGraph** | 带循环图的多参与者应用（克服 DAG 限制）；支持循环、持久记忆、人机协作 |
+| **LlamaIndex** | 上下文增强的 LLM 应用；数据连接器、索引结构、RAG 查询引擎 |
+| **AutoGen** | 多智能体对话；集成 LLM、工具、人类输入的可定制智能体 |
+| **MetaGPT** | 将 SOP 编码进 LLM；基于角色（PM、架构师、工程师）的软件开发生命周期 |
 
-### Distributed Training
+### 分布式训练
 
-| Library | Key Features |
+| 库 | 关键特点 |
 |---|---|
-| **Megatron-LM** | Ultra-large-scale training; tensor, pipeline, sequence, expert parallelism; FP8 mixed precision |
-| **DeepSpeed** | ZeRO Redundancy Optimizer; trains 100B+ parameter models on limited hardware |
+| **Megatron-LM** | 超大规模训练；张量、流水线、序列、专家并行；FP8 混合精度 |
+| **DeepSpeed** | ZeRO 冗余优化器；在有限硬件上训练 1000 亿+ 参数模型 |
 
-### Post-Training and Alignment
+### 后训练与对齐
 
-| Library | Key Features |
+| 库 | 关键特点 |
 |---|---|
-| **slime** | Async RL training framework; server-based rollout; decoupled rollout and training engines across GPUs |
-| **VeRL** | ByteDance's HybridFlow-based RL; supports PPO and GRPO; 3D-HybridEngine eliminates memory redundancy |
-| **OpenRLHF** | Ray + vLLM based RLHF; supports PPO, DPO, KTO, Rejection Sampling; scales to 70B+ models |
-| **TRL** | Hugging Face's full-stack library; SFT, Reward Modeling, PPO, DPO, KTO, GRPO |
+| **slime** | 异步 RL 训练框架；基于服务器的模拟；跨 GPU 解耦模拟和训练引擎 |
+| **VeRL** | 字节跳动的基于 HybridFlow 的 RL；支持 PPO 和 GRPO；3D-HybridEngine 消除内存冗余 |
+| **OpenRLHF** | 基于 Ray + vLLM 的 RLHF；支持 PPO、DPO、KTO、拒绝采样；扩展到 700 亿+ 模型 |
+| **TRL** | Hugging Face 全栈库；SFT、奖励建模、PPO、DPO、KTO、GRPO |
 
-### Efficient Fine-tuning
+### Efficient Fine-Tuning
 
-| Library | Key Features |
+| 库 | 关键特点 |
 |---|---|
-| **LLaMA Factory** | Code-free WebUI (LlamaBoard); 100+ models; LoRA, QLoRA, PPO, DPO; FlashAttention-2 integration |
-| **Unsloth** | 2× faster training; 80% memory reduction for Llama, Mistral, Phi, Gemma; manually derived backprop |
+| **LLaMA Factory** | 无代码 WebUI（LlamaBoard）；100+ 模型；LoRA、QLoRA、PPO、DPO；FlashAttention-2 集成 |
+| **Unsloth** | 训练速度提升 2 倍；Llama、Mistral、Phi、Gemma 内存减少 80%；手动推导的反向传播 |
 
-### Inference and Serving
+### 推理与服务
 
-| Library | Key Features |
+| 库 | 关键特点 |
 |---|---|
-| **vLLM** | PagedAttention for KV cache; continuous batching, speculative decoding, prefix caching |
-| **SGLang** | RadixAttention for aggressive KV cache reuse; structured generation language; fast multi-turn |
+| **vLLM** | KV 缓存的 PagedAttention；连续批处理、推测解码、前缀缓存 |
+| **SGLang** | 激进 KV 缓存复用的 RadixAttention；结构化生成语言；快速多轮 |
 
 ---
 
-## Benchmark Selection Guide
+## 基准选择指南
 
-### For evaluating Model-Centric methods:
-- Reasoning: GPQA, MATH, AIME, OlympiadBench
-- Code: LiveCodeBench, BigCodeBench, SWE-bench
-- General: MMLU-Pro, HotpotQA, LongBench
+### 评估以模型为中心的方法：
+- 推理：GPQA、MATH、AIME、OlympiadBench
+- 代码：LiveCodeBench、BigCodeBench、SWE-bench
+- 通用：MMLU-Pro、HotpotQA、LongBench
 
-### For evaluating Environment-Centric methods:
-- Web: WebArena, WebVoyager, Mind2Web
-- Tool use: ToolLLM, AgentBench
-- Multi-domain: AgentGym, GAIA
+### 评估以环境为中心的方法：
+- 网页：WebArena、WebVoyager、Mind2Web
+- 工具使用：ToolLLM、AgentBench
+- 多领域：AgentGym、GAIA
 
-### For evaluating Co-Evolution methods:
-- Long-horizon: SWE-bench, OSWorld, Terminal-Bench
-- Open-world: Custom environments (Minecraft, virtual towns)
-- Adaptive: AgentGym (self-evolution via RL support)
+### 评估协同进化方法：
+- 长时域：SWE-bench、OSWorld、Terminal-Bench
+- 开放世界：自定义环境（Minecraft、虚拟小镇）
+- 自适应：AgentGym（支持通过 RL 自演化）

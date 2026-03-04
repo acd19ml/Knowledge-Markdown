@@ -1,60 +1,60 @@
-# Environment-Centric Self-Evolution — Overview
+# 以环境为中心的自演化 — 概览
 
-> Paper Section IV (pages 9–12)
-
----
-
-## Section Overview
-
-Environment-Centric Self-Evolution treats the **external environment** as the primary driver of agent improvement. Rather than optimizing purely internal processes, agents improve by structuring how they interact with, retrieve from, and adapt to their operational context.
-
-```
-Environment-Centric Self-Evolution
-├── A. Static Knowledge Evolution   [→ 3.1_static-knowledge.md]
-│   └── Environment = knowledge base (RAG, Deep Research)
-│
-├── B. Dynamic Experience Evolution [→ 3.2_dynamic-experience.md]
-│   └── Environment = experience repository (offline/online/lifelong)
-│
-├── C. Modular Architecture Evol.   [→ 3.3_modular-arch.md]
-│   └── Environment = optimizable interface (memory, tools, protocols)
-│
-└── D. Agentic Topology Evolution   [→ 3.4_agentic-topology.md]
-    └── Environment = multi-agent collective (team design)
-```
+> 论文第 IV 节（第 9–12 页）
 
 ---
 
-## Key Distinction from Model-Centric
+## 章节概览
 
-| Aspect | Model-Centric | Environment-Centric |
+以环境为中心的自演化将**外部环境**视为智能体改进的主要驱动力。智能体不是单纯优化内部过程，而是通过结构化其与运行上下文的交互方式、从中检索信息并适应它来实现改进。
+
+```
+以环境为中心的自演化
+├── A. 静态知识演化   [→ 3.1_static-knowledge.md]
+│   └── 环境 = 知识库（RAG、深度研究）
+│
+├── B. 动态经验演化   [→ 3.2_dynamic-experience.md]
+│   └── 环境 = 经验仓库（离线/在线/终身）
+│
+├── C. 模块化架构演化 [→ 3.3_modular-arch.md]
+│   └── 环境 = 可优化的接口（记忆、工具、协议）
+│
+└── D. 智能体拓扑演化 [→ 3.4_agentic-topology.md]
+    └── 环境 = 多智能体集体（团队设计）
+```
+
+---
+
+## 与以模型为中心的关键区别
+
+| 方面 | 以模型为中心 | 以环境为中心 |
 |---|---|---|
-| What evolves | Internal model parameters/reasoning | How agent interacts with external world |
-| Signal source | Self-generated | Environment-provided |
-| Ceiling | Base model capacity | Environment complexity |
-| Risk | Model collapse | Environment lock-in |
+| 演化对象 | 内部模型参数/推理 | 智能体如何与外部世界交互 |
+| 信号来源 | 自生成 | 环境提供 |
+| 上限 | 基础模型容量 | 环境复杂度 |
+| 风险 | 模型崩溃 | 环境锁定 |
 
 ---
 
-## Four Sub-Paradigms at a Glance
+## 四种子范式一览
 
-| Sub-paradigm | Environment Role | Key Systems |
+| 子范式 | 环境角色 | 关键系统 |
 |---|---|---|
-| Static Knowledge | Information repository bridging knowledge gaps | Self-RAG, FLARE, MindSearch, WebThinker |
-| Dynamic Experience | Gymnasium for refining strategies via trajectories | AWM, SkillWeaver, VOYAGER, FLEX |
-| Modular Architecture | Optimizable structural components | MemGPT, A-MEM, ReAct, CREATOR, Alita |
-| Agentic Topology | Multi-agent collective to optimize | GPTSwarm, AFLOW, ADAS, AutoAgents |
+| 静态知识 | 弥补知识空白的信息仓库 | Self-RAG、FLARE、MindSearch、WebThinker |
+| 动态经验 | 通过轨迹精炼策略的训练场 | AWM、SkillWeaver、VOYAGER、FLEX |
+| 模块化架构 | 可优化的结构组件 | MemGPT、A-MEM、ReAct、CREATOR、Alita |
+| 智能体拓扑 | 需要优化的多智能体集体 | GPTSwarm、AFLOW、ADAS、AutoAgents |
 
 ---
 
-## The Static-to-Dynamic Progression
+## 从静态到动态的进化
 
-> "Relying solely on one-way extraction from a fixed environment eventually bounds agent improvement by the environment's inherent complexity. The agent-environment relationship must shift from passive extraction to reciprocal interaction."
+> "仅依赖于从固定环境中的单向提取，最终会将智能体的改进限制在环境固有的复杂度内。智能体-环境关系必须从被动提取转向相互交互。"
 
 ```
-Static Knowledge          Dynamic Experience         Co-Evolution
-(what IS in the world)  → (how TO DO in the world) → (environment ADAPTS with agent)
-     RAG                        RL/Trajectories           Adaptive Curriculum
+静态知识               动态经验               协同进化
+（世界中存在什么）  →  （在世界中如何做）  →  （环境随智能体适应）
+     RAG                    RL/轨迹               自适应课程
 ```
 
-This progression motivates the **Model-Environment Co-Evolution** paradigm (→ [04_co-evolution.md](../04_co-evolution.md)).
+这一进化促成了**模型-环境协同进化**范式（→ [04_co-evolution.md](../04_co-evolution.md)）。

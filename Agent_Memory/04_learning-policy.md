@@ -1,209 +1,209 @@
-# Memory Learning Policy
+# 记忆学习策略
 
-> Paper Section 5 (pages 26–30)
+> 论文第 5 节（第 26–30 页）
 
-How agents **learn to manage memory** — what to store, when to store it, how to represent it, when to retrieve or discard it — rather than relying on fixed, hand-crafted heuristics.
+智能体如何**学习管理记忆** —— 存储什么、何时存储、如何表示、何时检索或丢弃 —— 而非依赖固定的手工设计启发式方法。
 
-> "Learning policy refers to how an agent learns to manage memory: what to store, when to store it, how to represent it, when to retrieve or discard it, and where to store or retrieve — rather than relying on fixed, hand-crafted heuristics. Such policies are typically optimized from data or feedback (e.g., supervised signals, reinforcement learning, or self-improvement)."
+> "学习策略指智能体学习如何管理记忆的方式：存储什么、何时存储、如何表示、何时检索或丢弃，以及存储在何处或从何处检索 —— 而非依赖固定的手工启发式方法。此类策略通常从数据或反馈中优化（如监督信号、RL或自我改进）。"
 
 ---
 
-## Three Paradigms
+## 三种范式
 
-| Paradigm | Learning Signal | Key Advantage | Key Limitation |
+| 范式 | 学习信号 | 核心优势 | 核心局限 |
 |---|---|---|---|
-| **Prompting** | Natural language instructions (no gradient updates) | No expensive fine-tuning; highly interpretable | No explicit credit assignment; limited long-term optimization |
-| **Fine-tuning (SFT)** | Supervised labels / curated data | Stable, reusable memory behaviors embedded in weights | Fixed after training; no adaptation to new rewards |
-| **Reinforcement Learning** | Task outcome rewards / interaction feedback | Explicit credit assignment; downstream task outcomes shape memory decisions | Sample efficiency; reward design complexity |
+| **prompt engineering** | 自然语言指令（无梯度更新） | 无需昂贵fine-tuning；高度可解释 | 无显式信用分配；长期优化能力有限 |
+| **fine-tuning (SFT)** | 监督标签/精心整理的数据 | 稳定、可复用的记忆行为嵌入权重 | 训练后固定；无法适应新奖励 |
+| **RL** | 任务结果奖励/交互反馈 | 显式信用分配；下游任务结果塑造记忆决策 | 样本效率；奖励设计复杂度 |
 
 ---
 
-## 5.1 Prompt-Based Memory Learning
+## 5.1 基于提示的记忆学习
 
-Parameterizes memory policy as **natural language prompts**. The agent executes these prompts to determine when to access, modify, or prune memory.
+将记忆策略参数化为**自然语言提示**。智能体执行这些提示来决定何时访问、修改或剪枝记忆。
 
-**Advantages**: No fine-tuning required; highly interpretable.
+**优势**：无需fine-tuning；高度可解释。
 
-### 5.1.1 Static Prompt-Based Control
+### 5.1.1 静态提示控制
 
-Fixed, human-designed rules that remain **invariant during execution**. Memory decisions are specified at design time.
+固定的、人工设计的规则，在执行过程中**保持不变**。记忆决策在设计时指定。
 
-Three design targets:
+三个设计目标：
 
-#### A. Static Memory OS and Organization
-Treat memory as a structured container with enforced hierarchical partitioning, indexing, summarization, or schema-based representations.
+#### A. 静态记忆 OS 与组织
+将记忆视为具有强制层次化分区、索引、摘要或基于模式表征的结构化容器。
 
-| System | Approach |
+| 系统 | 方法 |
 |---|---|
-| SCM (Wang et al., 2023a) | Structured context management |
-| MemGPT (Packer et al., 2023) | OS-style paging between main and external context |
-| LiCoMemory (Huang et al., 2025e) | Hierarchical long-context memory |
-| MemoChat (Lu et al., 2023) | Structured memo writing via instruction tuning |
-| A-Mem (Xu et al., 2025e) | Dynamic structured memory organization |
-| D-SMART (Lei et al., 2025) | Structured memory for long dialogues |
-| MemWeaver | Multi-component memory weaving |
-| Zep (Rasmussen et al., 2025) | Production memory infrastructure |
+| SCM (Wang et al., 2023a) | 结构化上下文管理 |
+| MemGPT (Packer et al., 2023) | OS 风格的主/外部上下文分页 |
+| LiCoMemory (Huang et al., 2025e) | 层次化长上下文记忆 |
+| MemoChat (Lu et al., 2023) | 通过指令调整实现结构化备忘录写作 |
+| A-Mem (Xu et al., 2025e) | 动态结构化记忆组织 |
+| D-SMART (Lei et al., 2025) | 用于长对话的结构化记忆 |
+| MemWeaver | 多组件记忆编织 |
+| Zep (Rasmussen et al., 2025) | 生产级记忆基础设施 |
 
-#### B. Static Memory Control in Single-Agent Settings
-Access and retention constrained by **persona identities or domain-specific priors** encoded in prompts.
+#### B. 单智能体场景下的静态记忆控制
+访问和保留受**角色身份或领域特定先验**约束，编码在提示中。
 
-| System | Domain |
+| 系统 | 领域 |
 |---|---|
-| RoleLLM (Wang et al., 2024e) | Role-playing with persona-consistent memory |
-| ChatHaruhi (Li et al., 2023a) | Character simulation |
-| WarAgent (Hua et al., 2023) | Multi-agent simulation with role-based memory |
-| MemoTime (Tan et al., 2025b) | Temporal memory for long-term agents |
-| FinMem (Yu et al., 2025e) | Financial domain memory |
-| TradingGPT (Li et al., 2023b) | Trading-specific memory management |
-| MemoCRS (Xi et al., 2024) | Conversational recommendation |
+| RoleLLM (Wang et al., 2024e) | 带角色一致性记忆的角色扮演 |
+| ChatHaruhi (Li et al., 2023a) | 角色模拟 |
+| WarAgent (Hua et al., 2023) | 带角色记忆的多智能体模拟 |
+| MemoTime (Tan et al., 2025b) | 长期智能体的时序记忆 |
+| FinMem (Yu et al., 2025e) | 金融领域记忆 |
+| TradingGPT (Li et al., 2023b) | 交易特定记忆管理 |
+| MemoCRS (Xi et al., 2024) | 对话式推荐 |
 
-#### C. Static Memory Assignment in Multi-Agent Settings
-Memory distributed across agents through predefined roles, modular decomposition, structured communication protocols.
+#### C. 多智能体场景下的静态记忆分配
+记忆通过预定义角色、模块化分解、结构化通信协议分布到各智能体。
 
-| System | Approach |
+| 系统 | 方法 |
 |---|---|
-| MIRIX (Wang & Chen, 2025) | Hierarchical memory manager |
-| LEGOMem (Han et al., 2025) | Modular memory with orchestrator |
-| G-Memory (Zhang et al., 2025c) | Graph-based multi-agent memory |
-| GameGPT (Chen et al., 2023) | Multi-agent game development memory |
-| ChatDev (Qian et al., 2024a) | Role-based development workflow |
+| MIRIX (Wang & Chen, 2025) | 层次化记忆管理器 |
+| LEGOMem (Han et al., 2025) | 带编排器的模块化记忆 |
+| G-Memory (Zhang et al., 2025c) | 基于图的多智能体记忆 |
+| GameGPT (Chen et al., 2023) | 多智能体游戏开发记忆 |
+| ChatDev (Qian et al., 2024a) | 基于角色的开发工作流 |
 
 ---
 
-### 5.1.2 Dynamic Prompt-Based Control
+### 5.1.2 动态提示控制
 
-Memory policies **adapted at test time** based on experience and feedback — without updating model parameters.
+记忆策略在**测试时根据经验和反馈进行适配** —— 无需更新模型参数。
 
-Key research questions:
+关键研究问题：
 
-#### A. Memory Usage Policy Correction via Reflection
-Can memory policies be corrected through reflection on past outcomes?
-- Agent analyzes failures/successes → converts insights into revised memory instructions → guides future behavior
-- Systems: **Reflexion** (Shinn et al., 2023), ReasoningBank (Ouyang et al., 2025), WebCoach, QuantAgent
+#### A. 通过反思纠正记忆使用策略
+记忆策略能否通过对过往结果的反思来纠正？
+- 智能体分析失败/成功 → 将洞察转化为修订的记忆指令 → 指导未来行为
+- 系统：**Reflexion** (Shinn et al., 2023)、ReasoningBank (Ouyang et al., 2025)、WebCoach、QuantAgent
 
-#### B. Dynamic Optimization of Memory Representations
-Can memory representations themselves be dynamically optimized for efficiency under limited context budgets?
-- Compression, denoising, structural reorganization as adaptive, prompt-driven processes
-- Systems: ACON, ACE, SeCom, Nemori, CAM, EvoMem, ViLoMem
+#### B. 动态优化记忆表征
+记忆表征本身能否在有限上下文预算下动态优化效率？
+- 压缩、去噪、结构重组作为自适应的提示驱动过程
+- 系统：ACON、ACE、SeCom、Nemori、CAM、EvoMem、ViLoMem
 
-#### C. Distilling Accumulated Experience into Reusable Procedural Knowledge
-Can dynamic prompting distill experiences into reasoning templates, execution scripts, or tool-usage strategies?
-- Systems: BoT (Yang et al., 2024b), Memp (Fang et al., 2025b), ToolMem (Xiao et al., 2025)
+#### C. 将积累经验蒸馏为可复用的程序知识
+动态提示能否将经验蒸馏为推理模板、执行脚本或工具使用策略？
+- 系统：BoT (Yang et al., 2024b)、Memp (Fang et al., 2025b)、ToolMem (Xiao et al., 2025)
 
-**Limitation**: Language-mediated; lacks explicit credit assignment → limited capacity for long-term policy optimization vs. fine-tuning/RL.
+**局限性**：语言中介；缺乏显式信用分配 → 相比fine-tuning/RL，长期策略优化能力有限。
 
 ---
 
-## 5.2 Fine-Tuning: Parameterized Memory Policies
+## 5.2 fine-tuning：参数化记忆策略
 
-**SFT internalizes memory policies into model parameters**, enabling more stable and reusable memory behaviors.
+**SFT 将记忆策略内化到模型参数中**，使记忆行为更稳定且可复用。
 
-> "SFT-based approaches investigate how memory policies are internalized, stabilized, and executed efficiently once embedded into model weights."
+> "基于 SFT 的方法研究记忆策略如何被内化、稳定并在嵌入模型权重后高效执行。"
 
-### 5.2.1 Policy Internalization into Parameters
+### 5.2.1 策略内化到参数
 
-Memory control as a **parametric policy** — not context manipulation.
+将记忆控制作为**参数化策略** —— 而非上下文操作。
 
-| Research Direction | Approach | Representative |
+| 研究方向 | 方法 | 代表性工作 |
 |---|---|---|
-| Internalize memory content | Distill short-term context into long-term parametric representations | MemoryLLM (Wang et al., 2024m), SELF-PARAM (Wang et al., 2025o) |
-| Internalize memory access/retrieval behaviors | Learn parameterized interfaces mediating interaction with external memory | Memory3 (Yang et al., 2024a), MLP Memory (Wei et al., 2025c) |
-| Hierarchical parameterized memory policy | Scalable invocation of large memory; decouple long-tail knowledge from core reasoning | PHM (Pouransari et al., 2025) |
+| 内化记忆内容 | 将短期上下文蒸馏为长期参数化表征 | MemoryLLM (Wang et al., 2024m)、SELF-PARAM (Wang et al., 2025o) |
+| 内化记忆访问/检索行为 | 学习参数化接口，协调与外部记忆的交互 | Memory3 (Yang et al., 2024a)、MLP Memory (Wei et al., 2025c) |
+| 层次化参数化记忆策略 | 大规模记忆的可扩展调用；将长尾知识从核心推理解耦 | PHM (Pouransari et al., 2025) |
 
-### 5.2.2 Parameterized Policy Stabilization and Boundary Control
+### 5.2.2 参数化策略稳定性与边界控制
 
-Supervision used to **regularize memory updates and enforce boundary constraints** — preventing error accumulation, concept drift, persona inconsistency.
+使用监督来**正则化记忆更新并强制执行边界约束** —— 防止错误积累、概念漂移、角色不一致。
 
-| Direction | Mechanism | Representative |
+| 方向 | 机制 | 代表性工作 |
 |---|---|---|
-| Reflection before committing | Train models to reflect/self-analyze → store high-level, noise-resistant representations | TIM (Liu et al., 2023b), LearntoMemorize, COMEDY |
-| Error/staleness repair | Learn when to revise or override existing knowledge | WISE (Wang et al., 2024f), SuperIntelliAgent, CRMWeaver |
-| Defensive boundary control | Restrict which experiences can be retained/reused (role/identity consistency) | Character-LLM (Shao et al., 2023) |
+| 提交前反思 | 训练模型反思/自我分析 → 存储高层次、抗噪声的表征 | TIM (Liu et al., 2023b)、LearntoMemorize、COMEDY |
+| 错误/过时修复 | 学习何时修订或覆盖已有知识 | WISE (Wang et al., 2024f)、SuperIntelliAgent、CRMWeaver |
+| 防御性边界控制 | 限制哪些经历可被保留/复用（角色/身份一致性） | Character-LLM (Shao et al., 2023) |
 
-### 5.2.3 Parameterized Policy Efficiency and Retrieval Refinement
+### 5.2.3 参数化策略效率与检索精化
 
-SFT to refine **how memory policies execute at inference time** — particularly for memory reading and retrieval.
+SFT 用于精化**记忆策略在推理时的执行方式** —— 特别是针对记忆读取和检索。
 
-| Direction | What's Learned | Representative |
+| 方向 | 学习内容 | 代表性工作 |
 |---|---|---|
-| Precise retrieval cues | Generate targeted queries for memory access | MemoRAG (Qian et al., 2025b) |
-| Multi-hop / progressive retrieval | Refine queries across reasoning steps | MemReasoner (Ko et al., 2024) |
-| Compression-aware retrieval | Internalize/reversibly refine compressed memory representations | MemoryDecoder (Cao et al., 2025b), SUPO |
+| 精确检索线索 | 生成有针对性的记忆访问查询 | MemoRAG (Qian et al., 2025b) |
+| 多跳/渐进式检索 | 在推理步骤间精化查询 | MemReasoner (Ko et al., 2024) |
+| 压缩感知检索 | 内化/可逆精化压缩记忆表征 | MemoryDecoder (Cao et al., 2025b)、SUPO |
 
-**Limitation**: Resulting policies are fixed after training; no credit assignment over extended decision horizons.
+**局限性**：训练后策略固定；无法在扩展决策时域上进行信用分配。
 
 ---
 
-## 5.3 Reinforcement Learning for Memory Policies
+## 5.3 RL用于记忆策略
 
-RL enables memory policies to be optimized through **interaction and reward feedback** — downstream task outcomes influence earlier memory decisions.
+RL 使记忆策略能够通过**交互和奖励反馈**进行优化 —— 下游任务结果影响早期记忆决策。
 
-> "Unlike prompt-based or supervised approaches, RL allows downstream task outcomes to influence earlier memory-related decisions, making memory construction itself a learnable policy."
+> "与基于提示或监督的方法不同，RL 允许下游任务结果影响早期的记忆相关决策，使记忆构建本身成为一种可学习的策略。"
 
-Three temporal scopes, from shortest to longest:
+三个时间范围，从最短到最长：
 
-### 5.3.1 Step-Level Memory Decisions
+### 5.3.1 步骤级记忆决策
 
-RL applied to individual **step-level memory operations** (short-horizon scope).
+RL 应用于单个**步骤级记忆操作**（短时域范围）。
 
-**Formulation**: Memory management as a sequence of step-level decisions, each selected by a learning policy and optimized based on immediate/short-horizon task reward.
+**形式化**：将记忆管理建模为步骤级决策序列，每步由学习策略选择，基于即时/短时域任务奖励优化。
 
-| System | Approach |
+| 系统 | 方法 |
 |---|---|
-| **Memory-R1** (Yan et al., 2025b) | Atomic memory operations (ADD/UPDATE/DELETE/NOOP) learned via task-level rewards |
-| **MemAct** (Zhang et al., 2025n) | Finer-grained editing (trimming, summarization) integrated into unified agent policy space |
-| **MemAgent** (Yu et al., 2025b) | Learn which info to write into fixed-size memory buffer for extremely long contexts |
-| **RMM** (Tan et al., 2025c) | Similar to MemAgent; interaction-driven feedback on memory writes |
-| **Mem-α** (Wang et al., 2025p) | Frame memory construction as sequential decision-making: populate/update structured multi-component memories (core/semantic/episodic) |
+| **Memory-R1** (Yan et al., 2025b) | 通过任务级奖励学习原子记忆操作（ADD/UPDATE/DELETE/NOOP） |
+| **MemAct** (Zhang et al., 2025n) | 将更细粒度的编辑（修剪、摘要）集成到统一的智能体策略空间中 |
+| **MemAgent** (Yu et al., 2025b) | 学习在超长上下文中向固定大小记忆缓冲区写入哪些信息 |
+| **RMM** (Tan et al., 2025c) | 类似 MemAgent；基于交互的记忆写入反馈 |
+| **Mem-α** (Wang et al., 2025p) | 将记忆构建框架化为序列决策：填充/更新结构化多组件记忆（核心/语义/情节） |
 
-**Limitation**: Does not explicitly model long-term effects of memory state construction.
+**局限性**：不显式建模记忆状态构建的长期效应。
 
 ---
 
-### 5.3.2 Trajectory-Level Memory Representation
+### 5.3.2 轨迹级记忆表征
 
-RL for **cumulative influence of memory over long trajectories**.
+RL 用于**记忆在长轨迹上的累积影响**。
 
-> "The value of memory decisions often emerges only through their cumulative influence on future reasoning and action selection."
+> "记忆决策的价值往往只能通过其对未来推理和动作选择的累积影响来体现。"
 
-**Key insight**: Trajectory-level memory as part of the agent's **Markov state** — quality assessed through downstream decision performance.
+**核心洞察**：轨迹级记忆作为智能体**马尔可夫状态**的一部分 —— 质量通过下游决策表现来评估。
 
-| Research Question | Direction | Representative |
+| 研究问题 | 方向 | 代表性工作 |
 |---|---|---|
-| How to abstract long histories? | Summarization/folding/compression as policy decisions evaluated via future outcomes | SUPO, Sun et al. (2025b), DeepAgent |
-| How should memory evolve over time? | Iteratively updated compact state; propagate advantages across contexts | MemSearcher (Yuan et al., 2025a) |
-| What is decision-sufficient representation? | Trajectory memory as learned state whose utility is defined by long-term decision quality | Chen et al. (2025c), Wu et al. (2025d) |
+| 如何抽象长历史？ | 摘要/折叠/压缩作为通过未来结果评估的策略决策 | SUPO、Sun et al. (2025b)、DeepAgent |
+| 记忆应如何随时间演化？ | 迭代更新的紧凑状态；跨上下文传播优势 | MemSearcher (Yuan et al., 2025a) |
+| 什么是决策充分表征？ | 轨迹记忆作为效用由长期决策质量定义的学习状态 | Chen et al. (2025c)、Wu et al. (2025d) |
 
 ---
 
-### 5.3.3 Cross-Episode and Multi-Agent Memory
+### 5.3.3 跨情节与多智能体记忆
 
-RL at the **broadest scope** — memory accumulates experience across repeated episodes or multiple agents.
+RL 在**最广泛的范围**上应用 —— 记忆跨重复情节或多个智能体积累经验。
 
-> "At this scope, reinforcement learning is essential, as only long-term and cross-episode reward signals can determine which memories should persist, adapt, or be revised."
+> "在这个范围内，RL是必不可少的，因为只有长期和跨情节的奖励信号才能决定哪些记忆应该持久、适配或修订。"
 
-**Key insight**: Distill higher-level decision-relevant knowledge (reusable strategies, self-correction rules, abstracted behavioral patterns) whose utility emerges only through repeated RL signals.
+**核心洞察**：提炼更高层次的决策相关知识（可复用策略、自我纠正规则、抽象行为模式），其效用仅通过重复 RL 信号才能体现。
 
-| System | Approach |
+| 系统 | 方法 |
 |---|---|
-| MCTR (Li et al., 2025h) | Experience encoded as transferable decision knowledge via interaction |
-| TGM (Xia et al., 2025) | Graph-based experience abstraction |
-| Retroformer (Yao et al., 2024) | Reflective retrieval policies |
-| Memento (Zhou et al., 2025a) | Context-dependent RL-guided retrieval and application |
-| MemGen (Zhang et al., 2025d) | Latent/non-textual memory representations |
-| MAICC (Jiang et al., 2025d) | Shared/decentralized memory policies in multi-agent RL |
-| SRMT (Sagirova et al., 2025) | Decentralized multi-agent memory via RL |
+| MCTR (Li et al., 2025h) | 通过交互将经验编码为可迁移的决策知识 |
+| TGM (Xia et al., 2025) | 基于图的经验抽象 |
+| Retroformer (Yao et al., 2024) | 反思性检索策略 |
+| Memento (Zhou et al., 2025a) | 上下文依赖的 RL 引导检索和应用 |
+| MemGen (Zhang et al., 2025d) | 潜在/非文本记忆表征 |
+| MAICC (Jiang et al., 2025d) | 多智能体 RL 中的共享/去中心化记忆策略 |
+| SRMT (Sagirova et al., 2025) | 通过 RL 实现的去中心化多智能体记忆 |
 
 ---
 
-## Choosing the Right Paradigm
+## 如何选择合适的范式
 
-| Situation | Recommended Paradigm |
+| 情境 | 推荐范式 |
 |---|---|
-| Fast prototyping, interpretability matters | Static prompting |
-| Need adaptation but no labeled data | Dynamic prompting (reflection, self-improvement) |
-| Stable deployment, consistent behavior needed | Fine-tuning (SFT) |
-| Long-horizon tasks, complex credit assignment | RL |
-| Single-turn or short-context tasks | Prompting sufficient |
-| Multi-session, evolving user preferences | SFT or RL |
-| Memory must be explicitly optimized for task outcomes | RL |
+| 快速原型、可解释性重要 | 静态提示 |
+| 需要适配但无标注数据 | 动态提示（反思、自我改进） |
+| 稳定部署、需要一致行为 | fine-tuning (SFT) |
+| 长时域任务、复杂信用分配 | RL |
+| 单轮或短上下文任务 | 提示已足够 |
+| 多会话、用户偏好持续演化 | SFT 或 RL |
+| 记忆必须针对任务结果显式优化 | RL |

@@ -1,44 +1,44 @@
-# Model-Centric Self-Evolution — Overview
+# 以模型为中心的自演化 — 概览
 
-> Paper Section III (pages 5–9)
-
----
-
-## Section Overview
-
-Model-Centric Self-Evolution focuses on improving agent capabilities **within the model itself** — either at inference time (without weight updates) or via training (with weight updates). The environment plays a passive, static role; the agent drives improvement through internal computation.
-
-```
-Model-Centric Self-Evolution
-├── A. Inference-Based [→ 2.1_inference-based.md]
-│   ├── Parallel Sampling (width)
-│   ├── Sequential Self-Correction (depth)
-│   └── Structured Reasoning (search)
-└── B. Training-Based [→ 2.2_training-based.md]
-    ├── Synthesis-Driven Offline (Table I)
-    └── Exploration-Driven Online (RL)
-```
+> 论文第 III 节（第 5–9 页）
 
 ---
 
-## Paradigm Comparison
+## 章节概览
 
-| Sub-paradigm | Weight Update? | Environment Needed? | Signal Source | Ceiling |
+以模型为中心的自演化专注于在**模型内部**提升智能体能力 —— 要么在推理时（不更新权重），要么通过训练（更新权重）。环境扮演被动、静态的角色；智能体通过内部计算驱动改进。
+
+```
+以模型为中心的自演化
+├── A. 基于推理 [→ 2.1_inference-based.md]
+│   ├── 并行采样（宽度）
+│   ├── 顺序自我修正（深度）
+│   └── 结构化推理（搜索）
+└── B. 基于训练 [→ 2.2_training-based.md]
+    ├── 合成驱动的离线演化（表 I）
+    └── 探索驱动的在线演化（RL）
+```
+
+---
+
+## 范式对比
+
+| 子范式 | 是否更新权重？ | 是否需要环境？ | 信号来源 | 上限 |
 |---|---|---|---|---|
-| Inference-Based | No | Minimal | Self-generated | Context window + base model capacity |
-| Training-Based (Offline) | Yes | Static | Synthesized data | Base model initial capacity |
-| Training-Based (Online) | Yes | Required | Environment feedback | Environment complexity |
+| 基于推理 | 否 | 最少 | 自生成 | context window + 基础模型容量 |
+| 基于训练（离线） | 是 | 静态 | 合成数据 | 基础模型初始容量 |
+| 基于训练（在线） | 是 | 必需 | 环境反馈 | 环境复杂度 |
 
 ---
 
-## Key Limitation: Model Collapse Risk
+## 关键局限：模型崩溃风险
 
-> "Synthesis-Driven Offline Evolution serves as an efficient bootstrapper by consolidating internal priors; however, it remains fundamentally bounded by the base model's initial capacity, risking model collapse where internal feedback loops amplify hallucinations without introducing new information entropy."
+> "合成驱动的离线演化是一种高效的引导工具，通过整合内部先验来启动模型；然而，它从根本上受基础模型初始容量的限制，存在模型崩溃风险 —— 内部反馈循环会放大幻觉，而不引入新的信息熵。"
 
-**Model Collapse**: When iterative self-training on model-generated data progressively:
-- Narrows output distribution
-- Loses long-tail information
-- Reduces linguistic and strategic diversity
-- Amplifies systematic errors
+**模型崩溃**：在自生成数据上反复自我训练，逐渐导致：
+- 输出分布变窄
+- 长尾信息丢失
+- 语言和策略多样性降低
+- 系统性错误被放大
 
-**Prevention**: External environmental feedback (→ Environment-Centric and Co-Evolution paradigms)
+**预防措施**：外部环境反馈（→ 以环境为中心和协同进化范式）

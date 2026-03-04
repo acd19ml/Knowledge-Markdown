@@ -1,164 +1,164 @@
-# Applications of Self-Evolving Agents
+# 自演化智能体的应用
 
-> Paper Section VI (pages 11–12) | Table III in paper
+> 论文第 VI 节（第 11–12 页）| 论文表 III
 
 ---
 
-## Overview
+## 概览
 
-Beyond theoretical advances, self-evolving agents are deployed in three major application domains, primarily under the Model-Environment Co-Evolution paradigm:
+除了理论进步之外，自演化智能体主要在模型-环境协同进化范式下被部署于三大应用领域：
 
-| Domain | Key Pattern | Representative Systems |
+| 领域 | 关键模式 | 代表性系统 |
 |---|---|---|
-| **Automated Scientific Discovery** | Iterative hypothesis-experiment-feedback loop | The AI Scientist, AlphaProof, GNoME, A-Lab |
-| **Autonomous Software Engineering** | ACI interface + long-term skill accumulation | SWE-agent, Claude Code, Devin, Cursor |
-| **Open-World Simulation** | Social/physical emergence from interaction | Voyager, GITM, Generative Agents, ProjectSid |
+| **自动化科学发现** | 迭代的假设-实验-反馈循环 | The AI Scientist、AlphaProof、GNoME、A-Lab |
+| **自主软件工程** | ACI 接口 + 长期技能积累 | SWE-agent、Claude Code、Devin、Cursor |
+| **开放世界仿真** | 来自交互的社会/物理涌现 | Voyager、GITM、Generative Agents、ProjectSid |
 
 ---
 
-## A. Automated Scientific Discovery
+## A. 自动化科学发现
 
-**Core insight**: Scientific discovery = search over infinite hypothesis space. Static LLMs have knowledge but cannot verify or iterate on unknown phenomena. Self-evolving agents close the loop.
+**核心洞察**：科学发现 = 在无限假设空间上的搜索。静态 LLM 有知识但无法验证或迭代未知现象。自演化智能体闭合了这个循环。
 
-> "Agentic science bridges this gap by establishing an iterative closed loop of hypothesis generation, experiment execution, and feedback-driven refinement — transforming AI from a passive assistant to an active explorer."
+> "智能体科学通过建立假设生成、实验执行和反馈驱动的精炼的迭代闭环来弥合这一差距 —— 将 AI 从被动助手转变为主动探索者。"
 
-### AI-Driven Research Automation
+### AI 驱动的研究自动化
 
-| System | Environment | Evolution Mechanism | Breakthrough |
+| 系统 | 环境 | 演化机制 | 突破 |
 |---|---|---|---|
-| **The AI Scientist** [Lu et al., 2024] | Academic research; simulated review | Gen-Review cycle with automated peer review | Full paper auto-generation |
-| **FARS** | Open research workspace | Hypothesis loop with multi-agent automation | Autonomous paper generation |
+| **The AI Scientist**（Lu et al., 2024） | 学术研究；模拟评审 | 带自动同行评审的生成-评审循环 | 全自动论文生成 |
+| **FARS** | 开放研究工作空间 | 带多智能体自动化的假设循环 | 自主论文生成 |
 
-**The AI Scientist** pipeline:
+**The AI Scientist** 流水线：
 ```
-Idea generation → Experiment design → Code execution → Result analysis
+创意生成 → 实验设计 → 代码执行 → 结果分析
        ↓
-Automated peer review (LLM reviewers)
+自动同行评审（LLM 评审者）
        ↓
-Assess quality → Accept / Revise
+质量评估 → 接受 / 修改
        ↓
-Iterate until publishable quality
+迭代直至达到可发表质量
 ```
 
-### Mathematical and Formal Reasoning
+### 数学与形式化推理
 
-| System | Environment | Evolution Mechanism | Breakthrough |
+| 系统 | 环境 | 演化机制 | 突破 |
 |---|---|---|---|
-| **AlphaProof** [Hubert et al., 2025] | Lean verifier (formal math) | Search-Verify loop with ProverNet | IMO 2024 silver-level math |
+| **AlphaProof**（Hubert et al., 2025） | Lean 验证器（形式化数学） | 带 ProverNet 的搜索-验证循环 | IMO 2024 银牌级数学 |
 
-**AlphaProof**: LLM generates proof attempts → Lean verifier checks correctness → Only correct proofs reinforce training → Co-evolution of model and formal math environment.
+**AlphaProof**：LLM 生成证明尝试 → Lean 验证器检查正确性 → 只有正确的证明强化训练 → 模型与形式数学环境协同进化。
 
-### Chemistry and Materials Science
+### 化学与材料科学
 
-| System | Domain | Environment | Key Result |
+| 系统 | 领域 | 环境 | 关键结果 |
 |---|---|---|---|
-| **ChemCrow** [Bran et al., 2023] | Chemistry | Lab tools + robotic control | Generalized lab automation |
-| **Coscientist** | Automated Science | Lab env + hardware APIs | Zero-shot hardware control |
-| **GNoME** [Merchant et al., 2023] | Materials Science | DFT simulation space | **2.2 million new stable crystal structures** |
-| **A-Lab** [Szymanski et al., 2023] | Materials synthesis | Robotic lab | **71% synthesis success over 17-day run** |
-| **CRESt** | Catalysis discovery | Multimodal robotic lab | **9.3× cost-performance gain** |
+| **ChemCrow**（Bran et al., 2023） | 化学 | 实验室工具 + 机器人控制 | 通用实验室自动化 |
+| **Coscientist** | 自动化科学 | 实验室环境 + 硬件 API | 零样本硬件控制 |
+| **GNoME**（Merchant et al., 2023） | 材料科学 | DFT 仿真空间 | **220 万种新的稳定晶体结构** |
+| **A-Lab**（Szymanski et al., 2023） | 材料合成 | 机器人实验室 | **17 天运行中 71% 合成成功率** |
+| **CRESt** | 催化剂发现 | 多模态机器人实验室 | **9.3 倍性价比提升** |
 
 ---
 
-## B. Autonomous Software Engineering
+## B. 自主软件工程
 
-**Core insight**: Software engineering involves complex state spaces (codebases, terminals, CI/CD) where a single error cascades into many feedback signals. Co-evolution is the natural paradigm.
+**核心洞察**：软件工程涉及复杂的状态空间（代码库、终端、CI/CD），单一错误会级联到许多反馈信号。协同进化是自然的范式。
 
-> "Co-evolution in software engineering mainly depends on the agent's ability to use software tools effectively and continuously track system states and updates in a strict development environment."
+> "软件工程中的协同进化主要依赖于智能体有效使用软件工具的能力，以及在严格的开发环境中持续跟踪系统状态和更新。"
 
-### System Environment Interface
+### 系统环境接口
 
-**SWE-agent** [Yang et al., 2024]:
-- Introduces **Agent-Computer Interface (ACI)** — simplifies command interfaces and provides concise structured feedback
-- Shows that *environment design alone* can significantly improve self-correction
-- SWE-bench performance: high bug-fix success rate on real GitHub issues
+**SWE-agent**（Yang et al., 2024）：
+- 引入**智能体-计算机接口（ACI）** —— 简化命令接口并提供简洁的结构化反馈
+- 表明*仅环境设计*就能显著改善自我修正
+- SWE-bench 表现：在真实 GitHub 问题上的高 bug 修复成功率
 
-### Long-Term Experience Accumulation
+### 长期经验积累
 
-| System | Evolution Mechanism | Key Innovation |
+| 系统 | 演化机制 | 关键创新 |
 |---|---|---|
-| **Claude Code** [Anthropic] | Skill accumulation from project history | Senior-level coding via skill memory |
-| **OpenClaw** | Community-driven skill sharing | Skill hub for long-term local adaptation |
+| **Claude Code**（Anthropic） | 从项目历史积累技能 | 通过技能记忆实现高级编码 |
+| **OpenClaw** | 社区驱动的技能共享 | 用于长期本地适配的技能中心 |
 
-**Claude Code** mechanism:
+**Claude Code** 机制：
 ```
-Execute task → Extract reusable patterns from execution traces
-                              ↓
-                     Store as skills in memory
-                              ↓
-             Future task: retrieve relevant skills
-                              ↓
-            Gradually adapts to specific codebases
+执行任务 → 从执行轨迹中提取可复用模式
+                          ↓
+                   存储为技能记忆
+                          ↓
+             未来任务：检索相关技能
+                          ↓
+              逐渐适配特定代码库
 ```
 
-### Full-Stack Execution Frameworks
+### 全栈执行框架
 
-| System | Environment | Evolution Mechanism | Capability |
+| 系统 | 环境 | 演化机制 | 能力 |
 |---|---|---|---|
-| **Manus** | Cloud VM sandbox | Plan-Act-Verify loop (CodeAct) | Human-like environment interaction |
-| **Devin** [Cognition Labs] | Browser + terminal + IDE | Web-based correction with tool autonomy | Fully autonomous SWE |
-| **Cursor** | Repo index + shadow env | Human-AI co-evolution via shadow workspace | Productivity co-adaptation |
+| **Manus** | 云 VM 沙盒 | 规划-行动-验证循环（CodeAct） | 类人环境交互 |
+| **Devin**（Cognition Labs） | 浏览器 + 终端 + IDE | 带工具自主性的基于网页的修正 | 完全自主软件工程 |
+| **Cursor** | 仓库索引 + 影子环境 | 通过影子工作空间的人类-AI 协同进化 | 通过协作提升生产力 |
 
-**Cursor's co-evolution model**: Agent and developer co-evolve through a shadow workspace where AI simulates changes before committing → productivity amplification through collaboration.
+**Cursor 的协同进化模型**：智能体和开发者通过影子工作空间协同进化，AI 在提交前模拟变更 → 通过协作放大生产力。
 
 ---
 
-## C. Open-World Simulation
+## C. 开放世界仿真
 
-**Core insight**: In open-world environments, agents must not just adapt to the environment — they actively *shape* it, creating emergent cultures, economies, and social dynamics.
+**核心洞察**：在开放世界环境中，智能体不仅要适应环境 —— 它们还主动*塑造*环境，创造涌现的文化、经济和社会动态。
 
-> "Co-evolution reaches its highest level of abstraction. The environment is no longer a singular task or a static codebase, but an open, multi-agent social or physical world."
+> "协同进化达到其最高抽象层次。环境不再是单一任务或静态代码库，而是一个开放的、多智能体的社会或物理世界。"
 
-### Gaming Environments
+### 游戏环境
 
-| System | Environment | Evolution Mechanism | Key Result |
+| 系统 | 环境 | 演化机制 | 关键结果 |
 |---|---|---|---|
-| **Voyager** [Wang et al., 2023] | Minecraft open world | Explore-Code-Store with auto-curriculum | **15.3× faster progression** vs baselines |
-| **GITM** [Zhu et al., 2023] | Minecraft open world | Decompose-Plan-Act with text memory | **+47.5% success on Diamond-level** tasks |
-| **Cradle** [Tan et al., 2024] | General GUI interface | Observe-Plan-Act with MLLM + skill curation | API-free computer control |
+| **Voyager**（Wang et al., 2023） | Minecraft 开放世界 | 探索-编码-存储与自动课程 | 比基线快 **15.3 倍** |
+| **GITM**（Zhu et al., 2023） | Minecraft 开放世界 | 分解-规划-行动与文本记忆 | 钻石级任务成功率 **+47.5%** |
+| **Cradle**（Tan et al., 2024） | 通用 GUI 接口 | 带 MLLM + 技能管理的观察-规划-行动 | 无 API 的计算机控制 |
 
-**Voyager's skill library**:
+**Voyager 的技能库**：
 ```
-Explore → Encounter challenge → Write code to solve it
-                                        ↓
-                           Code tested in Minecraft
-                                        ↓
-                           Success? Store in skill library
-                                        ↓
-                    Future tasks can retrieve and reuse skill
+探索 → 遇到挑战 → 编写代码解决它
+                          ↓
+                  在 Minecraft 中测试代码
+                          ↓
+                  成功？存入技能库
+                          ↓
+              未来任务可以检索和复用技能
 ```
-This creates compounding capability — each new skill enables accessing new challenges.
+这创造了复合能力 —— 每个新技能都能解锁新的挑战。
 
-### Social Simulation
+### 社会仿真
 
-| System | Environment | Evolution Mechanism | Key Result |
+| 系统 | 环境 | 演化机制 | 关键结果 |
 |---|---|---|---|
-| **ProjectSid** [AL et al., 2024] | Multi-agent digital civilization | Social norm co-evolution (PIANO) | Emergent economy + laws |
-| **Generative Agents** [Park et al., 2023] | Virtual town sandbox | Observe-Reflect-Plan with reflection | Emergent group activities |
+| **ProjectSid**（AL et al., 2024） | 多智能体数字文明 | 社会规范协同进化（PIANO） | 涌现经济 + 法律 |
+| **Generative Agents**（Park et al., 2023） | 虚拟小镇沙盒 | 带反思的观察-反思-规划 | 涌现的群体活动 |
 
-**Generative Agents**: 25 LLM-powered agents in a simulated town → spontaneously develop social behaviors, relationships, events through memory-driven reflection.
+**Generative Agents**：虚拟小镇中 25 个 LLM 驱动的智能体 → 通过记忆驱动的反思自发发展社会行为、关系和事件。
 
-### Embodied AI and World Models
+### 具身 AI 与世界模型
 
-| System | Environment | Evolution Mechanism | Key Result |
+| 系统 | 环境 | 演化机制 | 关键结果 |
 |---|---|---|---|
-| **SIMA** [Bolton et al., 2025] | Generative 3D worlds | GenEnv feedback loop with world model | Embodied data reduction |
-| **Genie3** [Bruce et al., 2024] | Text-to-3D worlds | Interactive world loop | Persistent 3D worlds |
+| **SIMA**（Bolton et al., 2025） | 生成式 3D 世界 | 带世界模型的 GenEnv 反馈循环 | 具身数据减少 |
+| **Genie3**（Bruce et al., 2024） | 文本到 3D 世界 | 交互式世界循环 | 持久 3D 世界 |
 
 ---
 
-## Table III: Full Applications Taxonomy
+## 表 III：完整应用分类
 
-| Domain | Environment Definition | Evolution Mechanism | Core Technology | Breakthrough Results |
+| 领域 | 环境定义 | 演化机制 | 核心技术 | 突破性结果 |
 |---|---|---|---|---|
-| The AI Scientist | Academic research; simulated review | Gen-Review cycle | Auto peer-review | Paper auto-generation |
-| AlphaProof | Logic & Math; Lean verifier | Search-Verify loop | ProverNet | IMO 2024 silver |
-| GNoME | Materials Sci; DFT simulation | Active learning loop | GNN predictor | 2.2M stable crystals |
-| A-Lab | Materials Sci; robotic lab | Active-learning synthesis | ML-guided planning | 71% synthesis success |
-| SWE-agent | Software Eng; terminal + codebase + CI | Error-feedback correction | ACI interface | High bug-fix success rate |
-| Claude Code | Long-term Eng; project history | Skill accumulation | Skill memory | Senior-level coding |
-| Voyager | Gaming; Minecraft open world | Explore-Code-Store | Auto curriculum | 15.3× faster progression |
-| GITM | Gaming; Minecraft open world | Decompose-Plan-Act | Text memory | +47.5% success (Diamond) |
-| ProjectSid | Digital Civ; multi-agent society | Social norm co-evolution | PIANO | Emergent economy & laws |
-| Generative Agents | Social Sim; virtual town sandbox | Observe-Reflect-Plan | Reflection | Emergent group activities |
-| SIMA | Embodied AI; generative 3D worlds | GenEnv feedback loop | World model | Embodied data reduction |
+| The AI Scientist | 学术研究；模拟评审 | 生成-评审循环 | 自动同行评审 | 论文自动生成 |
+| AlphaProof | 逻辑 & 数学；Lean 验证器 | 搜索-验证循环 | ProverNet | IMO 2024 银牌 |
+| GNoME | 材料科学；DFT 仿真 | 主动学习循环 | GNN 预测器 | 220 万稳定晶体 |
+| A-Lab | 材料科学；机器人实验室 | 主动学习合成 | ML 引导规划 | 71% 合成成功率 |
+| SWE-agent | 软件工程；终端 + 代码库 + CI | 错误反馈修正 | ACI 接口 | 高 bug 修复成功率 |
+| Claude Code | 长期工程；项目历史 | 技能积累 | 技能记忆 | 高级编码 |
+| Voyager | 游戏；Minecraft 开放世界 | 探索-编码-存储 | 自动课程 | 15.3× 更快进展 |
+| GITM | 游戏；Minecraft 开放世界 | 分解-规划-行动 | 文本记忆 | +47.5% 成功率（钻石） |
+| ProjectSid | 数字文明；多智能体社会 | 社会规范协同进化 | PIANO | 涌现经济 & 法律 |
+| Generative Agents | 社会仿真；虚拟小镇沙盒 | 观察-反思-规划 | 反思 | 涌现群体活动 |
+| SIMA | 具身 AI；生成式 3D 世界 | GenEnv 反馈循环 | 世界模型 | 具身数据减少 |

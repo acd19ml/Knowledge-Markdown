@@ -1,264 +1,264 @@
-# Multi-Agent Memory Operations
+# 多智能体记忆操作
 
-> Paper Section 4.2 (pages 23–26)
+> 论文第 4.2 节（第 23–26 页）
 
-In multi-agent systems, memory operations extend beyond single-agent management to handle **cross-agent read/write coordination**, routing, isolation, and conflict resolution.
+在多智能体系统中，记忆操作超越了单智能体管理，需要处理**跨智能体读写协调**、路由、隔离和冲突消解。
 
-> "What matters more in multi-agent settings is cross-agent read and write rules: which memory is appropriate for agents with different roles, and how to remove redundancy, resolve conflicts, and keep memory consistent."
-
----
-
-## Three Key Problems in Multi-Agent Memory
-
-1. **Architecture**: Where does memory live? Who can read/write it?
-2. **Routing**: How is appropriate memory selected and injected for each agent/role?
-3. **Isolation & Conflicts**: How do we prevent inconsistency when multiple agents update shared state?
+> "在多智能体场景中，更重要的是跨智能体的读写规则：哪些记忆适合不同角色的智能体，以及如何消除冗余、消解冲突并保持记忆一致性。"
 
 ---
 
-## 4.2.1 Memory Architecture
+## 多智能体记忆的三大核心问题
 
-Defines **where memory resides** and **what permissions** agents have to read/write.
-
-### Architecture Types
-
-#### Private-Only
-
-Each agent has its own independent memory. Read/write rights apply only within that agent's memory.
-
-```
-Agent A          Agent B          Agent C
-[Private Memory] [Private Memory] [Private Memory]
-      ↕                ↕                ↕
-   (task A)         (task B)         (task C)
-```
-
-**Properties**:
-- Strong isolation → easier to verify behavior
-- Same memories often recreated in multiple private spaces → resource waste
-- Collaboration only through explicit information exchange (selected viewpoints, not full memory dump)
-
-**Representative**:
-- RecAgent: one agent per user, private memory prevents history mixing → privacy
-- TradingGPT: each trading agent maintains private memory for consistent risk preference
-- MetaAgents: each role has isolated past thoughts/decisions → role stability
+1. **架构**：记忆存在何处？谁可以读写？
+2. **路由**：如何为每个智能体/角色选择并注入合适的记忆？
+3. **隔离与冲突**：当多个智能体更新共享状态时，如何防止不一致？
 
 ---
 
-#### Shared-Workspace
+## 4.2.1 记忆架构
 
-All agents read from and write to a **common memory pool**.
+定义**记忆存储的位置**以及智能体的**读写权限**。
+
+### 架构类型
+
+#### 私有独立型
+
+每个智能体拥有独立的私有记忆。读写权限仅适用于该智能体的记忆范围内。
 
 ```
-           Shared Memory Pool
+智能体 A         智能体 B         智能体 C
+[私有记忆]      [私有记忆]      [私有记忆]
+    ↕                ↕                ↕
+ （任务 A）       （任务 B）       （任务 C）
+```
+
+**特性**：
+- 强隔离 → 更易验证行为
+- 相同记忆在多个私有空间中被反复创建 → 资源浪费
+- 仅通过显式信息交换进行协作（选定视角，而非完整记忆转储）
+
+**代表性工作**：
+- RecAgent：每个用户一个智能体，私有记忆防止历史混淆 → 隐私保护
+- TradingGPT：每个交易智能体维护私有记忆以保持一致的风险偏好
+- MetaAgents：每个角色拥有隔离的历史思考/决策 → 角色稳定性
+
+---
+
+#### 共享工作空间型
+
+所有智能体从**公共记忆池**中读写。
+
+```
+           共享记忆池
           ┌─────────────────┐
-          │ Results, State  │
-          │ Intermediate    │
-          │ Artifacts       │
+          │ 结果、状态      │
+          │ 中间制品        │
+          │                 │
           └─────────────────┘
          ↗    ↗    ↗    ↗
-  Agent A  B   C   D  (all read/write)
+  智能体 A  B   C   D  （均可读写）
 ```
 
-**Properties**:
-- Reduces peer-to-peer messaging overhead
-- Shared pool can quickly become noisy → needs filtering mechanisms
-- Coordination required to avoid conflicts on simultaneous updates
+**特性**：
+- 减少点对点消息传递开销
+- 共享池容易充斥噪声 → 需要过滤机制
+- 并发更新时需要协调以避免冲突
 
-**Representative**:
-- MetaGPT (Hong et al., 2023): role agents filter the shared pool using role profiles — each agent pulls only relevant memory
-- InteRecAgent: Candidate Bus — tools repeatedly read/write filtered candidates → progressively narrowed to avoid prompt overflow
-- MAICC: shared experience pool + online replay buffer → agents query with sub-trajectory, retrieve top-k similar
+**代表性工作**：
+- MetaGPT (Hong et al., 2023)：角色智能体利用角色档案过滤共享池 —— 每个智能体只获取相关记忆
+- InteRecAgent：候选总线 —— 工具反复读写过滤后的候选项 → 逐步缩小，避免提示溢出
+- MAICC：共享经验池 + 在线回放缓冲区 → 智能体以子轨迹为查询，检索 top-k 相似项
 
 ---
 
-#### Hybrid
+#### 混合型
 
-Both private + shared layers. A policy decides whether new information → private or shared. Build permission-limited memory views.
+同时具备私有层和共享层。由策略决定新信息进入私有还是共享存储。构建受权限限制的记忆视图。
 
 ```
-       Private Layer        Shared Layer
-       ┌──────────┐        ┌──────────────┐
-Agent A│ private  │←──────→│ shared       │
-       └──────────┘  write │ knowledge    │
-       ┌──────────┐  policy│              │
-Agent B│ private  │←──────→│              │
-       └──────────┘        └──────────────┘
+       私有层             共享层
+       ┌──────────┐       ┌──────────────┐
+智能体A│  私有    │←─────→│    共享      │
+       └──────────┘  写入 │    知识      │
+       ┌──────────┐  策略 │              │
+智能体B│  私有    │←─────→│              │
+       └──────────┘       └──────────────┘
 ```
 
-**Properties**:
-- Balance memory reuse and sensitive information isolation
-- Write policy: "is this generally useful or user-specific?" → route accordingly
-- Read policy: access graph defines permission-limited view per agent
+**特性**：
+- 平衡记忆复用与敏感信息隔离
+- 写入策略："这对所有人有用还是特定于某用户？" → 路由到对应位置
+- 读取策略：访问图定义每个智能体受权限限制的视图
 
-**Representative**:
-- Collaborative Memory (Rezazadeh et al., 2025a): write policy + read policy with access graph
-- MirrorMind (Zeng et al., 2025): each AuthorAgent has private memory (research interests) + public shared disciplinary knowledge → AI Scientist structure
+**代表性工作**：
+- Collaborative Memory (Rezazadeh et al., 2025a)：写入策略 + 带访问图的读取策略
+- MirrorMind (Zeng et al., 2025)：每个 AuthorAgent 拥有私有记忆（研究兴趣）+ 公共共享的学科知识 → AI 科学家架构
 
 ---
 
-#### Orchestrated
+#### 编排型
 
-Introduces an **explicit controller** that coordinates agents and mediates memory access in a hierarchical workflow.
+引入**显式控制器**，在层次化工作流中协调智能体并协调记忆访问。
 
 ```
          ┌─────────────────┐
-         │   Orchestrator  │  ← Decomposes tasks, assigns subtasks,
-         │   (Controller)  │    decides memory routing
+         │    编排器        │  ← 分解任务、分配子任务、
+         │   （控制器）     │    决定记忆路由
          └─────────────────┘
               ↙   ↓   ↘
-         Agent A  B   C  (worker agents)
-         [role-specific memory views]
+         智能体A  B   C （工作智能体）
+         [角色特定记忆视图]
 ```
 
-**Properties**:
-- Centralized coordination → well-suited for multi-stage workflows
-- Potential bottleneck; single point of failure
-- Orthogonal to storage layout — can combine with private/shared/hybrid
+**特性**：
+- 集中协调 → 适合多阶段工作流
+- 潜在瓶颈；单点故障
+- 与存储布局正交 —— 可与私有/共享/混合类型组合
 
-**Representative**:
-- ChatDev (Qian et al., 2024a): ChatChain (design→coding→testing), stage outputs as structured handoffs
-- MIRIX (Wang & Chen, 2025): MetaMemoryManager routes updates/retrievals to specialized MemoryManagers
-- MGA: Planner as controller, lower-level agents submit to shared workspace, planner selects what to inject
+**代表性工作**：
+- ChatDev (Qian et al., 2024a)：ChatChain（设计→编码→测试），阶段输出作为结构化移交
+- MIRIX (Wang & Chen, 2025)：MetaMemoryManager 将更新/检索路由到专用 MemoryManager
+- MGA：规划器作为控制器，下级智能体提交到共享工作空间，规划器选择注入内容
 
 ---
 
-## 4.2.2 Memory Routing
+## 4.2.2 记忆路由
 
-Given an architecture, routing defines **which past memories are retrieved and how they are injected** into each agent's context for a given task.
+在确定架构后，路由定义了**为特定任务检索哪些过去记忆以及如何将其注入**每个智能体的上下文。
 
-### Three Routing Approaches
+### 三种路由方式
 
-#### Orchestrator-Based Routing
+#### 基于编排器的路由
 
-**Central orchestrator makes all routing decisions.**
+**中央编排器做出所有路由决策。**
 
 ```
-Orchestrator maintains global task state
-    ↓ decomposes task
-    ↓ assigns subtasks to role agents
-    ↓ distributes required memory
-    ↓ decides execution order
-    ↓ updates dynamically as state changes
+编排器维护全局任务状态
+    ↓ 分解任务
+    ↓ 为角色智能体分配子任务
+    ↓ 分发所需记忆
+    ↓ 决定执行顺序
+    ↓ 随状态变化动态更新
 ```
 
-**Properties**: Centralized global workflow; risk of orchestrator becoming bottleneck/single point of failure.
+**特性**：集中化全局工作流；编排器有成为瓶颈/单点故障的风险。
 
-**Representative**:
-- LEGOMem: orchestrator generates next subtask → selects agent → updates state from summary; memory injected by orchestrator
-- GameGPT: manager defines pipeline, each stage writes key outputs to shared workspace P_t
-- Westhäußer et al. (2025): MCP-based orchestrator selects memory sources to call; Self-Validator requests more retrieval if needed
+**代表性工作**：
+- LEGOMem：编排器生成下一个子任务 → 选择智能体 → 从摘要中更新状态；记忆由编排器注入
+- GameGPT：管理器定义流水线，每个阶段将关键输出写入共享工作空间 P_t
+- Westhäußer et al. (2025)：基于 MCP 的编排器选择要调用的记忆源；Self-Validator 在需要时请求更多检索
 
 ---
 
-#### Agent-Initiated Routing
+#### 智能体主动路由
 
-**Each agent decides locally what memory to retrieve, based on role and task.**
+**每个智能体根据角色和任务自主决定检索什么记忆。**
 
 ```
-Shared memory pool
-    ↓ (published by agents)
-Each agent applies constraint mechanisms
-    ↓ (filters based on role/task)
-Agent-specific memory view constructed
+共享记忆池
+    ↓ （由智能体发布）
+每个智能体应用约束机制
+    ↓ （根据角色/任务过滤）
+构建智能体特定的记忆视图
 ```
 
-**Properties**: More flexible; depends on good filtering design; can miss important information if filtering is poor.
+**特性**：更灵活；依赖良好的过滤设计；若过滤质量差，可能遗漏重要信息。
 
-**Representative**:
-- SRMT: personal memory vector + cross-attention over shared memory sequence; each agent decides how much to read
-- S3 (Gao et al., 2023): platform-wide message stream → scored by forgetting/relevance/source credibility factors → small subset retained per agent
-- Talker-Reasoner (Christakopoulou et al., 2024): Talker reads from shared store written by Reasoner; Talker decides when to read or wait for update
+**代表性工作**：
+- SRMT：个人记忆向量 + 对共享记忆序列的交叉注意力；每个智能体决定读取多少
+- S3 (Gao et al., 2023)：平台级消息流 → 按遗忘/相关性/来源可信度因子打分 → 每个智能体仅保留小型子集
+- Talker-Reasoner (Christakopoulou et al., 2024)：Talker 从 Reasoner 写入的共享存储中读取；Talker 决定何时读取或等待更新
 
 ---
 
-#### Memory-Driven Routing
+#### 记忆驱动路由
 
-**Retrieval from the memory store itself determines routing.**
+**从记忆存储中检索本身决定路由。**
 
 ```
-Current task as query
+当前任务作为查询
     ↓
-Memory store: retrieve → score → rerank → select
-    ↓ (optionally expand via graph links)
-Inject relevant memory subset into agent context
+记忆存储：检索 → 打分 → 重排 → 选择
+    ↓ （可选择通过图链接扩展）
+将相关记忆子集注入智能体上下文
 ```
 
-**Properties**: Retrieval quality drives routing quality; graph expansion can enrich results.
+**特性**：检索质量驱动路由质量；图扩展可丰富结果。
 
-**Representative**:
-- G-Memory (Zhang et al., 2025c): multi-agent histories as hierarchical graph → retrieve relevant nodes → expand via neighborhood → compress into core subgraph → trim to role-specific views
-- CRMWeaver (Lai et al., 2025): route at guideline level — retrieve most relevant workflow guideline from past successes; write back new guideline when no match
-- Spark (Tablan et al., 2025): each coding problem as query → retrieval agent analyzes intent → selects relevant documentation + experience traces
+**代表性工作**：
+- G-Memory (Zhang et al., 2025c)：多智能体历史作为层次化图 → 检索相关节点 → 通过邻域扩展 → 压缩为核心子图 → 裁剪为角色特定视图
+- CRMWeaver (Lai et al., 2025)：在指南层面路由 —— 检索过去成功中最相关的工作流指南；无匹配时写回新指南
+- Spark (Tablan et al., 2025)：每个编程问题作为查询 → 检索智能体分析意图 → 选择相关文档 + 经验轨迹
 
 ---
 
-## 4.2.3 Memory Isolation and Conflicts
+## 4.2.3 记忆隔离与冲突
 
-When multiple agents write to shared memory, **consistency conflicts** arise:
-- Different agents may write contradictory facts
-- Outdated information may not be removed
-- Parallel writes may overwrite each other's updates
+当多个智能体向共享记忆写入时，**一致性冲突**会出现：
+- 不同智能体可能写入矛盾的事实
+- 过时信息可能未被移除
+- 并发写入可能相互覆盖
 
-### Approach 1: Write Control for Memory Isolation
+### 方法一：写入控制实现记忆隔离
 
-**Enforce isolation at write/update stage.**
+**在写入/更新阶段强制执行隔离。**
 
-**Mechanism**: Compare newly extracted facts against existing memory state → selective update via controlled evaluation.
+**机制**：将新提取的事实与现有记忆状态进行比对 → 通过受控评估进行选择性更新。
 
-**Memory-R1 (Yan et al., 2025b)** — memory manager agent is the **only** agent allowed to mutate memory, using four atomic editing actions:
+**Memory-R1 (Yan et al., 2025b)** —— 记忆管理智能体是**唯一**被允许修改记忆的智能体，使用四种原子编辑动作：
 
-| Action | When Used |
+| 动作 | 使用时机 |
 |---|---|
-| **ADD** | New entry, not already covered |
-| **UPDATE** | New info refines/corrects existing; keep version with more information |
-| **DELETE** | New evidence clearly contradicts or makes obsolete |
-| **NOOP** | Info already covered or not important for long-term memory |
+| **ADD（添加）** | 新条目，尚未覆盖 |
+| **UPDATE（更新）** | 新信息细化/纠正已有信息；保留信息量更多的版本 |
+| **DELETE（删除）** | 新证据明显与已有信息矛盾或使其过时 |
+| **NOOP（无操作）** | 信息已被覆盖或对长期记忆不重要 |
 
-**WebCoach**: memory store updated only **after episode completion** → partial trajectories never written → no mid-episode conflicts
-
----
-
-### Approach 2: Feedback Loop for Memory Consistency
-
-**Treat conflicts as an iterative optimization problem.**
-
-```
-Multi-agent system
-    ├── Constraint Memory: hard requirements that persist across iterations
-    │      (new iterations must satisfy these constraints)
-    └── Feedback Memory: failures from earlier rounds
-           (used to improve subsequent iterations)
-```
-
-**EvoMem (Fan et al., 2025b)**:
-- Verifier compares candidate solutions against stored constraint memory
-- Outputs a score
-- System accepts solution only when score = 100 (all constraints satisfied)
+**WebCoach**：记忆存储仅在**情节完成后**更新 → 未完成的轨迹永远不会被写入 → 无情节中途冲突
 
 ---
 
-## Comparison: Single vs. Multi-Agent Memory Operations
+### 方法二：反馈循环实现记忆一致性
 
-| Operation | Single-Agent | Multi-Agent Extensions |
+**将冲突视为迭代优化问题。**
+
+```
+多智能体系统
+    ├── 约束记忆：在迭代中持久存在的硬性要求
+    │      （新迭代必须满足这些约束）
+    └── 反馈记忆：早期轮次的失败记录
+           （用于改进后续迭代）
+```
+
+**EvoMem (Fan et al., 2025b)**：
+- 验证器将候选解与存储的约束记忆进行比对
+- 输出得分
+- 仅当得分 = 100（所有约束满足）时系统接受解
+
+---
+
+## 对比：单智能体 vs 多智能体记忆操作
+
+| 操作 | 单智能体 | 多智能体扩展 |
 |---|---|---|
-| Storage | Write to own memory | Write to private/shared memory; routing decision required |
-| Retrieval | Query own memory | Query own + shared; permission-limited views |
-| Update | Revise own entries | Must coordinate with other agents; write control or feedback loops |
-| Compression | Compress own context | Compress shared pool; avoid losing cross-agent knowledge |
-| Forgetting | Remove from own memory | Shared memory pruning requires consensus or orchestrator decision |
+| 存储 | 写入自身记忆 | 写入私有/共享记忆；需要路由决策 |
+| 检索 | 查询自身记忆 | 查询自身 + 共享；受权限限制的视图 |
+| 更新 | 修订自身条目 | 必须与其他智能体协调；写入控制或反馈循环 |
+| 压缩 | 压缩自身上下文 | 压缩共享池；避免丢失跨智能体知识 |
+| 遗忘 | 从自身记忆中移除 | 共享记忆剪枝需要共识或编排器决策 |
 
 ---
 
-## Representative Multi-Agent Systems
+## 代表性多智能体系统
 
-| System | Architecture | Routing | Conflict Handling |
+| 系统 | 架构 | 路由 | 冲突处理 |
 |---|---|---|---|
-| MetaGPT | Shared workspace | Agent-initiated (role profile filter) | Role-based filtering |
-| ChatDev | Orchestrated | Orchestrator-based | Stage handoffs |
-| MIRIX | Orchestrated + hierarchical | Orchestrator (MetaMemoryManager) | Specialized managers |
-| Collaborative Memory | Hybrid | Write/read policy | Access graph (permission-limited) |
-| G-Memory | Shared (graph) | Memory-driven | Graph structure maintains consistency |
-| Memory-R1 | Orchestrated | Agent memory manager | Atomic CRUD actions |
-| SRMT | Private + shared | Agent-initiated (cross-attention) | Personal memory vector isolation |
-| MAICC | Shared (experience pool) | Memory-driven (trajectory similarity) | Separate online/offline buffers |
+| MetaGPT | 共享工作空间 | 智能体主动（角色档案过滤） | 角色过滤 |
+| ChatDev | 编排型 | 基于编排器 | 阶段移交 |
+| MIRIX | 编排型 + 层次化 | 编排器（MetaMemoryManager） | 专用管理器 |
+| Collaborative Memory | 混合型 | 写入/读取策略 | 访问图（权限限制） |
+| G-Memory | 共享（图） | 记忆驱动 | 图结构维护一致性 |
+| Memory-R1 | 编排型 | 智能体记忆管理器 | 原子 CRUD 动作 |
+| SRMT | 私有 + 共享 | 智能体主动（交叉注意力） | 个人记忆向量隔离 |
+| MAICC | 共享（经验池） | 记忆驱动（轨迹相似度） | 独立的在线/离线缓冲区 |

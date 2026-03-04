@@ -1,135 +1,135 @@
-# Background & Preliminaries
+# 背景与预备知识
 
-> Paper Section II (pages 4–5)
+> 论文第 II 节（第 4–5 页）
 
 ---
 
-## Agent Definition
+## 智能体定义
 
-A **Foundation Agent** is defined as:
+**基础智能体**的定义为：
 
-> An LLM-based system that perceives observations, reasons over them, and selects actions to achieve goals — operating within an environment through a perceive-reason-act loop.
+> 一个基于 LLM 的系统，能够感知观察、对其进行推理并选择行动以实现目标 —— 通过感知-推理-行动循环在环境中运行。
 
-### Core Agent Components
+### 核心智能体组件
 
-| Component | Description |
+| 组件 | 描述 |
 |---|---|
-| **Model** | LLM backbone that generates reasoning and actions |
-| **Observation (o)** | Current state perceived from the environment |
-| **Action (a)** | Output produced by the model (text, tool call, code, etc.) |
-| **Environment (E)** | The world the agent interacts with: text, code, web, tools, physics |
-| **Reward / Feedback** | Signal from environment evaluating action quality |
-| **Memory** | Accumulated experience enabling long-horizon behavior |
+| **模型** | 生成推理和行动的 LLM 骨干 |
+| **观察（o）** | 从环境中感知到的当前状态 |
+| **行动（a）** | 模型产生的输出（文本、工具调用、代码等） |
+| **环境（E）** | 智能体交互的世界：文本、代码、网页、工具、物理环境 |
+| **奖励/反馈** | 来自环境评估行动质量的信号 |
+| **记忆** | 积累的经验，支持长时域行为 |
 
 ---
 
-## Formal MDP Framework
+## 形式化 MDP 框架
 
-Agent-environment interaction is modeled as a **Markov Decision Process (MDP)**:
+智能体-环境交互被建模为**马尔可夫决策过程（MDP）**：
 
 ```
 (S, A, T, R, γ)
 ```
 
-| Symbol | Meaning |
+| 符号 | 含义 |
 |---|---|
-| S | State space (all possible observations) |
-| A | Action space (all possible agent outputs) |
-| T | Transition function: T(s' | s, a) — how actions change state |
-| R | Reward function: R(s, a, s') — quality signal |
-| γ | Discount factor for future rewards |
+| S | 状态空间（所有可能的观察） |
+| A | 行动空间（所有可能的智能体输出） |
+| T | 转移函数：T(s' \| s, a) —— 行动如何改变状态 |
+| R | 奖励函数：R(s, a, s') —— 质量信号 |
+| γ | 未来奖励的折扣因子 |
 
-### Interaction Loop
+### 交互循环
 
 ```
-s_t → Agent (LLM) → a_t → Environment → s_{t+1}, r_t
-         ↑                                      │
-         └──────────── Memory / History ────────┘
+s_t → 智能体（LLM）→ a_t → 环境 → s_{t+1}, r_t
+         ↑                                   │
+         └──────────── 记忆 / 历史 ──────────┘
 ```
 
-The agent's goal: learn a policy π(a|s) that maximizes expected cumulative reward.
+智能体目标：学习策略 π(a|s)，使预期累积奖励最大化。
 
 ---
 
-## The Supervision Bottleneck (Problem Framing)
+## 监督瓶颈（问题框架）
 
-Current LLM training pipelines:
+当前 LLM 训练流水线：
 
 ```
-Human Demonstrations → SFT → RLHF → Deployed Model
-        ↑                    ↑
-  Manual labels        Human preferences
-  (expensive,          (fragile, exploitable,
-   bounded)             limited scale)
+人工演示 → SFT → RLHF → 部署模型
+    ↑              ↑
+ 手动标注       人类偏好
+（昂贵，       （脆弱、可利用，
+ 有上限）       规模有限）
 ```
 
-**Two fundamental limitations**:
+**两个根本性局限**：
 
-1. **SFT bounds**: Models can only be as good as the human demonstrations they imitate. Novel strategies beyond training distribution are inaccessible.
+1. **SFT 的上限**：模型只能与其所模仿的人工演示一样出色。训练分布之外的新策略无法触及。
 
-2. **RL reward fragility**: Human-defined reward functions:
-   - May be hacked (agent finds loopholes)
-   - Sparse in complex environments (long-horizon tasks)
-   - Cannot scale to all task types automatically
+2. **RL 奖励的脆弱性**：人类定义的奖励函数：
+   - 可能被黑客利用（智能体找到漏洞）
+   - 在复杂环境中稀疏（长时域任务）
+   - 无法自动扩展到所有任务类型
 
 ---
 
-## Self-Evolution: The Solution
+## 自演化：解决方案
 
-Self-evolving agents break the supervision bottleneck by generating their own improvement signals:
+自演化智能体通过生成自身的改进信号来突破监督瓶颈：
 
 ```
-Agent ──→ Action ──→ Environment
-  ↑                       │
-  └── Self-generated  ←───┘
-      training signal
-      (no human needed)
+智能体 ──→ 行动 ──→ 环境
+  ↑                    │
+  └── 自生成的  ←──────┘
+      训练信号
+      （无需人类）
 ```
 
-**Sources of self-generated signal**:
-- **Internal**: Self-critique, consistency checking, confidence estimation
-- **Environmental**: Code execution feedback, search results, test results, peer evaluation
-- **Social**: Multi-agent discussion, competitive self-play
+**自生成信号的来源**：
+- **内部**：自我批评、一致性检查、置信度估计
+- **环境**：代码执行反馈、搜索结果、测试结果、同伴评估
+- **社会**：多智能体讨论、竞争性自我博弈
 
 ---
 
-## Environment Types
+## 环境类型
 
-The paper categorizes environments agents interact with:
+论文对智能体交互的环境进行分类：
 
-| Type | Examples | Signal Type |
+| 类型 | 示例 | 信号类型 |
 |---|---|---|
-| **Code Execution** | Python REPL, terminals, compilers | Binary (pass/fail) or traceback |
-| **Mathematical** | Lean provers, symbolic solvers | Verified/unverified |
-| **Web/Search** | Search engines, browsers | Retrieved documents |
-| **Physical/Robotic** | Simulators, robotic labs | Sensor feedback |
-| **Social/Game** | Minecraft, multi-agent debates | Score, emergent behavior |
-| **Scientific** | Chemistry/physics simulators, DFT | Experimental measurements |
+| **代码执行** | Python REPL、终端、编译器 | 二进制（通过/失败）或回溯 |
+| **数学** | Lean 证明器、符号求解器 | 已验证/未验证 |
+| **网页/搜索** | 搜索引擎、浏览器 | 检索到的文档 |
+| **物理/机器人** | 仿真器、机器人实验室 | 传感器反馈 |
+| **社会/游戏** | Minecraft、多智能体辩论 | 得分、涌现行为 |
+| **科学** | 化学/物理仿真器、DFT | 实验测量 |
 
 ---
 
-## Key Distinction: Training vs Inference Self-Evolution
+## 关键区分：训练 vs 推理自演化
 
-The survey distinguishes two timescales of evolution:
+综述区分了两种演化时间尺度：
 
-| Scale | When | Mechanism | Examples |
+| 时间尺度 | 何时发生 | 机制 | 示例 |
 |---|---|---|---|
-| **Inference-time** | During deployment, per-query | Sampling, self-critique, tree search | CoT, Reflexion, ToT |
-| **Training-time** | Offline, model weight updates | SFT on self-generated data, RL | STaR, GRPO, WebRL |
+| **推理时** | 部署过程中，按查询 | 采样、自我批评、树搜索 | CoT、Reflexion、ToT |
+| **训练时** | 离线，模型权重更新 | 自生成数据的 SFT、RL | STaR、GRPO、WebRL |
 
-This becomes the basis for the **Model-Centric** taxonomy split (Section III).
+这成为**以模型为中心**分类体系划分的基础（第 III 节）。
 
 ---
 
-## Cross-Reference: Agent Memory
+## 交叉参考：智能体记忆
 
-Self-evolution is deeply intertwined with agent memory (see [Agent_Memory/](../Agent_Memory/)):
+自演化与智能体记忆深度交织（见 [Agent_Memory/](../Agent_Memory/)）：
 
-| Memory Type | Role in Self-Evolution |
+| 记忆类型 | 在自演化中的作用 |
 |---|---|
-| **Episodic** | Stores past trajectories for offline learning (experience replay) |
-| **Procedural** | Accumulated skills enable more efficient exploration |
-| **Semantic** | Knowledge graphs from environment interaction |
-| **Working** | Context window — determines what's available during inference evolution |
+| **情节记忆** | 存储过去轨迹用于离线学习（经验回放） |
+| **程序记忆** | 积累的技能使探索更高效 |
+| **语义记忆** | 来自环境交互的knowledge graph |
+| **工作记忆** | context window —— 决定推理演化时可用的内容 |
 
-> Self-evolution can be understood as memory-driven learning: agents retain experiences and use them to improve future behavior.
+> 自演化可被理解为记忆驱动的学习：智能体保留经验并用其改进未来行为。

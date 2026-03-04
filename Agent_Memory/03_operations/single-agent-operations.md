@@ -1,223 +1,223 @@
-# Single-Agent Memory Operations
+# 单智能体记忆操作
 
-> Paper Section 4.1 (pages 20–23)
+> 论文第 4.1 节（第 20–23 页）
 
-Five core operations that govern how a single agent **actively constructs, updates, controls, and utilizes memory** throughout long-horizon interaction and task execution.
+五种核心操作，规定了单个智能体在长时域交互和任务执行过程中如何**主动构建、更新、控制和利用记忆**。
 
-> "Rather than treating memory as a static repository, modern agents manipulate memory through a sequence of operations: indexing, retrieval, updating, compression, summarization, forgetting, and pruning."
-
----
-
-## Operations Overview
-
-```
-[New Experience / Observation]
-           ↓
-    ┌─────────────┐
-    │  1. STORAGE │  ← Write-time: embed, index, organize
-    │   & INDEX   │
-    └─────────────┘
-           ↓
-    ┌─────────────┐
-    │ 2. LOADING  │  ← Query-time: filter, rank, retrieve
-    │ & RETRIEVAL │
-    └─────────────┘
-           ↓
-    ┌─────────────┐
-    │ 3. UPDATE   │  ← Revise existing entries, merge, rewrite
-    │  & REFRESH  │
-    └─────────────┘
-           ↓
-    ┌──────────────┐
-    │ 4. COMPRESS  │  ← Convert fine-grained → compact abstractions
-    │ & SUMMARIZE  │
-    └──────────────┘
-           ↓
-    ┌──────────────┐
-    │ 5. FORGETTING│  ← Remove obsolete; prioritize high-utility
-    │  & RETENTION │
-    └──────────────┘
-```
+> "现代智能体不把记忆视为静态仓库，而是通过一系列操作来操纵记忆：索引、检索、更新、压缩、摘要、遗忘和剪枝。"
 
 ---
 
-## 4.1.1 Storage and Index
+## 操作概览
 
-**Purpose**: Organize information at write time for efficient and reliable later retrieval.
+```
+[新经历/观察]
+         ↓
+  ┌─────────────┐
+  │  1. 存储   │  ← 写入时：嵌入、索引、组织
+  │   & 索引   │
+  └─────────────┘
+         ↓
+  ┌─────────────┐
+  │  2. 加载   │  ← 查询时：过滤、排序、检索
+  │  & 检索    │
+  └─────────────┘
+         ↓
+  ┌─────────────┐
+  │  3. 更新   │  ← 修订已有条目，合并，改写
+  │  & 刷新    │
+  └─────────────┘
+         ↓
+  ┌──────────────┐
+  │  4. 压缩    │  ← 将细粒度内容转换为紧凑的抽象
+  │  & 摘要     │
+  └──────────────┘
+         ↓
+  ┌──────────────┐
+  │  5. 遗忘    │  ← 移除过时内容；优先保留高效用信息
+  │  & 保留     │
+  └──────────────┘
+```
 
-### What Happens
+---
 
-Memory entries are indexed with:
-- **Semantic embeddings** (for similarity search)
-- **Auxiliary metadata**: timestamps, task identifiers, entities, tool usage
+## 4.1.1 存储与索引
 
-### Storage Format Choices
+**目的**：在写入时组织信息，以便后续高效可靠地检索。
 
-| Format | Retrieval Method | Best For |
+### 操作内容
+
+记忆条目以以下内容进行索引：
+- **语义嵌入**（用于相似度搜索）
+- **辅助元数据**：时间戳、任务标识符、实体、工具使用记录
+
+### 存储格式选择
+
+| 格式 | 检索方式 | 最适合 |
 |---|---|---|
-| **Vector index** | Approximate nearest-neighbor (ANN) | Semantic similarity; scalable episodic/semantic memory |
-| **Structured store** | Relational queries, graph traversal, tree navigation | Relational data; multi-level abstraction; schema-aware access |
-| **Text-record** | Keyword matching, lightweight string-based | Transparency; human-readable; controllable |
-| **Parametric (implicit)** | Model-internal recall (no explicit retrieval) | Stable background knowledge |
-| **KV cache** | Attention mechanism | Within-session working memory |
+| **向量索引** | 近似最近邻（ANN） | 语义相似度；可扩展的情节/语义记忆 |
+| **结构化存储** | 关系查询、图遍历、树导航 | 关系数据；多层抽象；模式感知访问 |
+| **文本记录** | 关键词匹配、轻量级字符串 | 透明度；人类可读；可控性 |
+| **参数化（隐式）** | 模型内部回忆（无显式检索） | 稳定的背景知识 |
+| **KV 缓存** | 注意力机制 | 会话内工作记忆 |
 
-### Key Principle
+### 关键原则
 
-> "As memory scales across longer horizons, the choice of storage format and indexing strategy directly affects retrieval precision, computational overhead, and downstream reasoning reliability."
-
----
-
-## 4.1.2 Loading and Retrieval
-
-**Purpose**: Efficiently find task-relevant memories during ongoing reasoning, while limiting influence of irrelevant/outdated information.
-
-### Two-Stage Process
-
-**Stage 1 — Loading (pre-selection)**:
-- Filter by metadata: recency, task scope, memory type
-- Lightweight, rule-based
-
-**Stage 2 — Retrieval (semantic ranking)**:
-- Similarity-based over vectorized representations
-- Further ranked/refined by semantic similarity, heuristic constraints, or budget-aware selection
-- Injected into model's prompt or working context
-
-### Retrieval Quality Matters
-
-> "Retrieving excessive memory can introduce noise and context overload, while overly restrictive retrieval may prevent access to critical historical information."
-
-**Goal**: Balance **relevance**, **diversity**, and **context budget** to support coherent long-horizon behavior.
-
-### Research Directions
-
-- Dense retrieval (DPR, RAG-style)
-- Sparse retrieval (BM25)
-- Hybrid retrieval
-- Iterative/progressive retrieval (multi-hop reasoning)
-- Budget-aware selection (context window constraints)
-- Compression-aware retrieval (retrieve from compressed representations)
+> "随着记忆在更长时域内扩展，存储格式和索引策略的选择直接影响检索精度、计算开销和下游推理的可靠性。"
 
 ---
 
-## 4.1.3 Update and Refresh
+## 4.1.2 加载与检索
 
-**Purpose**: Revise existing memory in response to new observations, feedback, or reflection — allowing memory to **evolve** rather than merely accumulate.
+**目的**：在持续推理过程中高效找到任务相关记忆，同时限制无关/过时信息的影响。
 
-### Update Triggers
+### 两阶段流程
 
-- After task completion
-- On receiving evaluation signals
-- On detecting inconsistencies with stored information
-- After agent reflection
+**第一阶段 —— 加载（预筛选）**：
+- 按元数据过滤：时效性、任务范围、记忆类型
+- 轻量级、基于规则
 
-### Update Types
+**第二阶段 —— 检索（语义排序）**：
+- 在向量化表征上进行相似度搜索
+- 进一步按语义相似度、启发式约束或预算感知选择进行排序/精炼
+- 注入模型的提示或工作上下文中
 
-| Type | What Changes |
+### 检索质量至关重要
+
+> "检索过多记忆会引入噪声和上下文过载，而检索过于严格则可能阻止访问关键的历史信息。"
+
+**目标**：平衡**相关性**、**多样性**和**上下文预算**，支持连贯的长时域行为。
+
+### 研究方向
+
+- 稠密检索（DPR、RAG 风格）
+- 稀疏检索（BM25）
+- 混合检索
+- 迭代/渐进式检索（多跳推理）
+- 预算感知选择（context window限制）
+- 压缩感知检索（从压缩表征中检索）
+
+---
+
+## 4.1.3 更新与刷新
+
+**目的**：根据新观察、反馈或反思来修订已有记忆 —— 使记忆**演化**而不仅仅是积累。
+
+### 更新触发条件
+
+- 任务完成后
+- 收到评估信号时
+- 检测到与存储信息不一致时
+- 智能体进行自我反思后
+
+### 更新类型
+
+| 类型 | 变更内容 |
 |---|---|
-| **Rewrite** | Overwrite semantic summaries with more accurate version |
-| **Merge** | Combine overlapping episodic records |
-| **Importance adjustment** | Reweight stored information (recency, frequency, impact) |
+| **改写** | 用更准确的版本覆盖语义摘要 |
+| **合并** | 合并重叠的情节记录 |
+| **重要性调整** | 对存储信息重新加权（时效性、频率、影响力） |
 
-### Refresh Operations
+### 刷新操作
 
-Adjust **prominence and accessibility** without altering core content:
-- Re-rank salient entries
-- Regenerate condensed summaries
-- Reinforce frequently accessed memories
+在不改变核心内容的前提下，调整**突出度和可访问性**：
+- 重新排序显著条目
+- 重新生成凝练摘要
+- 强化频繁访问的记忆
 
-### Key Pattern
+### 关键模式
 
-Reflective/self-evaluative processes can **autonomously trigger** both updating and refresh:
-- Reflexion (Shinn et al., 2023): explicit self-reflection → memory update
-- Ouyang et al. (2025): reasoning bank updated with verified conclusions
+反思性/自评估过程可以**自主触发**更新和刷新：
+- Reflexion (Shinn et al., 2023)：显式自我反思 → 记忆更新
+- Ouyang et al. (2025)：推理库随已验证结论更新
 
-> "Together, these mechanisms allow memory representations to evolve dynamically, supporting adaptation in non-stationary environments while mitigating the accumulation of obsolete or misleading information."
+> "这些机制共同允许记忆表征动态演化，支持在非稳态环境中的适应，同时缓解过时或误导性信息的积累。"
 
 ---
 
-## 4.1.4 Compression and Summarization
+## 4.1.4 压缩与摘要
 
-**Purpose**: Regulate memory growth while preserving information essential for future reasoning.
+**目的**：在保留未来推理所必需信息的前提下，调节记忆增长。
 
-### The Problem
+### 问题所在
 
-Episodic records grow without bound → redundancy, inefficiency, context overflow
+情节记录无限增长 → 冗余、低效、上下文溢出
 
-### Compression Strategies
+### 压缩策略
 
-| Strategy | Description | Timing |
+| 策略 | 描述 | 时机 |
 |---|---|---|
-| **Periodic summarization** | Consolidate interaction histories into compact semantic/hierarchical memory | After task or after N turns |
-| **Hierarchical consolidation** | Multi-level / tree-structured representations | Enables scalable retrieval at different abstraction levels |
-| **Dynamic Cheatsheet** | Compact, task-adaptive summary continuously updated | Real-time during task execution |
-| **Abstractive compression** | Convert fine-grained to high-level (lossy but compact) | On storage |
+| **周期性摘要** | 将交互历史整合为紧凑的语义/层次化记忆 | 任务完成后或每 N 轮后 |
+| **层次化巩固** | 多层/树结构表征 | 支持不同抽象层次的可扩展检索 |
+| **动态小抄** | 紧凑的、任务自适应摘要，持续更新 | 任务执行过程中实时更新 |
+| **抽象压缩** | 从细粒度转换为高层次（有损但紧凑） | 存储时 |
 
-### Key Tradeoff
+### 关键权衡
 
-> "An inherent trade-off between abstraction fidelity and long-term recall: aggressive summarization improves context utilization and scalability but can permanently lose fine-grained details needed later."
+> "抽象保真度与长期回忆之间存在固有权衡：激进的摘要提高了上下文利用率和可扩展性，但可能永久丢失后续需要的细节。"
 
-### Representative Works
+### 代表性工作
 
-- MemoryOS (Kang et al., 2025a): hierarchical memory OS-style management
-- SeCom (Pan et al., 2025): segment-level context compression
-- ACON (Kang et al., 2025c): compression-aware context management
-- SUPO (Lu et al., 2025b): progressive summarization under context budget
-
----
-
-## 4.1.5 Forgetting and Retention
-
-**Purpose**: As task objectives change and environments become non-stationary, manage the trade-off between retaining important information and purging obsolete/low-utility information.
-
-### Forgetting
-
-**Goal**: Reduce influence of obsolete or low-utility information.
-
-**Implementations**:
-- **Recency-based decay**: Older items get lower weight/priority (mimics Ebbinghaus forgetting curve)
-- **Importance threshold**: Remove entries below relevance score
-- **Learned forgetting strategies**: Optimize memory removal under resource/efficiency constraints
-
-### Retention
-
-**Goal**: Preserve high-utility knowledge even under memory growth pressure.
-
-**Mechanisms**:
-- Adaptive retention priorities based on task context and feedback signals
-- Long-term performance objectives guide which memories to keep
-- Dynamic adjustment under non-stationary environments
-
-### Key Insight
-
-> "Indiscriminate memory accumulation is increasingly misaligned with effective long-term reasoning. Memory relevance evolves over time as task objectives change."
-
-### Research Challenge
-
-Learning **when to forget** is harder than learning what to store — requires understanding future information needs.
-
-→ See [Learning Policy: RL for Memory Policies](../04_learning-policy.md#53-reinforcement-learning-for-memory-policies) — RL can be used to learn optimal forgetting policies.
+- MemoryOS (Kang et al., 2025a)：OS 风格的层次化记忆管理
+- SeCom (Pan et al., 2025)：段落级上下文压缩
+- ACON (Kang et al., 2025c)：压缩感知上下文管理
+- SUPO (Lu et al., 2025b)：在上下文预算下的渐进式摘要
 
 ---
 
-## Design Principles for Single-Agent Memory
+## 4.1.5 遗忘与保留
 
-1. **Context budget awareness**: Every operation must account for finite context windows
-2. **Selectivity over completeness**: Not all information deserves the same retention priority
-3. **Temporal coherence**: Updates/refreshes should maintain logical consistency across the timeline
-4. **Retrieval-storage co-design**: How you store determines what you can retrieve later
-5. **Adaptive management**: Static rules fail in dynamic environments; learned policies outperform heuristics
+**目的**：随着任务目标变化和环境趋于非稳态，管理保留重要信息与清除过时/低效信息之间的权衡。
+
+### 遗忘
+
+**目标**：减少过时或低效信息的影响。
+
+**实现方式**：
+- **基于时效性的衰减**：较旧的条目获得更低的权重/优先级（模拟艾宾浩斯遗忘曲线）
+- **重要性阈值**：移除相关性得分低于阈值的条目
+- **学习型遗忘策略**：在资源/效率限制下优化记忆移除
+
+### 保留
+
+**目标**：在记忆增长压力下保护高效用知识。
+
+**机制**：
+- 基于任务上下文和反馈信号的自适应保留优先级
+- 长期性能目标指导保留哪些记忆
+- 在非稳态环境下动态调整
+
+### 核心洞察
+
+> "无差别的记忆积累与有效的长期推理越来越不相容。随着任务目标变化，记忆的相关性也会随时间演变。"
+
+### 研究挑战
+
+学习**何时遗忘**比学习存储什么更难 —— 需要理解未来的信息需求。
+
+→ 见 [学习策略：用于记忆策略的RL](../04_learning-policy.md#53-RL用于记忆策略) —— RL 可用于学习最优遗忘策略。
 
 ---
 
-## Representative Single-Agent Systems
+## 单智能体记忆的设计原则
 
-| System | Key Operations | Domain |
+1. **上下文预算意识**：每项操作都必须考虑有限的context window
+2. **选择性优于完整性**：并非所有信息都应获得相同的保留优先级
+3. **时序一致性**：更新/刷新应在时间线上保持逻辑一致性
+4. **检索-存储协同设计**：存储方式决定了后续能检索什么
+5. **自适应管理**：静态规则在动态环境中会失效；学习型策略优于启发式方法
+
+---
+
+## 代表性单智能体系统
+
+| 系统 | 关键操作 | 领域 |
 |---|---|---|
-| MemGPT (Packer et al., 2023) | OS-style context management: move between main/external context | General dialogue |
-| Generative Agents (Park et al., 2023) | Memory stream + reflection + retrieval by recency/importance/relevance | Social simulation |
-| Reflexion (Shinn et al., 2023) | Episodic storage + reflective update | Task agents |
-| MemoryBank (Zhong et al., 2024) | Explicit memory records + operation-level search | Personalized dialogue |
-| A-Mem (Xu et al., 2025e) | Dynamic memory with structured organization and update | User-facing assistant |
-| Mem0 (Chhikara et al., 2025) | Production-grade memory layer with selective retention | Commercial assistant |
-| D-SMART (Lei et al., 2025) | Structured memory management for long dialogues | Dialogue |
-| MemAgent (Yu et al., 2025b) | RL-based joint memory management for long contexts | Information search |
+| MemGPT (Packer et al., 2023) | OS 风格上下文管理：在主/外部上下文间移动数据 | 通用对话 |
+| Generative Agents (Park et al., 2023) | 记忆流 + 反思 + 按时效性/重要性/相关性检索 | 社会模拟 |
+| Reflexion (Shinn et al., 2023) | 情节存储 + 反思性更新 | 任务智能体 |
+| MemoryBank (Zhong et al., 2024) | 显式记忆记录 + 操作级搜索 | 个性化对话 |
+| A-Mem (Xu et al., 2025e) | 具有结构化组织和更新的动态记忆 | 面向用户的助手 |
+| Mem0 (Chhikara et al., 2025) | 具有选择性保留的生产级记忆层 | 商业助手 |
+| D-SMART (Lei et al., 2025) | 用于长对话的结构化记忆管理 | 对话 |
+| MemAgent (Yu et al., 2025b) | 基于 RL 的长上下文联合记忆管理 | 信息搜索 |

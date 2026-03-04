@@ -1,266 +1,265 @@
-# Future Directions and Open Challenges
+# 未来方向与开放挑战
 
-> Paper Section 9 (pages 44–48)
+> 论文第 9 节（第 44–48 页）
 
-Six open challenges that collectively point toward **reliable, scalable, self-evolving, and trustworthy** memory infrastructures for real-world human-agent memory system design.
-
----
-
-## Challenge 1: Memory for Continual Learning and Self-Evolving Agents
-
-### The Core Problem
-
-Memory-enabled self-evolving agents must manage memory dynamics across **two timescales**:
-
-**Intra-task level**:
-- Continuously decide what to retain, compress, or discard from heterogeneous streams (tool outputs, search results, feedback, intermediate reasoning)
-- Under strict context-window constraints
-- Current limitation: existing systems rely on heuristic memory controllers
-
-**Cross-task level**:
-- Accumulate experience across episodes and task distributions
-- Current limitation: primarily inference-time reuse, not principled consolidation and generalization
-
-### Why Classical Continual Learning Is Insufficient
-
-Classical continual learning (replay, regularization, parameter isolation) treats memory as a **static mechanism for knowledge retention**. This is insufficient for agents where memory must also:
-- Track evolving interaction states
-- Capture user-specific information
-- Model procedural behaviors
-
-### Research Directions
-
-- Integrate **semantic + episodic + procedural** memory components into a unified continual learning framework (Ke et al., 2025a; Lou, 2025)
-- **Latent and structured memory** representations for scalable, compact storage preserving causal/behavioral abstractions
-- Move beyond inference-time heuristics toward **principled post-training paradigms** leveraging accumulated agent experience
-- Design **consolidation mechanisms** that selectively distill long-term knowledge + align evolving memory with model parameters + mitigate forgetting without sacrificing plasticity
-- New benchmarks evaluating: task-level retention, sustained adaptation, relevance-aware memory management, behavioral stability under non-stationary objectives
+六个开放挑战，共同指向面向现实世界人-智能体记忆系统设计的**可靠、可扩展、自演化且可信赖**的记忆基础设施。
 
 ---
 
-## Challenge 2: Multi-Human-Agent Memory Organization
+## 挑战一：面向持续学习与自演化智能体的记忆
 
-### The Core Problem
+### 核心问题
 
-Current multi-agent and human-agent collaboration is:
-- **Episodic and transient** — scoped to single task instances
-- **No persistent experience** — collaboration re-established from scratch each time
-- Cannot adapt interaction strategies, personalize behavior, or improve collaboration quality across repeated deployments
+具备记忆能力的自演化智能体必须在**两个时间尺度**上管理记忆动态：
 
-### Key Research Directions
+**任务内层面**：
+- 在严格的context window限制下，持续决定从异构流（工具输出、搜索结果、反馈、中间推理）中保留、压缩或丢弃什么
+- 当前局限：现有系统依赖启发式记忆控制器
 
-#### Collaborative (Social) Memory
-Agents retain experience about **collaborators** (humans + other agents):
-- Communication preferences
-- Domain expertise
-- Feedback patterns
-- Historical interaction outcomes
+**跨任务层面**：
+- 跨情节和任务分布积累经验
+- 当前局限：主要依靠推理时复用，缺乏原则性的巩固与泛化
 
-→ Enables: adapt signaling strategies, calibrate trust, reduce coordination overhead over time
+### 为什么经典持续学习不够用
 
-#### Role-Specific Flow and Procedural Memory
-Agents accumulate experience about their **own recurring workflows**:
-- Task decomposition patterns
-- Execution strategies
-- Common failure modes
+经典的持续学习（回放、正则化、参数隔离）将记忆视为**知识保留的静态机制**。这对于智能体来说是不够的，智能体的记忆还必须：
+- 追踪不断演化的交互状态
+- 捕获用户特定信息
+- 建模程序性行为
 
-→ Enables: gradual refinement through experience-driven specialization
+### 研究方向
 
-### Governance and Coordination Challenges
-
-Persistent multi-entity memory introduces:
-- **Ownership**: who owns the shared memory?
-- **Access control**: who can read what?
-- **Responsibility**: who is liable for incorrect stored information?
-- **Human correction handling**: how do agent corrections get incorporated?
-- **Divergent perspectives**: how to handle when agents and humans disagree?
-
-→ Unaddressed: uncontrolled error propagation; unreliable collaboration at scale
+- 将**语义 + 情节 + 程序**记忆组件整合到统一的持续学习框架中（Ke et al., 2025a; Lou, 2025）
+- **潜态和结构化记忆**表征，用于保留因果/行为抽象的可扩展紧凑存储
+- 超越推理时启发式方法，迈向利用积累的智能体经验的**原则性后训练范式**
+- 设计**巩固机制**，选择性提炼长期知识 + 将不断演化的记忆与模型参数对齐 + 在不牺牲可塑性的前提下减轻遗忘
+- 新基准评估：任务级保留、持续适配、相关性感知记忆管理、非稳态目标下的行为稳定性
 
 ---
 
-## Challenge 3: Memory Infrastructure and Efficiency
+## 挑战二：多人-智能体记忆组织
 
-### The Core Problem
+### 核心问题
 
-Current agent memory designs are **text-centric** — ever-growing collections of interactions/summaries injected into prompt:
-- Token overhead routinely reaches thousands of tokens
-- Diminishing marginal returns as context grows
-- **Conflates memory capacity with prompt length**
+当前的多智能体和人-智能体协作是：
+- **情节式且短暂的** —— 范围局限于单个任务实例
+- **无持久经验** —— 每次重新建立协作
+- 无法跨重复部署适配交互策略、个性化行为或提升协作质量
 
-> "Current approaches overlook the need for selective retention, structured access, and consolidation of experience."
+### 关键研究方向
 
-### Research Progression (Roadmap)
+#### 协作（社会）记忆
+智能体保留关于**协作者**（人类 + 其他智能体）的经验：
+- 沟通偏好
+- 领域专业知识
+- 反馈模式
+- 历史交互结果
 
-**Near-term: Organized text-based memory**
-- Schema-based or graph-structured memory for efficient access (not maximal coverage)
-- Structure-aware storage + precision-oriented retrieval → expose only reasoning-critical spans
-- Minimize unnecessary context injection
+→ 支持：适配信号策略、校准信任、随时间减少协调开销
 
-**Medium-term: Compressed latent memory**
-- Encode episodic/semantic/procedural experiences into compact vector representations
-- Function as persistent memory units (not just similarity indices)
+#### 角色特定的流程与程序记忆
+智能体积累关于**自身反复出现工作流**的经验：
+- 任务分解模式
+- 执行策略
+- 常见失效模式
 
-**Long-term: Internalized/parametric memory**
-- Absorb long-term experience into internal states or model parameters
-- Constant-sized memory even in long-horizon tasks
-- Examples: MEM1 (Zhou et al., 2025c), Mem-α (Wang et al., 2025p) — RL-based consolidation/update/discard as part of reasoning process itself
+→ 支持：通过经验驱动的专业化逐步精炼
 
-### Infrastructure Requirements
+### 治理与协调挑战
 
-- **NeMo Gym** (NVIDIA, 2025) style platforms: decouple environment logic from training; modular reward/verification services
-- End-to-end RL or meta-learning optimization of memory + policy jointly
-- Adaptive memory controllers: dynamically allocate, compress, retire memory units based on task relevance, uncertainty, and long-term utility
+持久的多实体记忆引入：
+- **所有权**：共享记忆归谁所有？
+- **访问控制**：谁能读取什么？
+- **责任**：谁对错误存储的信息负责？
+- **人类纠错处理**：智能体如何整合人类的纠正？
+- **分歧视角**：当智能体与人类存在分歧时如何处理？
 
----
-
-## Challenge 4: Life-Long Personalization and Trustworthy Memory
-
-### The Core Problem
-
-Life-long personalization requires:
-- Continuously evolving user representations capturing **gradual preference shifts**, long-term goals, and behavioral regularities
-- Moving beyond static user profiles or transient contextual signals
-
-**Non-trivial challenges**:
-- **Memory staleness**: which past interactions remain relevant?
-- **Concept drift**: user preferences change over months/years
-- **Credit assignment**: how to reconcile conflicting signals over time?
-- **Scalability**: naive retention/replay of long histories is prohibitively expensive
-
-### Research Directions
-
-**Scalable and dynamic memory systems**:
-- Incrementally update user modeling
-- Bridge fine-grained episodic traces with higher-level abstractions (preferences, habits, long-term intents)
-
-**Promising approaches**:
-- Hierarchical memory architectures: short-term episodic buffers → distilled semantic user profiles (Tan et al., 2025c)
-- Learned memory controllers: when to write, compress, or overwrite user information (Zhang et al., 2025m)
-- Continual representation learning: mitigate forgetting under distribution shift
-
-**New evaluation needed**: Beyond single-turn accuracy → metrics assessing long-term consistency, adaptability to preference changes, robustness under extended interactions
-
-### Trustworthy Memory
-
-Persistent user memory introduces **substantial risks**:
-- **Privacy leakage** (Wang et al., 2025a)
-- **Memory poisoning** (Tan et al., 2024b)
-- **Adversarial manipulation** (Dong et al., 2025)
-- Risks accumulate silently over time
-
-**Required mechanisms**:
-- User-controllable inspection, editing, and revocation of stored memories
-- Defenses against unauthorized access and malicious writes
-- **Robustness, transparency, and security** as first-class objectives — equal to adaptability
+→ 若不解决：错误无控制地传播；大规模协作不可靠
 
 ---
 
-## Challenge 5: Memory for Multimodal, Embodied, and World-Model Agents
+## 挑战三：记忆基础设施与效率
 
-### The Core Problem
+### 核心问题
 
-Next-generation agents must:
-- Faithfully represent heterogeneous sensory streams (vision, audio, language, tactile, proprioception) into coherent internal states
-- Current text-based memory assumes unimodal/language-dominant representations
+当前的智能体记忆设计是**以文本为中心的** —— 持续增长的交互/摘要集合注入提示中：
+- Token 开销经常达到数千个 token
+- 随上下文增长，边际收益递减
+- **将记忆容量与提示长度混为一谈**
 
-**Challenges in embodied settings**:
-- Closed-loop environments requiring reasoning over temporally extended perception-action-outcome trajectories
-- Memory must go beyond episodic observations → encode **grounded knowledge about dynamics, affordances, physical constraints**
-- Current systems lack: action-conditioned memory updates, cross-modal abstraction, consistency across memory types
+> "当前方法忽视了选择性保留、结构化访问和经验巩固的需求。"
 
-**Consequences**: Skill fragmentation, long-horizon planning failures, compounding errors from misaligned/stale memories
+### 研究演进路线图
 
-### Key Research Direction: Memory as Predictive World Model
+**近期：有组织的基于文本的记忆**
+- 基于模式或图结构的记忆，用于高效访问（而非最大覆盖）
+- 结构感知存储 + 精度导向检索 → 仅暴露推理关键片段
+- 最小化不必要的上下文注入
 
-> "Elevate agent memory into an explicit, predictive world model — memory not as a passive log, but as a **controllable internal state evolving over time**."
+**中期：压缩的潜态记忆**
+- 将情节/语义/程序经验编码为紧凑的向量表征
+- 作为持久记忆单元发挥功能（不仅仅是相似度索引）
 
-**World-model formulation** (Hafner et al., 2023; Ha & Schmidhuber, 2018):
-- Memory updates modeled as latent state transitions conditioned on perception and action
-- Opens door to **proactive memory planning**: simulate long-term consequences of storing/compressing/forgetting before committing
+**长期：内化/参数化记忆**
+- 将长期经验吸收到内部状态或模型参数中
+- 在长时域任务中保持恒定大小的记忆
+- 示例：MEM1 (Zhou et al., 2025c)、Mem-α (Wang et al., 2025p) —— 基于 RL 的巩固/更新/丢弃作为推理过程本身的一部分
 
-**Memory operations as internal actions**:
-- Optimized jointly with external decision-making
-- Balance immediate utility with long-term consistency
+### 基础设施需求
 
-**Integration with structured world representations**:
-- Spatial maps, object-centric graphs (Singh et al., 2023)
-- Skill graphs (Wang et al., 2025c; Feng et al., 2025a)
-- Support abstraction across time and modality + improve retrieval efficiency
-
-**Co-training memory + world models**:
-- Stable, structured memory → provides long-term state cues improving world-model prediction
-- World models → regularize memory evolution, prevent identity drift, goal inconsistency, behavioral instability
+- **NeMo Gym**（NVIDIA, 2025）式平台：将环境逻辑与训练解耦；模块化奖励/验证服务
+- 端到端 RL 或元学习，联合优化记忆 + 策略
+- 自适应记忆控制器：基于任务相关性、不确定性和长期效用，动态分配、压缩、退役记忆单元
 
 ---
 
-## Challenge 6: Real-World Benchmarking and Evaluations
+## 挑战四：终身个性化与可信记忆
 
-### The Core Problem
+### 核心问题
 
-Persistent mismatch between **research-level benchmark abstractions** and **real-world deployment complexity**:
+终身个性化要求：
+- 持续演化的用户表征，捕获**渐进的偏好变化**、长期目标和行为规律
+- 超越静态用户档案或短暂的上下文信号
 
-**User-centric evaluation gaps**:
-- Current: reduce to synthetic factual recall (static user attributes, scripted histories)
-- Missing: real user satisfaction → depends on preference drift, conflicting signals, partial observability, delayed feedback over weeks/months
-- LoCoMo, PersonaMem: assume stationary user intent and unambiguous ground truth
-- Overlook: stale preference reuse, incorrect overwriting of long-term user state, unsafe retention of sensitive information
+**非平凡挑战**：
+- **记忆过时**：哪些过去的交互仍然相关？
+- **概念漂移**：用户偏好在数月/数年间发生变化
+- **信用分配**：如何协调随时间积累的冲突信号？
+- **可扩展性**：简单地保留/回放长历史代价过于高昂
 
-**Agent-centric evaluation gaps**:
-- WebArena, OSWorld: bounded curated environments, reset-centric task design, short evaluation horizons
-- Obscures: whether agents can accumulate, revise, and safely exploit experience across episodes
-- GAIA failures often arise from brittle state transitions and incorrect memory updates
+### 研究方向
 
-### Required: New Evaluation Paradigms
+**可扩展且动态的记忆系统**：
+- 增量更新用户建模
+- 连接细粒度情节轨迹与高层抽象（偏好、习惯、长期意图）
 
-**For user-centric memory**:
-- Recurring interactions with **controlled preference drift**
-- Ambiguous feedback and real-user rewards
-- Multi-month preference evolution or counterfactual feedback
-- Direct measurement of: compression, selective forgetting, safe overwriting
+**有前景的方法**：
+- 层次化记忆架构：短期情节缓冲区 → 提炼的语义用户档案（Tan et al., 2025c）
+- 学习型记忆控制器：何时写入、压缩或覆写用户信息（Zhang et al., 2025m）
+- 持续表征学习：在分布偏移下减轻遗忘
 
-**For agent-centric memory**:
-- Move beyond simulated resets → **partially open or continuously evolving environments**
-  - Financial trading sandboxes
-  - Long-running web services
-  - Competitive control tasks with delayed payoffs
-- Compare memory-augmented vs. memory-free baselines under identical conditions
-- OSWorld-style extended with **memory-sensitive invariants**: versioning, auditing, rollback, provenance metadata
+**新的评估需求**：超越单轮准确率 → 评估长期一致性、对偏好变化的适应性、在长期交互下鲁棒性的指标
 
-**Tool-mediation layers**:
-- MCP-style interfaces for reproducible logging, permission enforcement, and replay
-- Fine-grained evaluation of memory–policy interactions under realistic constraints
+### 可信记忆
 
-**Quantify resource–utility trade-offs**:
-- Memory quality as function of: token budget, storage cost, latency
-- Reflect bounded-memory conditions of real deployments
+持久用户记忆引入**重大风险**：
+- **隐私泄露**（Wang et al., 2025a）
+- **记忆投毒**（Tan et al., 2024b）
+- **对抗操纵**（Dong et al., 2025）
+- 风险随时间静默积累
 
-### Reframing Evaluation
-
-From: episodic task completion (accuracy/SR)
-To: **systems-level evaluation of memory as a first-class capability**
-- Jointly shapes user trust, agent autonomy, and long-term utility
-- Across evolving environments
+**必要机制**：
+- 用户可控的存储记忆检查、编辑和撤销
+- 针对未授权访问和恶意写入的防御
+- **鲁棒性、透明性和安全性**作为一等公民目标 —— 与适应性同等重要
 
 ---
 
-## Summary: Six Challenges at a Glance
+## 挑战五：面向多模态、具身与世界模型智能体的记忆
 
-| # | Challenge | Core Tension | Key Open Problem |
+### 核心问题
+
+下一代智能体必须：
+- 将异构感知流（视觉、音频、语言、触觉、本体感觉）忠实表征为连贯的内部状态
+- 当前基于文本的记忆假设单模态/语言主导的表征
+
+**具身场景中的挑战**：
+- 闭环环境需要对时间延伸的感知-行动-结果轨迹进行推理
+- 记忆必须超越情节观察 → 编码关于动态、可供性、物理约束的**基础知识**
+- 当前系统缺乏：动作条件下的记忆更新、跨模态抽象、跨记忆类型的一致性
+
+**后果**：技能碎片化、长时域规划失败、错误对齐/过时记忆导致的累积错误
+
+### 关键研究方向：记忆作为预测性世界模型
+
+> "将智能体记忆提升为显式的、预测性的世界模型 —— 记忆不是被动日志，而是**随时间演化的可控内部状态**。"
+
+**世界模型形式化**（Hafner et al., 2023; Ha & Schmidhuber, 2018）：
+- 记忆更新建模为以感知和行动为条件的潜态转换
+- 为**主动记忆规划**打开大门：在提交前模拟存储/压缩/遗忘的长期后果
+
+**记忆操作作为内部行动**：
+- 与外部决策制定联合优化
+- 平衡即时效用与长期一致性
+
+**与结构化世界表征的集成**：
+- 空间地图、以对象为中心的图谱（Singh et al., 2023）
+- 技能图谱（Wang et al., 2025c; Feng et al., 2025a）
+- 支持跨时间和模态的抽象 + 提升检索效率
+
+**记忆与世界模型的联合训练**：
+- 稳定、结构化的记忆 → 提供改善世界模型预测的长期状态线索
+- 世界模型 → 规范记忆演化，防止身份漂移、目标不一致、行为不稳定
+
+---
+
+## 挑战六：现实世界基准与评估
+
+### 核心问题
+
+**研究级基准抽象**与**现实世界部署复杂性**之间的持续性错配：
+
+**以用户为中心的评估差距**：
+- 当前：简化为合成事实回忆（静态用户属性、脚本化历史）
+- 缺失：真实用户满意度 → 取决于偏好漂移、冲突信号、部分可观测性、数周/数月的延迟反馈
+- LoCoMo、PersonaMem：假设用户意图稳定且存在明确的真实值
+- 忽视：过时偏好的复用、长期用户状态的错误覆写、敏感信息的不安全保留
+
+**以智能体为中心的评估差距**：
+- WebArena、OSWorld：有界的精心策划环境、重置中心的任务设计、短评估时域
+- 模糊：智能体是否能跨情节积累、修订和安全利用经验
+- GAIA 失败通常源于脆弱的状态转换和错误的记忆更新
+
+### 必要：新的评估范式
+
+**面向以用户为中心的记忆**：
+- 带**受控偏好漂移**的反复交互
+- 模糊反馈和真实用户奖励
+- 多月偏好演化或反事实反馈
+- 直接测量：压缩、选择性遗忘、安全覆写
+
+**面向以智能体为中心的记忆**：
+- 超越模拟重置 → **部分开放或持续演化的环境**
+  - 金融交易沙盒
+  - 长期运行的网络服务
+  - 带延迟回报的竞争控制任务
+- 在相同条件下对比记忆增强 vs 无记忆的基线
+- OSWorld 风格的扩展，加入**记忆敏感不变量**：版本控制、审计、回滚、溯源元数据
+
+**工具调解层**：
+- MCP 风格的接口，用于可重现的日志记录、权限执行和回放
+- 在现实约束下对记忆-策略交互进行细粒度评估
+
+**量化资源-效用权衡**：
+- 记忆质量作为以下因素的函数：token 预算、存储成本、延迟
+- 反映真实部署中的有界记忆条件
+
+### 重新定义评估
+
+从：情节任务完成（准确率/SR）
+到：**将记忆作为一等能力的系统级评估**
+- 共同塑造用户信任、智能体自主性和长期效用
+- 跨演化环境进行评估
+
+---
+
+## 六大挑战速览
+
+| 编号 | 挑战 | 核心张力 | 关键开放问题 |
 |---|---|---|---|
-| 1 | Continual Learning & Self-Evolution | Stability vs. Plasticity | How to consolidate cross-task experience without forgetting |
-| 2 | Multi-Human-Agent Memory Organization | Sharing vs. Isolation | Governance, ownership, handling human corrections |
-| 3 | Memory Infrastructure & Efficiency | Capacity vs. Cost | Move from prompt-length = memory to compact internalized memory |
-| 4 | Life-Long Personalization & Trustworthiness | Utility vs. Privacy/Safety | Scalable user models + defenses against memory poisoning |
-| 5 | Multimodal, Embodied, World-Model | Representation vs. Grounding | Cross-modal abstraction + predictive world model integration |
-| 6 | Real-World Benchmarking | Control vs. Realism | Longitudinal, preference-drifting, multi-episode evaluation protocols |
+| 1 | 持续学习与自演化 | 稳定性 vs 可塑性 | 如何在不遗忘的前提下巩固跨任务经验 |
+| 2 | 多人-智能体记忆组织 | 共享 vs 隔离 | 治理、所有权、处理人类纠错 |
+| 3 | 记忆基础设施与效率 | 容量 vs 成本 | 从提示长度 = 记忆转向紧凑的内化记忆 |
+| 4 | 终身个性化与可信赖 | 效用 vs 隐私/安全 | 可扩展用户模型 + 针对记忆投毒的防御 |
+| 5 | 多模态、具身、世界模型 | 表征 vs 基础性 | 跨模态抽象 + 预测性世界模型集成 |
+| 6 | 现实世界基准 | 控制性 vs 真实性 | 纵向、偏好漂移、多情节评估协议 |
 
 ---
 
-## Research Opportunities (Personal Extension Notes)
+## 研究机会（个人延伸笔记）
 
-- [ ] What RL algorithms are most effective for step-level memory decisions? (PPO, GRPO, others?)
-- [ ] How do world-model architectures (RSSM, DreamerV3) connect to agent episodic memory?
-- [ ] Is there a unified framework connecting classical continual learning (EWC, ProgressiveNets) to agent memory?
-- [ ] Privacy-preserving memory: differential privacy + agent memory — feasible?
-- [ ] How do different memory substrate choices affect downstream RL training stability?
+- [ ] 哪些 RL 算法在步骤级记忆决策上最有效？（PPO、GRPO 等？）
+- [ ] 世界模型架构（RSSM、DreamerV3）如何与智能体情节记忆关联？
+- [ ] 是否存在将经典持续学习（EWC、ProgressiveNets）与智能体记忆统一的框架？
+- [ ] 隐私保护记忆：差分隐私 + 智能体记忆 —— 可行吗？
+- [ ] 不同记忆基底的选择如何影响下游 RL 训练的稳定性？

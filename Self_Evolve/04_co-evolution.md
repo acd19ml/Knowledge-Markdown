@@ -1,160 +1,160 @@
-# Model-Environment Co-Evolution
+# 模型-环境协同进化
 
-> Paper Section V (pages 10–11) | Figure 6 in paper
-
----
-
-## Core Concept
-
-Model-Environment Co-Evolution represents the **synthesis** of the first two paradigms:
-- Model-Centric alone → fails without external verification
-- Environment-Centric alone → stagnates in static environments
-- **Co-Evolution** → mutual reinforcement where model and environment improve together
-
-> "The environment must evolve alongside the agent, forming a co-evolutionary system that enables open-ended capability growth."
-
-```
-Agent improves → can handle harder tasks
-                           ↓
-Environment adapts → provides harder challenges
-                           ↓
-Agent improves further → positive feedback loop
-```
-
-Two sub-paradigms:
-
-```
-Model-Environment Co-Evolution
-├── A. Multi-Agent Policy Co-Evolution    (agents as each other's environment)
-└── B. Environment Training              (environment evolves alongside agent)
-    ├── Adaptive Curriculum Evolution
-    └── Scalable Environment Evolution
-```
+> 论文第 V 节（第 10–11 页）| 论文图 6
 
 ---
 
-## A. Multi-Agent Policy Co-Evolution
+## 核心概念
 
-**Core insight**: In multi-agent systems, the "environment" *is* the collective of interacting agents. Each agent's behavior shapes the environment for others, creating a natural co-evolutionary dynamic.
+模型-环境协同进化代表了前两种范式的**综合**：
+- 单独的以模型为中心 → 缺乏外部验证而失败
+- 单独的以环境为中心 → 在静态环境中停滞
+- **协同进化** → 模型与环境共同改进的相互强化
 
-> "This paradigm views the environment as the collective of interacting agents, where parameter updates via Multi-Agent RL and alignment training drive the emergence of advanced social intelligence."
+> "环境必须随智能体一起演化，形成一个使开放式能力增长成为可能的协同进化系统。"
 
-### Communication Efficiency Optimization
+```
+智能体改进 → 能够处理更难的任务
+                      ↓
+环境适应 → 提供更难的挑战
+                      ↓
+智能体进一步改进 → 正向反馈循环
+```
 
-**OPTIMA** [Chen et al., 2025]:
-- MCTS-guided optimization with multi-objective rewards that **penalize verbosity**
-- Learns concise but effective inter-agent communication
+两种子范式：
 
-### Joint Policy Optimization
+```
+模型-环境协同进化
+├── A. 多智能体策略协同进化    （智能体作为彼此的环境）
+└── B. 环境训练              （环境随智能体演化）
+    ├── 自适应课程演化
+    └── 可扩展环境演化
+```
 
-| System | Key Innovation |
+---
+
+## A. 多智能体策略协同进化
+
+**核心洞察**：在多智能体系统中，"环境"*就是*相互交互的智能体集合。每个智能体的行为塑造了其他智能体的环境，创造了自然的协同进化动态。
+
+> "该范式将环境视为相互交互的智能体集合，其中通过多智能体 RL 和对齐训练进行的参数更新驱动了高级社会智能的涌现。"
+
+### 通信效率优化
+
+**OPTIMA**（Chen et al., 2025）：
+- MCTS 引导的多目标奖励优化，**惩罚冗长**
+- 学习简洁但有效的智能体间通信
+
+### 联合策略优化
+
+| 系统 | 关键创新 |
 |---|---|
-| **MAPoRL** [Park et al., 2025] | Multi-agent post-co-training via RL for collaborative LLMs; validator-based feedback promotes long-term collaboration |
-| **MARFT** [Liao et al., 2025] | Multi-agent reinforcement fine-tuning; addresses heterogeneity via flexible Markov game formalism |
-| **LLM Collaboration with MARL** [Liu et al., 2025] | LLM collaboration via multi-agent RL |
+| **MAPoRL**（Park et al., 2025） | 通过 RL 进行多智能体后协同训练；基于验证器的反馈促进长期协作 |
+| **MARFT**（Liao et al., 2025） | Multi-Agent Reinforcement Fine-Tuning (MARFT)；通过灵活的马尔可夫博弈形式主义处理异质性 |
+| **LLM Collaboration with MARL**（Liu et al., 2025） | 通过多智能体 RL 实现 LLM 协作 |
 
-### Peer-Based Decentralized Improvement
+### 基于同伴的去中心化改进
 
-**CoMAS** [Xue et al., 2025]:
-- Replaces human feedback with **peer evaluation**
-- Extracts intrinsic rewards from internal agent discussions
-- Supports decentralized self-improvement without external supervisors
+**CoMAS**（Xue et al., 2025）：
+- 用**同伴评估**替代人类反馈
+- 从内部智能体讨论中提取内在奖励
+- 支持无外部监督者的去中心化自我改进
 
-### Coder-Tester Co-Evolution
+### 编码者-测试者协同进化
 
-**Co-evolving LLM Coder and Unit Tester** [Wang et al., 2025]:
-- Code generator and test generator co-evolve via RL
-- Each improves by challenging the other → higher combined capability
-
----
-
-## B. Environment Training
-
-**Core insight**: Instead of treating the training environment as fixed, design it to *adapt alongside the agent* — providing increasingly appropriate challenges that prevent saturation.
-
-> "By adapting in tandem with the agent's capabilities, the environment mitigates difficulty imbalance and alleviates data bottlenecks during training."
-
-### B1. Adaptive Curriculum Evolution
-
-Traditional training on static datasets → difficulty mismatch (too easy = no learning; too hard = no signal).
-
-**Solution**: Environments that dynamically adjust difficulty based on real-time agent feedback.
-
-| System | Key Innovation | Domain |
-|---|---|---|
-| **GenEnv** [Guo et al., 2025] | Environment is a dynamic curriculum generator maintaining optimal task difficulty | General |
-| **Environment Tuning** [Lu et al., 2025] | Tune the *environment itself* — converts sparse error signals into actionable feedback for tool-use tasks | Tool use |
-| **RLVE** [Zeng et al., 2025] | Verifiable environments for RL — dynamically matches task difficulty to model capability with programmatic verifiers | Reasoning |
-
-**Key mechanism (GenEnv)**:
-```
-Agent current performance level
-         ↓
-Measure difficulty gap
-         ↓
-Generate new tasks at appropriate challenge level
-         ↓
-Agent trains on well-matched curriculum
-         ↓
-[Loop with improved agent]
-```
-
-### B2. Scalable Environment Evolution
-
-Goes further — constructs **large-scale virtual environments** from scratch with automatically verifiable signals, overcoming training data bottlenecks.
-
-| System | Key Innovation | Domain |
-|---|---|---|
-| **DreamGym** [Chen et al., 2025] | Uses inference-based world model to simulate dynamics and generate dense rewards for synthetic RL | General |
-| **AutoEnv** [Zhang et al., 2025] | Automatically constructs diverse environments to enforce robust strategy learning | Cross-domain |
-| **Endless Terminals** [Gandhi et al., 2026] | Generates and verifies large-scale terminal tasks via automated pipeline | OS/Systems |
-| **Reasoning Gym** [Stojanovski et al., 2025] | Open-source library of cheat-resistant, programmatically verifiable tasks | Logic/Code |
-| **GEM** [Liu et al., 2025] | OpenAI Gym-style interface for agentic LLMs with ReBN credit assignment | Agentic |
-| **AgentGym** [Xi et al., 2024] | Unified platform across diverse domains for iterative self-evolution | Multi-domain |
+**Co-evolving LLM Coder and Unit Tester**（Wang et al., 2025）：
+- 代码生成器和测试生成器通过 RL 协同进化
+- 通过相互挑战各自改进 → 更高的综合能力
 
 ---
 
-## Why Co-Evolution Beats the Others
+## B. 环境训练
 
-### Comparison with Model-Centric
+**核心洞察**：不把训练环境视为固定的，而是将其设计为*与智能体一起适应* —— 提供越来越合适的挑战，防止饱和。
 
-| Aspect | Model-Centric | Co-Evolution |
+> "通过与智能体能力协调适应，环境减轻了难度不平衡并缓解了训练期间的数据瓶颈。"
+
+### B1. 自适应课程演化
+
+在静态数据集上的传统训练 → 难度不匹配（太简单 = 无学习；太难 = 无信号）。
+
+**解决方案**：根据实时智能体反馈动态调整难度的环境。
+
+| 系统 | 关键创新 | 领域 |
 |---|---|---|
-| External verification | None | Yes (environment provides) |
-| Error accumulation | High (self-reinforcing) | Low (env prunes bad strategies) |
-| Data ceiling | Base model bounded | Grows with environment complexity |
-| Risk | Model collapse | Requires env engineering |
+| **GenEnv**（Guo et al., 2025） | 环境是保持最优任务难度的动态课程生成器 | 通用 |
+| **Environment Tuning**（Lu et al., 2025） | 调整*环境本身* —— 将稀疏错误信号转化为工具使用任务的可操作反馈 | 工具使用 |
+| **RLVE**（Zeng et al., 2025） | 用于 RL 的可验证环境 —— 使用程序化验证器将任务难度与模型能力动态匹配 | 推理 |
 
-### Comparison with Environment-Centric
+**关键机制（GenEnv）**：
+```
+智能体当前性能水平
+         ↓
+衡量难度差距
+         ↓
+生成适当挑战水平的新任务
+         ↓
+智能体在匹配的课程上训练
+         ↓
+[与改进的智能体循环]
+```
 
-| Aspect | Environment-Centric | Co-Evolution |
+### B2. 可扩展环境演化
+
+更进一步 —— 从头构建**大规模虚拟环境**，带有可自动验证的信号，克服训练数据瓶颈。
+
+| 系统 | 关键创新 | 领域 |
 |---|---|---|
-| Environment adaptability | Static | Dynamic — grows with agent |
-| Scalability | Single-task or limited | Multi-task, open-ended |
-| Difficulty matching | Fixed | Adaptive |
-| Growth potential | Bounded by env complexity | Open-ended |
+| **DreamGym**（Chen et al., 2025） | 使用基于推理的世界模型模拟动态并为合成 RL 生成密集奖励 | 通用 |
+| **AutoEnv**（Zhang et al., 2025） | 自动构建多样化环境以强制进行鲁棒策略学习 | 跨领域 |
+| **Endless Terminals**（Gandhi et al., 2026） | 通过自动化流水线生成并验证大规模终端任务 | OS/系统 |
+| **Reasoning Gym**（Stojanovski et al., 2025） | 防作弊、程序化可验证任务的开源库 | 逻辑/代码 |
+| **GEM**（Liu et al., 2025） | 带 ReBN 信用分配的面向智能体 LLM 的 OpenAI Gym 风格接口 | 智能体 |
+| **AgentGym**（Xi et al., 2024） | 跨多样化领域的统一平台，用于迭代自演化 | 多领域 |
 
 ---
 
-## The Future Vision
+## 为什么协同进化优于其他两种范式
 
-> "The future of Agentic AI depends on this symbiotic relationship where the continuous interplay between the model and the environment facilitates a self-sustaining cycle of intelligence."
+### 与以模型为中心的对比
 
-**Paradigm shift**:
-```
-From: Isolated optimization (model alone OR environment alone)
-To:   Integrated developmental process (model AND environment co-develop)
-```
+| 方面 | 以模型为中心 | 协同进化 |
+|---|---|---|
+| 外部验证 | 无 | 有（环境提供） |
+| 错误积累 | 高（自我强化） | 低（环境剪枝错误策略） |
+| 数据上限 | 基础模型有界 | 随环境复杂度增长 |
+| 风险 | 模型崩溃 | 需要环境工程 |
 
-This establishes the foundation for **fully autonomous and open-ended evolutionary systems** — agents that can indefinitely grow in capability through interaction with environments that grow alongside them.
+### 与以环境为中心的对比
+
+| 方面 | 以环境为中心 | 协同进化 |
+|---|---|---|
+| 环境适应性 | 静态 | 动态 —— 随智能体增长 |
+| 可扩展性 | 单任务或有限 | 多任务，开放式 |
+| 难度匹配 | 固定 | 自适应 |
+| 增长潜力 | 受环境复杂度限制 | 开放式 |
 
 ---
 
-## Connection to Co-Evolution in Biology
+## 未来愿景
 
-The paper draws an analogy to biological co-evolution:
-- Predator-prey dynamics: each improves to keep up with the other
-- Host-parasite arms race: adversarial co-evolution drives rapid adaptation
-- Symbiosis: mutual benefit, both improve together
+> "智能体 AI 的未来依赖于这种共生关系，模型与环境之间的持续相互作用促进了自我持续的智能循环。"
 
-The most productive AI co-evolution is **symbiotic**: environment difficulty scales with agent capability → both "improve" together in an open-ended developmental loop.
+**范式转变**：
+```
+从：孤立优化（单独的模型 或 单独的环境）
+到：集成发展过程（模型 与 环境共同发展）
+```
+
+这为**完全自主和开放式演化系统**奠定了基础 —— 能够通过与随其共同增长的环境交互而无限提升能力的智能体。
+
+---
+
+## 与生物协同进化的类比
+
+论文与生物协同进化进行类比：
+- 捕食者-猎物动态：各方改进以跟上对方
+- 宿主-寄生虫军备竞赛：对抗性协同进化驱动快速适应
+- 共生关系：互利共生，双方共同改进
+
+最富成效的 AI 协同进化是**共生式的**：环境难度随智能体能力扩展 → 双方在开放式发展循环中共同"改进"。

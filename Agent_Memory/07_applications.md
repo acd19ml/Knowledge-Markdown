@@ -1,236 +1,236 @@
-# Applications of Foundation Agent Memory
+# 基础智能体记忆的应用
 
-> Paper Section 8 (pages 39–44) | Table 5 in paper
+> 论文第 8 节（第 39–44 页）| 论文表 5
 
-> "Memory transforms LLMs into dynamic, persistent agents — the cognitive substrate that enables continuity, learning, and personalization, bridging an agent's past experiences with its future actions."
+> "记忆将 LLM 转变为动态的、持久的智能体 —— 是使连续性、学习和个性化成为可能的认知基底，连接智能体的过去经历与未来行动。"
 
 ---
 
-## Application Domains Overview
+## 应用领域概览
 
-11 major domains where agent memory is actively applied:
+智能体记忆活跃应用的 11 个主要领域：
 
-| Domain | Memory Role | Key Systems |
+| 领域 | 记忆作用 | 关键系统 |
 |---|---|---|
-| Education | Tracks learner progress; simulates knowledge decay | LOOM, Agent4Edu, WebCoach, CAM |
-| Scientific Research | Synthesizes literature; maintains reasoning provenance | GAM, IterResearch, MirrorMind, AISAC |
-| Gaming & Simulation | Bottom-up skill acquisition; social dynamics | Voyager, Generative Agents, GITM, GameGPT |
-| Robotics | Bridges reasoning with low-level control; spatial memory | JARVIS-1, Memo, MG-Nav, VIPeR |
-| Healthcare | Longitudinal health/emotion tracking; trust building | TheraMind, DAM, Mem-PAL |
-| Dialogue Systems | Context window management; persona consistency | MemGPT, A-Mem, O-Mem, MemoChat, Mem0 |
-| Workflow Automation | Reusable workflow templates; tool-usage patterns | AWM, ToolMem, Synapse, AutoAgents |
-| Software Engineering | Code context; debugging failure trajectories | MetaGPT, ChatDev, SWE-bench, DeepCode |
-| Online Streaming & Recommendation | Temporal pattern recognition; multi-modal memory | WorldMM, GCAgent, VideoLLM-Online |
-| Information Search | Active workspace for knowledge synthesis | AgentFold, MemSearcher, MoM, MemAgent |
-| Finance & Accounting | Strategic consistency; market regime memory | FinMem, FinCon, QuantAgent, TradingGPT |
-| Legal & Consulting | Multi-document provenance; statute synthesis | MALR, StaffPro, CaseGPT |
+| 教育 | 追踪学习者进度；模拟知识衰退 | LOOM, Agent4Edu, WebCoach, CAM |
+| 科学研究 | 综合文献；维护推理溯源 | GAM, IterResearch, MirrorMind, AISAC |
+| 游戏与仿真 | 自底向上的技能习得；社会动态 | Voyager, Generative Agents, GITM, GameGPT |
+| 机器人 | 连接推理与低级控制；空间记忆 | JARVIS-1, Memo, MG-Nav, VIPeR |
+| 医疗健康 | 纵向健康/情绪追踪；建立信任 | TheraMind, DAM, Mem-PAL |
+| 对话系统 | context window管理；人格一致性 | MemGPT, A-Mem, O-Mem, MemoChat, Mem0 |
+| 工作流自动化 | 可复用工作流模板；工具使用模式 | AWM, ToolMem, Synapse, AutoAgents |
+| 软件工程 | 代码上下文；调试失败轨迹 | MetaGPT, ChatDev, SWE-bench, DeepCode |
+| 在线流媒体与推荐 | 时序模式识别；多模态记忆 | WorldMM, GCAgent, VideoLLM-Online |
+| 信息搜索 | 知识综合的主动工作台 | AgentFold, MemSearcher, MoM, MemAgent |
+| 金融与会计 | 策略一致性；市场周期记忆 | FinMem, FinCon, QuantAgent, TradingGPT |
+| 法律与咨询 | 多文档溯源；法规综合 | MALR, StaffPro, CaseGPT |
 
 ---
 
-## Education
+## 教育
 
-**Memory role**: Sustained, personalized interactions — tracking learner progress, adapting instruction, maintaining pedagogical coherence.
+**记忆作用**：持续的个性化交互 —— 追踪学习者进度、调整教学、维持教学法连贯性。
 
-> "Memory functions less as a historical log and more as a **cognitive digital twin** of the student."
+> "记忆不再是历史日志，更像是学生的**认知数字孪生**。"
 
-**Key systems**:
-- **LOOM** (Cui et al., 2025a): Learner memory graph mapping educational concepts with prerequisite dependencies → personalized curriculum
-- **Agent4Edu** (Gao et al., 2025b): Replicates Ebbinghaus Forgetting Curve to simulate knowledge decay for teacher training
-- **WebCoach** (Liu et al., 2025b): Persistent cross-session memory → self-evolving instructional guidance
-- **CAM** (Li et al., 2025d): Cognitive-aware memory for adaptive learning
-- Also: ClassroomSimulacra, TeachTune, EduAgent, OATutor, MEDCO
+**关键系统**：
+- **LOOM** (Cui et al., 2025a)：学习者记忆图谱，映射具有先决条件依赖关系的教育概念 → 个性化课程
+- **Agent4Edu** (Gao et al., 2025b)：复制艾宾浩斯遗忘曲线以模拟知识衰退，用于教师培训
+- **WebCoach** (Liu et al., 2025b)：跨会话持久记忆 → 自演化的教学指导
+- **CAM** (Li et al., 2025d)：面向自适应学习的认知感知记忆
+- 还有：ClassroomSimulacra、TeachTune、EduAgent、OATutor、MEDCO
 
-**Future direction**: Interoperable memory protocols allowing learner cognitive profiles to persist across platforms — an evolving record of intellectual development.
-
----
-
-## Scientific Research
-
-**Memory role**: Synthesize vast literature, manage provenance, maintain reasoning continuity across multi-stage discovery.
-
-> "Memory serves as a **verification layer** for the research process — maintaining a transparent lineage of how a conclusion was reached."
-
-**Key systems**:
-- **GAM** (Yan et al., 2025a): Researcher agent over universal page-store → dynamic context reconstruction for multi-hop reasoning
-- **IterResearch** (Chen et al., 2025c): Workspace preserving only evolving report + immediate results → prevents context suffocation
-- **MirrorMind** (Zeng et al., 2025): Collective intelligence via hierarchical architecture → cognitive styles + domain knowledge retrieval
-- **AISAC** (Bhattacharya & Som, 2025): Hybrid memory — semantic retrieval + structured SQLite logs for reproducibility
-- Also: ChemDFM, AI-coscientist, SciAgents, Agent Laboratory, NovelSeek
-
-**Future direction**: Multiple agents share unified, evolving knowledge graphs of scientific fields — updated in real-time as papers are published.
+**未来方向**：可互操作的记忆协议，允许学习者认知档案跨平台持久化 —— 形成不断演化的智识发展记录。
 
 ---
 
-## Gaming and Simulation
+## 科学研究
 
-**Memory role**: Skill acquisition, spatial exploration, emergence of complex social dynamics.
+**记忆作用**：综合海量文献、管理溯源、在多阶段发现过程中维持推理连续性。
 
-> "Memory modules allow behavior to emerge **bottom-up** from experience accumulation rather than top-down programming."
+> "记忆作为研究过程的**验证层** —— 维护结论形成过程的透明溯源链。"
 
-**Key systems**:
-- **Voyager** (Wang et al., 2025c): Stores successful actions as executable code in a skill library → compounding capabilities in Minecraft
-- **GITM** (Zhu et al., 2023): Hierarchical text-based memory where planner records structured sub-goal summaries
-- **Generative Agents** (Park et al., 2023): Memory stream where agents reflect to synthesize high-level insights into relationships and plans
-- **GameGPT** (Chen et al., 2023): Memory as shared state for multi-agent game development — versioning and conflict resolution
-- Also: M2PA, WarAgent, S3, AvalonBench, Mosaic
+**关键系统**：
+- **GAM** (Yan et al., 2025a)：基于通用页面存储的研究员智能体 → 动态上下文重建用于多跳推理
+- **IterResearch** (Chen et al., 2025c)：工作台仅保留演化中的报告 + 即时结果 → 防止上下文窒息
+- **MirrorMind** (Zeng et al., 2025)：通过层次化架构实现集体智慧 → 认知风格 + 领域知识检索
+- **AISAC** (Bhattacharya & Som, 2025)：混合记忆 —— 语义检索 + 结构化 SQLite 日志确保可重现性
+- 还有：ChemDFM、AI-coscientist、SciAgents、Agent Laboratory、NovelSeek
 
-**Future direction**: Socially aligned forgetting mechanisms — agents mimic human-like memory decay so personalities evolve organically without paralysis from trivial historical noise.
-
----
-
-## Robotics
-
-**Memory role**: Bridge high-level reasoning with low-level control; maintain spatial representations in partially observable environments.
-
-> "Memory is the bridge between high-level reasoning and low-level control."
-
-**Key systems**:
-- **Memo** (Gupta et al., 2025): Periodic summarization tokens compressing trajectories for long-horizon navigation
-- **MG-Nav** (Wang et al., 2025b): Spatial memory graphs with landmark regions (not dense point clouds) — mimics human navigation
-- **JARVIS-1** (Wang et al., 2024q): Multimodal memory retrieving experiences by visual + semantic similarity
-- **VIPeR** (Ming et al., 2025): Vision-integrated perceptual memory for robotic tasks
-- **SAM2** / **ReSurgSAM2**: Short-term perceptual queues over video frames
-- Also: KARMA, LRLL, VideoAgent, GridMM, CAPEAM
-
-**Future direction**: Multimodal memory integration — simulate physical affordances based on past successes/failures stored in procedural memory.
+**未来方向**：多个智能体共享统一的、不断演化的科学领域knowledge graph —— 随论文发表实时更新。
 
 ---
 
-## Healthcare
+## 游戏与仿真
 
-**Memory role**: Track longitudinal health trends, emotional trajectories, efficacy of interventions — building user trust and adherence.
+**记忆作用**：技能习得、空间探索、复杂社会动态的涌现。
 
-> "Affective continuity is as critical as clinical accuracy — leading to measurable increases in user trust and adherence."
+> "记忆模块允许行为从经验积累中**自底向上涌现**，而非自顶向下编程。"
 
-**Key systems**:
-- **TheraMind** (Hu et al., 2025a): Dual-loop architecture — immediate responses (short-term) + strategic cross-session memory updates (long-term) for therapeutic strategy adjustment
-- **DAM** (Lu & Li, 2025): Memory units as confidence distributions over sentiment polarities → stable probabilistic emotion modeling
-- **Mem-PAL** (Huang et al., 2025d): H2Memory architecture distinguishing objective physiological logs from subjective dialogue → infer health metric correlations
-- Also: CAR-AD, AgentMD, MedConMA, MDAgents, MedAgents, ChatCAD
+**关键系统**：
+- **Voyager** (Wang et al., 2025c)：将成功动作作为可执行代码存储在技能库中 → 在 Minecraft 中积累复合能力
+- **GITM** (Zhu et al., 2023)：层次化文本记忆，规划器记录结构化子目标摘要
+- **Generative Agents** (Park et al., 2023)：记忆流，智能体通过反思将高层洞察综合为关系和计划
+- **GameGPT** (Chen et al., 2023)：记忆作为多智能体游戏开发的共享状态 —— 版本控制和冲突消解
+- 还有：M2PA、WarAgent、S3、AvalonBench、Mosaic
 
-**Future direction**: Privacy-preserving memory by design — balance utility of long-term memory with patient confidentiality imperatives.
-
----
-
-## Dialogue Systems
-
-**Memory role**: Create the illusion of continuous personalized relationship — manage context window while providing conversation history.
-
-> "A shift toward OS-level memory management, where the agent acts as a **kernel managing its own resources**."
-
-**Key systems**:
-- **MemGPT** (Packer et al., 2023): Context management system explicitly moving data between main and external context
-- **O-Mem** (Wang et al., 2025i): Tri-component memory to extract and update holistic user personas for aligned responses
-- **MemoChat** (Lu et al., 2023): Instructional tuning training models on structured memo writing → improved long-range consistency
-- **A-Mem** (Xu et al., 2025e): Dynamic, evolving user memory with structured organization
-- **Mem0** (Chhikara et al., 2025): Production-grade selective memory retention
-- Also: SEAL, LiCoMemory, LightMem, RGMem
-
-**Future direction**: Self-optimizing memory — agents learn personalized memory policies rather than following fixed heuristics for what to remember.
+**未来方向**：社会对齐的遗忘机制 —— 智能体模仿人类记忆衰退，使人格有机演化，而不因琐碎的历史噪声而陷入停滞。
 
 ---
 
-## Workflow Automation
+## 机器人
 
-**Memory role**: Accumulate procedural knowledge, optimize workflow, maintain task context across complex automation pipelines.
+**记忆作用**：连接高级推理与低级控制；在部分可观测的环境中维持空间表征。
 
-**Key systems**:
-- **AWM** (Wang et al., 2025u): Induces reusable workflow templates from successful trajectories → parameterized procedural memory
-- **ToolMem** (Xiao et al., 2025): Semantic memory of tool usage patterns → learns effective tools for specific task types
-- **Synapse** (Zheng et al., 2024): Trajectory-as-exemplar prompting — stores successful control sequences as episodic memory for analogical reasoning
-- **WebArena** evaluation shows episodic memory of web interaction substantially outperforms baselines
-- Also: Wheeler & Jeunen (2025), WALT, MobileAgent-v2, AutoAgents, SITGraph
+> "记忆是高级推理与低级控制之间的桥梁。"
 
-**Future direction**: Agents actively rewrite their own instructions based on long-term execution logs — evolving from executors into process architects.
+**关键系统**：
+- **Memo** (Gupta et al., 2025)：周期性摘要 token 压缩轨迹，用于长时域导航
+- **MG-Nav** (Wang et al., 2025b)：带地标区域的空间记忆图谱（非稠密点云）—— 模仿人类导航
+- **JARVIS-1** (Wang et al., 2024q)：通过视觉 + 语义相似度检索经验的多模态记忆
+- **VIPeR** (Ming et al., 2025)：用于机器人任务的视觉集成感知记忆
+- **SAM2** / **ReSurgSAM2**：视频帧上的短期感知队列
+- 还有：KARMA、LRLL、VideoAgent、GridMM、CAPEAM
 
----
-
-## Software Engineering
-
-**Memory role**: Maintain code context, learn from implementation attempts, navigate large-scale repositories.
-
-> "Effective coding agents do not merely generate code — they recall the trajectory of previous failures and fixes to achieve higher success rates in passing unit tests."
-
-**Key systems**:
-- **MetaGPT** (Hong et al., 2023): Procedural memory for development workflows + shared semantic memory of project specifications
-- **ChatDev** (Qian et al., 2024a): Episodic memory of development iterations → learning from debugging sessions
-- **SWE-bench** evaluation reveals memory mechanisms significantly improve issue resolution — context across multi-file edits + prior debugging experience
-- Also: SWE-Effi, TroVE, Self-organized Agents, OpenHands, MASAI, DeepCode
-
-**Future direction**: Shared, anonymized knowledge repositories where distributed coding agents contribute to and query universal pools of algorithmic solutions and error patches.
+**未来方向**：多模态记忆集成 —— 基于存储在程序记忆中的过去成功/失败来模拟物理承受能力。
 
 ---
 
-## Online Streaming and Recommendation
+## 医疗健康
 
-**Memory role**: Maintain temporal consistency; recognize long-range patterns across video frames and user interactions.
+**记忆作用**：追踪纵向健康趋势、情绪轨迹、干预效果 —— 建立用户信任和依从性。
 
-> "Memory acts as a **temporal filter** that distills transient data into persistent representations."
+> "情感连续性与临床准确性同样关键 —— 可测量地提升用户信任和依从性。"
 
-**Key systems**:
-- **WorldMM** (Yeo et al., 2025b): Dynamic multimodal memory storing visual-linguistic features for complex reasoning over long video streams
-- **GCAgent** (Yeo et al., 2025a): Dual-structured episodic memory separating schematic knowledge from narrative sequences
-- **VideoLLM-Online** (Chen et al., 2024c): Online video understanding with streaming memory
-- **XMem++** (Bekuzarov et al., 2023): Extended memory for video object tracking
-- Also: VideoScan, VideoLLM-MoD
+**关键系统**：
+- **TheraMind** (Hu et al., 2025a)：双循环架构 —— 即时响应（短期）+ 战略性跨会话记忆更新（长期）用于治疗策略调整
+- **DAM** (Lu & Li, 2025)：记忆单元作为情感极性置信分布 → 稳定的概率情绪建模
+- **Mem-PAL** (Huang et al., 2025d)：H2Memory 架构，区分客观生理日志与主观对话 → 推断健康指标相关性
+- 还有：CAR-AD、AgentMD、MedConMA、MDAgents、MedAgents、ChatCAD
 
-**Future direction**: Forgetting-aware recommendation memories distinguishing fleeting interests from long-term preferences — optimizing novelty/relevance balance in real-time feeds.
-
----
-
-## Information Search
-
-**Memory role**: Transform static retrieval into active workspace for knowledge synthesis.
-
-> "Effective search is not just about finding data, but about managing the cognitive load of the search trajectory."
-
-**Key systems**:
-- **AgentFold** (Ye et al., 2025b): Long-horizon web navigation through proactive context management — fold irrelevant trajectories to prevent overflow
-- **MemSearcher** (Yuan et al., 2025a): RL for joint searching and memory management
-- **MoM** (Zhao et al., 2025a): Scenario-aware memories — dynamically route queries to specialized memory banks
-- **MemAgent** (Yu et al., 2025b): RL-based memory management for long-context processing
-- Also: ReSum, Memento, MLP Memory, MemoryLLM
-
-**Future direction**: Collaborative memory structures — multiple agents verify facts and update shared belief graphs in response to breaking information cycles.
+**未来方向**：隐私保护记忆设计 —— 平衡长期记忆的实用性与患者保密性。
 
 ---
 
-## Finance and Accounting
+## 对话系统
 
-**Memory role**: Maintain strategic consistency across volatile market cycles; balance quantitative signals with qualitative historical precedents.
+**记忆作用**：创造持续个性化关系的感知 —— 管理context window同时提供对话历史。
 
-**Key systems**:
-- **FinMem** (Yu et al., 2025e): Layered memory — immediate market observations (short-term) vs. long-term investment experience; refines personality + risk profile over time
-- **FinCon** (Yu et al., 2024a): Multi-agent memory as repository for conceptual verbal reinforcement → learning from past financial decisions through reflective feedback loops
-- **QuantAgent** (Wang et al., 2024g): Self-improving mechanism — successful trajectories stored as procedural memory for future strategy refinement
-- Also: FLAG-Trader, InvestorBench, TradingAgents, TradingGPT, Open-FinLLMs
+> "转向 OS 级记忆管理，智能体扮演**管理自身资源的内核**。"
 
-**Future direction**: Forgetting-aware financial agents — prune outdated economic assumptions while retaining core risk management principles.
+**关键系统**：
+- **MemGPT** (Packer et al., 2023)：上下文管理系统，在主/外部上下文间显式移动数据
+- **O-Mem** (Wang et al., 2025i)：三组件记忆，提取和更新整体用户人格以实现对齐响应
+- **MemoChat** (Lu et al., 2023)：指令调整训练模型进行结构化备忘录写作 → 提升长程一致性
+- **A-Mem** (Xu et al., 2025e)：带结构化组织的动态演化用户记忆
+- **Mem0** (Chhikara et al., 2025)：生产级选择性记忆保留
+- 还有：SEAL、LiCoMemory、LightMem、RGMem
 
----
-
-## Legal and Consulting
-
-**Memory role**: Navigate massive heterogeneous documents with mandatory provenance; maintain consistency across long-duration cases.
-
-> "Memory is the cognitive substrate that allows legal agents to perform multi-step reasoning over long-duration cases — ensuring advice remains consistent with previously cited statutes or client history."
-
-**Key systems**:
-- **MALR** (Yuan et al., 2024b): Multi-agent framework maintaining interaction history simulating collaborative debate between legal experts
-- **StaffPro** (Maritan, 2025): Consulting — memory to profile workers + project requirements over time → dynamic staffing via feedback loop of past performance data
-- **Blair-Stanek et al. (2025)**: Novel tax-minimization strategies by synthesizing thousands of pages of evolving statutes + case law → persistent reasoning graph
-- Also: LegalMind, CaseGPT, Dallma, Agentcourt, Legal-GPT, FEAT
-
-**Future direction**: Verifiable memory architectures — every retrieved insight linked to cryptographically signed source document for highest professional integrity.
+**未来方向**：自优化记忆 —— 智能体学习个性化的记忆策略，而非遵循固定的启发式规则。
 
 ---
 
-## Cross-Domain Patterns
+## 工作流自动化
 
-| Pattern | Description | Domains |
+**记忆作用**：积累程序化知识、优化工作流、在复杂自动化流水线中维护任务上下文。
+
+**关键系统**：
+- **AWM** (Wang et al., 2025u)：从成功轨迹中归纳可复用的工作流模板 → 参数化程序记忆
+- **ToolMem** (Xiao et al., 2025)：工具使用模式的语义记忆 → 学习针对特定任务类型的有效工具
+- **Synapse** (Zheng et al., 2024)：以轨迹为范例的提示 —— 将成功控制序列存储为情节记忆用于类比推理
+- WebArena 评估表明，网页交互的情节记忆显著优于基线
+- 还有：Wheeler & Jeunen (2025)、WALT、MobileAgent-v2、AutoAgents、SITGraph
+
+**未来方向**：智能体基于长期执行日志主动改写自身指令 —— 从执行者进化为流程架构师。
+
+---
+
+## 软件工程
+
+**记忆作用**：维护代码上下文、从实现尝试中学习、导航大规模代码库。
+
+> "有效的编码智能体不仅仅是生成代码 —— 它们回忆过去失败和修复的轨迹，以在通过单元测试中取得更高成功率。"
+
+**关键系统**：
+- **MetaGPT** (Hong et al., 2023)：开发工作流的程序记忆 + 项目规格的共享语义记忆
+- **ChatDev** (Qian et al., 2024a)：开发迭代的情节记忆 → 从调试会话中学习
+- SWE-bench 评估显示，记忆机制显著提升问题解决率 —— 跨多文件编辑的上下文 + 过去的调试经验
+- 还有：SWE-Effi、TroVE、Self-organized Agents、OpenHands、MASAI、DeepCode
+
+**未来方向**：共享的匿名知识库，分布式编码智能体贡献并查询通用算法解决方案和错误补丁池。
+
+---
+
+## 在线流媒体与推荐
+
+**记忆作用**：维护时序一致性；识别视频帧和用户交互中的长程模式。
+
+> "记忆充当**时序过滤器**，将短暂数据提炼为持久表征。"
+
+**关键系统**：
+- **WorldMM** (Yeo et al., 2025b)：存储视觉-语言特征的动态多模态记忆，用于长视频流的复杂推理
+- **GCAgent** (Yeo et al., 2025a)：双结构情节记忆，分离图式知识与叙事序列
+- **VideoLLM-Online** (Chen et al., 2024c)：带流式记忆的在线视频理解
+- **XMem++** (Bekuzarov et al., 2023)：视频目标追踪的扩展记忆
+- 还有：VideoScan、VideoLLM-MoD
+
+**未来方向**：遗忘感知的推荐记忆，区分短暂兴趣与长期偏好 —— 实时优化新颖性/相关性平衡。
+
+---
+
+## 信息搜索
+
+**记忆作用**：将静态检索转变为知识综合的主动工作台。
+
+> "有效的搜索不仅仅是找到数据，更是管理搜索轨迹的认知负荷。"
+
+**关键系统**：
+- **AgentFold** (Ye et al., 2025b)：通过主动上下文管理进行长时域网页导航 —— 折叠无关轨迹防止溢出
+- **MemSearcher** (Yuan et al., 2025a)：用于联合搜索和记忆管理的 RL
+- **MoM** (Zhao et al., 2025a)：场景感知记忆 —— 将查询动态路由到专用记忆库
+- **MemAgent** (Yu et al., 2025b)：基于 RL 的长上下文记忆管理
+- 还有：ReSum、Memento、MLP Memory、MemoryLLM
+
+**未来方向**：协作记忆结构 —— 多个智能体验证事实，并在响应突发信息周期时更新共享信念图谱。
+
+---
+
+## 金融与会计
+
+**记忆作用**：在动荡的市场周期中维持策略一致性；平衡定量信号与定性历史先例。
+
+**关键系统**：
+- **FinMem** (Yu et al., 2025e)：分层记忆 —— 即时市场观察（短期）vs 长期投资经验；随时间精炼人格 + 风险档案
+- **FinCon** (Yu et al., 2024a)：多智能体记忆作为概念性言语强化的仓库 → 通过反思性反馈循环从过去金融决策中学习
+- **QuantAgent** (Wang et al., 2024g)：自我改进机制 —— 成功轨迹存储为程序记忆用于未来策略精炼
+- 还有：FLAG-Trader、InvestorBench、TradingAgents、TradingGPT、Open-FinLLMs
+
+**未来方向**：遗忘感知的金融智能体 —— 剪枝过时的经济假设，同时保留核心风险管理原则。
+
+---
+
+## 法律与咨询
+
+**记忆作用**：导航具有强制溯源要求的海量异构文档；在长期案件中维持一致性。
+
+> "记忆是使法律智能体能够对长期案件进行多步推理的认知基底 —— 确保建议与先前引用的法规或客户历史保持一致。"
+
+**关键系统**：
+- **MALR** (Yuan et al., 2024b)：维护交互历史的多智能体框架，模拟法律专家之间的协作辩论
+- **StaffPro** (Maritan, 2025)：咨询 —— 记忆随时间为员工 + 项目需求建档 → 通过过去绩效数据的反馈循环进行动态人员配置
+- **Blair-Stanek et al. (2025)**：通过综合数千页不断演化的法规 + 判例法生成新颖的税务最小化策略 → 持久推理图
+- 还有：LegalMind、CaseGPT、Dallma、Agentcourt、Legal-GPT、FEAT
+
+**未来方向**：可验证的记忆架构 —— 每个检索到的洞察链接到经密码学签名的源文档，实现最高专业完整性。
+
+---
+
+## 跨领域模式
+
+| 模式 | 描述 | 领域 |
 |---|---|---|
-| **Memory as cognitive twin** | Memory models the user/collaborator's state over time | Education, Healthcare, Dialogue |
-| **Memory as verification layer** | Memory maintains transparent provenance chain | Science, Legal |
-| **Memory as skill library** | Procedural skills extracted from successful executions | Gaming, Robotics, Workflow |
-| **Memory as temporal filter** | Distills transient streams into persistent representations | Streaming, Finance |
-| **Memory as workspace** | Active, evolving document of current task state | Search, Software Engineering |
+| **记忆作为认知孪生** | 记忆随时间建模用户/协作者的状态 | 教育、医疗健康、对话 |
+| **记忆作为验证层** | 记忆维护透明的溯源链 | 科学研究、法律 |
+| **记忆作为技能库** | 从成功执行中提取程序性技能 | 游戏、机器人、工作流 |
+| **记忆作为时序过滤器** | 将短暂流提炼为持久表征 | 流媒体、金融 |
+| **记忆作为工作台** | 当前任务状态的主动演化文档 | 搜索、软件工程 |
