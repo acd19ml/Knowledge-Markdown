@@ -69,6 +69,22 @@ Knowledge-Markdown/
 ├── Self_Evolve_zh/              # Self-Evolving Agents — Chinese translation
 │   └── (mirrors Self_Evolve/ structure)
 │
+├── GUI_Agent/                   # LLM-based GUI Agent — English (survey + structured notes)
+│   ├── README.md                # Knowledge base index & navigation
+│   ├── 00_survey-overview.md    # Paper metadata, taxonomy, structure map
+│   ├── 01_background.md         # LLM, MLLM, LLM-based Agent concepts
+│   ├── 02_capabilities/         # 5 core capabilities of GUI Agent
+│   │   ├── README.md
+│   │   ├── 2.1_gui-comprehension.md    # Text/Vision/Hybrid GUI understanding
+│   │   ├── 2.2_device-control.md       # Code-based vs UI-based control
+│   │   ├── 2.3_user-interaction.md     # Single-turn vs task-oriented dialogue
+│   │   └── 2.4_advanced-capabilities.md # Personalization + multi-agent synergy
+│   ├── 03_task-automation-pipeline.md  # Two-stage pipeline: Exploration → Exploitation
+│   ├── 04_evaluation.md         # 24 datasets + evaluation metrics
+│   ├── 05_challenges.md         # Cost, feasibility, safety, AIOS connection
+│   ├── comparison-matrix.md     # Cross-paper comparison (23 systems)
+│   └── gap-tracker.md           # Research gap tracker (5 gaps)
+│
 ├── Claude_API/                  # Claude API features and best practices
 │   └── Tool_Use/
 │       ├── advanced-tool-use-features.md
@@ -120,6 +136,22 @@ Knowledge-Markdown/
 | Applications (Science, SWE, Open-World) | [Self_Evolve/05_applications.md](Self_Evolve/05_applications.md) | science, software-engineering, gaming |
 | Challenges & Future Frontiers | [Self_Evolve/06_challenges.md](Self_Evolve/06_challenges.md) | challenges, model-collapse, future-work |
 | Benchmarks (40+ annotated) | [Self_Evolve/07_benchmarks.md](Self_Evolve/07_benchmarks.md) | benchmarks, evaluation, SWE-bench, WebArena |
+
+### GUI Agent (English)
+
+| Topic | File | Tags |
+|---|---|---|
+| GUI Agent Survey — Overview & Index | [GUI_Agent/README.md](GUI_Agent/README.md) | GUI-agent, survey, LLM, task-automation |
+| Background: LLM, MLLM, Agent Concepts | [GUI_Agent/01_background.md](GUI_Agent/01_background.md) | LLM, MLLM, transformer, CogAgent |
+| GUI Environment Comprehension (3 paradigms) | [GUI_Agent/02_capabilities/2.1_gui-comprehension.md](GUI_Agent/02_capabilities/2.1_gui-comprehension.md) | GUI-understanding, VH, DOM, vision, hybrid |
+| Device Control (Code-based vs UI-based) | [GUI_Agent/02_capabilities/2.2_device-control.md](GUI_Agent/02_capabilities/2.2_device-control.md) | device-control, action-space, automation |
+| User Interaction (Single-turn vs Dialogue) | [GUI_Agent/02_capabilities/2.3_user-interaction.md](GUI_Agent/02_capabilities/2.3_user-interaction.md) | dialogue, task-oriented, user-interaction |
+| Personalization + Multi-Agent Synergy | [GUI_Agent/02_capabilities/2.4_advanced-capabilities.md](GUI_Agent/02_capabilities/2.4_advanced-capabilities.md) | personalization, memory, multi-agent, UFO |
+| Task Automation Pipeline (Explore → Exploit) | [GUI_Agent/03_task-automation-pipeline.md](GUI_Agent/03_task-automation-pipeline.md) | two-stage, exploration, exploitation, AppAgent |
+| Evaluation: 24 Datasets + Metrics | [GUI_Agent/04_evaluation.md](GUI_Agent/04_evaluation.md) | benchmarks, Mind2Web, WebArena, success-rate |
+| Challenges: Cost, Safety, AIOS | [GUI_Agent/05_challenges.md](GUI_Agent/05_challenges.md) | cost, hallucination, security, AIOS |
+| Cross-Paper Comparison Matrix (23 systems) | [GUI_Agent/comparison-matrix.md](GUI_Agent/comparison-matrix.md) | comparison, survey, systems |
+| Research Gap Tracker (5 gaps) | [GUI_Agent/gap-tracker.md](GUI_Agent/gap-tracker.md) | research-gap, memory, self-evolving |
 
 ### Industry Insights
 
