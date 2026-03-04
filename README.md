@@ -3,7 +3,7 @@
 个人知识库 —— AI 工程笔记、API 参考与实践指南。
 
 > **语言约定**：所有笔记以中文为主，technical terms 保留英文原词。
-> `Claude_Skills/` 为工具目录，保持英文原样。
+> `Skills/` 为工具目录，保持英文原样。
 
 ---
 
@@ -12,9 +12,7 @@
 ```
 Knowledge-Markdown/
 ├── README.md                    # 本文件 —— 总索引
-│
-├── Agent_Skills/                # 为 Claude Code 构建自定义 skill
-│   └── The-Complete-Guide-to-Building-Skill-for-Claude.md
+├── KB-Expansion-Guide.md        # 知识库扩展工作流指南（论文筛选 → 笔记 → 归档）
 │
 ├── Agent_Memory/                # Foundation Agent Memory（论文综述 + 结构化笔记）
 │   ├── README.md
@@ -51,30 +49,36 @@ Knowledge-Markdown/
 │   └── 07_benchmarks.md
 │
 ├── GUI_Agent/                   # GUI Agent（论文综述 + 结构化笔记）
+│   ├── README.md
 │   ├── 00_survey-overview.md
-│   ├── comparison-matrix.md
+│   ├── 01_background.md
 │   ├── 02_capabilities/
 │   │   ├── 2.1_gui-comprehension.md
 │   │   ├── 2.2_device-control.md
 │   │   ├── 2.3_user-interaction.md
 │   │   └── 2.4_advanced-capabilities.md
-│   └── 04_evaluation.md
+│   ├── 03_task-automation-pipeline.md
+│   ├── 04_evaluation.md
+│   └── 05_challenges.md
 │
 ├── Cross_Topic/                 # 跨综述交叉分析（核心研究工具）
-│   ├── master-comparison-matrix.md  # 唯一核心矩阵：GUI Agent × Memory × Self-Evolve
+│   ├── master-comparison-matrix.md  # 核心矩阵：GUI Agent × Memory × Self-Evolve
+│   ├── comparison-matrix.md         # GUI Agent 单域能力矩阵（23 系统 × 8 维度）
 │   ├── gap-tracker.md               # 全局 Gap 分层（A/B/C 类）
 │   ├── gui-agent-x-memory.md        # GUI Agent × Agent Memory 交叉分析
 │   ├── gui-agent-x-self-evolving.md # GUI Agent × Self-Evolving 交叉分析
 │   └── taxonomy-draft.md            # 综述分类框架草稿
 │
 ├── Industry_Insights/           # 从业者视角：podcast、演讲、行业分析
-│   └── 2025-12_CUA-Slow-Thinking-Podcast.md
+│   ├── 2025-12_CUA-Slow-Thinking-Podcast.md
+│   └── 2026-02_Claude-Code-Agent-Design.md
 │
 ├── Claude_API/                  # Claude API 功能与 best practices
 │   └── Tool_Use/
 │       └── advanced-tool-use-features.md
 │
-└── Claude_Skills/               # ~/.claude/skills 备份（保持英文原样）
+└── Skills/                      # ~/.claude/skills 备份（保持英文原样）
+    ├── The-Complete-Guide-to-Building-Skill-for-Claude.md
     ├── paper-notes/
     ├── pdf/
     └── skill-creator/
@@ -84,17 +88,17 @@ Knowledge-Markdown/
 
 ## 快速索引
 
-### Agent Skills
+### Skills
 
 | 主题 | 文件 | 标签 |
 |---|---|---|
-| 为 Claude 构建 skill 完全指南 | [Agent_Skills/The-Complete-Guide-to-Building-Skill-for-Claude.md](Agent_Skills/The-Complete-Guide-to-Building-Skill-for-Claude.md) | skills, slash-commands, claude-code |
+| 为 Claude 构建 skill 完全指南 | [Skills/The-Complete-Guide-to-Building-Skill-for-Claude.md](Skills/The-Complete-Guide-to-Building-Skill-for-Claude.md) | skills, slash-commands, claude-code |
 
 ### Claude API
 
 | 主题 | 文件 | 标签 |
 |---|---|---|
-| 高级工具调用（PTC、Tool Search、Examples、Dynamic Filtering）；web_search 内置 PTC + LMArena #1 | [Claude_API/Tool_Use/advanced-tool-use-features.md](Claude_API/Tool_Use/advanced-tool-use-features.md) | api, tool-use, token, performance, lmarena |
+| 高级工具调用（PTC、Tool Search、Examples、Dynamic Filtering）；web_search 内置 PTC；LMArena #1 | [Claude_API/Tool_Use/advanced-tool-use-features.md](Claude_API/Tool_Use/advanced-tool-use-features.md) | api, tool-use, token, performance, lmarena |
 
 ### Agent Memory
 
@@ -129,19 +133,22 @@ Knowledge-Markdown/
 | 主题 | 文件 | 标签 |
 |---|---|---|
 | 综述概览 | [GUI_Agent/00_survey-overview.md](GUI_Agent/00_survey-overview.md) | GUI-agent, survey, CUA |
-| 能力对比矩阵 | [GUI_Agent/comparison-matrix.md](GUI_Agent/comparison-matrix.md) | comparison, capabilities |
+| 背景：LLM / MLLM / Agent 基础 | [GUI_Agent/01_background.md](GUI_Agent/01_background.md) | MLLM, CogAgent, LLaVA |
 | GUI comprehension | [GUI_Agent/02_capabilities/2.1_gui-comprehension.md](GUI_Agent/02_capabilities/2.1_gui-comprehension.md) | perception, screenshot |
 | Device control | [GUI_Agent/02_capabilities/2.2_device-control.md](GUI_Agent/02_capabilities/2.2_device-control.md) | mouse, keyboard, API |
 | User interaction | [GUI_Agent/02_capabilities/2.3_user-interaction.md](GUI_Agent/02_capabilities/2.3_user-interaction.md) | clarification, feedback |
-| Advanced capabilities | [GUI_Agent/02_capabilities/2.4_advanced-capabilities.md](GUI_Agent/02_capabilities/2.4_advanced-capabilities.md) | planning, memory, tools |
-| Evaluation | [GUI_Agent/04_evaluation.md](GUI_Agent/04_evaluation.md) | benchmarks, OSWorld |
+| Advanced capabilities（个性化 + 多 Agent 协同） | [GUI_Agent/02_capabilities/2.4_advanced-capabilities.md](GUI_Agent/02_capabilities/2.4_advanced-capabilities.md) | planning, memory, tools |
+| Task automation pipeline（探索 → 利用）| [GUI_Agent/03_task-automation-pipeline.md](GUI_Agent/03_task-automation-pipeline.md) | exploration, exploitation |
+| Evaluation（24 个数据集）| [GUI_Agent/04_evaluation.md](GUI_Agent/04_evaluation.md) | benchmarks, OSWorld |
+| 挑战与未来方向 | [GUI_Agent/05_challenges.md](GUI_Agent/05_challenges.md) | cost, safety, AIOS |
 
 ### Cross Topic（核心研究工具）
 
 | 主题 | 文件 | 标签 |
 |------|------|------|
 | Master 对比矩阵（GUI × Memory × Self-Evolve）| [Cross_Topic/master-comparison-matrix.md](Cross_Topic/master-comparison-matrix.md) | cross-domain, memory, self-evolving |
-| 全局 Gap 分层（A/B/C 类，7个 Gap）| [Cross_Topic/gap-tracker.md](Cross_Topic/gap-tracker.md) | gap, research-direction, priority |
+| GUI Agent 单域能力矩阵（23 系统 × 8 维度）| [Cross_Topic/comparison-matrix.md](Cross_Topic/comparison-matrix.md) | comparison, capabilities |
+| 全局 Gap 分层（A/B/C 类，7 个 Gap）| [Cross_Topic/gap-tracker.md](Cross_Topic/gap-tracker.md) | gap, research-direction, priority |
 | GUI Agent × Agent Memory 交叉分析 | [Cross_Topic/gui-agent-x-memory.md](Cross_Topic/gui-agent-x-memory.md) | episodic, procedural, user-centric |
 | GUI Agent × Self-Evolving 交叉分析 | [Cross_Topic/gui-agent-x-self-evolving.md](Cross_Topic/gui-agent-x-self-evolving.md) | AWM, offline-evolution, skills |
 | 综述分类框架草稿 | [Cross_Topic/taxonomy-draft.md](Cross_Topic/taxonomy-draft.md) | taxonomy, survey-outline |
