@@ -60,6 +60,13 @@ Knowledge-Markdown/
 │   │   └── 2.4_advanced-capabilities.md
 │   └── 04_evaluation.md
 │
+├── Cross_Topic/                 # 跨综述交叉分析（核心研究工具）
+│   ├── master-comparison-matrix.md  # 唯一核心矩阵：GUI Agent × Memory × Self-Evolve
+│   ├── gap-tracker.md               # 全局 Gap 分层（A/B/C 类）
+│   ├── gui-agent-x-memory.md        # GUI Agent × Agent Memory 交叉分析
+│   ├── gui-agent-x-self-evolving.md # GUI Agent × Self-Evolving 交叉分析
+│   └── taxonomy-draft.md            # 综述分类框架草稿
+│
 ├── Industry_Insights/           # 从业者视角：podcast、演讲、行业分析
 │   └── 2025-12_CUA-Slow-Thinking-Podcast.md
 │
@@ -128,6 +135,16 @@ Knowledge-Markdown/
 | User interaction | [GUI_Agent/02_capabilities/2.3_user-interaction.md](GUI_Agent/02_capabilities/2.3_user-interaction.md) | clarification, feedback |
 | Advanced capabilities | [GUI_Agent/02_capabilities/2.4_advanced-capabilities.md](GUI_Agent/02_capabilities/2.4_advanced-capabilities.md) | planning, memory, tools |
 | Evaluation | [GUI_Agent/04_evaluation.md](GUI_Agent/04_evaluation.md) | benchmarks, OSWorld |
+
+### Cross Topic（核心研究工具）
+
+| 主题 | 文件 | 标签 |
+|------|------|------|
+| Master 对比矩阵（GUI × Memory × Self-Evolve）| [Cross_Topic/master-comparison-matrix.md](Cross_Topic/master-comparison-matrix.md) | cross-domain, memory, self-evolving |
+| 全局 Gap 分层（A/B/C 类，7个 Gap）| [Cross_Topic/gap-tracker.md](Cross_Topic/gap-tracker.md) | gap, research-direction, priority |
+| GUI Agent × Agent Memory 交叉分析 | [Cross_Topic/gui-agent-x-memory.md](Cross_Topic/gui-agent-x-memory.md) | episodic, procedural, user-centric |
+| GUI Agent × Self-Evolving 交叉分析 | [Cross_Topic/gui-agent-x-self-evolving.md](Cross_Topic/gui-agent-x-self-evolving.md) | AWM, offline-evolution, skills |
+| 综述分类框架草稿 | [Cross_Topic/taxonomy-draft.md](Cross_Topic/taxonomy-draft.md) | taxonomy, survey-outline |
 
 ### Industry Insights
 
