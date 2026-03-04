@@ -94,7 +94,7 @@ Knowledge-Markdown/
 
 | 主题 | 文件 | 标签 |
 |---|---|---|
-| 高级工具调用（PTC、Tool Search、Examples、Dynamic Filtering） | [Claude_API/Tool_Use/advanced-tool-use-features.md](Claude_API/Tool_Use/advanced-tool-use-features.md) | api, tool-use, token, performance |
+| 高级工具调用（PTC、Tool Search、Examples、Dynamic Filtering）；web_search 内置 PTC + LMArena #1 | [Claude_API/Tool_Use/advanced-tool-use-features.md](Claude_API/Tool_Use/advanced-tool-use-features.md) | api, tool-use, token, performance, lmarena |
 
 ### Agent Memory
 
@@ -151,3 +151,4 @@ Knowledge-Markdown/
 | 主题 | 文件 | 标签 |
 |---|---|---|
 | CUA 慢思考实录 —— Ungrounded 播客第 1 期 | [Industry_Insights/2025-12_CUA-Slow-Thinking-Podcast.md](Industry_Insights/2025-12_CUA-Slow-Thinking-Podcast.md) | CUA, GUI-agent, benchmark, business-model, GenUI |
+| 从 Agent 视角看世界 —— Claude Code 工具设计实录 | [Industry_Insights/2026-02_Claude-Code-Agent-Design.md](Industry_Insights/2026-02_Claude-Code-Agent-Design.md) | claude-code, tool-design, progressive-disclosure, grep-vs-rag |
