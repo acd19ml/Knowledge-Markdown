@@ -1,91 +1,91 @@
-# Claude Advanced Tool Use Features (GA — 2026-02-18)
+# Claude 高级工具调用功能（GA — 2026-02-18）
 
-> Applies to: Claude Opus 4.6 / Sonnet 4.6 / Sonnet 4.5 / Opus 4.5
-> Available via: Claude API & Microsoft Foundry (NOT Bedrock / Vertex AI)
+> 适用模型：Claude Opus 4.6 / Sonnet 4.6 / Sonnet 4.5 / Opus 4.5
+> 可用平台：Claude API & Microsoft Foundry（**不支持** Bedrock / Vertex AI）
 
-**Sources**
+**参考来源**
 - [Anthropic Engineering Blog — Advanced Tool Use](https://www.anthropic.com/engineering/advanced-tool-use)
-- [Official Docs — Programmatic Tool Calling](https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling)
-- [Community Report — Claude Advanced Tool Use Patterns](https://github.com/shanraisshan/claude-code-best-practice/blob/main/reports/claude-advanced-tool-use.md)
+- [官方文档 — Programmatic Tool Calling](https://platform.claude.com/docs/en/agents-and-tools/tool-use/programmatic-tool-calling)
+- [社区报告 — Claude Advanced Tool Use Patterns](https://github.com/shanraisshan/claude-code-best-practice/blob/main/reports/claude-advanced-tool-use.md)
 
 ---
 
-## Overview
+## 概览
 
-Four GA features that optimize token consumption and reduce latency for multi-tool workflows:
+四项正式可用（GA）功能，用于优化多工具 workflow 的 token 消耗并降低 latency：
 
-| Feature | Problem Solved | Impact | Status |
+| 功能 | 解决的问题 | 效果 | 状态 |
 |---|---|---|---|
-| Programmatic Tool Calling (PTC) | Multi-round-trip context pollution | ~37% fewer tokens | GA |
-| Tool Search Tool | Too many tool definitions loaded upfront | ~85% fewer token on definitions | GA |
-| Tool Use Examples | Schema can't express usage patterns | 72% → 90% accuracy | GA |
-| Dynamic Filtering (Web Search/Fetch) | Raw HTML bloats context | ~24% fewer input tokens | GA |
+| Programmatic Tool Calling (PTC) | 多轮交互污染 context | token 减少约 37% | GA |
+| Tool Search Tool | 启动时加载过多工具定义 | 定义 token 减少约 85% | GA |
+| Tool Use Examples | schema 无法表达使用模式 | 准确率 72% → 90% | GA |
+| Dynamic Filtering（网页搜索/抓取） | 原始 HTML 撑爆 context | 输入 token 减少约 24% | GA |
 
 ---
 
 ## 1. Programmatic Tool Calling (PTC)
 
-### Core Idea
+### 核心思路
 
-**Traditional:** Each tool call = 1 model inference pass. All intermediate results enter the context window.
-
-```
-3 tools → 3 inference passes → all responses pollute context → HIGH token cost
-```
-
-**PTC:** Claude writes a Python script that orchestrates all tools inside a sandbox. Only `stdout` (the final summary) enters the context window.
+**传统方式**：每次工具调用 = 1 次模型 inference。所有中间结果都进入 context window。
 
 ```
-3 tools → 1 inference pass → only final output enters context → ~37% LOWER token cost
+3 个工具 → 3 次 inference → 所有响应污染 context → token 成本高
 ```
 
-**Real-world example:** Budget compliance across 20 employees.
-- Traditional: 20+ tool calls, 2,000+ expense items enter context.
-- PTC: One script runs 20 lookups, filters results, returns only the 2–3 people who exceeded budget.
+**PTC**：Claude 编写一段 Python 脚本，在 sandbox 中编排所有工具调用。只有 `stdout`（最终摘要）进入 context window。
 
-### Benchmark Results
+```
+3 个工具 → 1 次 inference → 只有最终输出进入 context → token 成本降低约 37%
+```
 
-| Benchmark | Before | After |
+**真实场景举例**：检查 20 名员工的预算合规情况。
+- 传统方式：20+ 次工具调用，2000+ 条费用记录进入 context。
+- PTC：一个脚本执行 20 次查询，过滤结果，只返回 2–3 个超出预算的人。
+
+### Benchmark 结果
+
+| 指标 | 优化前 | 优化后 |
 |---|---|---|
-| Token usage | 43,588 | 27,297 (−37%) |
-| BrowseComp (Sonnet 4.6) | 33.3% | 46.6% |
-| BrowseComp (Opus 4.6) | 45.3% | 61.6% |
-| DeepSearchQA F1 (Sonnet 4.6) | 52.6% | 59.4% |
-| DeepSearchQA F1 (Opus 4.6) | 69.8% | 77.3% |
+| token 用量 | 43,588 | 27,297（−37%） |
+| BrowseComp（Sonnet 4.6） | 33.3% | 46.6% |
+| BrowseComp（Opus 4.6） | 45.3% | 61.6% |
+| DeepSearchQA F1（Sonnet 4.6） | 52.6% | 59.4% |
+| DeepSearchQA F1（Opus 4.6） | 69.8% | 77.3% |
 
-### How It Works
+### 工作原理
 
-1. Claude writes Python code calling your tool as `await tool_name(args)`.
-2. Code runs in a sandboxed container via the code execution tool.
-3. API pauses, returns a `tool_use` block — you provide the result.
-4. Code execution resumes; intermediate results **never** enter Claude's context.
-5. Only the final `stdout` is returned to Claude.
+1. Claude 编写 Python 代码，通过 `await tool_name(args)` 调用你的工具。
+2. 代码在 sandbox container 中通过 code execution 工具运行。
+3. API 暂停，返回一个 `tool_use` block —— 你提供工具结果。
+4. 代码执行恢复；中间结果**不会**进入 Claude 的 context。
+5. 只有最终的 `stdout` 返回给 Claude。
 
-### Setup — Key Fields
+### 配置 — 关键字段
 
-**Tool definition** — mark a tool as programmatically callable:
+**工具定义** — 将工具标记为可 programmatic 调用：
 
 ```json
 {
   "name": "query_database",
-  "description": "Execute SQL. Returns list of rows as JSON objects.",
+  "description": "执行 SQL，以 JSON 对象列表形式返回行数据。",
   "input_schema": { ... },
   "allowed_callers": ["code_execution_20260120"]
 }
 ```
 
-`allowed_callers` values:
-- `["direct"]` — only Claude calls it directly (default)
-- `["code_execution_20260120"]` — only callable from within code execution
-- `["direct", "code_execution_20260120"]` — both (avoid: give Claude clear guidance)
+`allowed_callers` 可选值：
+- `["direct"]` — 只允许 Claude 直接调用（默认）
+- `["code_execution_20260120"]` — 只允许在 code execution 中调用
+- `["direct", "code_execution_20260120"]` — 两者都允许（不推荐：需给 Claude 明确指引）
 
-**Request must also include the code execution tool:**
+**Request 中还必须包含 code execution 工具：**
 
 ```json
 { "type": "code_execution_20260120", "name": "code_execution" }
 ```
 
-**Response includes a `caller` field:**
+**Response 中包含 `caller` 字段：**
 
 ```json
 {
@@ -98,14 +98,14 @@ Four GA features that optimize token consumption and reduce latency for multi-to
 }
 ```
 
-**Container lifecycle:**
-- New container per session unless you pass a `container` ID to reuse.
-- Expires after ~4.5 minutes of inactivity. Monitor `expires_at`.
-- If container expires while waiting for your tool result, Claude retries.
+**Container lifecycle：**
+- 每个 session 创建一个新 container，除非传入 `container` ID 来复用。
+- 空闲约 4.5 分钟后过期，注意监控 `expires_at`。
+- 等待工具结果期间如果 container 过期，Claude 会自动重试。
 
-### Advanced Patterns
+### 高级模式
 
-**Batch processing (N items = 1 inference pass):**
+**Batch 处理（N 个条目 = 1 次 inference）：**
 ```python
 regions = ["West", "East", "Central", "North", "South"]
 results = {}
@@ -116,7 +116,7 @@ top = max(results.items(), key=lambda x: x[1])
 print(f"Top region: {top[0]} — ${top[1]:,}")
 ```
 
-**Early termination:**
+**Early termination：**
 ```python
 for endpoint in ["us-east", "eu-west", "apac"]:
     if await check_health(endpoint) == "healthy":
@@ -124,47 +124,48 @@ for endpoint in ["us-east", "eu-west", "apac"]:
         break
 ```
 
-**Conditional tool selection:**
+**条件工具选择：**
 ```python
 info = await get_file_info(path)
 content = await read_full_file(path) if info["size"] < 10000 else await read_file_summary(path)
 print(content)
 ```
 
-**Data filtering:**
+**数据过滤：**
 ```python
 logs = await fetch_logs(server_id)
 errors = [l for l in logs if "ERROR" in l]
 print(f"{len(errors)} errors\n" + "\n".join(errors[-10:]))
 ```
 
-### Constraints
+### 限制
 
-- Requires code execution tool to be enabled.
-- NOT available on Bedrock or Vertex AI.
-- Incompatible with: MCP tools, web search/fetch (standard), `strict: true` structured outputs, forced `tool_choice`.
-- `disable_parallel_tool_use: true` not supported.
-- When responding to programmatic tool calls: message must contain **only** `tool_result` blocks (no text).
-- Container lifetime ~4.5 minutes.
+- 需要启用 code execution 工具。
+- **不支持** Bedrock 或 Vertex AI。
+- 与以下功能不兼容：MCP 工具、标准版网页搜索/抓取、`strict: true` structured output、强制 `tool_choice`。
+- 不支持 `disable_parallel_tool_use: true`。
+- 响应 programmatic tool call 时：message 必须**只**包含 `tool_result` block（不能有文本）。
+- Container 有效期约 4.5 分钟。
 
-### When to Use
+### 适用场景
 
-**Good:** Large datasets needing aggregation, 3+ dependent tool calls, filtering/sorting before reasoning, parallel operations across many items.
-**Skip:** Single tool call with simple response, very fast operations where container overhead outweighs benefit.
+**推荐使用：** 需要聚合的大型数据集、3 个以上的依赖工具调用、在推理前需要过滤/排序、对大量条目并行操作。
+
+**不推荐使用：** 单次工具调用且响应简单、极快的操作（container overhead 大于收益）。
 
 ---
 
 ## 2. Tool Search Tool
 
-### Problem
+### 问题
 
-Loading 50 MCP tools at ~1.5K tokens each = 75K tokens consumed before the user asks anything. A five-server setup with 58 tools used ~55K tokens; internal setups reached 134K tokens.
+加载 50 个 MCP 工具，每个约 1.5K token = 用户还没提问就消耗了 75K token。一个五服务器配置（58 个工具）消耗约 55K token；内部配置甚至达到 134K token。
 
-### Solution
+### 解决方案
 
-Mark infrequently-used tools with `defer_loading: true`. Claude discovers them on-demand via regex or BM25 search — a "Tool Search Tool" provided automatically.
+将不常用的工具标记为 `defer_loading: true`，Claude 通过正则或 BM25 search 按需发现它们 —— 系统自动提供一个 "Tool Search Tool"。
 
-### Configuration
+### 配置
 
 ```json
 {
@@ -180,43 +181,43 @@ Mark infrequently-used tools with `defer_loading: true`. Claude discovers them o
 }
 ```
 
-### Results
+### 效果
 
-| Setup | Before | After |
+| 指标 | 优化前 | 优化后 |
 |---|---|---|
-| Token reduction | 72K tokens | 8.7K tokens (−85%) |
-| Opus 4 accuracy | 49% | 74% |
-| Opus 4.5 accuracy | 79.5% | 88.1% |
+| token 减少 | 72K tokens | 8.7K tokens（−85%） |
+| Opus 4 准确率 | 49% | 74% |
+| Opus 4.5 准确率 | 79.5% | 88.1% |
 
-### Claude Code Integration
+### Claude Code 集成
 
-Auto-mode enabled by default since v2.1.7. Defers MCP tools when their descriptions exceed 10% of context. Configure with: `ENABLE_TOOL_SEARCH=auto:N`.
+自 v2.1.7 起默认开启 auto 模式。当 MCP 工具描述超过 context 的 10% 时自动 defer loading。可通过 `ENABLE_TOOL_SEARCH=auto:N` 配置。
 
 ### Best Practices
 
-- Keep 3–5 most-used tools always loaded (`defer_loading: false`).
-- Use clear, descriptive tool names for better search discovery.
+- 将最常用的 3–5 个工具始终保持加载（`defer_loading: false`）。
+- 使用清晰、描述性强的工具名称，有助于 search discovery。
 
 ---
 
 ## 3. Tool Use Examples
 
-### Problem
+### 问题
 
-JSON Schema defines structure but cannot express:
-- When to include optional parameters
-- Valid parameter combinations
-- Format conventions
-- Nested structure usage
+JSON Schema 定义了结构，但无法表达：
+- 何时包含可选参数
+- 有效的参数组合
+- Format 约定
+- 嵌套结构的用法
 
-### Solution
+### 解决方案
 
-Add `input_examples` arrays to tool definitions with concrete usage samples:
+在工具定义中添加 `input_examples` 数组，提供具体使用样例：
 
 ```json
 {
   "name": "query_database",
-  "description": "Execute SQL query...",
+  "description": "执行 SQL 查询...",
   "input_schema": { ... },
   "input_examples": [
     { "sql": "SELECT * FROM sales WHERE region='West' AND year=2025" },
@@ -225,59 +226,59 @@ Add `input_examples` arrays to tool definitions with concrete usage samples:
 }
 ```
 
-### Results
+### 效果
 
-Tool parameter accuracy: **72% → 90%** on complex parameter handling.
+工具参数准确率：**72% → 90%**（复杂参数处理场景）。
 
 ---
 
-## 4. Dynamic Filtering for Web Search / Fetch
+## 4. Dynamic Filtering（网页搜索/抓取）
 
-### Problem
+### 问题
 
-Web tools return full HTML pages with navigation, ads, and boilerplate — wasting tokens and reducing accuracy.
+网页工具返回包含导航栏、广告和 boilerplate 的完整 HTML 页面 —— 浪费 token 并降低准确率。
 
-### Solution
+### 解决方案
 
-Claude writes filtering code that extracts relevant content before results enter context. Uses updated tool types:
+Claude 编写 filtering 代码，在结果进入 context 前提取相关内容。使用更新后的工具类型：
 
 - `web_search_20260209`
 - `web_fetch_20260209`
 
-Required header: `anthropic-beta: code-execution-web-tools-2026-02-09`
+必须包含 request header：`anthropic-beta: code-execution-web-tools-2026-02-09`
 
-### Results
+### 效果
 
-| Metric | Before | After |
+| 指标 | 优化前 | 优化后 |
 |---|---|---|
-| Input tokens | baseline | −24% |
-| BrowseComp (Sonnet 4.6) | 33.3% | 46.6% |
-| BrowseComp (Opus 4.6) | 45.3% | 61.6% |
-| DeepSearchQA F1 (Sonnet 4.6) | 52.6% | 59.4% |
-| DeepSearchQA F1 (Opus 4.6) | 69.8% | 77.3% |
+| 输入 token | baseline | −24% |
+| BrowseComp（Sonnet 4.6） | 33.3% | 46.6% |
+| BrowseComp（Opus 4.6） | 45.3% | 61.6% |
+| DeepSearchQA F1（Sonnet 4.6） | 52.6% | 59.4% |
+| DeepSearchQA F1（Opus 4.6） | 69.8% | 77.3% |
 
 ---
 
-## Strategic Implementation Guide
+## 实施策略
 
-Choose features based on your biggest bottleneck:
+根据主要瓶颈选择对应功能：
 
-| Bottleneck | Solution |
+| 瓶颈 | 解决方案 |
 |---|---|
-| Context bloat from too many tool definitions | Tool Search Tool (`defer_loading`) |
-| Large intermediate tool results | Programmatic Tool Calling |
-| Web search noise / irrelevant HTML | Dynamic Filtering |
-| Wrong parameters / bad tool invocations | Tool Use Examples |
+| 过多工具定义导致 context 膨胀 | Tool Search Tool（`defer_loading`） |
+| 工具中间结果体量大 | Programmatic Tool Calling (PTC) |
+| 网页搜索噪声 / 无关 HTML | Dynamic Filtering |
+| 参数错误 / 工具调用质量差 | Tool Use Examples |
 
-Stack features for compounding gains — all four are compatible with each other (where individual constraints allow).
+四项功能可叠加使用以获得复合收益（各自约束条件除外）。
 
 ---
 
-## Model Compatibility
+## 模型兼容性
 
-| Model | PTC Tool Version |
+| 模型 | PTC Tool Version |
 |---|---|
-| Claude Opus 4.6 (`claude-opus-4-6`) | `code_execution_20260120` |
-| Claude Sonnet 4.6 (`claude-sonnet-4-6`) | `code_execution_20260120` |
-| Claude Sonnet 4.5 (`claude-sonnet-4-5-20250929`) | `code_execution_20260120` |
-| Claude Opus 4.5 (`claude-opus-4-5-20251101`) | `code_execution_20260120` |
+| Claude Opus 4.6（`claude-opus-4-6`） | `code_execution_20260120` |
+| Claude Sonnet 4.6（`claude-sonnet-4-6`） | `code_execution_20260120` |
+| Claude Sonnet 4.5（`claude-sonnet-4-5-20250929`） | `code_execution_20260120` |
+| Claude Opus 4.5（`claude-opus-4-5-20251101`） | `code_execution_20260120` |
