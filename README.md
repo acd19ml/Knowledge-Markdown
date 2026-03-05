@@ -4,6 +4,7 @@
 
 > **语言约定**：所有笔记以中文为主，technical terms 保留英文原词。
 > `Skills/` 为工具目录，保持英文原样。
+> **论文材料约定**：各主题下统一使用 `papers/notes/` 存放精读笔记，`papers/source/` 存放原文 PDF。
 
 ---
 
@@ -29,7 +30,10 @@ Knowledge-Markdown/
 │   ├── 05_scaling.md
 │   ├── 06_evaluation.md
 │   ├── 07_applications.md
-│   └── 08_future-directions.md
+│   ├── 08_future-directions.md
+│   └── papers/
+│       ├── notes/               # 精读笔记
+│       └── source/              # 原文 PDF
 │
 ├── Self_Evolve/                 # Self-Evolving Agents（论文综述 + 结构化笔记）
 │   ├── README.md
@@ -46,7 +50,10 @@ Knowledge-Markdown/
 │   ├── 04_co-evolution.md
 │   ├── 05_applications.md
 │   ├── 06_challenges.md
-│   └── 07_benchmarks.md
+│   ├── 07_benchmarks.md
+│   └── papers/
+│       ├── notes/
+│       └── source/
 │
 ├── GUI_Agent/                   # GUI Agent（论文综述 + 结构化笔记）
 │   ├── README.md
@@ -59,14 +66,18 @@ Knowledge-Markdown/
 │   │   └── 2.4_advanced-capabilities.md
 │   ├── 03_task-automation-pipeline.md
 │   ├── 04_evaluation.md
-│   └── 05_challenges.md
+│   ├── 05_challenges.md
+│   └── papers/
+│       ├── notes/
+│       └── source/
 │
 ├── Cross_Topic/                 # 跨综述交叉分析（核心研究工具）
 │   ├── comparison-matrix.md         # 核心矩阵：GUI Agent × Memory × Self-Evolve
 │   ├── gap-tracker.md               # 全局 Gap 分层（A/B/C 类）
 │   ├── gui-agent-x-memory.md        # GUI Agent × Agent Memory 交叉分析
 │   ├── gui-agent-x-self-evolving.md # GUI Agent × Self-Evolving 交叉分析
-│   └── taxonomy-draft.md            # 综述分类框架草稿
+│   ├── taxonomy-draft.md            # 综述分类框架草稿
+│   └── inprogress/                  # 批量同步时的中间更新草稿
 │
 ├── Industry_Insights/           # 从业者视角：podcast、演讲、行业分析
 │   ├── 2025-12_CUA-Slow-Thinking-Podcast.md
@@ -78,10 +89,20 @@ Knowledge-Markdown/
 │
 └── Skills/                      # ~/.claude/skills 备份（保持英文原样）
     ├── The-Complete-Guide-to-Building-Skill-for-Claude.md
-    ├── paper-notes/
+    ├── kb-maintenance/
+    ├── paper-reading-notes/
     ├── pdf/
     └── skill-creator/
 ```
+
+---
+
+## 当前工作流
+
+1. 精读论文后，将结构化笔记写入对应主题的 `papers/notes/`。
+2. 原文 PDF 统一放在对应主题的 `papers/source/`。
+3. 需要跨主题沉淀时，更新 [Cross_Topic/comparison-matrix.md](Cross_Topic/comparison-matrix.md) 与 [Cross_Topic/gap-tracker.md](Cross_Topic/gap-tracker.md)。
+4. 批量同步时，可先在 `Cross_Topic/inprogress/` 生成 proposal，再合并到正式文件。
 
 ---
 
@@ -92,6 +113,8 @@ Knowledge-Markdown/
 | 主题 | 文件 | 标签 |
 |---|---|---|
 | 为 Claude 构建 skill 完全指南 | [Skills/The-Complete-Guide-to-Building-Skill-for-Claude.md](Skills/The-Complete-Guide-to-Building-Skill-for-Claude.md) | skills, slash-commands, claude-code |
+| 论文精读笔记生成 | [Skills/paper-reading-notes/SKILL.md](Skills/paper-reading-notes/SKILL.md) | paper-notes, literature-review, evidence |
+| 知识库同步（matrix / tracker） | [Skills/kb-maintenance/SKILL.md](Skills/kb-maintenance/SKILL.md) | kb-sync, matrix, gap-tracker |
 
 ### Claude API
 
@@ -104,6 +127,7 @@ Knowledge-Markdown/
 | 主题 | 文件 | 标签 |
 |---|---|---|
 | 综述概览与导航索引 | [Agent_Memory/README.md](Agent_Memory/README.md) | agent-memory, survey, LLM |
+| 精读论文笔记目录 | [Agent_Memory/papers/notes/](Agent_Memory/papers/notes/) | papers, reading-notes |
 | Memory substrates（External/Internal） | [Agent_Memory/02_taxonomy/2.1_memory-substrates.md](Agent_Memory/02_taxonomy/2.1_memory-substrates.md) | RAG, KV-cache, vector-store |
 | Cognitive mechanisms（5 种类型） | [Agent_Memory/02_taxonomy/2.2_cognitive-mechanisms.md](Agent_Memory/02_taxonomy/2.2_cognitive-mechanisms.md) | episodic, semantic, working, procedural |
 | Memory subjects（user-centric / agent-centric） | [Agent_Memory/02_taxonomy/2.3_memory-subjects.md](Agent_Memory/02_taxonomy/2.3_memory-subjects.md) | personalization |
@@ -119,6 +143,7 @@ Knowledge-Markdown/
 | 主题 | 文件 | 标签 |
 |---|---|---|
 | 综述概览与导航索引 | [Self_Evolve/README.md](Self_Evolve/README.md) | self-evolution, survey, LLM |
+| 精读论文笔记目录 | [Self_Evolve/papers/notes/](Self_Evolve/papers/notes/) | papers, workflows, self-evolve |
 | Inference-based evolution（test-time scaling） | [Self_Evolve/02_model-centric/2.1_inference-based.md](Self_Evolve/02_model-centric/2.1_inference-based.md) | CoT, tree-search, self-correction |
 | Training-based evolution（SFT / RL） | [Self_Evolve/02_model-centric/2.2_training-based.md](Self_Evolve/02_model-centric/2.2_training-based.md) | self-instruct, STaR, GRPO |
 | Environment-centric evolution | [Self_Evolve/03_env-centric/](Self_Evolve/03_env-centric/) | RAG, experience, MAS-topology |
@@ -132,6 +157,7 @@ Knowledge-Markdown/
 | 主题 | 文件 | 标签 |
 |---|---|---|
 | 综述概览 | [GUI_Agent/00_survey-overview.md](GUI_Agent/00_survey-overview.md) | GUI-agent, survey, CUA |
+| 精读论文笔记目录 | [GUI_Agent/papers/notes/](GUI_Agent/papers/notes/) | papers, GUI-agent, reading-notes |
 | 背景：LLM / MLLM / Agent 基础 | [GUI_Agent/01_background.md](GUI_Agent/01_background.md) | MLLM, CogAgent, LLaVA |
 | GUI comprehension | [GUI_Agent/02_capabilities/2.1_gui-comprehension.md](GUI_Agent/02_capabilities/2.1_gui-comprehension.md) | perception, screenshot |
 | Device control | [GUI_Agent/02_capabilities/2.2_device-control.md](GUI_Agent/02_capabilities/2.2_device-control.md) | mouse, keyboard, API |
@@ -150,6 +176,7 @@ Knowledge-Markdown/
 | GUI Agent × Agent Memory 交叉分析 | [Cross_Topic/gui-agent-x-memory.md](Cross_Topic/gui-agent-x-memory.md) | episodic, procedural, user-centric |
 | GUI Agent × Self-Evolving 交叉分析 | [Cross_Topic/gui-agent-x-self-evolving.md](Cross_Topic/gui-agent-x-self-evolving.md) | AWM, offline-evolution, skills |
 | 综述分类框架草稿 | [Cross_Topic/taxonomy-draft.md](Cross_Topic/taxonomy-draft.md) | taxonomy, survey-outline |
+| 批量同步中间稿 | [Cross_Topic/inprogress/](Cross_Topic/inprogress/) | sync, proposal, batch-update |
 
 ### Industry Insights
 
