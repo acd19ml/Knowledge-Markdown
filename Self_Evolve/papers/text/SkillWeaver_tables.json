@@ -1,0 +1,2142 @@
+[
+  {
+    "page": 2,
+    "tables": [
+      {
+        "table_index": 1,
+        "rows": [
+          [
+            "Test Case Generation"
+          ],
+          [
+            "Task: Please identify the white pills with imprints M366\nTest Case: identify_pill(page,M366, White)"
+          ]
+        ]
+      },
+      {
+        "table_index": 2,
+        "rows": [
+          [
+            "async def identify_pill(page,imprint, color):\n# Automates the process of identifying a pill on Drugs.com.\nawaitpage.goto(\"/pill_identification.html\")\nawaitpage.get_by_role(\"link\", name=\"Agree and Continue\").click()\nawaitpage.get_by_role(\"textbox\", name=\"Pill Imprint\").fill(imprint)\nsearch_button= page.get_by_role(\"form\", name=\"Pill Identifier\").get_by_role(\"button\", name=\"Search\")"
+          ],
+          [
+            "+ if color: await page.get_by_role(\"group\", name=\"Color and shape (optional)\").get_by_role(\n+ \"combobox\", name=\"Color (optional)\").select_option(color)"
+          ],
+          [
+            "awaitsearch_button.click()"
+          ]
+        ]
+      },
+      {
+        "table_index": 3,
+        "rows": [
+          [
+            "Execution"
+          ],
+          [
+            "Warning: Unused parameter ‘color’-> identify_pill(page, imprint, color). The\nparameter ‘color’ is defined but never used in the function body.\nError: Search results validation failed. API returned pills matching imprint '5510'\nbut the wrong color (expected: yellow)."
+          ],
+          [
+            "Debugging"
+          ]
+        ]
+      },
+      {
+        "table_index": 4,
+        "rows": [
+          [
+            "Skill Library",
+            "Environment"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "page": 7,
+    "tables": [
+      {
+        "table_index": 1,
+        "rows": [
+          [
+            "↑25%",
+            "↑23%",
+            "↑38%",
+            "↑38%",
+            "↑33%",
+            "↑32%"
+          ]
+        ]
+      },
+      {
+        "table_index": 2,
+        "rows": [
+          [
+            "↑46%",
+            "↑62%",
+            "↑46%",
+            "↑133%",
+            "↑40%",
+            "↑45%"
+          ]
+        ]
+      },
+      {
+        "table_index": 3,
+        "rows": [
+          [
+            "↑34%",
+            "↑151%",
+            "↑20%",
+            "↑0%",
+            "↑40%"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "page": 8,
+    "tables": [
+      {
+        "table_index": 1,
+        "rows": [
+          [
+            "\u0000%\u0000D\u0000V\u0000H\u0000O\u0000L\u0000Q\u0000H \u00006\u0000\\\u0000Q\u0000W\u0000K\u0000H\u0000V\u0000L\u0000]\u0000H\u0000G\u0000\u0003\u00006\u0000N\u0000L\u0000O\u0000O\u0000V \u0000+\u0000X\u0000P\u0000D\u0000Q\u0000\u0003\u0000$\u00003\u0000,\u0000V\n\u0000\u0018\u0000\u0014\u0000\u0011\u0000\u001c\n\u0000\u0018\u0000\u0013 \u0000\u0018\u0000\u0013\u0000\u0011\u0000\u0013\n\u0000\u0017\u0000\u0018\u0000\u0011\u0000\u001c\n\u0000\u0017\u0000\u0017\u0000\u0011\u0000\u0017\n\u0000\u0017\u0000\u0014\u0000\u0011\u0000\u0015\n\u0000\u0017\u0000\u0013\n\u0000\f\u0000\b\u0000\u000b\u0000\u0003\u0000H\u0000W\u0000D\u00005\u0000\u0003\u0000V\u0000V\u0000H\u0000F\u0000F\u0000X\u00006 \u0000\u0016\u0000\u001a\u0000\u0011\u0000\u001a\n\u0000\u0016\u0000\u0016\u0000\u0011\u0000\u001c\n\u0000\u0016\u0000\u0013\n\u0000\u0015\u0000\u001a\u0000\u0011\u0000\u0015 \u0000\u0015\u0000\u001a\u0000\u0011\u0000\u0018\n\u0000\u0015\u0000\u0018\u0000\u0011\u0000\u001a \u0000\u0015\u0000\u0018\u0000\u0011\u0000\u001b\n\u0000\u0015\u0000\u0015\u0000\u0011\u0000\u0015\n\u0000\u0015\u0000\u0013 \u0000\u0014\u0000\u001c\u0000\u0011\u0000\u001b \u0000\u0014\u0000\u001b\u0000\u0011\u0000\u001a \u0000\u0014\u0000\u001a\u0000\u0011\u0000\u001b\n\u0000\u0014\u0000\u0013\n\u0000\u0013\n\u00005\u0000H\u0000G\u0000G\u0000L\u0000W \u00006\u0000K\u0000R\u0000S\u0000S\u0000L\u0000Q\u0000J \u0000&\u00000\u00006 \u0000*\u0000L\u0000W\u0000O\u0000D\u0000E \u00000\u0000D\u0000S",
+            "\u0000%\u0000D\u0000V\u0000H\u0000O\u0000L\u0000Q\u0000H \u00006\u0000\\\u0000Q\u0000W\u0000K\u0000H\u0000V\u0000L\u0000]\u0000H\u0000G\u0000\u0003\u00006\u0000N\u0000L\u0000O\u0000O\u0000V \u0000+\u0000X\u0000P\u0000D\u0000Q\u0000\u0003\u0000$\u00003\u0000,\u0000V\n\u0000\u0018\u0000\u0014\u0000\u0011\u0000\u001c\n\u0000\u0018\u0000\u0013\u0000\u0011\u0000\u0013",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            "",
+            null,
+            "",
+            "",
+            "\u0000\u0017\u0000\u0018\u0000\u0011\u0000\u001c\n\u0000\u0017\u0000\u0017\u0000\u0011\u0000\u0017\n\u0000\u0017\u0000\u0014\u0000\u0011\u0000\u0015",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "",
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            "\u0000\u0016\u0000\u001a\u0000\u0011\u0000\u001a",
+            null,
+            "",
+            "",
+            "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "",
+            "",
+            null,
+            null,
+            "",
+            "\u0000\u0016\u0000\u0016\u0000\u0011\u0000\u001c",
+            null,
+            null,
+            "",
+            ""
+          ],
+          [
+            null,
+            null,
+            "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "",
+            null,
+            null
+          ],
+          [
+            null,
+            "",
+            "",
+            "",
+            "",
+            "\u0000\u0015\u0000\u001a\u0000\u0011\u0000\u0015\n\u0000\u0015\u0000\u0018\u0000\u0011\u0000\u001a \u0000\u0015\u0000\u0018\u0000\u0011\u0000\u001b\n\u0000\u0014\u0000\u001c\u0000\u0011\u0000\u001b \u0000\u0014\u0000\u001b\u0000\u0011\u0000\u001a",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "",
+            "\u0000\u0015\u0000\u0015\u0000\u0011\u0000\u0015",
+            null,
+            null,
+            "",
+            "\u0000\u0015\u0000\u001a\u0000\u0011\u0000\u0018",
+            null,
+            "",
+            "",
+            ""
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "",
+            null,
+            null,
+            "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "\u0000\u0014\u0000\u001a\u0000\u0011\u0000\u001b",
+            null,
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            null,
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "page": 30,
+    "tables": [
+      {
+        "table_index": 1,
+        "rows": [
+          [
+            "",
+            null,
+            null
+          ],
+          [
+            "",
+            "async def express_checkout(page):",
+            ""
+          ],
+          [
+            "",
+            "\"\"\"",
+            ""
+          ],
+          [
+            "",
+            "Perform an express checkout for the items currently in the",
+            ""
+          ],
+          [
+            "",
+            "cart.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Args:",
+            ""
+          ],
+          [
+            "",
+            "page: The Playwright page object to perform actions on.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Usage Log:",
+            ""
+          ],
+          [
+            "",
+            "- Successfully completed express checkout, resulting in an",
+            ""
+          ],
+          [
+            "",
+            "order confirmation page with order number 000000191.",
+            ""
+          ],
+          [
+            "",
+            "- Initial attempts failed due to a timeout error when clicking",
+            ""
+          ],
+          [
+            "",
+            "'Proceed to Checkout'. Resolved by ensuring items were in the",
+            ""
+          ],
+          [
+            "",
+            "cart.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Note:",
+            ""
+          ],
+          [
+            "",
+            "- Ensure that the cart is pre-filled with the desired items",
+            ""
+          ],
+          [
+            "",
+            "before calling this function.",
+            ""
+          ],
+          [
+            "",
+            "- The function assumes that the 'Proceed to Checkout' button",
+            ""
+          ],
+          [
+            "",
+            "is visible and clickable from the cart page.",
+            ""
+          ],
+          [
+            "",
+            "- The function navigates through the checkout process by",
+            ""
+          ],
+          [
+            "",
+            "clicking 'Next' on the Shipping page and 'Place Order' on the",
+            ""
+          ],
+          [
+            "",
+            "Review & Payments page.",
+            ""
+          ],
+          [
+            "",
+            "- If the 'Place Order' button is not immediately visible, a",
+            ""
+          ],
+          [
+            "",
+            "delay is included to allow dynamic elements to load.",
+            ""
+          ],
+          [
+            "",
+            "\"\"\"",
+            ""
+          ],
+          [
+            "",
+            "import asyncio",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "await page.goto(\"/\")",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"link\", name=\"My Cart\").click()",
+            ""
+          ],
+          [
+            "",
+            "await asyncio.sleep(5)",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"button\", name=\"Proceed to Checkout\").",
+            ""
+          ],
+          [
+            "",
+            "click()",
+            ""
+          ],
+          [
+            "",
+            "await asyncio.sleep(5)",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"button\", name=\"Next\").click()",
+            ""
+          ],
+          [
+            "",
+            "await asyncio.sleep(5)",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"button\", name=\"Place Order\").click()",
+            ""
+          ],
+          [
+            "",
+            "await asyncio.sleep(5)",
+            ""
+          ],
+          [
+            "",
+            null,
+            null
+          ]
+        ]
+      },
+      {
+        "table_index": 2,
+        "rows": [
+          [
+            "",
+            null,
+            null
+          ],
+          [
+            "",
+            "async def apply_discount_code(page, discount_code):",
+            ""
+          ],
+          [
+            "",
+            "\"\"\"",
+            ""
+          ],
+          [
+            "",
+            "Apply a discount code during the checkout process.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Args:",
+            ""
+          ],
+          [
+            "",
+            "page: The Playwright page object to perform actions on.",
+            ""
+          ],
+          [
+            "",
+            "discount_code (str): The discount code to apply.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Usage Log:",
+            ""
+          ],
+          [
+            "",
+            "- Attempted to apply 'DISCOUNT10', but it was invalid. Ensure valid",
+            ""
+          ],
+          [
+            "",
+            "discount codes are used.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Note:",
+            ""
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "page": 31,
+    "tables": [
+      {
+        "table_index": 1,
+        "rows": [
+          [
+            "",
+            "- The function navigates to the checkout page to ensure the correct initial",
+            ""
+          ],
+          [
+            "",
+            "state.",
+            ""
+          ],
+          [
+            "",
+            "- Handles invalid discount codes by checking for error messages or lack of",
+            ""
+          ],
+          [
+            "",
+            "discount application.",
+            ""
+          ],
+          [
+            "",
+            "\"\"\"",
+            ""
+          ],
+          [
+            "",
+            "await page.goto(\"/checkout/#payment\")",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"tabpanel\", name=\"Apply Discount Code\").get_by_role(",
+            ""
+          ],
+          [
+            "",
+            "\"textbox\", name=\"Enter discount code\"",
+            ""
+          ],
+          [
+            "",
+            ").fill(discount_code)",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"tabpanel\", name=\"Apply Discount Code\").get_by_role(",
+            ""
+          ],
+          [
+            "",
+            "\"button\", name=\"Apply Discount\"",
+            ""
+          ],
+          [
+            "",
+            ").click()",
+            ""
+          ],
+          [
+            "",
+            null,
+            null
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "page": 32,
+    "tables": [
+      {
+        "table_index": 1,
+        "rows": [
+          [
+            "",
+            null,
+            null
+          ],
+          [
+            "",
+            "async def act(page):",
+            ""
+          ],
+          [
+            "",
+            "# Call the function to delete merged branches",
+            ""
+          ],
+          [
+            "",
+            "await delete_merged_branches(page, \"byteblaze/accessible-html-",
+            ""
+          ],
+          [
+            "",
+            "content-patterns\")",
+            ""
+          ],
+          [
+            "",
+            null,
+            null
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "page": 33,
+    "tables": [
+      {
+        "table_index": 1,
+        "rows": [
+          [
+            "",
+            null,
+            null
+          ],
+          [
+            "",
+            "async def act(page):",
+            ""
+          ],
+          [
+            "",
+            "# Fill the confirmation textbox with 'delete'",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"dialog\", name=\"Delete all merged",
+            ""
+          ],
+          [
+            "",
+            "branches?\").get_by_role(\"textbox\").fill(\"delete\")",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "# Click the \"Delete merged branches\" button to confirm",
+            ""
+          ],
+          [
+            "",
+            "deletion",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"dialog\", name=\"Delete all merged",
+            ""
+          ],
+          [
+            "",
+            "branches?\").get_by_role(\"button\", name=\"Delete merged branches",
+            ""
+          ],
+          [
+            "",
+            "\").click()",
+            ""
+          ],
+          [
+            "",
+            null,
+            null
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "page": 34,
+    "tables": [
+      {
+        "table_index": 1,
+        "rows": [
+          [
+            "",
+            null,
+            null
+          ],
+          [
+            "",
+            "async def delete_merged_branches(page, project_path):",
+            ""
+          ],
+          [
+            "",
+            "\"\"\"",
+            ""
+          ],
+          [
+            "",
+            "Automates the deletion of merged branches in a specified GitLab project.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "This function navigates to the branches page of the specified project and",
+            ""
+          ],
+          [
+            "",
+            "deletes all merged branches",
+            ""
+          ],
+          [
+            "",
+            "by interacting with the confirmation dialog that appears.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Args:",
+            ""
+          ],
+          [
+            "",
+            "page: The Playwright page object.",
+            ""
+          ],
+          [
+            "",
+            "project_path: The path of the project in GitLab (e.g., 'byteblaze/",
+            ""
+          ],
+          [
+            "",
+            "accessible-html-content-patterns').",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Usage log:",
+            ""
+          ],
+          [
+            "",
+            "- Successfully used to delete merged branches in the 'a11y-syntax-",
+            ""
+          ],
+          [
+            "",
+            "highlighting' project by navigating to the branches page,",
+            ""
+          ],
+          [
+            "",
+            "clicking the 'Delete merged branches' button, and confirming the action",
+            ""
+          ],
+          [
+            "",
+            "by typing 'delete'.",
+            ""
+          ],
+          [
+            "",
+            "- Ensure the project path is correctly specified to match the URL structure",
+            ""
+          ],
+          [
+            "",
+            "in GitLab.",
+            ""
+          ],
+          [
+            "",
+            "- The function assumes the user is logged in and has access to the",
+            ""
+          ],
+          [
+            "",
+            "specified project.",
+            ""
+          ],
+          [
+            "",
+            "- Resolved an issue with strict mode violation by specifying the correct",
+            ""
+          ],
+          [
+            "",
+            "textbox within the dialog.",
+            ""
+          ],
+          [
+            "",
+            "\"\"\"",
+            ""
+          ],
+          [
+            "",
+            "await page.goto(f\"/{project_path}/-/branches\")",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"button\", name=\"Delete merged branches\").click()",
+            ""
+          ],
+          [
+            "",
+            "++ await page.get_by_role(\"textbox\")",
+            ""
+          ],
+          [
+            "",
+            "-- await page.get_by_role(\"dialog\", name=\"Delete all merged branches?\").",
+            ""
+          ],
+          [
+            "",
+            "get_by_role(",
+            ""
+          ],
+          [
+            "",
+            "-- \"textbox\"",
+            ""
+          ],
+          [
+            "",
+            "-- ).fill(\"delete\")",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"dialog\", name=\"Delete all merged branches?\").",
+            ""
+          ],
+          [
+            "",
+            "get_by_role(",
+            ""
+          ],
+          [
+            "",
+            "\"button\", name=\"Delete merged branches\"",
+            ""
+          ],
+          [
+            "",
+            ").click()",
+            ""
+          ],
+          [
+            "",
+            "await asyncio.sleep(2)",
+            ""
+          ],
+          [
+            "",
+            null,
+            null
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "page": 35,
+    "tables": [
+      {
+        "table_index": 1,
+        "rows": [
+          [
+            "",
+            null,
+            null
+          ],
+          [
+            "",
+            "async def update_product_quantity(page, product_name, new_quantity):",
+            ""
+          ],
+          [
+            "",
+            "\"\"\"",
+            ""
+          ],
+          [
+            "",
+            "Update the quantity of a specified product in the Magento Admin Panel's",
+            ""
+          ],
+          [
+            "",
+            "Advanced Inventory settings.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "This function navigates to the product's edit page, opens the Advanced",
+            ""
+          ],
+          [
+            "",
+            "Inventory dialog,",
+            ""
+          ],
+          [
+            "",
+            "and updates the quantity to the specified value. It includes proactive",
+            ""
+          ],
+          [
+            "",
+            "checks for element availability.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Initial UI State:",
+            ""
+          ],
+          [
+            "",
+            "- The user must be logged into the Magento Admin Panel.",
+            ""
+          ],
+          [
+            "",
+            "- The function assumes the product edit page is accessible via the '/admin/",
+            ""
+          ],
+          [
+            "",
+            "catalog/product/edit/name/{product_name}/' URL.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Args:",
+            ""
+          ],
+          [
+            "",
+            "page (Page): The Playwright page object representing the browser page.",
+            ""
+          ],
+          [
+            "",
+            "product_name (str): The name of the product to update.",
+            ""
+          ],
+          [
+            "",
+            "new_quantity (int): The new quantity to set for the product.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Usage Log:",
+            ""
+          ],
+          [
+            "",
+            "- Successfully updated the quantity for 'Arcadio Gym Short' to 50.",
+            ""
+          ],
+          [
+            "",
+            "- Adjusted the quantity for 'Yoga Mat' to 100 without issues.",
+            ""
+          ],
+          [
+            "",
+            "- Encountered a timeout error when trying to update 'Sprite Yoga Mat'.",
+            ""
+          ],
+          [
+            "",
+            "Consider checking the availability of the 'Advanced Inventory' button.",
+            ""
+          ],
+          [
+            "",
+            "\"\"\"",
+            ""
+          ],
+          [
+            "",
+            "import re",
+            ""
+          ],
+          [
+            "",
+            "import asyncio",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "await page.goto(f\"/admin/catalog/product/edit/name/{product_name}/\")",
+            ""
+          ],
+          [
+            "",
+            "advanced_inventory_button = page.get_by_role(\"button\", name=\"Advanced",
+            ""
+          ],
+          [
+            "",
+            "Inventory\")",
+            ""
+          ],
+          [
+            "",
+            "if await advanced_inventory_button.count() > 0:",
+            ""
+          ],
+          [
+            "",
+            "await advanced_inventory_button.click()",
+            ""
+          ],
+          [
+            "",
+            "else:",
+            ""
+          ],
+          [
+            "",
+            "print(\"Advanced Inventory button not found.\")",
+            ""
+          ],
+          [
+            "",
+            "return",
+            ""
+          ],
+          [
+            "",
+            "qty_input = page.get_by_role(\"textbox\", name=\"[GLOBAL] Qty\")",
+            ""
+          ],
+          [
+            "",
+            "if await qty_input.count() > 0:",
+            ""
+          ],
+          [
+            "",
+            "await qty_input.fill(str(new_quantity))",
+            ""
+          ],
+          [
+            "",
+            "else:",
+            ""
+          ],
+          [
+            "",
+            "print(\"Quantity input not found.\")",
+            ""
+          ],
+          [
+            "",
+            "return",
+            ""
+          ],
+          [
+            "",
+            "done_button = page.get_by_role(\"button\", name=\"Done\")",
+            ""
+          ],
+          [
+            "",
+            "if await done_button.count() > 0:",
+            ""
+          ],
+          [
+            "",
+            "await done_button.click()",
+            ""
+          ],
+          [
+            "",
+            "else:",
+            ""
+          ],
+          [
+            "",
+            "print(\"Done button not found.\")",
+            ""
+          ],
+          [
+            "",
+            "return",
+            ""
+          ],
+          [
+            "",
+            "save_button = page.get_by_role(\"button\", name=\"Save\")",
+            ""
+          ],
+          [
+            "",
+            "if await save_button.count() > 0:",
+            ""
+          ],
+          [
+            "",
+            "await save_button.click()",
+            ""
+          ],
+          [
+            "",
+            "else:",
+            ""
+          ],
+          [
+            "",
+            "print(\"Save button not found.\")",
+            ""
+          ],
+          [
+            "",
+            "return",
+            ""
+          ],
+          [
+            "",
+            null,
+            null
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "page": 36,
+    "tables": [
+      {
+        "table_index": 1,
+        "rows": [
+          [
+            "",
+            null,
+            null
+          ],
+          [
+            "",
+            "async def request_quote_for_multiple_listings(page, make, model, first_name,",
+            ""
+          ],
+          [
+            "",
+            "last_name, email):",
+            ""
+          ],
+          [
+            "",
+            "\"\"\"",
+            ""
+          ],
+          [
+            "",
+            "Request a quote for multiple car listings on Cars.com by navigating through",
+            ""
+          ],
+          [
+            "",
+            "listings and submitting the quote request form.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "This function navigates to the 'Cars for Sale' section, applies filters for",
+            ""
+          ],
+          [
+            "",
+            "the specified make and model,",
+            ""
+          ],
+          [
+            "",
+            "and iterates through the listings to request quotes. It manually navigates",
+            ""
+          ],
+          [
+            "",
+            "between listings using their URLs.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Args:",
+            ""
+          ],
+          [
+            "",
+            "page (Page): The Playwright page object.",
+            ""
+          ],
+          [
+            "",
+            "make (str): The car make to filter by.",
+            ""
+          ],
+          [
+            "",
+            "model (str): The car model to filter by.",
+            ""
+          ],
+          [
+            "",
+            "first_name (str): The first name to fill in the contact form.",
+            ""
+          ],
+          [
+            "",
+            "last_name (str): The last name to fill in the contact form.",
+            ""
+          ],
+          [
+            "",
+            "email (str): The email to fill in the contact form.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Usage log:",
+            ""
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "page": 37,
+    "tables": [
+      {
+        "table_index": 1,
+        "rows": [
+          [
+            "",
+            "- Successfully navigated to the 'Cars for Sale' section, applied filters,",
+            ""
+          ],
+          [
+            "",
+            "and requested quotes for multiple listings.",
+            ""
+          ],
+          [
+            "",
+            "- Encountered issues with automatic navigation using 'Next car' link,",
+            ""
+          ],
+          [
+            "",
+            "resolved by manual URL navigation.",
+            ""
+          ],
+          [
+            "",
+            "\"\"\"",
+            ""
+          ],
+          [
+            "",
+            "import asyncio",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "await page.goto(\"https://www.cars.com/shopping/\")",
+            ""
+          ],
+          [
+            "",
+            "await page.wait_for_load_state(\"networkidle\")",
+            ""
+          ],
+          [
+            "",
+            "await close_overlays(page)",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"combobox\", name=\"Make\").select_option(make)",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"combobox\", name=\"Model\").select_option(model)",
+            ""
+          ],
+          [
+            "",
+            "show_matches_button = page.get_by_role(\"button\", name=\"Show matches\")",
+            ""
+          ],
+          [
+            "",
+            "if await show_matches_button.count() > 0:",
+            ""
+          ],
+          [
+            "",
+            "await show_matches_button.click()",
+            ""
+          ],
+          [
+            "",
+            "else:",
+            ""
+          ],
+          [
+            "",
+            "print(\"Show matches button not found.\")",
+            ""
+          ],
+          [
+            "",
+            "return",
+            ""
+          ],
+          [
+            "",
+            "await page.wait_for_load_state(\"networkidle\")",
+            ""
+          ],
+          [
+            "",
+            "for _ in range(5):",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"textbox\", name=\"First name\").fill(first_name)",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"textbox\", name=\"Last name\").fill(last_name)",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"textbox\", name=\"Email\").fill(email)",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"combobox\", name=\"Subject\").select_option(",
+            ""
+          ],
+          [
+            "",
+            "\"Get a price quote\"",
+            ""
+          ],
+          [
+            "",
+            ")",
+            ""
+          ],
+          [
+            "",
+            "submit_button = page.get_by_role(\"button\", name=\"Email\")",
+            ""
+          ],
+          [
+            "",
+            "if await submit_button.count() > 0:",
+            ""
+          ],
+          [
+            "",
+            "await submit_button.click()",
+            ""
+          ],
+          [
+            "",
+            "else:",
+            ""
+          ],
+          [
+            "",
+            "print(\"Submit button not found.\")",
+            ""
+          ],
+          [
+            "",
+            "return",
+            ""
+          ],
+          [
+            "",
+            "await asyncio.sleep(2)",
+            ""
+          ],
+          [
+            "",
+            "next_car_link = page.get_by_role(\"link\", name=\"Next car\")",
+            ""
+          ],
+          [
+            "",
+            "if await next_car_link.count() > 0:",
+            ""
+          ],
+          [
+            "",
+            "await next_car_link.click()",
+            ""
+          ],
+          [
+            "",
+            "await page.wait_for_load_state(\"networkidle\")",
+            ""
+          ],
+          [
+            "",
+            "else:",
+            ""
+          ],
+          [
+            "",
+            "print(\"Next car link not found. Navigation stopped.\")",
+            ""
+          ],
+          [
+            "",
+            "break",
+            ""
+          ],
+          [
+            "",
+            null,
+            null
+          ]
+        ]
+      },
+      {
+        "table_index": 2,
+        "rows": [
+          [
+            "",
+            null,
+            null
+          ],
+          [
+            "",
+            "async def search_recipes_by_cuisine_type(page, cuisine_type):",
+            ""
+          ],
+          [
+            "",
+            "\"\"\"",
+            ""
+          ],
+          [
+            "",
+            "Searches for recipes based on a specified cuisine type on Cookpad.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "This function automates the process of searching for recipes by entering a",
+            ""
+          ],
+          [
+            "",
+            "cuisine type",
+            ""
+          ],
+          [
+            "",
+            "into the search functionality on the Cookpad homepage.",
+            ""
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "page": 38,
+    "tables": [
+      {
+        "table_index": 1,
+        "rows": [
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Args:",
+            ""
+          ],
+          [
+            "",
+            "page: The Playwright page object to interact with.",
+            ""
+          ],
+          [
+            "",
+            "cuisine_type (str): The cuisine type to search for, e.g., 'Italian', '",
+            ""
+          ],
+          [
+            "",
+            "Mexican', 'Korean', 'Chinese', 'American'.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Usage log:",
+            ""
+          ],
+          [
+            "",
+            "- Successfully used to search for 'Italian' cuisine recipes, displaying the",
+            ""
+          ],
+          [
+            "",
+            "correct results.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "\"\"\"",
+            ""
+          ],
+          [
+            "",
+            "import re",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"textbox\", name=\"Search by recipe or ingredients\").",
+            ""
+          ],
+          [
+            "",
+            "fill(",
+            ""
+          ],
+          [
+            "",
+            "cuisine_type",
+            ""
+          ],
+          [
+            "",
+            ")",
+            ""
+          ],
+          [
+            "",
+            "search_button = page.get_by_role(\"button\", name=re.compile(\"Search\", re.",
+            ""
+          ],
+          [
+            "",
+            "IGNORECASE))",
+            ""
+          ],
+          [
+            "",
+            "if await search_button.is_visible():",
+            ""
+          ],
+          [
+            "",
+            "await search_button.click()",
+            ""
+          ],
+          [
+            "",
+            "else:",
+            ""
+          ],
+          [
+            "",
+            "await page.keyboard.press(\"Enter\")",
+            ""
+          ],
+          [
+            "",
+            null,
+            null
+          ]
+        ]
+      },
+      {
+        "table_index": 2,
+        "rows": [
+          [
+            "",
+            null,
+            null
+          ],
+          [
+            "",
+            "async def search_recipes_by_ingredients(page, ingredients):",
+            ""
+          ],
+          [
+            "",
+            "\"\"\"",
+            ""
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "page": 39,
+    "tables": [
+      {
+        "table_index": 1,
+        "rows": [
+          [
+            "",
+            "Searches for recipes using specified ingredients on Cookpad.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "This function automates the process of searching for recipes based on a",
+            ""
+          ],
+          [
+            "",
+            "list of ingredients",
+            ""
+          ],
+          [
+            "",
+            "by interacting with the search functionality on the Cookpad homepage.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Args:",
+            ""
+          ],
+          [
+            "",
+            "page: The Playwright page object to interact with.",
+            ""
+          ],
+          [
+            "",
+            "ingredients (str): A comma-separated string of ingredients to search",
+            ""
+          ],
+          [
+            "",
+            "for, e.g., 'chicken, rice, broccoli'.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Usage log:",
+            ""
+          ],
+          [
+            "",
+            "- Successfully used to search for recipes with 'chicken, rice, broccoli',",
+            ""
+          ],
+          [
+            "",
+            "displaying the correct results.",
+            ""
+          ],
+          [
+            "",
+            "- Successfully used to filter recipes by seasonal ingredients 'pumpkin,",
+            ""
+          ],
+          [
+            "",
+            "apple, squash', displaying the correct results.",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "\"\"\"",
+            ""
+          ],
+          [
+            "",
+            "import re",
+            ""
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "await page.get_by_role(\"textbox\", name=\"Search by recipe or ingredients\").",
+            ""
+          ],
+          [
+            "",
+            "fill(",
+            ""
+          ],
+          [
+            "",
+            "ingredients",
+            ""
+          ],
+          [
+            "",
+            ")",
+            ""
+          ],
+          [
+            "",
+            "search_button = page.get_by_role(\"button\", name=re.compile(\"Search\", re.",
+            ""
+          ],
+          [
+            "",
+            "IGNORECASE))",
+            ""
+          ],
+          [
+            "",
+            "if await search_button.is_visible():",
+            ""
+          ],
+          [
+            "",
+            "await search_button.click()",
+            ""
+          ],
+          [
+            "",
+            "else:",
+            ""
+          ],
+          [
+            "",
+            "await page.keyboard.press(\"Enter\")",
+            ""
+          ],
+          [
+            "",
+            null,
+            null
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "page": 40,
+    "tables": [
+      {
+        "table_index": 1,
+        "rows": [
+          [
+            "async def navigate_to_cars_for_sale(page):\n# Navigate to the 'Cars for Sale' section on the Cars.com website, which contains car\nsales information.\nimport asyncio\nawait page.goto(\"https://www.cars.com/\")\ncars_for_sale_link = page.get_by_role(\"navigation\", name=\"main menu\").get_by_role(\n\"link\", name=\"Cars for Sale\")\nif await cars_for_sale_link.count() > 0:\nawait cars_for_sale_link.click()\nawait asyncio.sleep(5)\nelse: print(\"Cars for Sale link is not visible.\")",
+            ""
+          ]
+        ]
+      }
+    ]
+  }
+]

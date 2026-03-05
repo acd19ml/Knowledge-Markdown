@@ -1,0 +1,937 @@
+[
+  {
+    "page": 6,
+    "table_index": 1,
+    "data": [
+      [
+        "80.0\n77.5\n)%(\n75.0 etaR\n72.5 sseccuS\n70.0\n67.5 MemP+RL\nMemP\n65.0 RAG+RL\nRAG\n1 2 3 4 5 6 7 8 9 10\nEpoch",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "MemP+R",
+        "L"
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "R",
+        "MemP\nAG+RL",
+        ""
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "R",
+        "AG",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 6,
+    "table_index": 2,
+    "data": [
+      [
+        "80.0\n77.5\n75.0 )%(\netaR\n72.5\n70.0 sseccuS\n67.5\n65.0 Q-Weight = 0 Q-Weight = 0.75\n62.5 Q-Weight = 0.25 Q-Weight = 1\nQ-Weight = 0.5\n60.0\n1 2 3 4 5 6 7 8 9 10\nEpoch",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Q-Weigh\nQ-Weigh",
+        "t = 0\nt = 0.2",
+        "5",
+        "Q-Weig\nQ-Weig",
+        "ht = 0.7\nht = 1",
+        "5"
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Q-Weigh",
+        "t = 0.5",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 7,
+    "table_index": 1,
+    "data": [
+      [
+        "55\n)%(\n50\netaR\n45 sseccuS\nk1=3,k2=1 Epoch Success Rate\n40 k1=3,k2=1 Cumulative Success Rate (CSR)\nk1=5,k2=3 Epoch Success Rate\nk1=5,k2=3 Cumulative Success Rate (CSR)\n35 k1=10,k2=5 Epoch Success Rate\nk1=10,k2=5 Cumulative Success Rate (CSR)\n2 4 6 8 10\nEpoch",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        null,
+        null,
+        null,
+        "k1=3,k2=",
+        "1 Epoch Success",
+        "Rate",
+        null
+      ],
+      [
+        null,
+        "",
+        "",
+        "k1=3,k2=\nk1=5,k2=\nk1=5,k2=",
+        "1 Cumulative Su\n3 Epoch Success\n3 Cumulative Su",
+        "ccess Rate (CSR\nRate\nccess Rate (CSR",
+        ")\n)"
+      ],
+      [
+        null,
+        "",
+        "",
+        "k1=10,k2=\nk1=10,k2=",
+        "5 Epoch Succes\n5 Cumulative S",
+        "s Rate\nuccess Rate (CS",
+        "R)"
+      ]
+    ]
+  },
+  {
+    "page": 8,
+    "table_index": 1,
+    "data": [
+      [
+        "80 ( etaR 82.4% 79.1%\n73.4%\nsseccuS\n60\nksaT 46.5%\n40\nmaertsnwoD\n21.5%\n20\n0\n0.2-0.3 0.3-0.4 0.4-0.5 0.5-0.6 0.6-0.7 0.7-0.8 0.8-0.9 0.9-1.0\nQ-Estimate Range",
+        "82.4%\n79.1%\n73.4%\n46.5%\n21.5%",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 8,
+    "table_index": 2,
+    "data": [
+      [
+        "0.55\netaR\n0.50 sseccuS MemP Epoch Success Rate\nMemRL Epoch Success Rate\nMemP Cumulative Success Rate (CSR)\n0.45 MemRL Cumulative Success Rate (CSR)\npass@1\npass@2\n0.40 pass@4\npass@6\npass@8\npass@10\n0.35\n2 4 6 8 10\nEpoch",
+        "",
+        "",
+        "",
+        null,
+        "",
+        "",
+        ""
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "MemP Epoch Succ\nMemRL Epoch Su",
+        "ess Rate\nccess Rate",
+        ")"
+      ],
+      [
+        null,
+        null,
+        "",
+        "",
+        "",
+        "MemP Cumulative",
+        "Success Rate (CSR",
+        null
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "MemRL Cumulativ\npass@1",
+        "e Success Rate (CS",
+        "R)"
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        "",
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        "",
+        "",
+        "",
+        "pass@2",
+        "",
+        null
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "pass@4\npass@6\npass@8\npass@10",
+        "",
+        ""
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        "",
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        "",
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "page": 8,
+    "table_index": 3,
+    "data": [
+      [
+        "100 SUCCESS Memory\nFAILURE Memory 21% 18% 16% 14% 12%\n27%\n80 )%( Pool Avg: 74.6%\n53%\nnoitroporP\n60 78%\n40 yromeM 79% 82% 84% 86% 88% 73%\n47%\n20\n22%\n0\n0.2-0.3 0.3-0.4 0.4-0.5 0.5-0.6 0.6-0.7 0.7-0.8 0.8-0.9 0.9-1.0\nQ-Estimate Range",
+        "",
+        "SU\nFAI",
+        "CC\nLU",
+        "ESS M\nRE Me",
+        "em\nmo",
+        "ory\nry\n27%",
+        "",
+        "21%",
+        "",
+        "18%",
+        "",
+        "16%",
+        "",
+        "14%",
+        "Av",
+        "12%",
+        "%"
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        null,
+        null,
+        "",
+        null,
+        "",
+        null,
+        "",
+        null,
+        "Pool",
+        null,
+        "g: 74.6",
+        null
+      ],
+      [
+        null,
+        "",
+        "78%",
+        "",
+        "53%",
+        "",
+        "73%",
+        "",
+        "79%",
+        "",
+        "82%",
+        "",
+        "84%",
+        "",
+        "86%",
+        "",
+        "88%",
+        ""
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        "47%",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        "22%",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "page": 18,
+    "table_index": 1,
+    "data": [
+      [
+        "",
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        null,
+        null,
+        null
+      ],
+      [
+        "",
+        "",
+        "MemP\nMemR\nMemR",
+        "L w/o Nor\nL",
+        "m_SimGat",
+        "e",
+        "",
+        "",
+        ""
+      ],
+      [
+        null,
+        "",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        "",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        "",
+        "",
+        "",
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        "",
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 19,
+    "table_index": 1,
+    "data": [
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "H",
+        "LE",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "AlfW",
+        "orld"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "BigCod",
+        "eBench",
+        "LifeLongB",
+        "ench-OS",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "Life",
+        "LongBenc",
+        "h-DB",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Linear",
+        "fit"
+      ]
+    ]
+  },
+  {
+    "page": 24,
+    "table_index": 1,
+    "data": [
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "MemR",
+        "L",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Memp",
+        "",
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        "",
+        null,
+        null
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        null
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        null
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        null
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        null
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        null
+      ]
+    ]
+  },
+  {
+    "page": 26,
+    "table_index": 1,
+    "data": [
+      [
+        "CaseStudy1(CS1)"
+      ],
+      [
+        "Utility. selected=19,success=19(100.0%).\nOrigintask.\nUpdate the SSH daemon configuration using sed to set: Port=2222, PermitRootLogin=no\n, X11Forwarding=no, ClientAliveInterval=300, ClientAliveCountMax=2,\nMaxAuthTries=2, MaxSessions=2, PasswordAuthentication=no, AllowUsers=’user1\nuser2’, UseDNS=no, and Protocol=2.\nRetrievedreflectionmemory.\n- #1: [MEMORY TYPE] FAILURE_REFLECTION\n[TASK]\nUpdate the SSH daemon configuration using sed to set: Port=2222, PermitRootLogin=no\n, X11Forwarding=no, ClientAliveInterval=300, ClientAliveCountMax=2,\nMaxAuthTries=2, MaxSessions=2, PasswordAuthentication=no, AllowUsers=’user1\nuser2’, UseDNS=no, and Protocol=2.\n[REFLECTION]\n- ROOT CAUSE: The ‘sed‘ command did not modify the commented lines in the\nconfiguration file, which is why the new settings were not applied as expected.\n- PATTERN TO AVOID: Avoid assuming that ‘sed‘ will replace commented lines without\nexplicitly handling them.\n- CORRECT APPROACH: Use ‘sed‘ to either uncomment the lines before replacing them\nor add the new configurations if they are commented out."
+      ]
+    ]
+  },
+  {
+    "page": 27,
+    "table_index": 1,
+    "data": [
+      [
+        "CaseStudy2(CS2)"
+      ],
+      [
+        "Utility. selected=20,success=20(100.0%).\nOrigintask.\nReplace ’DEBUG=True’ with ’DEBUG=False’ in /app/settings.cfg, append ’LOG_LEVEL=\nINFO’ after the modified line, and create a backup file.\nRetrievedreflectionmemory.\n- #2: [MEMORY TYPE] FAILURE_REFLECTION\n[TASK]\nReplace ’DEBUG=True’ with ’DEBUG=False’ in /app/settings.cfg, append ’LOG_LEVEL=\nINFO’ after the modified line, and create a backup file.\n[REFLECTION]\n- ROOT CAUSE: The ‘sed‘ command added the line ‘LOG_LEVEL=INFO‘ twice due to the\nway it was structured to append after the modified ‘DEBUG‘ line.\n- PATTERN TO AVOID: Avoid using multiple ‘-e‘ options in ‘sed‘ that can lead to\nunintended duplications when appending lines.\n- CORRECT APPROACH: Instead, use a single ‘sed‘ command that ensures the line is\nonly added once, or check for the existence of the line before appending it.\nExplanation. Theoriginatingattemptnearlycompletestheeditbutfailsduetoanon-idempotenttexttransformation\n(duplicatinganappendedline). Thememoryteachesanidempotenteditingpattern(single-passeditorexistencecheck),\nwhichtransferstomanyfile-edittasks.\nTargettask(retrievalrank2;runoutcome: correct).\nReplace ’DEBUG=True’ with ’DEBUG=False’ in /app/settings.cfg, append ’LOG_LEVEL=\nINFO’ after the modified line, and create a backup file."
+      ]
+    ]
+  },
+  {
+    "page": 27,
+    "table_index": 2,
+    "data": [
+      [
+        "CaseStudy3(CS3)"
+      ],
+      [
+        "Utility. selected=48,success=44(91.7%).\nOrigintask."
+      ]
+    ]
+  },
+  {
+    "page": 28,
+    "table_index": 1,
+    "data": [
+      [
+        "CaseStudy4(CS4)"
+      ],
+      [
+        "Utility. selected=26,success=23(88.5%).\nOrigintask.\nRun a sleep process in the background for 3 seconds, log its start and end times (\nin epoch format) to ’/var/log/sleep.log’, store the process ID in ’/tmp/\nsleep_pid’, and ensure the PID file is removed after the process completes.\nRetrievedreflectionmemory."
+      ]
+    ]
+  },
+  {
+    "page": 29,
+    "table_index": 1,
+    "data": [
+      [
+        "CaseStudy5(CS5)"
+      ],
+      [
+        "Utility. selected=94,success=88(93.6%).\nOrigintask.\nCreate a secure configuration file ’/etc/appconfig/settings.conf’ using vi, set\nownership to root:configgroup, permissions to 660, and add ’appuser’ to ’\nconfiggroup’. Ensure the file contains ’# Configuration file’ and ’key=value’\nlines.\nRetrievedreflectionmemory."
+      ]
+    ]
+  },
+  {
+    "page": 30,
+    "table_index": 1,
+    "data": [
+      [
+        "CaseStudy6(CS6)"
+      ],
+      [
+        "Utility. selected=59,success=55(93.2%).\nOrigintask.\nCreate a user ’testuser’, add them to group ’testgroup’, configure ’/data’ with\ngroup ownership ’testgroup’ and permissions 770, create ’/data/notes.txt’ using\n’vi’ with content ’Hello from vi’, and create an executable script ’/check.sh’\nusing ’vi’ to verify group ownership of ’/data’.\nRetrievedreflectionmemory."
+      ]
+    ]
+  },
+  {
+    "page": 31,
+    "table_index": 1,
+    "data": [
+      [
+        "HLE:ExperienceSummarizationPrompts"
+      ],
+      [
+        "Trajectoryserialization(storedastheepisodetrajectory).\nQUESTION\n{question}\nSOLUTION\n{model_output_stripped}\nHigh-levelscriptgenerationprompt."
+      ]
+    ]
+  },
+  {
+    "page": 33,
+    "table_index": 1,
+    "data": [
+      [
+        "ALFWorld: ExperienceSummarizationPrompts"
+      ],
+      [
+        "Trajectoryserialization(storedastheepisodetrajectory).\nThe full ALFWorld dialogue history is stored as the trajectory:\nList[{\"role\": ..., \"content\": ...}, ...]\nWhen interpolated into the summarization prompts, it is treated as a string\nrepresentation.\nHigh-levelscriptgenerationprompt.\nAnalyze the following detailed task trajectory and create a concise,\nhigh-level script that captures the essential steps and decision points.\nThe script should be:\n1. Generic enough to apply to similar tasks\n2. Specific enough to provide useful guidance\n3. 3-5 high-level steps maximum\n4. Focus on the strategy and key decisions, not detailed actions\nTrajectory:\n{trajectory}\nHigh-level script:\nFailurereflectionprompt.\nTask: {task_description}\nFailed trajectory:\n{failed_trajectory}\nThis task failed. Analyze what went wrong and suggest improvements for future\nsimilar tasks.\nFocus on:\n1. Incorrect assumptions\n2. Steps to improve\n3. What to avoid next time\nProvide a brief reflection:\nStoredmemorycontenttemplates."
+      ]
+    ]
+  },
+  {
+    "page": 34,
+    "table_index": 1,
+    "data": [
+      [
+        "BCB(BigCodeBench): ExperienceSummarizationPrompts"
+      ],
+      [
+        "Trajectoryserialization(storedastheepisodetrajectory).\n[BCB] epoch={epoch} phase={phase} task_id={task_id}\n[PROMPT]\n{bcb_task_prompt}\n[GENERATED CODE]\n‘‘‘python\n{model_code}\n‘‘‘\n[EVAL]\n{\"status\": \"...\", \"error\": \"...\"}\nHigh-levelscriptgenerationprompt.\nAnalyze the following detailed task trajectory and create a concise,\nhigh-level script that captures the essential steps and decision points.\nThe script should be:\n1. Generic enough to apply to similar tasks\n2. Specific enough to provide useful guidance\n3. 3-5 high-level steps maximum\n4. Focus on the strategy and key decisions, not detailed actions\nTrajectory:\n{trajectory}\nHigh-level script:\nFailurereflectionprompt."
+      ]
+    ]
+  },
+  {
+    "page": 35,
+    "table_index": 1,
+    "data": [
+      [
+        "LLB(LifelongAgentBench): ExperienceSummarizationPrompts"
+      ],
+      [
+        "Trajectoryserialization(storedastheepisodetrajectory).\n{role_1}: {content_1}\n{role_2}: {content_2}\n...\nHigh-levelscriptgenerationprompt."
+      ]
+    ]
+  },
+  {
+    "page": 37,
+    "table_index": 1,
+    "data": [
+      [
+        "HLE:GenerationandInferencePrompts"
+      ],
+      [
+        "Systemprompt(exact-match).\nYour response should be in the following format:\nExplanation: {your explanation for your final answer}\nExact Answer: {your succinct, final answer}\nConfidence: {your confidence score between 0% and 100% for your answer}\nSystemprompt(multiple-choice).\nYour response should be in the following format:\nExplanation: {your explanation for your answer choice}\nAnswer: {your chosen answer}\nConfidence: {your confidence score between 0% and 100% for your answer}\nRetrievedmemoryinjection(systemmessage).\n=== Successful Memories ===\n{memory_full_content_1}\n{memory_full_content_2}\n=== Failed Memories (for caution) ===\n{memory_full_content_3}\n...\nOptionalrepeat-attemptreflectionnote(systemmessage).\nYou attempted this question before.\nResult: {CORRECT|INCORRECT}\nQuestion: {question}\nPrevious attempt (solution only):\n{solution_only}\nReflect on mistakes or gaps, then solve the problem again with a better solution.\nUsermessagetextblock(whenimagesexist).\nNow solve the following question:\n[Image IDs: {question_image_ids}]\n{question}\nAttached images:\n1. [{img_id_1}] ({source_1})\n2. [{img_id_2}] ({source_2})\n...\nMessageordering."
+      ]
+    ]
+  },
+  {
+    "page": 38,
+    "table_index": 1,
+    "data": [
+      [
+        "ALFWorld: GenerationandInferencePrompts"
+      ],
+      [
+        "Basesystemprompt(ReActformat+actionspace).\nInteract with a household to solve a task. Imagine you are an intelligent agent in\na household environment and your target is to perform actions to complete the\ntask goal. At the beginning of your interactions, you will be given the\ndetailed description of the current environment and your goal to accomplish.\nFor each of your turn, you will be given the observation of the last turn. You\nshould first think about the current condition and plan for your future actions,\nand then output your action in this turn. Your output must strictly follow\nthis format:\"Thought: your thoughts.\\nAction: your next action\".\nThe available actions are:\n1. go to {recep}\n2. take {obj} from {recep}\n3. move {obj} to {recep}\n4. open {recep}\n5. close {recep}\n6. use {obj}\n7. clean {obj} with {recep}\n8. heat {obj} with {recep}\n9. cool {obj} with {recep}\nwhere {obj} and {recep} correspond to objects and receptacles.\nAfter your each turn, the environment will give you immediate feedback based on\nwhich you plan your next few steps. if the envrionment output \"Nothing happened\n\", that means the previous action is invalid and you should try more options.\nYour response should use the following format:\nThought: <your thoughts>\nAction: <your next action>\nRetrievedmemoryinjection(systemmessage).\nIn addition to the example, you have the following memories from your own past\nexperiences. Use them to help you if they are relevant:\n--- SUCCESSFUL MEMORIES (Examples to follow) ---\n{formatted_success_memories_joined}\n--- FAILED MEMORIES (Examples to avoid or learn from) ---\n{formatted_failed_memories_joined}\nCurrenttaskprompt(usermessage)."
+      ]
+    ]
+  },
+  {
+    "page": 39,
+    "table_index": 1,
+    "data": [
+      [
+        "BCB(BigCodeBench): GenerationandInferencePrompts"
+      ],
+      [
+        "Retrievedmemoryinjection(systemmessage).\n[Retrieved Memory Context]\n### Memory 1 (id={mem_id_1}, sim={similarity_1})\n{memory_content_1}\n### Memory 2 (id={mem_id_2}, sim={similarity_2})\n{memory_content_2}\n...\nDataset-providedtaskpromptselection(usermessage).\nif split == \"instruct\":\nreturn task[\"instruct_prompt\"]\nif split == \"complete\":\nreturn task[\"complete_prompt\"]\nMessageordering.\n1) system: optional [Retrieved Memory Context] ...\n2) user: {bcb_task_prompt}"
+      ]
+    ]
+  },
+  {
+    "page": 39,
+    "table_index": 2,
+    "data": [
+      [
+        "LLB(LifelongAgentBench): GenerationandInferencePrompts"
+      ],
+      [
+        "Basesystemprompt."
+      ]
+    ]
+  }
+]

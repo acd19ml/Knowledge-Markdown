@@ -1,57 +1,898 @@
-# GUI Agent 方法对比矩阵
+# Comparison Matrix v2 — 跨综述交叉视角
 
-## 维度定义
+> **定位**：本矩阵是 `Cross_Topic/` 的核心对比矩阵，聚焦 **GUI Agent 方法在 Memory 和 Self-Evolving 两个维度上的能力分布**，以及哪些位置是空白。
+> 本文件用于跨综述交叉分析与 Gap 识别，不与单主题章节内的局部对比重复。
+>
+> **格式版本**：v2（per-system 详细条目 + 证据来源标注）
+> **证据标签**：`[S]` = 综述推断 | `[P]` = 原文精读确认 | `[S→P]` = 综述推断已升级为原文确认
 
-- **GUI 理解方式**：Text-Based / Vision-Based / Hybrid Text-Vision
-- **记忆机制**：无 / 短期（In-Context）/ 长期（外部存储）/ 用户画像
-- **自我进化能力**：无 / Trial & Error 探索 / Reflection 纠错 / 持续学习
-- **任务类型**：Mobile / Web / Desktop / 通用
-- **控制方式**：UI-based / Code-based / 混合
-- **多智能体**：单 Agent / 多 Agent
+---
 
-## 论文对比
+## 维度说明
 
+| 列 | 来源 | 说明 |
+|---|---|---|
+| **Memory Cognitive Type** | Agent_Memory 综述 §3.2 | Sensory / Working / Episodic / Semantic / Procedural |
+| **Memory Persistence** | Agent_Memory 综述 §2.1 | In-task / Cross-task / Cross-session / Permanent |
+| **Memory Subject** | Agent_Memory 综述 §3.3 | Agent-centric / User-centric / None |
+| **Self-Evolution Type** | Self_Evolve 综述 §III–IV | None / Inference-time / Offline Experience / Online Experience / Lifelong |
+| **Evolution Timing** | Self_Evolve 综述 §III–IV | In-task / Post-task (offline) / Cross-task continuous / Training-phase |
+| **Cross-task Transfer** | 综合分析 | None / Task-level / App-level / Cross-app |
 
-| 系统                  | 年份   | GUI 理解       | 记忆机制      | 自我进化            | 任务类型          | 控制方式       | 多智能体    | 核心 Benchmark | 主要局限          |
-| ------------------- | ---- | ------------ | --------- | --------------- | ------------- | ---------- | ------- | ------------ | ------------- |
-| **SpotLight**       | 2022 | Vision-Based | 无         | 无               | Mobile        | UI-based   | 单       | —            | 无跨任务经验积累      |
-| **WebGPT**          | 2021 | Text-Based   | 短期        | 无               | Web           | Code-based | 单       | —            | 仅限搜索任务        |
-| **AppAgent**        | 2023 | Hybrid       | 短期+探索知识库  | Trial & Error   | Mobile        | UI-based   | 单       | —            | 探索知识不可迁移      |
-| **MobileGPT**       | 2023 | Vision-Based | 探索知识库     | Trial & Error   | Mobile        | UI-based   | 单       | —            | 探索代价高         |
-| **DroidBot-GPT**    | 2023 | Text-Based   | 无         | 无               | Mobile        | UI-based   | 单       | —            | 依赖 VH 访问权限    |
-| **WebAgent**        | 2023 | Text-Based   | 短期        | 无               | Web           | Code-based | 单       | Mind2Web     | VH/DOM 冗长     |
-| **WebWISE**         | 2023 | Vision-Based | 无         | 无               | Web           | Code-based | 单       | —            | 依赖 Pix2Struct |
-| **MM-Navigator**    | 2023 | Vision-Based | 短期        | 无               | Mobile        | UI-based   | 单       | —            | 依赖 GPT-4V     |
-| **WebGUM**          | 2023 | Hybrid       | 短期        | 无               | Web           | UI-based   | 单       | Mind2Web     | —             |
-| **AutoDroid**       | 2024 | Text-Based   | 探索知识库     | Trial & Error   | Mobile        | UI-based   | 单       | —            | 知识不可跨 App     |
-| **MindAct**         | 2024 | Text-Based   | 短期        | 无               | Web           | UI-based   | 单       | Mind2Web     | —             |
-| **Mobile-Agent**    | 2024 | Vision-Based | 短期        | 无               | Mobile        | UI-based   | 单       | —            | 无长期记忆         |
-| **Mobile-Agent-v2** | 2024 | Vision-Based | 短期（任务压缩）  | Reflection 纠错   | Mobile        | UI-based   | 3 Agent | —            | 仅单任务内反思       |
-| **SeeClick**        | 2024 | Vision-Based | 无         | 无               | Mobile        | UI-based   | 单       | ScreenSpot   | —             |
-| **CocoAgent**       | 2024 | Vision-Based | 短期        | 无               | Mobile        | UI-based   | 单       | —            | —             |
-| **SeeAct**          | 2024 | Hybrid       | 短期        | 无               | Web           | UI-based   | 单       | Mind2Web     | —             |
-| **WebVoyager**      | 2024 | Hybrid       | 短期        | 无               | Web           | UI-based   | 单       | WebVoyager   | —             |
-| **DUAL-VCR**        | 2024 | Hybrid       | 短期        | 无               | Web           | UI-based   | 单       | —            | —             |
-| **UFO**             | 2024 | Vision-Based | 短期        | 无               | Desktop (Win) | UI-based   | 2 Agent | —            | 仅 Windows     |
-| **AutoWebGLM**      | 2024 | Text-Based   | 短期        | 无               | Web           | UI-based   | 单       | WebArena     | —             |
-| **MMAC-Copilot**    | 2024 | Vision-Based | 短期+检索     | 无（有 Reflection） | Desktop       | UI+Code    | 6 Agent | —            | 推理成本高         |
-| **CogAgent**        | 2024 | Vision-Based | 无         | 无               | Web+Desktop   | UI-based   | 单       | Mind2Web     | 无记忆           |
-| **Friday**          | 2024 | ?            | 用户画像（声明性） | 无               | Desktop       | UI-based   | 单       | —            | 个性化初步         |
+---
 
+## GUI_Agent 领域
 
-## 从矩阵中观察到的模式
+### AppAgent
 
-- **观察 1**：23个系统中，**21个无长期记忆机制**，仅 AppAgent/MobileGPT/AutoDroid 有基于探索的任务级知识库，Friday 有初步用户画像
-- **观察 2**：**自我进化能力极为有限**：Trial & Error（3个）、Reflection 纠错（1个，仅单任务内）、持续学习（0个）
-- **观察 3**：**Vision-Based 占主导**（13/23），Text-Based 次之（6/23），Hybrid 最少（4/23）——尽管 Hybrid 理论上更强
-- **观察 4**：**多智能体仅3个系统**，且均无跨 Agent 的共享长期记忆
-- **观察 5**：所有系统均为**单次任务**框架，无跨会话持续学习设计
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Mobile | — |
+| **Memory Cognitive Type** | Semantic (per-app text knowledge document — UI element functions recorded as natural language; NOT Procedural: no abstract reusable skill workflows) | `[S→P]` (Zhang et al., 2023, §3.3, p.5): "This information is incorporated into the next prompt, which provides the agent with a form of memory." — 注：原文称之为 memory 但实为 in-context summary；知识文档是 Semantic Memory 而非 Procedural Memory |
+| **Memory Persistence** | Cross-task (app-level) — per-app knowledge doc persists, but not reusable across apps | `[S→P]` (Zhang et al., 2023, §3.1, p.3): "The agent learns to navigate and use new apps either through autonomous exploration or by observing human demonstrations. This process generates a knowledge base." |
+| **Memory Subject** | Agent-centric | `[P]` (Zhang et al., 2023, §3.1, p.3): knowledge doc is generated by the agent for its own future use |
+| **Self-Evolution Type** | Trial & Error / Pre-task exploration — offline, not from failure trajectories | `[S→P]` (Zhang et al., 2023, §3.2, p.4): autonomous exploration phase generates knowledge doc; no mechanism to update from failed deployment trajectories |
+| **Evolution Timing** | Pre-task (offline exploration before deployment) | `[S→P]` (Zhang et al., 2023, §3.2–3.3): 两个明确阶段：Exploration → Deployment，进化发生在任务前 |
+| **Cross-task Transfer** | App-level only — 每个 app 独立文档，跨 app 无法复用 | `[S→P]` (Zhang et al., 2023, Introduction, p.2): "different apps have unique GUIs with varying icon meanings and operational logic" — 新 app 需要重新探索 |
 
-## 由此产生的 Research Gap 候选
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| 45 tasks, 9 apps | SR | 84.4% (demo-watch doc) | GPT-4 no-doc: 48.9% | +35.5pp | Table in §4.2, p.7 |
+| 45 tasks, 9 apps | SR | 73.3% (auto-explore doc) | GPT-4 no-doc: 48.9% | +24.4pp | Table in §4.2, p.7 |
+| Simplified vs raw API | SR | 48.9% (simplified) | 2.2% (raw coordinate API) | +46.7pp | §4.2, p.7 |
 
-- **Gap A**：跨任务、跨会话的 GUI 经验记忆机制（23/23 系统缺失）
-- **Gap B**：跨应用的 GUI 知识迁移（即使是同类型操作也需重新探索）
-- **Gap C**：从单任务 Reflection 到跨任务自我进化的机制设计
-- **Gap D**：GUI Agent 的个性化能力（仅 Friday 初步尝试）
-- **Gap E**：Hybrid 范式的系统化研究（理论优势未被充分挖掘）
+**Reading Notes**: `GUI_Agent/papers/2023_AppAgent.md`
+**Last Updated**: 2026-03-06 | 从综述推断升级为原文精读确认；Memory Type 从"Procedural（雏形）"修正为"Semantic Doc (per-app)"
 
+---
+
+### MobileGPT
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Mobile | — |
+| **Memory Cognitive Type** | Procedural (three-level hierarchy: task / sub-task / action — organized as per-app transition graph; sub-tasks are parameterized reusable units) | `[S→P]` (Lee et al., 2024, §4.1, p.6): "MobileGPT employs a three-level hierarchical memory structure: tasks, sub-tasks, and actions. This hierarchy enables MobileGPT to access memory at the sub-task level, facilitating the sharing of past execution experience across different tasks." |
+| **Memory Persistence** | Cross-task (app-level) — sub-task knowledge is shared across tasks within the same app | `[P]` (Lee et al., 2024, §4.1, p.6): "these graphs exist per app, not per task, meaning that tasks within the same app all share the same graph." |
+| **Memory Subject** | Agent-centric | `[P]` (Lee et al., 2024, §1, p.2): memory is built and used by the agent |
+| **Self-Evolution Type** | HITL Trial & Error — failure recovery requires human intervention; no autonomous offline learning from failed trajectories | `[S→P]` (Lee et al., 2024, §5, p.8): HITL task repair; offline Explore phase builds memory before tasks |
+| **Evolution Timing** | Pre-task (offline Explore phase) + HITL post-failure correction | `[P]` (Lee et al., 2024, §3.2, p.5): "random explorer and user trace monitor to visit app screens" builds sub-task graph before task execution |
+| **Cross-task Transfer** | App-level — "MobileGPT currently stores memory on a local basis, meaning each device has its own version of app memory"; cross-app NOT supported | `[S→P]` (Lee et al., 2024, §9, p.14): "Cross App Task execution ... MobileGPT can be extended to maintain a global dataset of known tasks across apps." — 作者承认跨 app 是未来工作 |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| 185 tasks, 18 apps (cold-start) | SR | 82.7% | AutoDroid: 74.7% | +8.0pp | §5, p.9 |
+| 80 tasks (warm-start recall) | Recall Acc | 98.75% | — | — | §5, p.9 |
+| Warm-start vs baseline | Latency | -62.5% | — | — | §1, p.2 |
+| Warm-start vs baseline | LLM Cost | -68.8% | — | — | §1, p.2 |
+
+**Reading Notes**: `GUI_Agent/papers/2024_MobileGPT.md`
+**Last Updated**: 2026-03-06 | 升级为 [P] 证据；确认 Memory Type 为 Procedural（三层层级记忆是程序性知识）
+
+---
+
+### Mobile-Agent-v2
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Mobile | — |
+| **Memory Cognitive Type** | Working (Memory Unit stores task-relevant focus content across steps within current task — NOT persistent across tasks) | `[S→P]` (Wang et al., 2024, §3.2, p.4): "The memory unit serves as a short-term memory module that is updated as the task progresses. The memory unit is crucial for scenarios involving multiple apps." |
+| **Memory Persistence** | In-task only — Memory Unit is session-scoped; no cross-task persistence | `[S→P]` (Wang et al., 2024, §3.2, p.4): 任务结束后 Memory Unit 清空；失败操作被主动丢弃 |
+| **Memory Subject** | Agent-centric | `[P]` (Wang et al., 2024, §3.3, p.5): focus content maintained by Decision Agent for its own use |
+| **Self-Evolution Type** | Inference-time self-correction (Reflection Agent classifies each operation; erroneous ops trigger rollback) | `[S→P]` (Wang et al., 2024, §3.5, p.6): "Neither erroneous nor ineffective operations are recorded in the operation history to prevent the agent from following these operations." |
+| **Evolution Timing** | In-task (real-time, step-level reflection after each action) | `[P]` (Wang et al., 2024, §3.4, p.6): Reflection Agent 观察每步前后屏幕变化并即时反馈 |
+| **Cross-task Transfer** | None — "automating the generation of high-quality operation knowledge can further improve the performance of Mobile-Agent-v2" — 无跨任务知识积累 | `[S→P]` (Wang et al., 2024, §4.3, p.8): 作者明确将自动化知识生成作为 future work |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| HarmonyOS Advanced | SR | 55% (11/20) | Mobile-Agent v1: 20% (4/20) | +35pp | Table 1, p.7 |
+| Android Advanced | SR | 65% (13/20) | Mobile-Agent v1: 35% (7/20) | +30pp | Table 1, p.7 |
+| Multi-app Advanced | SR | 100% (2/2) | Mobile-Agent v1: 25% (1/4) | +75pp | Table 1, p.7 |
+
+**Reading Notes**: `GUI_Agent/papers/2024_MobileAgentV2.md`
+**Last Updated**: 2026-03-06 | 升级为 [P] 证据；确认 Memory 为 Working（任务内焦点内容），非跨任务 Procedural Memory
+
+---
+
+### Mobile-Agent-v3 / GUI-Owl
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Mobile + Desktop (multi-platform: Android, Ubuntu, macOS, Windows) | — |
+| **Memory Cognitive Type** | Working (Notetaker Agent extracts critical screen elements within current task — triggered only on SUCCESS; no cross-task episodic or procedural memory) | `[P]` (Ye et al., 2025, §4, p.10): "The Notetaker Agent … cumulative memory N_{t+1} supports both planning and execution in future steps." — 但此处 "future steps" 指当前任务内的后续步骤 |
+| **Memory Persistence** | In-task only — Notetaker cumulates notes within single task; no persistent store across tasks | `[P]` (Ye et al., 2025, §4, p.10): 无跨任务存储机制描述 |
+| **Memory Subject** | Agent-centric | `[P]` (Ye et al., 2025, §4, p.10): Notetaker extracts info for agent's own use |
+| **Self-Evolution Type** | Online Experience (Self-Evolving GUI Trajectory Production pipeline + TRPO online RL) — 但限于训练阶段，部署后不再演化 | `[P]` (Ye et al., 2025, §6, p.17): "we develop a self-evolving GUI trajectory data production pipeline" — GUI-Owl 的演化发生在 pre-deployment 训练中 |
+| **Evolution Timing** | Training-phase only (not post-deployment) — Self-evolving pipeline generates training data offline; TRPO optimizes policy during training | `[P]` (Ye et al., 2025, §3.1.2, p.9): TRPO 训练阶段的在线 RL；部署后 inference 时无演化 |
+| **Cross-task Transfer** | None at inference time — skills/knowledge not accumulated across deployed tasks | `[P]` (Ye et al., 2025, §4, p.10): Notetaker 仅 within-task；无跨任务 skill 复用设计 |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| AndroidWorld | SR | 73.3 (Mobile-Agent-v3 framework) | UI-TARS-1.5: 64.2 | +9.1 | Table in §5, p.14 |
+| OSWorld-Verified | SR | 37.7 (Mobile-Agent-v3 framework) | OpenCUA-32B: 34.8 | +2.9 | Table in §5, p.14 |
+| ScreenSpot-Pro | Grounding Acc | 54.9 (GUI-Owl-7B) | UI-TARS-72B: 38.1 | +16.8 | Table in §5, p.14 |
+
+**Reading Notes**: `GUI_Agent/papers/2025_MobileAgentV3.md`
+**Last Updated**: 2026-03-06 | 新增条目；Self-Evolution 发生在训练阶段而非推理部署后，是 A-4 Gap 的典型"不充分正例"
+
+---
+
+### MAGNET
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Mobile | — |
+| **Memory Cognitive Type** | Semantic (Stationary Memory: visual patches + functional descriptions for UI element grounding) + Procedural (Procedural Memory: abstract task workflows distilled from trajectories — parameterized step sequences) | `[P]` (Sun et al., 2026, Abstract, p.1): "dual-level memory: stationary memory linking diverse visual features to stable functional semantics for robust action grounding and procedural memory capturing stable task intents across varying workflows." |
+| **Memory Persistence** | Cross-task (app-level) with dynamic evolution — retention score R_i = exp(-g_i/n_i) manages memory decay | `[P]` (Sun et al., 2026, §3.3, p.7): Ebbinghaus-inspired retention score; memory updated from successful task trajectories |
+| **Memory Subject** | Agent-centric | `[P]` (Sun et al., 2026, §3, p.5-7): both memory modules built and used by the agent for its own task performance |
+| **Self-Evolution Type** | Offline Experience — dynamic memory evolution from SUCCESSFUL trajectories only; failure trajectory learning NOT supported | `[P]` (Sun et al., 2026, Limitations, p.9): "The framework requires successful trajectories for memory construction, making it less effective in completely novel domains where initial exploration fails." |
+| **Evolution Timing** | Post-task (offline) — new workflows/UI pairs extracted from completed successful trajectories; continual adaptation tested over 3 AndroidWorld iterations | `[P]` (Sun et al., 2026, Table 5): 3 iterations of memory update: SR 31.14% → 37.70% → 39.34% → 40.98% |
+| **Cross-task Transfer** | App-level — workflows abstract enough for task variants within same app category; cross-app transfer limited by clustering-based workflow granularity | `[P]` (Sun et al., 2026, Limitations, p.9): "clustering-based workflow extraction may struggle with highly diverse task structures that do not form clear patterns" |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| AndroidWorld | SR | 42.62% (MAGNET, Qwen2.5-VL-32B) | Agent-S: 40.98% | +1.64pp | Table 1 |
+| AndroidWorld | SR | 42.62% | AppAgent: 34.43% | +8.19pp | Table 1 |
+| Amex (offline) | SR | 62.84% (Qwen) | Agent-S: 58.29% | +4.55pp | Table in §4 |
+| Continual (iter 3) | SR | 40.98% (AndroidWorld) | Start (Amex-init): 31.14% | +9.84pp | Table 5 |
+
+**Reading Notes**: `GUI_Agent/papers/2025_MAGNET.md`
+**Last Updated**: 2026-03-06 | 新增条目；是 GUI Agent 领域目前最接近解决 A-1 Gap 的工作，但仍受限于成功轨迹依赖和聚类粒度
+
+---
+
+### Mobile-Agent-v3.5 / GUI-Owl-1.5
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Mobile + Desktop + Web (unified multi-platform) | — |
+| **Memory Cognitive Type** | Working (sliding window context + hierarchical compression: recent N turns in full multimodal fidelity; earlier turns condensed to text summary) | `[P]` (Xu et al., 2026, §2.1, p.3-4): "sliding window with hierarchical compression: the most recent N dialogue turns are retained in full multimodal fidelity, while earlier turns are condensed into a concatenated text summary" |
+| **Memory Persistence** | In-task only — context management is within-session; no persistent cross-session or cross-task memory store | `[P]` (Xu et al., 2026, §1, p.2): "short-term and long-term memory" listed as capability requirement but implemented only as sliding window; MemGUI-Bench shows 14pp gap vs workflow agents |
+| **Memory Subject** | Agent-centric | — |
+| **Self-Evolution Type** | Online Experience (MRPO multi-platform RL during training) — training-phase only; no post-deployment evolution | `[P]` (Xu et al., 2026, §2.4.3, p.10-11): MRPO training with interleaved per-platform optimization; device-conditioned policy π_θ(a|o,d) |
+| **Evolution Timing** | Training-phase only (pre-deployment Hybrid Data Flywheel + MRPO RL) | `[P]` (Xu et al., 2026, §2.2): DAG-based trajectory synthesis is pre-deployment pipeline; deployed model has no described online evolution mechanism |
+| **Cross-task Transfer** | None at inference time — CoT synthesis injects "memory management" annotations but no external memory bank for cross-task retrieval | `[P]` (Xu et al., 2026, §3.2.2, p.17): MemGUI-Bench: native model 27.1 vs workflow agents 41.7 (14pp gap); "in-context information retention" is the key limitation |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| OSWorld-Verified | SR | 56.5 (32B-Instruct) | UI-TARS-2: 53.1 | +3.4 | Table 1, p. |
+| AndroidWorld | SR | 71.6 (8B-Thinking) | UI-TARS-2: 73.3 | -1.7 | Table 1 |
+| WebArena | SR | 48.4 (32B-Thinking) | AgentSymbiotic-8B: 43.2 | +5.2 | Table 1 |
+| MemGUI-Bench (Easy) | SR | 27.1 (32B native) | Workflow agents: 41.7 | -14.6pp | Table in §3.2.2 |
+
+**Reading Notes**: `GUI_Agent/papers/2026_MobileAgentV3_5.md`
+**Last Updated**: 2026-03-06 | 新增条目；MemGUI-Bench 数据是支持 A-1/A-2 Gap 的强证据；MRPO 是目前解决多平台训练冲突最完整的工程方案
+
+---
+
+### PC-Agent
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Desktop (PC Windows — Chrome, Word, Excel, Outlook, etc.) | — |
+| **Memory Cognitive Type** | Working (Progress Agent tracks sub-task completion status within current task; Communication Hub passes inter-subtask parameters) | `[P]` (Liu et al., 2025, §2.3, p.4): "Progress Agent (PA) tracks and summarizes the current subtask progress"; Communication Hub 存储已执行子任务输出供后续子任务使用 |
+| **Memory Persistence** | In-task only — PA progress state cleared after task; no cross-task skill accumulation | `[P]` (Liu et al., 2025, Limitations, p.8): 论文未提供跨任务记忆机制；所有记忆组件为 session-scoped |
+| **Memory Subject** | Agent-centric | — |
+| **Self-Evolution Type** | Inference-time self-correction (Reflection Agent classifies each operation as correct/erroneous/ineffective; erroneous → replanning) | `[P]` (Liu et al., 2025, §2.4, p.5): RA observes before/after screenshots per step; 3-class classification triggers replanning or position adjustment |
+| **Evolution Timing** | In-task (real-time) — RA feedback immediately influences current task execution | `[P]` (Liu et al., 2025, §2.4, p.5): RA 每步观察并即时反馈；无跨任务持久化 |
+| **Cross-task Transfer** | None | `[P]` (Liu et al., 2025, §1, p.2): "Agent-S combines online search and local memory for experience-augmented planning ... however, these methods lack fine-grained perception" — 作者放弃了 Agent-S 的 local memory 路线，专注感知与架构 |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| PC-Eval (25 instructions) | SR | 56.0% | Agent-S: 24.0% | +32.0pp | Table 2, p.6 |
+| PC-Eval | Subtask SR | 76.0% | Agent-S: 55.7% | +20.3pp | Table 2 |
+| vs UFO | SR | 56.0% vs 12.0% | — | +44.0pp | Table 2 |
+
+**Reading Notes**: `GUI_Agent/papers/2025_PCAgent.md`
+**Last Updated**: 2026-03-06 | 新增条目；PC 场景多智能体架构代表；缺少跨任务记忆是明确的 A-1/A-4 动机来源
+
+---
+
+### AutoDroid
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Mobile | — |
+| **Memory Cognitive Type** | Semantic（雏形）— UI transition graphs as semantic app knowledge | `[S]` |
+| **Memory Persistence** | Cross-task (app-level) | `[S]` |
+| **Memory Subject** | Agent-centric | `[S]` |
+| **Self-Evolution Type** | Trial & Error / Pre-task exploration | `[S]` |
+| **Evolution Timing** | Pre-task exploration | `[S]` |
+| **Cross-task Transfer** | App-level | `[S]` |
+
+**Representative Experimental Data**: Not yet filled — awaiting paper read.
+
+**Reading Notes**: Not yet read
+**Last Updated**: 2026-03-06 | 初始 [S] 条目，来自综述推断
+
+---
+
+### MMAC-Copilot
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Desktop | — |
+| **Memory Cognitive Type** | Working + retrieval | `[S]` |
+| **Memory Persistence** | In-task | `[S]` |
+| **Memory Subject** | Agent-centric | `[S]` |
+| **Self-Evolution Type** | None (Reflection 不持久) | `[S]` |
+| **Evolution Timing** | In-task | `[S]` |
+| **Cross-task Transfer** | None | `[S]` |
+
+**Representative Experimental Data**: Not yet filled — awaiting paper read.
+
+**Reading Notes**: Not yet read
+**Last Updated**: 2026-03-06 | 初始 [S] 条目，来自综述推断
+
+---
+
+### Friday
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Desktop | — |
+| **Memory Cognitive Type** | Semantic（用户画像）| `[S]` |
+| **Memory Persistence** | Cross-session | `[S]` |
+| **Memory Subject** | User-centric | `[S]` |
+| **Self-Evolution Type** | None | `[S]` |
+| **Evolution Timing** | — | — |
+| **Cross-task Transfer** | None | `[S]` |
+
+**Representative Experimental Data**: Not yet filled — awaiting paper read.
+
+**Reading Notes**: Not yet read
+**Last Updated**: 2026-03-06 | 初始 [S] 条目，来自综述推断
+
+---
+
+### UFO
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Desktop | — |
+| **Memory Cognitive Type** | Working | `[S]` |
+| **Memory Persistence** | In-task | `[S]` |
+| **Memory Subject** | Agent-centric | `[S]` |
+| **Self-Evolution Type** | None | `[S]` |
+| **Evolution Timing** | — | — |
+| **Cross-task Transfer** | None | `[S]` |
+
+**Representative Experimental Data**: Not yet filled — awaiting paper read.
+
+**Reading Notes**: Not yet read
+**Last Updated**: 2026-03-06 | 初始 [S] 条目，来自综述推断
+
+---
+
+### WebAgent
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Web | — |
+| **Memory Cognitive Type** | Working | `[S]` |
+| **Memory Persistence** | In-task | `[S]` |
+| **Memory Subject** | Agent-centric | `[S]` |
+| **Self-Evolution Type** | None | `[S]` |
+| **Evolution Timing** | — | — |
+| **Cross-task Transfer** | None | `[S]` |
+
+**Representative Experimental Data**: Not yet filled — awaiting paper read.
+
+**Reading Notes**: Not yet read
+**Last Updated**: 2026-03-06 | 初始 [S] 条目，来自综述推断
+
+---
+
+### WebVoyager
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Web | — |
+| **Memory Cognitive Type** | Working | `[S]` |
+| **Memory Persistence** | In-task | `[S]` |
+| **Memory Subject** | Agent-centric | `[S]` |
+| **Self-Evolution Type** | None | `[S]` |
+| **Evolution Timing** | — | — |
+| **Cross-task Transfer** | None | `[S]` |
+
+**Representative Experimental Data**: Not yet filled — awaiting paper read.
+
+**Reading Notes**: Not yet read
+**Last Updated**: 2026-03-06 | 初始 [S] 条目，来自综述推断
+
+---
+
+### CogAgent
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Web + Desktop | — |
+| **Memory Cognitive Type** | None | `[S]` |
+| **Memory Persistence** | — | — |
+| **Memory Subject** | — | — |
+| **Self-Evolution Type** | None | `[S]` |
+| **Evolution Timing** | — | — |
+| **Cross-task Transfer** | None | `[S]` |
+
+**Representative Experimental Data**: Not yet filled — awaiting paper read.
+
+**Reading Notes**: Not yet read
+**Last Updated**: 2026-03-06 | 初始 [S] 条目，来自综述推断
+
+---
+
+### ActionEngine
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Web | — |
+| **Memory Cognitive Type** | Semantic + Procedural (state-machine graph stores page-state topology plus reusable action/data operations; structural memory for planning rather than task-derived skill library) | `[P]` (Zhong et al., 2026, §2, p.2-3): Crawling Agent organizes page states, action transitions, and reusable data operations into a state-machine graph |
+| **Memory Persistence** | Cross-task (app/site-level) — offline graph is reused across tasks on the same site/application | `[P]` (Zhong et al., 2026, §2, p.2-3): offline crawling builds a reusable application graph before execution |
+| **Memory Subject** | Agent-centric | `[P]` (Zhong et al., 2026, §2, p.2-3): Execution Agent retrieves from graph memory to synthesize executable plans |
+| **Self-Evolution Type** | Inference-time self-correction (validator-triggered local re-grounding patches failed actions into graph; no failure-derived skill abstraction) | `[P]` (Zhong et al., 2026, §2, p.2-3): validator judges execution failures and triggers local re-grounding fallback that writes new knowledge back to the graph |
+| **Evolution Timing** | Pre-task exploration + In-task local repair | `[P]` (Zhong et al., 2026, §2, p.2-3): graph is first built offline, then locally repaired during execution |
+| **Cross-task Transfer** | App-level — graph supports multiple tasks within the same site/application, but not cross-site transfer | `[P]` (Zhong et al., 2026, §2, p.2-3): memory is tied to a pre-crawled application graph |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| WebArena Reddit subset | Success | 95% | AgentOccam: 66% | +29.0pp | Table 1, p.9 |
+| Avg. latency / task | Seconds | 118 | 237 | -119s | Table 1, p.9 |
+| Avg. cost / task | USD | 0.06 | 0.71 | -0.65 | Table 1, p.9 |
+| Avg. LLM calls / task | Calls | 1.8 | 10.2 | -8.4 | Table 1, p.9 |
+
+**Reading Notes**: `GUI_Agent/papers/notes_new/2026_ActionEngine.md`
+**Last Updated**: 2026-03-06 | 新增条目；代表 structural GUI memory 路线，但记忆仍绑定单站点图结构，不是开放式 procedural skill 库
+
+---
+
+### GUI-GENESIS
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Web (synthetic GUI environments derived from real traces) | — |
+| **Memory Cognitive Type** | None — paper improves post-training environments and reward infrastructure rather than introducing an explicit agent memory module | `[P]` (Cao et al., 2026, §1-3, p.1-4): the framework synthesizes environments and code-native rewards for post-training |
+| **Memory Persistence** | — | — |
+| **Memory Subject** | — | — |
+| **Self-Evolution Type** | Online Experience (Multistep GRPO post-training inside synthetic GUI environments with executable rewards) | `[P]` (Cao et al., 2026, §3, p.3-4): agent is post-trained with synthetic environments and code-native reward oracles |
+| **Evolution Timing** | Training-phase only (post-training), not deployment-time | `[P]` (Cao et al., 2026, §1, p.1-2): motivation is GUI agent post-training under verifiable rewards |
+| **Cross-task Transfer** | None at inference time — gains come from post-training rather than runtime memory reuse | `[P]` (Cao et al., 2026, Table 1, p.6): sim-to-real gains are delivered by training, not by online task-to-task retrieval |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| Real-world HumanAnnotation | SR | 42.28% | Base model: 36.91% | +5.37pp | Table 1, p.6 |
+| Real-world HumanAnnotation | SR | 42.28% | Real-world env + VLM reward: 40.94% | +1.34pp | Table 1, p.6 |
+| Synthetic Native-code | SR | 48.99% | Real-world VLM reward: 44.30% | +4.69pp | Table 1, p.5-6 |
+| Environment efficiency | Hours / rollout | 0.1013 | 0.2272 | -0.1259 | §6.2, p.6 |
+
+**Reading Notes**: `GUI_Agent/papers/notes_new/2026_GUI-Genesis.md`
+**Last Updated**: 2026-03-06 | 新增条目；是 GUI 自进化里的训练基础设施路线，而非部署期记忆增强路线
+
+---
+
+### IntentCUA
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Desktop | — |
+| **Memory Cognitive Type** | Procedural + Semantic (subgroup skill hints act as parameterized action schemas; shared plan memory caches user-approved global plans) | `[P]` (Lee et al., 2026, §3, p.2-5): raw traces are abstracted into subgroup skill hints and shared plan memory |
+| **Memory Persistence** | Cross-task (task/workflow-level) — approved plans and skill hints persist across tasks | `[P]` (Lee et al., 2026, §3, p.2-5): plan memory is reused to complete future plans rather than rebuilt from scratch |
+| **Memory Subject** | Agent-centric | `[P]` (Lee et al., 2026, §3, p.2-5): Planner and Plan-Optimizer retrieve from shared memory for future execution |
+| **Self-Evolution Type** | Inference-time self-correction (Critic performs posterior validation and local recovery; long-term memory itself is still offline curated) | `[P]` (Lee et al., 2026, §3, p.4-5): Critic validates plans and triggers local recovery |
+| **Evolution Timing** | Post-task (offline trace abstraction / plan curation) + In-task local recovery | `[P]` (Lee et al., 2026, §3, p.2-5): memory is built from offline traces, while runtime loop only repairs current execution |
+| **Cross-task Transfer** | Task-level — strong reuse across similar long-horizon desktop workflows, but not open-world cross-app abstraction | `[P]` (Lee et al., 2026, §3, p.2-5): memory stores user-approved global plans and subgroup skills for later task completion |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| Overall (286 tasks) | SR | 74.8% | UFO2: 51.2% | +23.6pp | Table 2, p.8 |
+| Overall (286 tasks) | SR | 74.8% | UI-TARS-1.5: 38.8% | +36.0pp | Table 2, p.8 |
+| Step Efficiency Ratio | SER | 0.91 | UI-TARS: 0.85 | +0.06 | §6.1, p.8 |
+| Avg. latency | Minutes | 1.46 | UFO2: 6.63 | -5.17 | §6.1, p.8 |
+
+**Reading Notes**: `GUI_Agent/papers/notes_new/2026_IntentCUA.md`
+**Last Updated**: 2026-03-06 | 新增条目；skill abstraction 很强，但长期记忆仍依赖离线痕迹整理与人工批准 plan cache
+
+---
+
+### M2
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | Web | — |
+| **Memory Cognitive Type** | Working + Semantic (dynamic trajectory summarization for current task + external insight bank of reusable interaction rules) | `[P]` (Yan et al., 2026, §3, p.3-8): Internal Memory summarizes trajectory state while External Memory retrieves high-level insights |
+| **Memory Persistence** | Cross-task — external insight bank persists across tasks, while internal summary remains in-task | `[P]` (Yan et al., 2026, §3.2.1, p.7-8): retrieved insights come from an offline bank built from successful trajectories |
+| **Memory Subject** | Agent-centric | `[P]` (Yan et al., 2026, §3, p.3-8): both memories are injected into the agent's decision context |
+| **Self-Evolution Type** | None (training-free augmentation; no runtime memory update mechanism described) | `[P]` (Yan et al., 2026, §1, p.1; §3, p.3-8): method is explicitly training-free and retrieval-only at inference time |
+| **Evolution Timing** | — | — |
+| **Cross-task Transfer** | Cross-app — insights extracted from one benchmark transfer to dynamic OnlineMind2Web websites | `[P]` (Yan et al., 2026, §3.2.1, p.7-8): external insights generalize beyond the source benchmark distribution |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| WebVoyager (Qwen3-VL-32B) | SR | 74.0% | Same model normal: 57.8% | +16.2pp | Table 2, p.7 |
+| WebVoyager (Claude-3.7-Sonnet) | SR | 84.5% | Same model normal: 72.0% | +12.5pp | Table 2, p.7 |
+| OnlineMind2Web avg. (Qwen3-VL-32B) | SR | 51.55 | Same model normal: 31.96 | +19.59 | Table 3, p.7 |
+| Token usage (Qwen3-VL-32B) | Tokens | 92.3k | 215.2k | -122.9k | Table 2, p.7 |
+
+**Reading Notes**: `GUI_Agent/papers/notes_new/2026_M2.md`
+**Last Updated**: 2026-03-06 | 新增条目；证明 summary memory + retrieval memory 很有效，但记忆库是静态离线资产，不是部署期持续积累
+
+---
+
+### ACuRL
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | General (computer-use environments: desktop + web productivity apps) | — |
+| **Memory Cognitive Type** | 未明确提及 — paper frames accumulated experience as continual RL training data and curriculum feedback, not as an explicit external memory module | `[P]` (Xue et al., 2026, §1-3, p.1-5): autonomous exploration collects environment-grounded experiences for continual adaptation |
+| **Memory Persistence** | Cross-task continuous — capability accumulates across iterative adaptation rounds and environment sequences | `[P]` (Xue et al., 2026, Table 1-2, p.6-7): performance improves over Iter1→Iter3 and cross-environment sequences |
+| **Memory Subject** | Agent-centric | `[P]` (Xue et al., 2026, §1-3, p.1-5): collected experiences and curriculum updates serve the agent's future task performance |
+| **Self-Evolution Type** | Online Experience (autonomous exploration + curriculum RL + evaluator-driven continual adaptation) | `[P]` (Xue et al., 2026, §1-3, p.1-5): method studies continual learning in target environments through iterative interaction and training |
+| **Evolution Timing** | Cross-task continuous — explicit adaptation loop, not runtime memory reuse | `[P]` (Xue et al., 2026, §1-3, p.1-5): adaptation proceeds over repeated training iterations in target environments |
+| **Cross-task Transfer** | Cross-app — cross-environment sequence (Impress→KAlgebra→Calc) shows transfer beyond a single target environment | `[P]` (Xue et al., 2026, Table 2, p.7): cross-environment continual learning improves over the base agent |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| Intra-environment overall | Score | 24.5 | Base: 18.7 | +5.8 | Table 1, p.6 |
+| Thunderbird target environment | Score | 57.8 | Base: 35.5 | +22.3 | Table 1, p.6 |
+| Cross-environment overall | Score | 24.7 | Base: 18.7 | +6.0 | Table 2, p.7 |
+| Automatic evaluation reliability | Agreement | 93.7% | Human judgment | — | Table 5, p.8 |
+
+**Reading Notes**: `GUI_Agent/papers/notes_new/2026_ACuRL.md`
+**Last Updated**: 2026-03-06 | 新增条目；最强 GUI continual adaptation 之一，但仍依赖显式 RL 训练循环而非部署期 memory update
+
+---
+
+### DEACTION
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | GUI_Agent | — |
+| **Task Type** | General (computer-use agents in web / desktop environments) | — |
+| **Memory Cognitive Type** | Working (narrative summary history supports current action-alignment judgment; no persistent long-term store) | `[P]` (Ning et al., 2026, §4-5, p.5-7): narrative summaries outperform raw action / observation history for long-context detection |
+| **Memory Persistence** | In-task only — summaries support the current detect-and-correct loop, then are discarded | `[P]` (Ning et al., 2026, §4-5, p.5-7): history representation is used for online checking rather than long-term accumulation |
+| **Memory Subject** | Agent-centric | `[P]` (Ning et al., 2026, §4-5, p.5-7): summaries are constructed to judge whether the agent's next action aligns with the user's task |
+| **Self-Evolution Type** | Inference-time self-correction (detect misalignment, provide structured feedback, iteratively correct) | `[P]` (Ning et al., 2026, §4-5, p.5-7): DEACTION performs detection followed by iterative correction |
+| **Evolution Timing** | In-task (real-time guardrail / correction loop) | `[P]` (Ning et al., 2026, §4-5, p.5-7): the method checks and corrects actions during execution |
+| **Cross-task Transfer** | None — no persistent skill or memory accumulation described | `[P]` (Ning et al., 2026, §5.1, p.7): future work points to stronger reasoning and detection, not long-term memory reuse |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| MISACTBENCH (GPT-5.1 Thinking) | F1 | 82.8 | TaskShield: 66.9 | +15.9 | Table 3, p.6 |
+| MISACTBENCH (Claude Sonnet 4.5) | F1 | 80.4 | TaskShield: 66.6 | +13.8 | Table 3, p.6 |
+| Detection precision (GPT-5.1 Thinking) | Precision | 89.9 | TaskShield: 61.3 | +28.6 | Table 3, p.6 |
+| Online adversarial evaluation | ASR | >90% reduction | no-defense / prior defenses | large reduction | §5.2, p.7 |
+
+**Reading Notes**: `GUI_Agent/papers/notes_new/2026_DEACTION.md`
+**Last Updated**: 2026-03-06 | 新增条目；说明 runtime detect-and-correct 已有效，但 correction 结果仍停留在单任务内
+
+---
+
+## Agent_Memory 领域
+
+### Generative Agents
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Agent_Memory | — |
+| **Task Type** | Simulation (Smallville sandbox — text-based, NOT GUI) | — |
+| **Memory Cognitive Type** | Episodic (Memory Stream: all experiences stored as timestamped natural language observations; Reflection: higher-level inferences synthesized from memory stream forming reflection tree) | `[S→P]` (Park et al., 2023, §1, p.1): "A memory retrieval model combines relevance, recency, and importance to surface the records needed to inform the agent's moment-to-moment behavior." |
+| **Memory Persistence** | Cross-session — Memory Stream accumulates all experiences across multiple simulated days | `[P]` (Park et al., 2023, §3.1, p.5): Memory objects persist with creation timestamp and last-access timestamp; recency decay with d=0.995 |
+| **Memory Subject** | Agent-centric | `[P]` (Park et al., 2023, §3): each agent maintains its own Memory Stream |
+| **Self-Evolution Type** | None — Reflection generates higher-level insights but these do not modify the agent's planning strategy or action policy for future tasks; no cross-task learning loop | `[S→P]` (Park et al., 2023, §3.2, p.6): Reflection updates Memory Stream content, not a learning mechanism |
+| **Evolution Timing** | — | — |
+| **Cross-task Transfer** | None (simulation environment; no task transfer evaluation) | `[P]` (Park et al., 2023): Smallville 是封闭沙盒，无跨任务迁移评估 |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| Smallville believability | Human rating | Full architecture | No-reflection: significant drop | — | §4, p.9 (qualitative) |
+| Memory retrieval | Believability | Full architecture | No-observation (GPT-4 baseline): lowest | Largest | §4.2, p.9 |
+
+> **Note**: 无量化 SR 指标；主要为定性人类评估，与 GUI Agent SR 指标不可直接对比。
+
+**Reading Notes**: `Agent_Memory/papers/2023_GenerativeAgents.md`
+**Last Updated**: 2026-03-06 | 升级为 [P] 证据；确认 Episodic Memory 定义；Self-Evolution = None（Reflection 不是跨任务学习）
+
+---
+
+### MemGPT
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Agent_Memory | — |
+| **Task Type** | General (document QA, multi-session conversation) | — |
+| **Memory Cognitive Type** | Episodic + Semantic (三层存储：Working Context / FIFO Queue + Archival Storage / Recall Storage — text-only, no vision) | `[S→P]` (Packer et al., 2023, §2, p.3): "virtual context management ... paging between physical memory and disk." Working Context = RAM; Archival/Recall = disk |
+| **Memory Persistence** | Cross-session — Archival Storage persists indefinitely; multi-session chat demonstrated | `[P]` (Packer et al., 2023, §3.2, p.7): "MemGPT can cross-session remember user information and dynamically update relationship status" |
+| **Memory Subject** | Agent-centric | `[P]` (Packer et al., 2023, §2.3, p.3): "Memory edits and retrieval are entirely self-directed: MemGPT autonomously updates and searches through its own memory" |
+| **Self-Evolution Type** | None — memory management is storage/retrieval, not a learning mechanism for improving future task performance | `[S→P]` (Packer et al., 2023): no skill induction, no experience abstraction; pure memory management |
+| **Evolution Timing** | — | — |
+| **Cross-task Transfer** | None (text-only; document QA and conversation; no task transfer) | — |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| Document QA (NaturalQuestions) | Accuracy | MemGPT(GPT-4): best | GPT-4 Turbo fixed-context | Positive | §3.2.1, p.7 |
+| Nested KV Retrieval (depth≥3) | Pass | MemGPT: only method to succeed | GPT-4 Turbo: fails at depth>2 | Decisive | §3.2.1, p.7 |
+
+> **Note**: 无量化 SR 数字可比较；benchmark 与 GUI Agent 评测完全不同。
+
+**Reading Notes**: `Agent_Memory/papers/2023_MemGPT.md`
+**Last Updated**: 2026-03-06 | 升级为 [P] 证据；确认 Episodic+Semantic 定义；Self-Evolution = None
+
+---
+
+### A-Mem
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Agent_Memory | — |
+| **Task Type** | 对话 | — |
+| **Memory Cognitive Type** | Semantic | `[S]` |
+| **Memory Persistence** | Cross-session | `[S]` |
+| **Memory Subject** | User-centric | `[S]` |
+| **Self-Evolution Type** | None | `[S]` |
+| **Evolution Timing** | — | — |
+| **Cross-task Transfer** | — | — |
+
+**Representative Experimental Data**: Not yet filled — awaiting paper read.
+
+**Reading Notes**: Not yet read
+**Last Updated**: 2026-03-06 | 初始 [S] 条目，来自综述推断；← GUI Agent 个性化的现成方案
+
+---
+
+## Self_Evolve 领域
+
+### AWM (Agent Workflow Memory)
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Self_Evolve | — |
+| **Task Type** | Web (WebArena, Mind2Web) | — |
+| **Memory Cognitive Type** | Procedural (workflow = parameterized task procedure: high-level goal description + abstracted step trace with variable placeholders) | `[S→P]` (Wang et al., 2024, §2.2, p.3): "Each workflow P^d consists of two components: a high-level description d ... and a set of workflow steps P^d each step containing an environment description, reasoning, and action" — 变量化抽象是 Procedural Memory 的关键特征 |
+| **Memory Persistence** | Cross-task — workflows persist and are reused across tasks; online mode continuously updates | `[P]` (Wang et al., 2024, §2.3, p.3-4): "online (induce workflows from streaming experiences and integrate into memory)"; workflows apply to future tasks |
+| **Memory Subject** | Agent-centric | `[P]` (Wang et al., 2024): workflows built from agent's own trajectories |
+| **Self-Evolution Type** | Offline Experience (LM-based workflow induction from historical trajectories) | `[S→P]` (Wang et al., 2024, §2.2-2.3, p.3): "LM-based induction: extract common sub-processes from multiple experiences and generate abstract workflows" |
+| **Evolution Timing** | Post-task (offline) — offline: pre-induction from training samples; online: post-task induction from streaming trajectory | `[P]` (Wang et al., 2024, §2.3, p.3-4): both modes described |
+| **Cross-task Transfer** | Cross-task (same domain/website) — "51.1% relative improvement" on WebArena; limited cross-domain (offline+online fusion degrades) | `[S→P]` (Wang et al., 2024, Appendix C, p.16): "workflows induced offline and online are not fully compatible" — 跨域迁移仍有兼容性问题 |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| WebArena | Total SR | 35.5 | BrowserGym: 23.5 | +12.0 abs / +51.1% rel | Table 1, p.5 |
+| Mind2Web Cross-task | StepSR | 45.1 (offline, GPT-4) | MindAct: 36.2 | +8.9 abs | Table 3, p.7 |
+| Mind2Web Cross-domain | StepSR | 35.5 (online) | MindAct: 18.6 | +16.9 abs | Table 4, p.8 |
+
+**Reading Notes**: `Self_Evolve/papers/2024_AWM.md`
+**Last Updated**: 2026-03-06 | 升级为 [P] 证据；确认 Procedural Memory + Offline/Online 双模式演化
+
+---
+
+### SkillWeaver
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Self_Evolve | — |
+| **Task Type** | Web (WebArena, real-world websites) | — |
+| **Memory Cognitive Type** | Procedural (executable Playwright Python API functions as skills — parameterized, verifiable, composable; NOT natural language workflows) | `[S→P]` (Zheng et al., 2025, §2, p.3): skills represented as Python functions with signature, docstring, usage log, and pre-condition description — 可执行性是关键区别 |
+| **Memory Persistence** | Cross-task — skill library persists across tasks; agents use skills from library during inference | `[P]` (Zheng et al., 2025, §3.3, p.6): "160 iterations per website" builds persistent API library; APIs reused at inference time |
+| **Memory Subject** | Agent-centric | `[P]` (Zheng et al., 2025): skills built by strong model exploration, used by any agent |
+| **Self-Evolution Type** | Offline Experience (three-stage: skill proposal → synthesis → honing from exploration trajectories) | `[S→P]` (Zheng et al., 2025, §2, p.3): "self-exploration to synthesize reusable API skills" |
+| **Evolution Timing** | Post-task (offline pre-exploration) — 160 iterations per website, then inference | `[P]` (Zheng et al., 2025, §3.4, p.6): website-level pre-exploration builds skill library before evaluation |
+| **Cross-task Transfer** | Cross-task (within website) — skill reuse within same website domain; cross-website transfer demonstrated (strong model → weak model) | `[P]` (Zheng et al., 2025, §4.2, p.7-8): "weak agent benefits from strong agent's skills" with up to +54.3% relative gain |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| WebArena AVG (GPT-4o) | SR | 29.8 (+Skills) | 22.6 (no skills) | +31.8% rel | Table 1 |
+| WebArena AVG (GPT-4o-mini) | SR | 14.1 (+Skills) | 9.2 (no skills) | +54.3% rel | Table 1 |
+| Online-Mind2Web (4 sites) | SR | 56.2 (+Skills) | 40.2 (baseline) | +39.8% rel | Table 2 |
+
+**Reading Notes**: `Self_Evolve/papers/2025_SkillWeaver.md`
+**Last Updated**: 2026-03-06 | 升级为 [P] 证据；确认 Procedural Memory（可执行 API 比 NL workflow 更强）
+
+---
+
+### Reflexion
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Self_Evolve | — |
+| **Task Type** | General (ALFWorld decision-making, HotPotQA reasoning, HumanEval code generation) | — |
+| **Memory Cognitive Type** | Episodic (verbal self-reflection stored as episodic memory — distilled failure analysis from previous trials; capacity limited to Ω=1~3 entries) | `[P]` (Shinn et al., 2023, §3, p.4-5): "long-term memory ... stores verbal self-reflections and feedback from previous trials"; NOT raw trajectory — 蒸馏后的失败分析 |
+| **Memory Persistence** | Cross-task (within agent session — up to Ω entries persist across trials of same task) | `[P]` (Shinn et al., 2023, §3, p.5): "sliding window of maximum Ω=1~3 experiences" — limited persistent memory |
+| **Memory Subject** | Agent-centric | `[P]` (Shinn et al., 2023, §3): self-reflection for agent's own improvement |
+| **Self-Evolution Type** | Inference-time (verbal reinforcement — verbal reflection without parameter update; feedback verbalized → stored → guides next trial) | `[P]` (Shinn et al., 2023, Abstract, p.1): "it remains challenging for these language agents to quickly and efficiently learn from trial-and-error as traditional reinforcement learning methods require extensive training samples and expensive model fine-tuning." |
+| **Evolution Timing** | In-task (real-time — each failed trial generates reflection before next trial within same session) | `[P]` (Shinn et al., 2023, §3, p.4-5): Actor → Evaluator → Self-Reflection → memory append → next trial |
+| **Cross-task Transfer** | Task-level — reflection memory helps within same task type; limited cross-task evidence | `[P]` (Shinn et al., 2023, Appendix B.1, p.14): "Reflexion is unable to solve tasks that require a significant amount of diversity and exploration" — WebShop 上无提升 |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| ALFWorld (134 tasks) | SR | 130/134 solved | ReAct-only | +22% abs | §4.1, p.5 |
+| HumanEval (Python) | pass@1 | 91.0 | GPT-4: 80.1 | +10.9pp | Table 1, p.7 |
+| HotPotQA | SR | +20% abs vs baseline | CoT/ReAct | +20% | §4.2, p.6 |
+
+**Reading Notes**: `Self_Evolve/papers/2023_Reflexion.md`
+**Last Updated**: 2026-03-06 | 新增条目；是 B-1 Gap（Reflection 持久化）的直接技术基础
+
+---
+
+### ExpeL (Experiential Learning)
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Self_Evolve | — |
+| **Task Type** | General (ALFWorld, HotPotQA, WebShop, FEVER) — text-only environments | — |
+| **Memory Cognitive Type** | Semantic (insight library: ADD/EDIT/UPVOTE/DOWNVOTE 维护的抽象规则集合) + Episodic (trajectory pool: top-k similar successful trajectories retrieved by task similarity) | `[P]` (Zhao et al., 2024, §4.2, p.4): "dual-channel: retrieve top-k similar successful trajectories + LLM-maintained insight collection" |
+| **Memory Persistence** | Cross-task — insight library and trajectory pool persist across tasks within training/deployment session | `[P]` (Zhao et al., 2024, §4.1, p.4): experience pool B accumulates across all training tasks |
+| **Memory Subject** | Agent-centric | `[P]` (Zhao et al., 2024) |
+| **Self-Evolution Type** | Offline Experience (insight extraction from success/failure trajectory pairs; no parameter update) | `[P]` (Zhao et al., 2024, §4.2, p.4): "LLM performs structured operations (ADD/EDIT/UPVOTE/DOWNVOTE) to iteratively maintain insight collection" |
+| **Evolution Timing** | Post-task (offline) — experience gathered during training; insights extracted after training, used at test time | `[P]` (Zhao et al., 2024, §4, p.3-5): 三阶段：experience gathering → insight extraction → task inference |
+| **Cross-task Transfer** | Task-level — FEVER transfer from HotPotQA insights: +7.0% SR; cross-task retrieval effective within similar domains | `[P]` (Zhao et al., 2024, Table 1, p.9): FEVER transfer SR 70.0% vs ReAct baseline 63.0% |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| FEVER transfer (from HotpotQA) | SR | 70.0 ± 0.7 | ReAct: 63.0 ± 0.4 | +7.0 abs | Table 1, p.9 |
+| ALFWorld (R3) | SR | 64.2% | ReAct+Reflexion: 54.4% | +9.8 abs | Table 2, p.9 |
+| ALFWorld single-attempt (R0) | SR | 59.0% | ReAct+Reflexion: 40.3% | +18.7 abs | Table 2, p.9 |
+
+**Reading Notes**: `Self_Evolve/papers/2024_ExpeL.md`
+**Last Updated**: 2026-03-06 | 新增条目；连接 Reflexion（单任务反思）与 AWM（结构化 workflow）的桥接工作
+
+---
+
+### EvolveR
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Self_Evolve | — |
+| **Task Type** | General QA with search tools (NQ, HotpotQA, 2Wiki, Musique, etc.) | — |
+| **Memory Cognitive Type** | Semantic (principle library: description + structured triples; NOT raw trajectories) | `[P]` (Wu et al., 2025, §3.2.1, p.4-5): principles represented as "natural language + structured triples" with two-stage deduplication |
+| **Memory Persistence** | Cross-task — principle library persists and accumulates; dynamic quality scoring s(p)=(c_succ+1)/(c_use+2) manages retention | `[P]` (Wu et al., 2025, §3.2.1, p.5): "dynamic score" prunes low-quality principles |
+| **Memory Subject** | Agent-centric | `[P]` (Wu et al., 2025): self-distillation from agent's own trajectories |
+| **Self-Evolution Type** | Offline Experience + Policy Evolution (self-distillation → GRPO RL update → closed loop) | `[P]` (Wu et al., 2025, §3.3, p.6): GRPO updates policy using experience-guided trajectories as training signal |
+| **Evolution Timing** | Post-task (offline distillation) + Online RL (GRPO policy update) | `[P]` (Wu et al., 2025, §3, p.3-7): three phases: offline distillation → online interaction → policy evolution |
+| **Cross-task Transfer** | Task-level — cross-dataset generalization in QA domain; OOD gains (Bamboogle +19.4% vs EvolveR baseline) | `[P]` (Wu et al., 2025, Table 1, p.8): consistent gains across 5 OOD datasets trained only on NQ+HotpotQA |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| Avg EM (7 datasets, Qwen2.5-3B) | EM | 0.382 | Search-R1-instruct: 0.325 | +0.057 | Table 1, p.8 |
+| HotpotQA | EM | 0.373 | Search-R1-instruct: 0.324 | +0.049 | Table 1, p.8 |
+| Bamboogle (OOD) | EM | 0.328 | Search-R1-instruct: 0.264 | +0.064 | Table 1, p.8 |
+
+**Reading Notes**: `Self_Evolve/papers/2025_EvolveR.md`
+**Last Updated**: 2026-03-06 | 新增条目；完整的经验生命周期闭环：蒸馏→检索→RL
+
+---
+
+### SkillRL
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Self_Evolve | — |
+| **Task Type** | General (ALFWorld, WebShop, Search QA) — text/structured environments; NOT visual GUI | — |
+| **Memory Cognitive Type** | Procedural (SKILLBANK: two-tier — General Skills (cross-task universal strategies) + Task-Specific Skills (fine-grained per-category tactics); 10-20x token compression from raw trajectories) | `[P]` (Xia et al., 2026, §3.2, p.4): "Skill distillation achieves 10–20× token compression compared to raw trajectories while enhancing rather than degrading the utility of the original experience." |
+| **Memory Persistence** | Cross-task — SKILLBANK persists; recursive evolution updates skills per validation epoch | `[P]` (Xia et al., 2026, §3.3, p.4): "each validation epoch, collect failure trajectories for tasks with SR < δ=0.4, generate new/updated skills" |
+| **Memory Subject** | Agent-centric | — |
+| **Self-Evolution Type** | Offline Experience + RL co-evolution (failure trajectory → counterfactual lessons → SKILLBANK update → GRPO policy training) | `[P]` (Xia et al., 2026, §3.1-3.3): three stages: experience distillation → cold-start SFT → recursive RL evolution |
+| **Evolution Timing** | Post-task (offline — recursive evolution per validation epoch during RL training) | `[P]` (Xia et al., 2026, §3.3, p.4): "recursive SKILLBANK evolution" occurs during RL training, not at deployed inference time |
+| **Cross-task Transfer** | Task-level — general skills cross all tasks; task-specific skills transfer within task category | `[P]` (Xia et al., 2026, Table 4): ALFWorld sub-task gains show general skills help all task types |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| ALFWorld (Overall) | SR | 89.9% | GRPO: 77.6% | +12.3pp | Table 1 |
+| WebShop | Success | 72.7% | SimpleMem+GRPO: 46.9% | +25.8pp | Table 2 |
+| Search QA Avg | EM | 47.1% | EvolveR: 43.1% | +4.0pp | Table 3 |
+
+**Reading Notes**: `Self_Evolve/papers/2026_SkillRL.md`
+**Last Updated**: 2026-03-06 | 新增条目；A-1 Gap 的完整先验工作（text/web 域 Procedural Memory + RL 协同演化），GUI 场景迁移尚未验证
+
+---
+
+### EvoCUA
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Self_Evolve | — |
+| **Task Type** | Desktop GUI (OSWorld — computer use agent) | — |
+| **Memory Cognitive Type** | Working (CoT synthesis augments trajectories with step-wise observation/reflection/memory notes — within-trajectory context only) | `[P]` (Xue et al., 2026, §2.3.2, p.8): CoT synthesis enables "enhanced memory capability" but limited to "in-context information retention" within single trajectory |
+| **Memory Persistence** | In-task only — CoT-augmented context is training data, not persistent cross-task memory at inference | `[P]` (Xue et al., 2026, §1, p.2; §9, p.18): "This disparity highlights the limits of offline learning from synthesized traces alone." |
+| **Memory Subject** | Agent-centric | — |
+| **Self-Evolution Type** | Online Experience (verifiable synthesis + large-scale rollout + iterative RFT/Step-level DPO) — training-phase experience loop; 1M+ training samples | `[P]` (Xue et al., 2026, §1, p.2): "from static data scaling to evolving experience learning"; generation-as-validation pipeline |
+| **Evolution Timing** | Training-phase (pre-deployment) — 100k+ accelerator hours; deployed model has no described online evolution | `[P]` (Xue et al., 2026, §6.5, p.15): 100k+ accelerator hours; Section 7 online RL is "directional report" not complete system |
+| **Cross-task Transfer** | None at inference time — training on synthesized tasks, but cross-task skill reuse not architectured at deployment | `[P]` (Xue et al., 2026, §9, p.18): "a performance gap persists between current open models and leading closed-weights systems" |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| OSWorld-Verified | SR | 56.7% (EvoCUA-32B) | OpenCUA-72B: 45.0% | +11.7pp | Table 1, p.12 |
+| OSWorld-Verified | SR | 56.7% | UI-TARS-2-2509: 53.1% | +3.6pp | Table 1, p.12 |
+| OSWorld-Verified (8B) | SR | 46.1% | Step-GUI-8B: 40.2% | +5.9pp | Table 1, p.12 |
+
+**Reading Notes**: `Self_Evolve/papers/2026_EvoCUA.md`
+**Last Updated**: 2026-03-06 | 新增条目；大规模经验闭环的工程代表；训练阶段演化，部署后无进化
+
+---
+
+### ExpSeek
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Self_Evolve | — |
+| **Task Type** | Web (WebWalkerQA, GAIA, SEAL, xbench) | — |
+| **Memory Cognitive Type** | Episodic (experience triplets: Behavior-Mistake-Guidance extracted from failure trajectories; topic-organized experience library) | `[P]` (Zhang et al., 2026, §4.1, p.3-4): triplet structure extracted from failure trajectories; topic induction organizes into experience library |
+| **Memory Persistence** | Cross-task — experience library persists across tasks; built from training trajectory pairs | `[P]` (Zhang et al., 2026, §4.1, p.3): experience library built from success/failure trajectory samples on WebWalkerQA |
+| **Memory Subject** | Agent-centric | — |
+| **Self-Evolution Type** | Inference-time (step-triggered experience seeking — step entropy determines when to request guidance; dynamic guidance generation from topic-selected experience) | `[P]` (Zhang et al., 2026, §4.2, p.4-5): "step entropy + logistic regression threshold" triggers guidance injection |
+| **Evolution Timing** | In-task (step-level real-time) — experience retrieved at each step during task execution when entropy exceeds threshold | `[P]` (Zhang et al., 2026, §3, p.3): e_t = G(E, h_t) — step-level experience seeking |
+| **Cross-task Transfer** | Task-level — OOD gains on xbench (+9.2 for 8B); trained on 170 WebWalkerQA samples | `[P]` (Zhang et al., 2026, Table 2, p.6): consistent gains on 3 OOD benchmarks |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| Qwen3-8B Avg (4 benchmarks) | Score | 41.50 | REASONINGBANK+: 34.80 | +6.70 abs | Table 2, p.6 |
+| Qwen3-32B Avg (4 benchmarks) | Score | 45.32 | REASONINGBANK+: 39.33 | +5.99 abs | Table 2, p.6 |
+| Qwen3-8B xbench (OOD) | Score | 37.20 | REASONINGBANK+: 28.00 | +9.20 abs | Table 2, p.6 |
+
+**Reading Notes**: `Self_Evolve/papers/2026_ExpSeek.md`
+**Last Updated**: 2026-03-06 | 新增条目；步骤级动态经验注入；与静态全局注入的对比基准
+
+---
+
+### MemRL
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Self_Evolve | — |
+| **Task Type** | General (OS tasks, ALFWorld, HLE, math) — diverse frozen-backbone setting | — |
+| **Memory Cognitive Type** | Episodic (Intent-Experience-Utility triplets: semantic retrieval + Q-value reranking; utility updated via runtime RL) | `[P]` (Zhang et al., 2026, §3.1-3.2, p.3): "Intent-Experience-Utility triplet" — utility = Q-value for expected success contribution |
+| **Memory Persistence** | Cross-task — utility values updated from runtime feedback; Cross-task retrieval shown effective for OS+ALF tasks | `[P]` (Zhang et al., 2026, Table 3, p.7): Cross-task ablation: 0.798 vs single-task reflection 0.761 |
+| **Memory Subject** | Agent-centric | — |
+| **Self-Evolution Type** | Online Experience (runtime non-parametric RL on memory — backbone frozen; Q-values updated via Monte-Carlo style from environment feedback) | `[P]` (Zhang et al., 2026, §4.3, p.5): "Monte-Carlo style utility update based on environment feedback" |
+| **Evolution Timing** | Cross-task continuous — utility updated after each task execution; "runtime self-evolution without changing backbone parameters" | `[P]` (Zhang et al., 2026, §1, p.1): "enable an agent to continuously improve its performance after deployment, without compromising the stability of its pre-trained backbone" |
+| **Cross-task Transfer** | Task-level — cross-task utility retrieval effective for structured environments; less effective for heterogeneous tasks (HLE not improved) | `[P]` (Zhang et al., 2026, §5.3.3, p.6-7): HLE cross-task 0.606 vs single-task 0.610 — 异质性低相似任务分布效果差 |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| Runtime Avg CSR (4 benchmarks) | CSR | 0.798 | MemP: 0.760 | +0.038 | Table 1, p.7 |
+| Transfer Avg SR | SR | 0.794 | MemP: 0.766 | +0.028 | Table 2, p.7 |
+| ALFWorld Runtime CSR | CSR | 0.981 | MemP: 0.919 | +0.062 | Table 1, p.7 |
+
+**Reading Notes**: `Self_Evolve/papers/2026_MemRL.md`
+**Last Updated**: 2026-03-06 | 新增条目；冻结 backbone + 记忆层 RL 是轻量化部署后演化的代表方案
+
+---
+
+### MCE (Meta Context Engineering)
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Self_Evolve | — |
+| **Task Type** | General (finance, chemistry, medicine, law, AI safety — CE benchmark tasks) | — |
+| **Memory Cognitive Type** | Semantic (skill database: context engineering methods as evolving folder-level assets — instructions + scripts + templates + validation protocols) | `[P]` (Ye et al., 2026, §3.2, p.5): "skill database maintaining historical skills, corresponding contexts, and train/val metrics" |
+| **Memory Persistence** | Cross-task — skill database persists across optimization iterations; skills transferred across benchmark domains | `[P]` (Ye et al., 2026, §3.2, p.5): skill crossover uses historical skills from database |
+| **Memory Subject** | Agent-centric | — |
+| **Self-Evolution Type** | Offline Experience (bi-level optimization: meta-level skill evolution via agentic crossover + base-level context optimization) | `[P]` (Ye et al., 2026, §3.1, p.5): "s* = argmax_s J_val(c*_s), c*_s = argmax_c J_train(c;s)" — bi-level |
+| **Evolution Timing** | Post-task (offline bi-level optimization loop; not inference-time) | `[P]` (Ye et al., 2026, §3.3, p.5-6): (1+1)-ES orchestration; batch rollout → context update → skill evolution |
+| **Cross-task Transfer** | Task-level — avg 16.9% relative gain; offline+online transferability evaluated | `[P]` (Ye et al., 2026, Table 1, p.8): consistent gains across 5 domains |
+
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| FiNER (finance) | Micro-F1 | 75.0 | ACE: 71.0 | +4.0 | Table 1, p.8 |
+| Avg Relative Gain (offline) | Rel. % | 89.1 | ACE: 70.7 | +18.4 | Table 1, p.8 |
+| Avg Relative Gain (online) | Rel. % | 74.1 | ACE: 41.1 | +33.0 | Table 1, p.8 |
+
+> **Note**: 评测为 CE benchmark，与 GUI Agent / QA benchmarks 不可直接对比。
+
+**Reading Notes**: `Self_Evolve/papers/2026_MCE.md`
+**Last Updated**: 2026-03-06 | 新增条目；Meta-learning 框架代表；将 CE 方法本身纳入进化空间
+
+---
+
+### AgentKB
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Self_Evolve | — |
+| **Task Type** | 通用 | — |
+| **Memory Cognitive Type** | Semantic | `[S]` |
+| **Memory Persistence** | Cross-task | `[S]` |
+| **Memory Subject** | Agent-centric | `[S]` |
+| **Self-Evolution Type** | Offline Experience | `[S]` |
+| **Evolution Timing** | Post-task | `[S]` |
+| **Cross-task Transfer** | Cross-domain | `[S]` |
+
+**Representative Experimental Data**: Not yet filled — awaiting paper read.
+
+**Reading Notes**: Not yet read
+**Last Updated**: 2026-03-06 | 初始 [S] 条目；← GUI 跨 App 知识迁移的答案
+
+---
+
+### ArcMemo / FLEX
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|-----------------|
+| **Source** | Self_Evolve | — |
+| **Task Type** | 通用 | — |
+| **Memory Cognitive Type** | Episodic + Semantic | `[S]` |
+| **Memory Persistence** | Permanent | `[S]` |
+| **Memory Subject** | Agent-centric | `[S]` |
+| **Self-Evolution Type** | Lifelong learning | `[S]` |
+| **Evolution Timing** | Cross-task continuous | `[S]` |
+| **Cross-task Transfer** | Cross-task | `[S]` |
+
+**Representative Experimental Data**: Not yet filled — awaiting paper read.
+
+**Reading Notes**: Not yet read
+**Last Updated**: 2026-03-06 | 初始 [S] 条目；← GUI Agent 终身学习的路径
+
+---
+
+## 空白格局可视化
+
+```
+                 +----------------------------------------------------+
+                 |           GUI Agent 的记忆 x 自进化能力空间         |
+                 |                                                    |
+自进化能力        |  终身学习  o                               *AWM    |
+（Self_Evolve）  |  离线经验  o MAGNET(app-level)  *SkillWeaver *AgentKB|
+                 |  在线经验  o                                        |
+                 |  推理时    *MobAgv2  *PC-Agent  *Reflexion          |
+                 |  无        *(大多数GUI Agent)  *Friday(仅Semantic)  |
+                 +------+----------+----------+----------+-----------+
+                        无      Working   Episodic  Semantic  Procedural
+                                        <--- 记忆认知类型（Agent_Memory）--->
+
+* = 已有研究    o = 空白区域（当前 GUI Agent 研究缺失）
+```
+
+**结论**：GUI Agent 方法集中在左下角（无记忆 + 无/弱自进化）。右上角（Episodic/Procedural Memory + 离线/终身自进化）是完全空白的研究空间，而这些能力在 Self_Evolve 和 Agent_Memory 领域已有成熟方案。MAGNET 是目前最接近右上角的 GUI Agent 工作，但仍受限于成功轨迹依赖。
+
+---
+
+## 交叉参考索引
+
+| 主题 | 详细分析 |
+|------|---------|
+| GUI Agent × Memory | [gui-agent-x-memory.md](gui-agent-x-memory.md) |
+| GUI Agent × Self-Evolving | [gui-agent-x-self-evolving.md](gui-agent-x-self-evolving.md) |
+| 全局 Gap 分层 | [gap-tracker.md](gap-tracker.md) |
+| 综述分类框架草稿 | [taxonomy-draft.md](taxonomy-draft.md) |
+| Gap Tracker 批量更新 | [batch-tracker-update.md](batch-tracker-update.md) |

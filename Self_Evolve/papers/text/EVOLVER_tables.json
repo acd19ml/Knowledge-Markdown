@@ -1,0 +1,108 @@
+[
+  {
+    "page": 2,
+    "table_index": 1,
+    "rows": [
+      [
+        "Paradigm 1 Stateless Execution\nTrajectory\nDiscard\nTask 1 Solution1\nAgent\nTrajectory\nTask 2 Solution2\nDiscard\nAgent",
+        "Paradigm 3 Learning via External Scribing\nTrajectory\nSummarize\nTask 1 Solution1\nAgent Teacher Model\nStorage\nRetrieve\nPast Exp\nTask 2\nSolution2 Storage\nAgent External Exp"
+      ]
+    ]
+  },
+  {
+    "page": 2,
+    "table_index": 2,
+    "rows": [
+      [
+        "Paradigm 2 Learning by Raw Trajectories\nTrajectory\nStorage\nTask 1 Solution1\nAgent\nPast Retrieve\nTrajectory\nTask 2 Storage\nSolution2\nRaw\nAgent Trajectory",
+        "Paradigm 4 Self-Distillation & Evolution (Ours)\nTask 1 Online Phase Task 2\nSearch\nExpBase\nThink Generate\nQuery Trajectory\nAgent (Initial) Agent (Evolved)\nUpdata Distill\nExpBase Principle\nSolution1 Offline Phase Solution2"
+      ]
+    ]
+  },
+  {
+    "page": 4,
+    "table_index": 1,
+    "rows": [
+      [
+        "Online Phase\nParameter Update\nThink Se A a n r a c l h y s Q is u . e .. ry Search ExpBase\n...\nPrinciple\nObserve Search KB\nThink\nPerceive Work\nQuery Doc",
+        "Search ExpBase\n- For P co r m i p n ar c is i o p n l q e u e 1 stions, Traj1\ng b - d a a e T t t f r h a o i e p r o e l r n e c : d b ( o a C o n t o t c a h m l u o p s d n a id i r n b e i g s o s . o ) t n h , n it e e e m ds s , Score:0.7 - - - T T P h o r o o in l u c g u i s h p e t le s s Traj2\nExpBase Principle 2 Score:0.6 Traj1 Traj2\n.......\nPrinciple N Score:0.9 Traj1 Traj2\nMerge"
+      ],
+      [
+        "Organize Consolidate\nUpdate ExpBase Generate Traj\nGet Principle Self-Distill\nOffline Phase\nParameter Frozen",
+        "Trajectory Update Score Add New Principle\nSummarize & Add Traj Principle Operation\nDistill\nNew Principle Match No Match\nDeduplicate\nRetrieve\nSimilarity Threshold Update\nTop k Principles Filter\nLLM Semantic Match Low-Score\nUpdate ExpBase"
+      ]
+    ]
+  },
+  {
+    "page": 4,
+    "table_index": 2,
+    "rows": [
+      [
+        "Traj1",
+        "Traj2"
+      ]
+    ]
+  },
+  {
+    "page": 4,
+    "table_index": 3,
+    "rows": [
+      [
+        "Update Score\n& Add Traj",
+        "Add New\nPrinciple"
+      ]
+    ]
+  },
+  {
+    "page": 4,
+    "table_index": 4,
+    "rows": [
+      [
+        "Principle\nOperation"
+      ],
+      [
+        "Distill"
+      ],
+      [
+        "Deduplicate"
+      ],
+      [
+        "Update"
+      ],
+      [
+        "Filter\nLow-Score"
+      ]
+    ]
+  },
+  {
+    "page": 4,
+    "table_index": 5,
+    "rows": [
+      [
+        "",
+        "Similarity Threshold"
+      ],
+      [
+        null,
+        "LLM Semantic Match"
+      ]
+    ]
+  },
+  {
+    "page": 8,
+    "table_index": 1,
+    "rows": [
+      [
+        "EvolveR(ours)",
+        "0.434",
+        "0.373",
+        "0.584",
+        "0.434",
+        "0.381",
+        "0.137",
+        "0.328",
+        "0.382"
+      ]
+    ]
+  }
+]

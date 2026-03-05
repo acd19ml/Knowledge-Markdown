@@ -53,6 +53,91 @@
 
 基于上述三个维度，现有 GUI Agent 系统的分布：
 
+```viz-matrix
+id: knowledge-reuse-pattern
+title: 知识复用方式 × 任务阶段
+xAxis: [精确, 相似, 泛化, 注入]
+rows:
+  - key: pre_task
+    label: 任务前探索
+    lanes: [Skills, World]
+  - key: in_task
+    label: 任务中反思
+    lanes: [Skills, World]
+  - key: post_task
+    label: 任务后归纳
+    lanes: [Skills, World, User]
+  - key: cross_task
+    label: 跨任务持续
+    lanes: [Skills, User]
+cells:
+  - row: pre_task/Skills
+    col: 精确
+    status: existing
+    label: AppAgent
+    link: ../GUI_Agent/03_task-automation-pipeline.md
+  - row: pre_task/World
+    col: 精确
+    status: existing
+    label: AutoDroid
+    link: ../GUI_Agent/03_task-automation-pipeline.md
+  - row: in_task/Skills
+    col: 注入
+    status: existing
+    label: Mobile-Agent-v2
+    link: ../GUI_Agent/03_task-automation-pipeline.md
+  - row: cross_task/User
+    col: 精确
+    status: existing
+    label: Friday
+    link: ../GUI_Agent/02_capabilities/2.4_advanced-capabilities.md
+  - row: post_task/Skills
+    col: 相似
+    status: gap
+  - row: post_task/Skills
+    col: 泛化
+    status: gap
+  - row: post_task/Skills
+    col: 注入
+    status: gap
+  - row: post_task/World
+    col: 相似
+    status: gap
+  - row: post_task/World
+    col: 泛化
+    status: gap
+  - row: post_task/World
+    col: 注入
+    status: gap
+  - row: post_task/User
+    col: 相似
+    status: gap
+  - row: post_task/User
+    col: 泛化
+    status: gap
+  - row: post_task/User
+    col: 注入
+    status: gap
+  - row: cross_task/Skills
+    col: 相似
+    status: gap
+  - row: cross_task/Skills
+    col: 泛化
+    status: gap
+  - row: cross_task/Skills
+    col: 注入
+    status: gap
+  - row: cross_task/User
+    col: 相似
+    status: gap
+  - row: cross_task/User
+    col: 泛化
+    status: gap
+  - row: cross_task/User
+    col: 注入
+    status: gap
+```
+
 ```
                     知识复用方式
                 精确  相似  泛化  注入
@@ -154,5 +239,5 @@
 |------|------|
 | GUI Agent × Memory 详细分析 | [gui-agent-x-memory.md](gui-agent-x-memory.md) |
 | GUI Agent × Self-Evolving 详细分析 | [gui-agent-x-self-evolving.md](gui-agent-x-self-evolving.md) |
-| 矩阵视角（现有系统分布）| [master-comparison-matrix.md](master-comparison-matrix.md) |
+| 矩阵视角（现有系统分布）| [comparison-matrix.md](comparison-matrix.md) |
 | 全局 Gap 优先级 | [gap-tracker.md](gap-tracker.md) |

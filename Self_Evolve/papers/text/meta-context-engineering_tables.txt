@@ -1,0 +1,55 @@
+
+=== Page 1: 1 table(s) ===
+--- Table 1 ---
+Meta Context Engineering
+How can I design Skill Dat abase I can discover the an optimal agentic best CE skill by h en ar g n in e e s e s r f i o n r g ? context le e a v rn o i l n v g in a g n ! d E C nS g o ki nn i t l e l e b e x ort oink g Skill B: 72% Skill A: 65% Why did Skill C: 68% w S o W k rk i h l e l a d A t ? in su S c k c i e ll e B d? c b H o e m o s w b t i p c n a a e r n t t s h I ? e The meta-agent D ksaT evolves CE skills. The Magic Formula: 1. The meta-agent evolves CE skills via co C n u st r r r a e i n n t e C d E b y m m et a h n o u d a s l l a y r e c r f a u f n te d d a m ha e r n n t e a s ll s y es. 2 . c T a o g h n e e t n e b t x i a c t s a c e r r - t o a if s g a s e c o t n s v t . e e r. xecutes skills to build 3. The system learns from execution history and environmental feedback. 4. Skills and context co-evolve. C E w c c c r m e o o o o a t r n n n r k n i t t t e s e e e a v p x x x g a a t t t e _ _ _ l c . m 1 2 3 p e . . . y e m m m n d d d t.py The M at e W ta o - r A k gent Ag C e o n B m t e ic b s i t C n I r i d n o e g s a s t s h o e ve r: +10% Improvement CodCiTnoogod Tlikoniotgsl kits With the evolved skills, I can learn the perfect context! A better skill emerges Success throug h co-evolution! The base-agent executes skills and optimizes context.
+
+=== Page 4: 1 table(s) ===
+--- Table 1 ---
+Working Directory Iteration 1 CE/ context/ data/ SKILL.md ... rollouts Iteration 2 CE/ context/ data/ SKILL.md ... rollouts Multiple Iterations ... Iteration k-1 CE/ context/ data/ SKILL.md ... rollouts |  | Meta-level: Skill Evolution Task Update Specification Skill Skill ... Skill New Skill Best-so-far Tool Set Read Bash Skill Overview Read Write Glob Skill Database Selection Metrics Meta-agent Agentic Crossover Edit Grep TodoWrite Base-level: Context Optimization Context Function Evaluation & Feedback Task Optional Static Training Specification Utilities Components Rollouts Knowledge Bases Training Data Engineer Decision Rules New Skill Examples Dynamic Evaluation for Context Operators Meta-agent Function Base-agent Retrieval Validation Data Filtering Training Composition Logic Rollouts MCE: Meta Context Engineering Inference with Optimized Context Context Context Performance Adaptability Context Query Function LLM Output Context Training Efficiency Efficiency
+
+=== Page 8: 10 table(s) ===
+--- Table 1 ---
+0.76
+
+--- Table 2 ---
+71.0
+75.0
+--- Table 3 ---
+18.0
+20.0
+--- Table 4 ---
+70.7
+
+89.1
+--- Table 5 ---
+67.0
+68.0
+--- Table 6 ---
+18.0
+20.0
+--- Table 7 ---
+76.9
+76.4
+--- Table 8 ---
+0.70
+0.66
+--- Table 9 ---
+0.68
+0.63
+--- Table 10 ---
+71.3
+74.1
+
+=== Page 9: 2 table(s) ===
+--- Table 1 ---
+ACE MCE-L MCE (Ours) MCE-S ACE (Epoch 1) ACE (Epoch 5)
+ACE (Epoch 2) ACE (Step 20)
+--- Table 2 ---
+25.8h 95 95% 13.6× faster training )%( ACE peak: 94% ycaruccA 90 85 gniniarT MCE reaches 95% at 450 rollouts (4.8× more efficient) 80 ACE MCE (Ours) 75 0 250 500 750 1000 1250 1500 1750 2000 # Rollouts | 95% |  |  |  |  |  | 13.6× f | ast | er train | ing |  | 25.8h
+ |  |  |  |  |  |  |  |  |  | ACE pe | ak: 94 | 
+ |  |  |  |  |  |  |  |  |  |  |  | 
+ |  |  |  | M (4 | CE reac .8× mor | hes 95% e effici | at 45 ent) | 0 r | ollouts |  |  | 
+ |  |  |  |  |  |  |  |  |  |  |  | 
+ |  |  |  |  |  |  |  |  |  |  |  | 
+ |  |  |  |  |  |  |  |  |  | ACE MCE ( | Ours) | 

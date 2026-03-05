@@ -62,8 +62,7 @@ Knowledge-Markdown/
 │   └── 05_challenges.md
 │
 ├── Cross_Topic/                 # 跨综述交叉分析（核心研究工具）
-│   ├── master-comparison-matrix.md  # 核心矩阵：GUI Agent × Memory × Self-Evolve
-│   ├── comparison-matrix.md         # GUI Agent 单域能力矩阵（23 系统 × 8 维度）
+│   ├── comparison-matrix.md         # 核心矩阵：GUI Agent × Memory × Self-Evolve
 │   ├── gap-tracker.md               # 全局 Gap 分层（A/B/C 类）
 │   ├── gui-agent-x-memory.md        # GUI Agent × Agent Memory 交叉分析
 │   ├── gui-agent-x-self-evolving.md # GUI Agent × Self-Evolving 交叉分析
@@ -146,8 +145,7 @@ Knowledge-Markdown/
 
 | 主题 | 文件 | 标签 |
 |------|------|------|
-| Master 对比矩阵（GUI × Memory × Self-Evolve）| [Cross_Topic/master-comparison-matrix.md](Cross_Topic/master-comparison-matrix.md) | cross-domain, memory, self-evolving |
-| GUI Agent 单域能力矩阵（23 系统 × 8 维度）| [Cross_Topic/comparison-matrix.md](Cross_Topic/comparison-matrix.md) | comparison, capabilities |
+| 对比矩阵（GUI × Memory × Self-Evolve）| [Cross_Topic/comparison-matrix.md](Cross_Topic/comparison-matrix.md) | cross-domain, memory, self-evolving |
 | 全局 Gap 分层（A/B/C 类，7 个 Gap）| [Cross_Topic/gap-tracker.md](Cross_Topic/gap-tracker.md) | gap, research-direction, priority |
 | GUI Agent × Agent Memory 交叉分析 | [Cross_Topic/gui-agent-x-memory.md](Cross_Topic/gui-agent-x-memory.md) | episodic, procedural, user-centric |
 | GUI Agent × Self-Evolving 交叉分析 | [Cross_Topic/gui-agent-x-self-evolving.md](Cross_Topic/gui-agent-x-self-evolving.md) | AWM, offline-evolution, skills |

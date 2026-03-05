@@ -113,7 +113,7 @@ Agent 利用历史经验完成新任务（减少探索步骤）
 
 | 主题 | 文件 |
 |------|------|
-| 矩阵视角（GUI Agent 记忆机制分布）| [master-comparison-matrix.md](master-comparison-matrix.md) |
+| 矩阵视角（GUI Agent 记忆机制分布）| [comparison-matrix.md](comparison-matrix.md) |
 | 全局 Gap 分层（A-1, A-2, A-3）| [gap-tracker.md](gap-tracker.md) |
 | GUI Agent 个性化现状 | [../GUI_Agent/02_capabilities/2.4_advanced-capabilities.md](../GUI_Agent/02_capabilities/2.4_advanced-capabilities.md) |
 | Agent_Memory 认知机制详解 | [../Agent_Memory/02_taxonomy/2.2_cognitive-mechanisms.md](../Agent_Memory/02_taxonomy/2.2_cognitive-mechanisms.md) |

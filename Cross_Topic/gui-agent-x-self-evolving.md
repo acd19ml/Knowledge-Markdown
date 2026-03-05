@@ -144,4 +144,4 @@ Phase 3（长期，依赖 Phase 1/2 成果）
 | Self_Evolve 推理时自进化 | [../Self_Evolve/02_model-centric/2.1_inference-based.md](../Self_Evolve/02_model-centric/2.1_inference-based.md) |
 | GUI Agent 探索→利用流程 | [../GUI_Agent/03_task-automation-pipeline.md](../GUI_Agent/03_task-automation-pipeline.md) |
 | 全局 Gap 优先级（A-1, A-4 为最高）| [gap-tracker.md](gap-tracker.md) |
-| 矩阵视角（自进化列） | [master-comparison-matrix.md](master-comparison-matrix.md) |
+| 矩阵视角（自进化列） | [comparison-matrix.md](comparison-matrix.md) |

@@ -1,0 +1,1580 @@
+[
+  {
+    "page": 1,
+    "table_index": 1,
+    "rows": [
+      [
+        "Thinking"
+      ],
+      [
+        "Tool Call"
+      ]
+    ]
+  },
+  {
+    "page": 1,
+    "table_index": 2,
+    "rows": [
+      [
+        "Thinking"
+      ],
+      [
+        "Tool Call"
+      ]
+    ]
+  },
+  {
+    "page": 1,
+    "table_index": 3,
+    "rows": [
+      [
+        "Thinking"
+      ],
+      [
+        "Answer"
+      ]
+    ]
+  },
+  {
+    "page": 1,
+    "table_index": 4,
+    "rows": [
+      [
+        ""
+      ],
+      [
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 1,
+    "table_index": 5,
+    "rows": [
+      [
+        ""
+      ],
+      [
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 1,
+    "table_index": 6,
+    "rows": [
+      [
+        "Thinking"
+      ],
+      [
+        "Tool Call"
+      ]
+    ]
+  },
+  {
+    "page": 1,
+    "table_index": 7,
+    "rows": [
+      [
+        "Thinking"
+      ],
+      [
+        "Tool Call"
+      ]
+    ]
+  },
+  {
+    "page": 1,
+    "table_index": 8,
+    "rows": [
+      [
+        "Thinking"
+      ],
+      [
+        "Answer"
+      ]
+    ]
+  },
+  {
+    "page": 5,
+    "table_index": 1,
+    "rows": [
+      [
+        "",
+        "",
+        "Safe Zone\nBuffer Zone\nIntervention Zone\nMedian Probability Curve\nTrue Dist.\nFalse Dist."
+      ]
+    ]
+  },
+  {
+    "page": 5,
+    "table_index": 2,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Lower 2.5%\nMedian\nUpper 97.5%"
+      ]
+    ]
+  },
+  {
+    "page": 5,
+    "table_index": 3,
+    "rows": [
+      [
+        "",
+        "",
+        "Safe Zone\nBuffer Zone\nIntervention Zone\nMedian Probability Curve\nTrue Dist.\nFalse Dist."
+      ]
+    ]
+  },
+  {
+    "page": 5,
+    "table_index": 4,
+    "rows": [
+      [
+        "",
+        "Lower 2.\nMedian\nUpper 97",
+        "5%\n.5%",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 7,
+    "table_index": 1,
+    "rows": [
+      [
+        "",
+        "",
+        "Va",
+        "nilla"
+      ],
+      [
+        "",
+        "",
+        "Ex",
+        "pSeek"
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 7,
+    "table_index": 2,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        "Vanilla"
+      ],
+      [
+        "",
+        "",
+        null,
+        "ExpSeek"
+      ],
+      [
+        "",
+        "",
+        null,
+        ""
+      ],
+      [
+        "",
+        "",
+        null,
+        ""
+      ],
+      [
+        "",
+        "",
+        null,
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 7,
+    "table_index": 3,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        "Vanilla",
+        ""
+      ],
+      [
+        "",
+        "",
+        null,
+        "ExpSe",
+        "ek"
+      ],
+      [
+        "",
+        "",
+        null,
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        null,
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        null,
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 7,
+    "table_index": 4,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        "Van",
+        "illa"
+      ],
+      [
+        "",
+        "",
+        null,
+        "Exp",
+        "Seek"
+      ],
+      [
+        "",
+        "",
+        null,
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        null,
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        null,
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 7,
+    "table_index": 5,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        "",
+        "Va",
+        "nill",
+        "a"
+      ],
+      [
+        "",
+        "",
+        "",
+        null,
+        "Ex",
+        "pS",
+        "eek"
+      ],
+      [
+        "",
+        "",
+        "",
+        null,
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        null,
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        null,
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        null,
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 7,
+    "table_index": 6,
+    "rows": [
+      [
+        "",
+        "",
+        "V",
+        "anilla"
+      ],
+      [
+        "",
+        "",
+        "E",
+        "xpSeek"
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 7,
+    "table_index": 7,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        "ExpSe",
+        "ek"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 7,
+    "table_index": 8,
+    "rows": [
+      [
+        "",
+        "",
+        "E",
+        "xpSee",
+        "k"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 7,
+    "table_index": 9,
+    "rows": [
+      [
+        "",
+        "",
+        "E",
+        "xpSe",
+        "ek"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 7,
+    "table_index": 10,
+    "rows": [
+      [
+        "",
+        "",
+        "Exp",
+        "Seek"
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 7,
+    "table_index": 11,
+    "rows": [
+      [
+        "",
+        "",
+        "Ex",
+        "pSeek"
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 7,
+    "table_index": 12,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        "Exp",
+        "Seek"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 7,
+    "table_index": 13,
+    "rows": [
+      [
+        "GAIA xbench\n50 No Guidance No Guidance\n45 4 3 2 B 0 3 B 5 G B G u G i u d i u a d i n a d c n a e c n e ce 41.8 42.3 43.9 45 4B Guidance 30B Guidance 42.0 235B Guidance 39.3\n40\n40 )%( 5.2%5.8%7.3% )%( 37.2 37.0\n35 ycaruccA 35.9 36.9 35 33.3 4.2% 6.8%7.8% 30 ycaruccA 34.3 32.3 12.0% 14.7% 11.6% 9.7% 8.7% 6.7%\n30\n25\n25\n20\nQwen3-8B Qwen3-32B Qwen3-8B Qwen3-32B",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        "30B Gu\n235B G",
+        null,
+        "idance\nuidance 41.8 42",
+        null,
+        null,
+        null,
+        null,
+        "43.9\n.3\n7.3%",
+        null,
+        null,
+        null,
+        "30B G\n235B",
+        null,
+        "uidance\nGuidance\n39",
+        null,
+        null,
+        null,
+        null,
+        null,
+        "42.0\n.3",
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        "",
+        "",
+        "",
+        null,
+        null,
+        null,
+        "3",
+        null,
+        "37.2 37.0\n4.3",
+        null,
+        null,
+        null,
+        null,
+        "",
+        "",
+        "",
+        "14.7%"
+      ],
+      [
+        null,
+        "35",
+        null,
+        ".9 36.9",
+        null,
+        null,
+        "5.2",
+        "%",
+        "5.",
+        "8%",
+        "",
+        "",
+        null,
+        null,
+        null,
+        "",
+        null,
+        null,
+        "",
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        "33.3",
+        "%",
+        "6.8",
+        "%7.",
+        "8%",
+        "",
+        "",
+        "",
+        "",
+        null,
+        "",
+        "32.3",
+        null,
+        "",
+        "",
+        "11.6",
+        "%",
+        "9.7",
+        "%",
+        "12",
+        ".0%",
+        ""
+      ],
+      [
+        null,
+        "4.2",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        "",
+        "6.7%",
+        "8.7",
+        "%",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        null,
+        "",
+        "",
+        null,
+        "",
+        "",
+        null,
+        "",
+        null,
+        "",
+        "",
+        "",
+        null
+      ],
+      [
+        null,
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        null,
+        "",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        null,
+        "Qw",
+        "en3-",
+        null,
+        "8B",
+        "",
+        "Qw",
+        "en3-",
+        null,
+        "32B",
+        null,
+        null,
+        "Qwe",
+        null,
+        "n3-",
+        "8B",
+        null,
+        "Qw",
+        null,
+        "en3-3",
+        null,
+        "2B",
+        null
+      ],
+      [
+        null,
+        "ur",
+        "e5",
+        null,
+        ": S",
+        "cal",
+        "in",
+        "gL",
+        null,
+        "aw",
+        null,
+        "ofex",
+        "perie",
+        null,
+        "n",
+        "cem",
+        null,
+        "ode",
+        null,
+        "lM",
+        null,
+        ".\ne",
+        null
+      ],
+      [
+        null,
+        "od",
+        "",
+        null,
+        "",
+        "",
+        "",
+        "",
+        null,
+        "",
+        null,
+        "",
+        "GAI",
+        null,
+        "A",
+        "",
+        null,
+        "x",
+        null,
+        "ben",
+        null,
+        "ch",
+        null
+      ],
+      [
+        null,
+        "3-8",
+        "B",
+        null,
+        "←",
+        null,
+        "B/",
+        "32",
+        null,
+        "B",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    ]
+  },
+  {
+    "page": 8,
+    "table_index": 1,
+    "rows": [
+      [
+        "No E\nExpS\nGuid",
+        "xperience\neek Accu\nance Tim",
+        "Acc\nracy\nes per Sa",
+        "mple",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        null,
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        null,
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        null,
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        null,
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 8,
+    "table_index": 2,
+    "rows": [
+      [
+        "",
+        "Final Step Exp\nProcess Step Ex",
+        null,
+        null
+      ],
+      [
+        "",
+        "",
+        null,
+        null
+      ],
+      [
+        "",
+        "",
+        "",
+        null
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 8,
+    "table_index": 3,
+    "rows": [
+      [
+        "",
+        "Final Step Exp\nProcess Step Exp",
+        null,
+        null,
+        null
+      ],
+      [
+        "",
+        "",
+        null,
+        null,
+        null
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        null
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        null
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 13,
+    "table_index": 1,
+    "rows": [
+      [
+        "",
+        null,
+        ""
+      ],
+      [
+        null,
+        "",
+        "Safe Zone\nBuffer Zone\nIntervention Zone\nMedian Probability Curve\nTrue Dist.\nFalse Dist."
+      ],
+      [
+        null,
+        "",
+        null
+      ],
+      [
+        null,
+        "",
+        null
+      ],
+      [
+        null,
+        "",
+        null
+      ],
+      [
+        null,
+        null,
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 13,
+    "table_index": 2,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        null,
+        null,
+        "",
+        "",
+        "",
+        "Lower 2.5%",
+        ""
+      ],
+      [
+        null,
+        null,
+        "",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        null,
+        "",
+        "",
+        "",
+        "Median",
+        ""
+      ],
+      [
+        null,
+        null,
+        null,
+        "",
+        "",
+        null,
+        null,
+        null,
+        "Upper 97.5",
+        "%"
+      ]
+    ]
+  },
+  {
+    "page": 13,
+    "table_index": 3,
+    "rows": [
+      [
+        "",
+        "",
+        "Safe Zone\nBuffer Zone\nIntervention Zone\nMedian Probability Curve\nTrue Dist.\nFalse Dist."
+      ]
+    ]
+  },
+  {
+    "page": 13,
+    "table_index": 4,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "Low\nMed\nUpp",
+        "er 2.5%\nian\ner 97.5%"
+      ]
+    ]
+  },
+  {
+    "page": 14,
+    "table_index": 1,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        "Exp",
+        "Seek"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 14,
+    "table_index": 2,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        "Ex",
+        "pSe",
+        "ek"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 14,
+    "table_index": 3,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        "ExpSe",
+        "ek"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 14,
+    "table_index": 4,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        "",
+        "ExpSe",
+        "ek"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 14,
+    "table_index": 5,
+    "rows": [
+      [
+        "",
+        "",
+        "Ex",
+        "pSeek"
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 14,
+    "table_index": 6,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        "E",
+        "xpSe",
+        "ek"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 14,
+    "table_index": 7,
+    "rows": [
+      [
+        "",
+        "",
+        "ExpSeek"
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 14,
+    "table_index": 8,
+    "rows": [
+      [
+        "",
+        "",
+        "ExpSe",
+        "ek"
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 14,
+    "table_index": 9,
+    "rows": [
+      [
+        "",
+        "",
+        "ExpSeek"
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 14,
+    "table_index": 10,
+    "rows": [
+      [
+        "",
+        "",
+        "ExpSeek"
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 14,
+    "table_index": 11,
+    "rows": [
+      [
+        "",
+        "",
+        "",
+        "Ex",
+        "pSe",
+        "ek"
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  },
+  {
+    "page": 14,
+    "table_index": 12,
+    "rows": [
+      [
+        "",
+        "",
+        "ExpSe",
+        "ek"
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        ""
+      ]
+    ]
+  }
+]

@@ -17,7 +17,7 @@ Stage 0  文献地图构建（已完成）
    └── 完成标志：能用自己的话描述领域的关键争议与已有回答
 
 Stage 1  深度文献阅读（当前阶段）
-   ├── 输出：P0/P1 论文的完整精读笔记 + 更新后的 comparison-matrix + gap-tracker
+   ├── 输出：P0/P1 论文的完整精读笔记 + 更新后的 Cross_Topic/comparison-matrix + Cross_Topic/gap-tracker
    └── 完成标志：见 §7.1
 
 Stage 2  Interim Survey 写作（与 Stage 1 并行）
@@ -123,7 +123,7 @@ Main RQ（总研究问题）
 - [ ] 没有 LLM/MLLM 作为核心组件
 - [ ] 纯综述性质且不提供新方法/新框架（三篇 seed survey 除外）
 
-> **记录要求**：每篇被排除的论文，在 gap-tracker.md 的"范围外论文"列表中记录排除原因。这在写综述时可以防御审稿人质疑。
+> **记录要求**：每篇被排除的论文，在 `Cross_Topic/gap-tracker.md` 的"范围外论文"列表中记录排除原因。这在写综述时可以防御审稿人质疑。
 
 ### 2.3 引用追踪策略
 
@@ -193,7 +193,7 @@ Stage 1 的文献阅读何时结束？满足以下条件时：
 - [ ] P0 论文（含 seed papers 的待读清单）已全部完成第二遍或第三遍
 - [ ] 连续精读 3 篇新论文，未出现新的 Gap 类型（理论饱和）
 - [ ] 每个已识别的 Gap（A 类）都有 ≥ 2 篇独立论文的原文证据支撑
-- [ ] comparison-matrix.md 已更新，覆盖 ≥ 15 个代表性系统
+- [ ] Cross_Topic/comparison-matrix.md 已更新，覆盖 ≥ 15 个代表性系统
 
 ---
 
@@ -413,12 +413,12 @@ Claim（你的论断）
 **文献覆盖**：
 - [ ] P0 论文全部完成第二遍精读，笔记模板完整填写
 - [ ] P1 论文全部完成第一遍+核心段落的第二遍精读
-- [ ] comparison-matrix.md 覆盖 ≥ 15 个系统，维度定义稳定
+- [ ] Cross_Topic/comparison-matrix.md 覆盖 ≥ 15 个系统，维度定义稳定
 
 **Gap 质量**：
 - [ ] 每个 A 类 Gap 有 ≥ 2 条 A 级证据（原文引用 + 数字）
 - [ ] 每个 A 类 Gap 已完成反证检验，结论文档化
-- [ ] gap-tracker.md 中无等级为 C 的 Gap（已升级为 B 或标记为"待验证"）
+- [ ] Cross_Topic/gap-tracker.md 中无等级为 C 的 Gap（已升级为 B 或标记为"待验证"）
 
 **Taxonomy**：
 - [ ] 分类框架已通过 ≥ 15 个系统的 ME/CE 检验
@@ -434,7 +434,7 @@ Claim（你的论断）
 - [ ] Introduction：背景描述有 ≥ 5 篇一手文献支撑（不只引用综述）
 - [ ] Related Work：每个 claim 达到 CER 结构，证据强度 ≥ B
 - [ ] Methodology：至少描述了方法设计的核心选择及其依据
-- [ ] 每个 Gap claim 可以被 gap-tracker.md 中的对应条目支撑
+- [ ] 每个 Gap claim 可以被 Cross_Topic/gap-tracker.md 中的对应条目支撑
 - [ ] Evidence Map 已建立，覆盖所有主要论断
 
 ### 8.3 Stage 3 就绪标准（开始方法论设计的前提）
@@ -459,7 +459,7 @@ Week 3-4: P0 论文精读
   ├── AWM、SkillWeaver（A-1 Gap 核心技术来源）
   ├── Generative Agents、MemGPT（A-2 Gap 蓝图）
   ├── Friday（唯一接近 A-3 的 GUI 系统）
-  └── 持续更新 comparison-matrix + gap-tracker
+  └── 持续更新 Cross_Topic/comparison-matrix + Cross_Topic/gap-tracker
 
 Week 5-6: Taxonomy 验证 + Gap 证据化
   ├── 将所有已读论文填入 Taxonomy 矩阵，检验 ME/CE
@@ -497,6 +497,6 @@ Week 9+: Stage 3 准备
 - [ ] 与知识库其他论文的关联已标注
 
 **知识库更新**：
-- [ ] comparison-matrix.md 已更新（此论文的行已添加）
-- [ ] gap-tracker.md 已检查：是否有新 Gap？是否有现有 Gap 的新证据？
+- [ ] Cross_Topic/comparison-matrix.md 已更新（此论文的行已添加）
+- [ ] Cross_Topic/gap-tracker.md 已检查：是否有新 Gap？是否有现有 Gap 的新证据？
 - [ ] 引用追踪清单中，有价值的新论文已添加到待读列表

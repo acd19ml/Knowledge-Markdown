@@ -19,10 +19,10 @@ GUI_Agent/
 │   └── 2.4_advanced-capabilities.md    # 个性化服务 + 多智能体协同
 ├── 03_task-automation-pipeline.md      # Section 4：两阶段流程（探索→利用）
 ├── 04_evaluation.md                    # Section 5：数据集 + 评估指标
-├── 05_challenges.md                    # Section 6：挑战与机遇
-├── comparison-matrix.md                # 跨论文对比矩阵
-└── gap-tracker.md                      # Research Gap 追踪
+└── 05_challenges.md                    # Section 6：挑战与机遇
 ```
+
+> 跨综述矩阵与全局 Gap 追踪位于 [../Cross_Topic/comparison-matrix.md](../Cross_Topic/comparison-matrix.md) 和 [../Cross_Topic/gap-tracker.md](../Cross_Topic/gap-tracker.md)。
 
 ---
 
