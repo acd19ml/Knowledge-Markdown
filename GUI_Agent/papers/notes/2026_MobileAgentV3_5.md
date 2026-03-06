@@ -60,7 +60,7 @@ Xu et al. (Alibaba Tongyi) train GUI-Owl-1.5 (2B–235B) on a hybrid data flywhe
 - **Failure cases**: On MemGUI-Bench easy tasks, native agent models (best: 27.1) still trail workflow-based agents (best: 41.7), indicating that even with explicit memory training, structured external orchestration provides complementary benefits for memory-intensive tasks.
 
 ## Limitations
-- **Author-stated limitations**: Not explicitly enumerated as a limitations section; the paper notes that MemGUI-Bench workflow agents outperform native models (41.7 vs. 27.1), suggesting memory capability is not yet fully closed. The 235B thinking variant is mentioned but not benchmarked end-to-end on all tasks.
+- **Author-stated limitations**: Not explicitly enumerated as a dedicated limitations section, but the results section shows that on MemGUI-Bench "workflow agents reach 41.7" while the best native GUI-Owl-1.5-32B reaches 27.1 (Section 3.2.2, p.17), indicating that memory-intensive long-horizon tasks are still not fully solved by the native model alone. Table 2 / Table 9 also leave some large-model evaluations incomplete, so the end-to-end ceiling of the 235B family is not comprehensively established.
 - **My observed limitations**:
 > ⚠️ NEEDS YOUR INPUT:
 > 1. **记忆机制的天花板**：MemGUI-Bench上原生模型（27.1）与Workflow型智能体（41.7）之间仍存在14pp差距，说明通过CoT合成注入的"记忆管理"能力尚未真正实现持久化、跨任务的程序性记忆（A-1类空白）。
@@ -87,7 +87,7 @@ Xu et al. (Alibaba Tongyi) train GUI-Owl-1.5 (2B–235B) on a hybrid data flywhe
 
 - Gap signal 2: "Among native agent models, GUI-Owl-1.5-32B achieves 27.1, substantially outperforming all prior baselines ... Even our 8B variant (22.9) surpasses all existing native baselines, confirming that our training recipe effectively instills long-horizon memory capabilities without relying on external workflow orchestration." (Section 3.2.2, p.17) — yet workflow agents hit 41.7, a 14pp gap. → **A-1 gap**: no procedural skill/knowledge base that accumulates reusable task templates across sessions and apps.
 
-- Gap signal 3: The Hybrid Data Flywheel is a pre-deployment offline pipeline; once GUI-Owl-1.5 is deployed, there is no described mechanism for online learning from real user trajectories or automatic failure-driven experience update. → **A-4 gap**: offline experience evolution for deployed agents is not addressed.
+- Gap signal 3: The Hybrid Data Flywheel is defined through pre-deployment DAG synthesis, checkpoint verification, truncation-repair, and curated trajectory production (Sections 2.2-2.3, p.4-9) → 论文没有描述部署后从真实用户轨迹持续写回模型/记忆库的机制，因此 post-deployment experience evolution 仍是空白。
 
 - Gap signal 4: "we design a unified chain-of-thought (CoT) synthesis pipeline that augments all trajectory data with step-wise observation, reflection, memory management, and tool invocation reasoning" (Section 1 / Abstract, p.1) — memory management here means extracting key info within a single trajectory, not retrieving from a historical episodic store. → Reinforces A-2: the distinction between in-context memory and external episodic memory is architecturally unaddressed.
 
@@ -120,8 +120,8 @@ Xu et al. (Alibaba Tongyi) train GUI-Owl-1.5 (2B–235B) on a hybrid data flywhe
 > ⚠️ NEEDS YOUR INPUT:
 > **与知识库其他文献的联系**：
 > 1. **GUI_Agent/00_survey-overview.md**：本文是综述中native agent models类别的最新代表，可作为多平台能力建设的基准参照。
-> 2. **Cross_Topic/gui-agent-x-memory.md（A-1/A-2空白）**：本文的MemGUI-Bench结果（native model 27.1 vs workflow 41.7）直接佐证了A-1"缺乏可重用程序性记忆"的空白；CoT记忆提取方案也印证了A-2（仅in-context，无episodic检索）的不足。
-> 3. **Cross_Topic/gui-agent-x-self-evolving.md（A-4空白）**：Hybrid Data Flywheel的checkpoint-repair机制与Self_Evolve综述中"经验过滤与整理"主题高度重叠，但仅限预部署阶段，没有部署后在线进化，印证A-4空白的真实性。
+> 2. **Cross_Topic/gap-tracker.md（A-1/A-2 空白）**：本文的 MemGUI-Bench 结果（native model 27.1 vs workflow 41.7）直接佐证了 A-1“缺乏可重用程序性记忆”的空白；CoT 记忆提取方案也印证了 A-2（仅 in-context，无 episodic 检索）的不足。
+> 3. **Cross_Topic/gap-tracker.md（A-4 空白）**：Hybrid Data Flywheel 的 checkpoint-repair 机制与 Self_Evolve 综述中“经验过滤与整理”主题高度重叠，但仅限预部署阶段，没有部署后在线进化，印证 A-4 空白的真实性。
 > 4. **Agent_Memory/**：本文的Notetaker角色和hierarchical context compression对应Agent Memory综述中的"Working Memory"和"Episodic Memory"分类，但未引用该体系，说明GUI Agent研究与Agent Memory研究存在领域隔离，这本身是值得探索的融合机会。
 > 5. **Self_Evolve/**：MRPO的unstable-task-focused训练策略与Self-Evolving agents中"从失败经验学习"的主题有共鸣，但MRPO限于训练期，不是部署后进化。
 

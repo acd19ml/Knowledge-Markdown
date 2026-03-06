@@ -1,0 +1,1245 @@
+--- Page 1 ---
+EvoCUA: Evolving Computer Use Agents via Learning from
+Scalable Synthetic Experience
+TaofengXue*,†1,ChongPeng*,†1,MianqiuHuang*1,2,LinsenGuo1,TianchengHan1,3,HaozheWang1,4,
+JianingWang1,XiaochengZhang1,XinYang1,DengchangZhao1,JinruiDing1,XiandiMa1,
+YuchenXie1,PengPei1,XunliangCai1,XipengQiu2
+1Meituan 2FudanUniversity 3TongjiUniversity 4TheHongKongUniversityofScienceandTechnology
+ABSTRACT
+Thedevelopmentofnativecomputer-useagents(CUA)representsasignificantleapinmultimodalAI.
+However,theirpotentialiscurrentlybottleneckedbytheconstraintsofstaticdatascaling. Existing
+paradigmsrelyingprimarilyonpassiveimitationofstaticdatasetsstruggletocapturetheintricate
+causaldynamicsinherentinlong-horizoncomputertasks. Inthiswork,weintroduceEvoCUA,a
+nativecomputeruseagenticmodel. Unlikestaticimitation,EvoCUAintegratesdatagenerationand
+policyoptimizationintoaself-sustainingevolutionarycycle. Tomitigatedatascarcity,wedevelop
+a verifiable synthesis engine that autonomously generates diverse tasks coupled with executable
+validators. Toenablelarge-scaleexperienceacquisition,wedesignascalableinfrastructureorches-
+tratingtensofthousandsofasynchronoussandboxrollouts. Buildingonthesemassivetrajectories,
+we propose an iterative evolving learning strategy to efficiently internalize this experience. This
+mechanismdynamicallyregulatespolicyupdatesbyidentifyingcapabilityboundaries—reinforcing
+successfulroutineswhiletransformingfailuretrajectoriesintorichsupervisionthrougherroranalysis
+andself-correction. EmpiricalevaluationsontheOSWorldbenchmarkdemonstratethatEvoCUA
+achievesasuccessrateof56.7%,establishinganewopen-sourcestate-of-the-art. Notably,EvoCUA
+significantlyoutperformsthepreviousbestopen-sourcemodel,OpenCUA-72B(45.0%),andsur-
+passesleadingclosed-weightsmodelssuchasUI-TARS-2(53.1%). Crucially,ourresultsunderscore
+the generalizability of this approach: the evolving paradigm driven by learning from experience
+yieldsconsistentperformancegainsacrossfoundationmodelsofvaryingscales,establishingarobust
+andscalablepathforadvancingnativeagentcapabilities.
+Github:https://github.com/meituan/EvoCUA
+Huggingface:https://huggingface.co/meituan/EvoCUA-32B-20260105
+OSWorld:https://os-world.github.io/
+70 Open-Weights Models (Ours)
+Open-Weights Models 61.9 62.9
+60 Closed-Weights Models 56.7
+53.1
+50 45.0 46.1
+40 38.1 40.2 41.0 41.6
+33.9 34.8
+30.6 31.3
+30 26.6
+20
+10
+Q wen3 O - V pe L n - C 30 U B A - A -7 3 B B-Think O i Q n p g w e e n n A 3 I - - V C L U -8 A B w -T e h n i 3 n - O k V i p n L e g - n 2 C 35 U B A - A -3 2 2 2 B B-Think Q i S n w t g e e p n - 3 G - V U L I - - 3 8 2 B B-Th Q in w k e in n g 3- VL-F O la p s e h n C UA-72 E B vo C U U A I- - T 8 A B RS-2-25 E 0 v 9 o C UA-32B S C e l e a d u - d 1 e .8 -4.5-Sonnet
+Q
+Figure1: PerformancecomparisonontheOSWorld-Verifiedbenchmark. OurEvoCUA-32Bachievesstate-of-the-
+artperformance(56.7%)amongopen-weightsmodels.
+*Equalcontribution. †Correspondingauthors.
+6202
+naJ
+32
+]IA.sc[
+2v67851.1062:viXra
+
+--- Page 2 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+1 Introduction
+The development of generalist agents capable of mastering Graphical User Interfaces (GUIs) represents a pivotal
+milestonetowardartificialgeneralintelligence. Unlikespecializedtools,theseagentsmustperceivecomplexvisual
+contextsandexecutelong-horizonworkflowsacrossheterogeneousapplications,effectivelyemulatinghuman-computer
+interaction. Whilerecentnativevision-languagemodels(VLMs)havesuccessfullyintegratedperceptionandaction
+into end-to-end architectures [Bai et al., 2025a, ByteDance Seed Team, 2025], achieving human-level reliability
+remainsasignificantchallenge. Despitethefoundationalarchitecturesestablishedbystate-of-the-arteffortssuchas
+UI-TARS-2[Wangetal.,2025a],andOpenCUA[Wangetal.,2025b],furtherprogressisincreasinglyconstrainedbya
+criticalbottleneck: thediminishingreturnsofscalingwithstaticdatasets.
+Existingscalinglawsarelargelyconfinedtopassiveimitationoffixed,non-interactivedatasets,failingtocapturethe
+causalfeedbackinherentinreal-worldcomputeruse. Overcomingthislimitationnecessitatesaparadigmshiftfromdata
+scalingviastatictracestoexperiencescalingviamassiveinteractiverollouts. Dynamicexperienceprovidesaricher
+supervisorysignalthanstatictext,encompassingenvironmentalfeedbackandcriticalinsightsfrombothsuccessand
+failure. However,transformingrawinteractionintoaself-improvinglearninglooppresentsthreeprimarychallenges: 1)
+Verifiabledatasynthesis. Merelysynthesizingtextualqueriesoftenleadstohallucinations,wheretheagentgenerates
+plausibleplansforinfeasibletasks. Consequently,arobustframeworkisessentialtoensurethatgeneratedqueries
+are strictly grounded in solvable states, aligning with the principles of verifiable rewards. 2) Scalable interaction
+infrastructure: High-throughputexperienceproductiondemandsaunifiedsystemthatintegratesmassiveenvironment
+simulationwithhigh-performancereinforcementlearningtosupportcontinuous,asynchronousinteraction. 3)Efficient
+training recipe: Given an large-scale interaction space, unconstrained exploration is computationally prohibitive.
+Effective learning requires an on-policy approach that mimics human learning dynamics: consolidating mastered
+routineswhilefocusingintenselyonboundarytaskswheretheagentoscillatesbetweensuccessandfailure.
+Toaddresstheseissues,inthisreport,weintroduceEvoCUA,anativecomputeruseagentthataddressesthesechallenges
+throughtheevolvingparadigmdrivenbylearningfromexperience. AsillustratedinFigure2,byunifyingverifiable
+synthesis,high-throughputinfrastructure,andevolutionaryoptimization,EvoCUAestablishesaself-sustainingcycle
+thatcontinuouslytransformssyntheticcomputeintohigh-qualityagentcapabilities.Ourcorecontributionsarethreefold:
+• VerifiableSynthesisEngine. Toovercomethedatabottleneckwhileensuringstrictenvironmentalgrounding,we
+first propose a synthesis engine that autonomously generates diverse tasks alongside their executable validators.
+Movingbeyondtext-onlygeneration,weanalyzeatomiccapabilitiestosynthesizeself-containedtaskdefinitions.
+This"Generation-as-Validation"approacheliminatestheambiguityofnaturallanguagerewards,providingtheagent
+withprecise,deterministicsupervisionsignals.
+• Scalable Interaction Infrastructure. To support the magnitude of experience scaling required, we construct a
+high-performanceinfrastructurethatintegratesamassivesandboxenvironment. Beyondmeretrajectorygeneration,
+thissystemfunctionsasadynamicgymnasium,providingthereal-timefeedbackandstatetransitionsessentialfor
+on-policyoptimization. Byarchitectingafullyasynchronousrolloutmechanism,wedecouplesimulationfrommodel
+updates,enablingthesystemtoorchestratetensofthousandsofconcurrentinteractivesessions.
+• Evolving Paradigm via Learning from Experience. We introduce an iterative training paradigm centered on
+learningfromexperiencetoensureefficiency. Theprocessbeginswithadiversity-awarecoldstarttoestablishrobust
+priors. Subsequently,throughcontinuousenvironmentalexploration,themodelcontrastssuccessfulversusfailed
+trajectoriestoconsolidateeffectivepatternsandrectifyerrors. Thisdynamicfeedbacklooptransformsaccumulated
+experienceintomodelparameters,yieldingapreciseandrobustexecutionpolicy.
+EmpiricalevaluationsdemonstratethatEvoCUAachievesastate-of-the-artsuccessrateof56.7%ontheOSWorldbench-
+mark[Xieetal.,2024],significantlyoutperformingthepreviousopen-sourceSOTA,OpenCUA-72B(45.0%)[Wang
+etal.,2025b],andsurpassingleadingclosed-sourcemodelsUI-TARS-2(53.1%)[Wangetal.,2025a]. Furthermore,
+theevolvingexperiencelearningparadigmprovestobeageneralizablepath,yieldingconsistentgainsacrossmultiple
+foundationmodelsofvaryingsizes.
+2 Preliminaries
+BeforeintroducingourEvoCUA,weprovidethebasictaskdefinitionofCUAinthefollowing. Formally,CUAcanbe
+viewedasaPartiallyObservableMarkovDecisionProcess(POMDP)[Kaelblingetal.,1998]withexplicitreasoning,
+whichisoptimizedthroughaco-evolutionarycycleofverifiabletasksynthesisandpolicyrefinement.
+2
+
+--- Page 3 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+Figure2: OverviewofEvoCUA.Thediagramillustratestheparadigmshiftfromstaticimitationtoanactiveevolving
+experiencelearningcycle(center). Theapproachunifiesthreecoremodules: theVerifiableSynthesisEngine(top
+left);theScalableInteractionInfrastructure(right);andIterativeOptimization(bottomleft).
+2.1 POMDP
+Givenanaturallanguageinstructiong,theinteractionprocessismodeledasatuple(S,A,Z,O,P,R ),whereS,
+syn
+A,Z,O,P,andR denotestothestatespace,actionspace,thoughtspace,observation,transitionkernelandreward
+syn
+function,respectively. Thedetailsareshowninthefollowing:
+• StateSpace(S): Theenvironmentismodeledwithanunderlyingcomputersystemstates ∈ S,whichincludes
+t
+applicationstates,systemconfigurations,andimplicitsystem-levelcontext. Thisstateisnotdirectlyobservableby
+theagent. Instead,theagentperceivesavisualobservationrenderedfromthestate,I ≜Render(s )∈RH×W×3,
+t t
+correspondingtothescreenimageattimet. H,W denotetheheightandwidthsizeofthescreenshot,respectively.
+TherenderedscreenshotI servesasthesoleperceptualinterfacethroughwhichtheagentobservestheenvironment.
+t
+• Observation (O): At step t, the agent receives a raw visual observation o ∈ O, where o ≜ I ∈ RH×W×3.
+t t t
+Toaddresspartialobservability,wedefinetheinteractionhistoryh ={g,o ,z ,a ,...,o ,z ,a },which
+t 0 0 0 t−1 t−1 t−1
+servesastheconditioningcontextfortheagent’sdecision-makingprocess. Inpracticalimplementations,toprevent
+thecontextwindowfrombeingflooded,weperformcontextengineeringstrategiesfollowing[Wangetal.,2025b,Bai
+etal.,2025a]. Werestrictthevisualhistorytothefivemostrecentscreenshotsandcompressthetextualhistoryusing
+astructuredinnermonologuewithactionrepresentationtobalanceperformanceandtokenefficiency.
+• ActionSpace(A):WedefineaunifiednativeactionspaceAthatencompassescoordinate-basedmouseeventsA ,
+mouse
+keyboardinputsA ,andspecialcontrolA primitivesformanagingthetaskexecutionflow. Formally,we
+keyboard control
+definedA=A ∪A ∪A .
+mouse keyboard control
+• ThoughtSpace(Z): WeexplicitlymodelthereasoningprocessasainternalthoughtspaceZ. Ateachstept,the
+agentgeneratesanaturallanguagereasoningtracez ∈Z beforeacting. Itservesasanintermediatecognitivestate
+t
+internaltotheagent,usedtogroundthesubsequentphysicalactioninthecurrentvisualcontext.
+• Policy(π ): Theagentfollowsaparameterizedpolicyπ (z ,a | h ,o )thatgovernsbothreasoningandaction
+θ θ t t t t
+selection. Ateachstept,thepolicyfirstgeneratesareasoningtracez conditionedonthecurrentinteractioncontext,
+t
+andsubsequentlyselectsanexecutableactiona conditionedonthegeneratedreasoning. Thissequentialgeneration
+t
+ensuresthatactionexecutionisconditionalonexplicitreasoning.
+3
+
+--- Page 4 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+• Transition(P): TheenvironmentstateevolvesaccordingtoastatetransitionkernelP(s |s ,a ),whichcaptures
+t+1 t t
+thedynamicsoftheunderlyingcomputersysteminresponsetotheexecutedphysicalactiona . Giventheupdated
+t
+states ,thesubsequentvisualobservationisrenderedasI =Render(s ).
+t+1 t+1 t+1
+• VerifiableReward(R ): Supervisionisgroundedinexecutioncorrectnessviaaverifiablesynthesismechanism.
+syn
+Foragiveninstructiong,thesynthesisengineprovidesanexecutablevalidatorV thatevaluateswhetherthetask
+g
+objectiveissatisfied. Wedefineasparse,binary,instruction-conditionedrewardbasedontheterminalenvironment
+state: R (s ;g) ≜ I[V (s )=True], where s denotes the environment state at episode termination. This
+syn T g T T
+rewardformulationprovidesoutcome-levelsupervisionwithoutrequiringintermediateannotations.
+2.2 Objective
+Ratherthanviewingthetrainingdataasastaticdataset,weconceptualizeitasadynamicdistributionthatisadaptively
+parameterized conditioned on the current policy snapshot π . The optimization objective J(θ) is formulated to
+old
+maximizetheverificationrateoveracoupledcurriculumorchestratedbythesynthesisengineT :
+syn
+• TheoreticalObjective: Formally,ourgoalistomaximizetheexpectedsuccessrateoveradistributionoftasksthat
+evolvesadaptivelybasedonthecurrentpolicy’scapability(π ):
+old
+J(θ)=E (cid:2)E [R (s ;g)] (cid:3) ,
+(g,Vg)∼Tsyn(·|πold) τ∼πθ(·|g) syn T
+whereT (·|π )representsthesynthesisengine’sdistribution,whichdynamicallyadjuststaskcomplexityand
+syn old
+diversitybasedontheagent’sperformance. Weuseτ ∼π (·|g)todenotetrajectoriesinducedbyexecutingpolicy
+θ
+π intheenvironmentdynamicsP underinstructiong.
+θ
+• EmpiricalApproximation:Astheexpectationabovedoesnotadmitaclosed-formsolution,weresorttoanempirical
+approximationviamassive-scaleMonteCarloestimation. Thescalableinteractioninfrastructuremaintainsatransient
+ExperiencePoolBthataggregatesahigh-throughputstreamoffreshinteractiontrajectories:
+B ={(τ,V )|τ ∼π (·|g), (g,V )∼T },
+g old g syn
+where π denotes the policy snapshots driving tens of thousands of asynchronous sandboxes. By continuously
+old
+updatingθ usingbatchessampledfromB,weeffectivelyclosetheloopbetweenverifiablesynthesis,large-scale
+execution,andon-policyoptimization.
+Buildinguponthisformulation,thefollowingsectionsdetailtheimplementationofthethreecorepillarsofEvoCUA.
+Section3introducestheVerifiableSynthesisEngine,detailingthegenerationofthecoupleddistribution(g,V ).Section
+g
+4describestheScalableInteractionGymnasium,theinfrastructurethatfacilitatesthemassive-scalerolloutpoolB.
+Finally,Section5elaboratesontheEvolvingParadigmviaLearningfromExperience,demonstratingtheinitialization
+anditerativeoptimizationofπ toachievestate-of-the-artperformance.
+θ
+3 VerifiableSynthesisEngine
+Inthissection,weintroduceaVerifiableSynthesisEngine,whichfocusesonovercomingtheinherentlimitations,such
+asrewardhacking,andtheabsenceofprecisetrainingsignals. Unlikepassivedatacollection,Basedonthisengine,we
+canimplementtheoperationonthe“generation-as-validation”paradigm,whichisillustratedinFigure3.
+Formally,givenasynthesizedinstruction,g,theenginemustco-generateadeterministic,executablevalidatorV . This
+g
+ensuresthattherewardsignalR (s ;g)isderivedfromastrictverificationofthefinalenvironmentstate,thereby
+syn T
+bypassingtheambiguityofsemanticmatchingThearchitectureisorganizedintothreecascadingmodules: structured
+taskspaceconstruction,agenticdual-streamsynthesis,andrigorousqualityassurance.
+3.1 StructuredTaskSpaceConstruction
+ToensurethesynthesizeddistributionT capturesthecomplexityofreal-worldcomputeruse,wefirstestablisha
+syn
+structuredtaskspacedecomposedintodomainsandresources.
+HierarchicalDomainTaxonomy. Wearguethatatomiccapabilitiesareinherentlytransferableandcompositionally
+form complex tasks. Guided by this principle, we systematically categorize core desktop applications (e.g., Web
+Browsers,Excel,andWord)anddecomposeuserbehaviorsintoatomiccapabilities. Thisorthogonaldecomposition
+enables the agent to generalize to diverse scenarios through the recombination of primitive skills. For instance, a
+financialanalysistaskinExcelisdecomposedintosub-skillssuchasformulamanipulation,datasorting,andchart
+4
+
+--- Page 5 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+Figure 3: Architecture of the Verifiable Synthesis Engine. The pipeline operates in three cascading stages: (1)
+StructuredTaskSpaceConstructiontodefinediversescenariosfromdomaintaxonomiesandhybridresources;(2)
+AgenticDual-StreamSynthesis,whereaTaskArchitect(VLM)co-generatesinstructions(g)andexecutablevalidators
+(V )viaaclosed-loopfeedbackmechanism;and(3)RigorousQualityAssurancetofilteroutputsforhighconsistency
+g
+andensuredecontamination,yieldingthefinalverifiabledataset.
+generation. Leveragingahierarchicaldomaintaxonomy,wesynthesizedawiderangeoftaskscenariosfeaturingdiverse
+userpersonas[Geetal.,2024]toensuredatadiversity. Synthesizedscenariosrangefromeducatorsdesigninglecture
+slidestoalgorithmengineersconductingtechnicalliteraturesurveys.
+HybridResourceInjection. Tobridgethesimulation-to-realitygap,weimplementahybridstrategyfortheenviron-
+ment’sinitialstate:
+• Parametricsynthesis: Forstructureddata(e.g.,productionsalesdata),weutilizecode-basedgeneratorstobatch-
+producedocuments(Word,Excel,PDF)byparameterizingvariablessuchasnames,pricesanddates. Thisensures
+highvariabilityinnumericalvaluesandlayouts.
+• Non-parametricinjection: Tomitigatethesterilityofsynthetictemplates,weinjectpublicinternetdata(e.g.,images,
+audio,complexslides). Thisforcestheagenttohandlethevisualnoiseandstructuraldiversityinherentinreal-world
+files.
+3.2 AgenticDual-StreamSynthesis
+ThecoresynthesisprocessismodeledasaReAct-basedagenticworkflow[Yaoetal.,2022]. Givenasampledscenario
+tuple(Role,Capability,Resources),afoundationVLMfunctionsasataskarchitecttoexecuteadual-streamgeneration:
+1. Instructionstream(g): Thearchitectformulatesanaturallanguagequerygroundedinthespecificresourcecontext,
+ensuringuserintentisclearandachievable.
+2. Validator stream (V ): Simultaneously, the architect generates the ground truth (GT) and the corresponding
+g
+executableevaluatorcode. Thiscodedefinestheprecisesuccessconditionsforthetask[Yangetal.,2025].
+Toguaranteeexecutability,weenforceaclosed-loopfeedbackmechanism. Thegeneratedcodeisimmediatelyexecuted
+inarealsandboxenvironment. Theexecutionresults—includingoutputfilesfromsuccessfulruns,aswellaserror
+messagesfromfailedexecutions(e.g.,syntaxerrors,APImismatches)—arefedbacktothemodeltoevaluatethe
+qualityofGTfilesandtheevaluator. Thisprocessiteratesmultipleroundsuntiltheexecutionsucceedsandpasses
+qualitychecks. Tofurtherenhancestability, weabstractfrequentlyusedverificationlogicintoastandardizedtool
+5
+
+--- Page 6 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+library. Finally,thevalidtupleisformattedintoastandardizedJSONstructurecompatiblewithestablishedbenchmarks
+likeOSWorld.
+3.3 RigorousQualityAssurance
+The final stage filters the raw synthesized pairs {(g,V )} through a rigorous protocol to eliminate false positives
+g
+(hallucinatedsuccess),falsenegativeanddataleakage.
+Consistency-basedfiltering. Wedeployareferencecomputeruseagenttoperformsandboxrolloutsonthesynthe-
+sizedtasks. Weenforceahighbarfordatainclusion. First,tasksthatfailtocompletetherolloutduetoissuessuchas
+parameterconfigurationanomalieswillreturnerrormessagestotheReAct-basedagenticworkflowformodification.
+Second,fortaskswithsuccessfulrollouts,wecalculatepassratesusingbotharewardmodelandanevaluator.Organized
+byourhierarchicaldomaintaxonomy,weperformmanualspotchecksontaskswherethepassratesfromthesetwo
+sourcesshowsignificantdiscrepancies. Forcaseswheremanualinspectionidentifiesclearevaluatorfailuresleading
+tofalsepositivesorfalsenegatives,werefinetheReAct-basedagenticworkflowtomitigatetheseissues. Finally,we
+preservetasksthatarecross-verifiedbythesandboxrollout,therewardmodel,andmanualinspection.
+Tri-folddecontamination. Whilesyntheticdatagenerationeffectivelymitigatesthescarcityofhigh-qualitytrajecto-
+ries,itintroducestheriskofdataleakage,aspowerfulmodelsmayinadvertentlyreproducebenchmarkcontentfrom
+theirvastpre-trainingcorpora. Topreventinflatedmetricsandensurethevalidityofourexperimentalinsights,we
+enforcearigorousdecontamination: (1)semanticdecontamination,usingLLM-basedfilteringtoremoveinstructions
+semanticallyequivalenttobenchmarkqueries;(2)configurationdecontamination,pruningtaskswithidenticalappli-
+cationinitializationsettingswithincertaindomains;and(3)evaluatordecontamination,verifyingthatthegenerated
+successconditionsandgroundtruthfilesdonotoverlapwithexistingevaluationscripts.
+Throughthispipeline,wehavesuccessfullyscaledverifiabletrainingdatatotensofthousandsofinstances,effectively
+breakingthebottleneckofmanualdatacuration.
+4 ScalableInteractionInfrastructure
+Thetransitionfromstaticdatascalingtoevolvingexperiencelearningnecessitatesafundamentalshiftininfrastructure
+capabilities. Unlikepassivetrainingpipelines,ouractivelearningparadigmrequiresahigh-throughputgymnasium
+capableofgeneratingcontinuous,diverse,andinteractivefeedbackatamassivescale. Toaddressthechallengesof
+heterogeneity,highconcurrency,andstrictsessionisolationinherentinlarge-scalereinforcementlearning,wedeveloped
+aunifiedenvironmentsandboxplatform. Thisplatform,illustratedinFigure4,servesasthebedrockforEvoCUA,
+orchestratinghundredsofthousandsofdailysandboxsessionsandprocessingmillionsofinteractionrequestsperday
+withindustrial-gradestability.
+4.1 ArchitectureandAbstractions
+Tomanagethecomplexityofdiverseinteractiontasks,theplatformisarchitectedaroundtwocoreabstractions: tools
+andclusters.
+Tools. Atoolencapsulatestheimmutabledefinitionofasimulationenvironment,includingversion-controlledsystem
+imagesandexposedinteractionAPIs. Theplatformcurrentlysupportshundredsofdistinctenvironmenttypes,ranging
+from generic benchmarks to specialized agentic environments. This design decouples environment iteration from
+experimentation,ensuringbackwardcompatibilityandreproducibility.
+Clusters (Dynamic Scaling Units). A cluster represents the runtime instantiation of a tool and serves as the
+fundamental unit for environment scaling. By specifying tool types and configuring resource quotas, users can
+instantlyprovisioncustomizedenvironmentservicesfordistinctworkloads. Thisabstractionallowstheinfrastructureto
+dynamicallyscaleenvironmentinstances—fromahandfulofdebuggingsessionstotensofthousandsofconcurrent
+trainingnodes—withoutresourcecontentionorcross-contamination.
+4.2 High-ThroughputOrchestration
+Thecapabilitytosupportmassive-scaleexplorationhingesontheefficiencyofourmicroservicesarchitecture,specifi-
+callydesignedtoeliminateI/Obottlenecksandenablerapidenvironmentscaling.
+6
+
+--- Page 7 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+Figure4: ScalableInfrastructure. ThearchitectureorchestratesmassiveinteractionrequestsfromtheonlineRLloop
+(top-left)throughanasynchronousgatewayanddistributedscheduler(top-right). Thebottomlayerdeploysparallel
+sandboxclusters,highlightingtheComputerUseSandbox,whichutilizesQEMU-KVMvirtualizationandacalibrated
+OStoensureinputdeterminism,renderingconsistency,andruntimestabilityforhigh-fidelityenvironments.
+Theinfrastructurereliesonanasynchronousgatewayservicebasedonthereactorpatternfornon-blockingI/O.This
+serviceachievesaroutingthroughputatthescaleofhundredsofthousandsofrequestsperminute. Bydecouplingthe
+controlplane(lifecyclemanagement)fromthedataplane(environmentinteraction),thegatewaypreventslong-running
+environmentexecutionsfromblockingcriticalroutinglogic.
+Complementingthegateway,thedistributedschedulerisengineeredforextremeelasticity,managingthelifecycleof
+massivesandboximages. Leveragingdistributedshardingandresourcepooling,theschedulerachieveshigh-efficiency
+nodescheduling. Morecritically,itsupportsburstscalingcapabilities,bootstrappingtensofthousandsofsandbox
+instanceswithinoneminute. Thisrapidinstantiationensuresthattheenvironmentscalingstrictlymatchesthetraining
+demandofon-policyreinforcementlearning,minimizingthelatencybetweenpolicyupdatesandexperiencecollection.
+Ultimately, this resilient scheduling backbone enables the infrastructure to stably sustain over 100,000 concurrent
+sandboxes.
+4.3 High-FidelityEnvironmentInstantiation
+Tosupporttherigorousrequirementsofcomputerusetasks,weimplementahybridvirtualizationarchitecturethat
+encapsulatesQEMU-KVMvirtualmachineswithinDockercontainers.
+Hybridvirtualization. WhileDockerprovidescompatibilitywithourorchestrationlayer,theinternalexecution
+reliesonQEMUwithKVMhardwareacceleration. WeconstructacustomizedQEMUlaunchsequencethatexplicitly
+disablesnon-essentialperipheralswhileoptimizingI/Operformance. Thisnesteddesignensuresstrictkernel-level
+isolation—crucialforsecuritywhenagentsexecutearbitrarycode—whilemaintainingnear-nativeperformancefor
+GUIrenderingandI/Ooperations.
+Deterministicenvironmentcalibration. WeconstructedacustomizedOSimagebasedonUbuntu22.04toaddress
+thegapbetweensimulationandreal-worlddeployment,implementingspecifickernelanduserspacepatches:
+• Input determinism (HID patching): Standard virtualization often suffers from key mapping collisions.
+We calibrated the human interface device mapping at the xkb kernel level. Specifically, we modified the
+7
+
+--- Page 8 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+/usr/share/x11/xkb/symbols/pc definitions to resolve symbolic collisions (e.g., the < vs > shift-state error
+inUSlayouts),ensuringthattheagent’ssymbolicintentstrictlymatchestherealizedcharacterinput.
+• Rendering consistency: To prevent layout shifts in office software that confuse visual agents, we injected a
+comprehensive suite of proprietary fonts directly into the system font cache (fc-cache). This guarantees that
+documentsrenderidenticallytotheirnativecounterparts.
+• Runtimestability: Theimageishardenedwithsystem-levelproxyconfigurationstoresolvenetworkinstabilities
+andincludespre-installeddependencieslikexselandqpdftoeliminatecommonruntimeerrorsduringclipboard
+operationsandPDFprocessing.
+5 EvolvingParadigmviaLearningfromExperience
+Tobridgethegapbetweenatomicimitationandgeneralistproblem-solving,weproposetheevolvingparadigmvia
+learningfromexperience. Thisparadigmshiftsfromstaticdatascalingtoadynamiccapabilityevolutioncycle. The
+process is structured into three progressive stages: a supervised cold-start to establish behavioral priors, rejection
+samplingfine-tuningtoconsolidatesuccessfulexperiencesviaadaptivescaling,andreinforcementlearningtorectify
+failuresandexplorecomplexdynamicsthroughinteraction.
+5.1 Cold-Start
+Toinitializethepolicyπ witharobustbehavioralprior, weconstructadatasetD containingtrajectoriesthat
+init prior
+exhibitbothpreciseexecutionandcoherentreasoning. Wefirstformallydefinetheunifiedactionandthoughtspaces
+toestablishthestructuralboundsoftheagent,andsubsequentlyleveragethesedefinitionstosynthesizeandformat
+groundedinteractiondata.
+Unifying the Action Space (A). We implement Semantic Action Mapping to construct a unified action space
+A = A ∪A ∪A as illustrated in Appendix A. We categorize raw event streams into two primary
+mouse keyboard control
+components:
+• PhysicalInteraction(A ∪A ): Thiscomponentencompassescoordinate-basedmouseeventsandkeyboard
+mouse keyboard
+inputs. Crucially,tosupportcomplex,multi-stepoperations,weimplementaStatefulInteractionmechanism. By
+decouplingdiscretekeypressesintokey_downandkey_upevents,thepolicycanmaintainactivestates(e.g.,holding
+modifierslikeShiftformulti-selection)requiredforcomplextasks.
+• ControlPrimitives(A ): Weintroducemeta-actionstomanagetheexecutionflowdistinctfromphysicalI/O.
+control
+Specifically,thewaitprimitiveallowstheagenttohandleasynchronousUIrendering,whileterminateservesasa
+formalsignaltoconcludethetask.
+StructuringtheThoughtSpace(Z). Toenableinterpretableandrobustdecision-making,wedefineaReasoning
+SchemaforthelatentthoughtspaceZ. Thisschemaimposesastructuredformattoensurethereasoningprocess
+strictlyalignswithexecutionlogic:
+• GoalClarification(z ): Attheinitialstep(t=0),theagentisrequiredtoexplicitlyparaphrasetheuser’sobjective.
+0
+Thisclarifiesambiguousinstructionsandgroundsthesubsequentplanningprocess.
+• ObservationConsistency(z ): Tominimizehallucinations,thereasoningtracemustincludeaconcisesummaryof
+obs
+keyvisualelements. Weenforcestrictsemanticconsistencybetweenthistextualsummaryandtheactualobserved
+state.
+• Self-Verification (z ): Before issuing the final termination signal, the agent is prompted to execute auxiliary
+check
+interaction steps (e.g., checking a file status) to visually confirm that the execution result aligns with the user’s
+instruction.
+• ReflectionandCorrection(z ): Weleveragefailedrolloutsforerrorcorrection. Uponidentifyingacriticalerror
+reflect
+stepinafailedtrajectory,werestoretheenvironmenttothepre-errorstate. Toaccountforsandboxnon-determinism,
+we strictly filter for state consistency between the restored environment and the original trace. From this valid
+restoredstate,weinduceself-correctionusinghigh-temperaturesamplingtogeneratesuccessfulremedialpaths.
+• Reasoning-Augmented Termination (z ): To prevent the model from overfitting to the termination label, the
+T
+terminate action must be strictly conditional on a preceding reasoning trace. This trace requires the agent to
+explicitlysynthesizevisualevidencetojustifytaskcompletion,ensuringthedecisionisgroundedinlogicratherthan
+memorizedpatterns.
+8
+
+--- Page 9 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+Basedontheseformalizeddefinitions,wesynthesizethepriordatasetD byleveragingfoundationalvision-language
+prior
+models(e.g.,Qwen3-VL,OpenCUA)withinamodularframework. Crucially,toensurealignmentbetweenreasoning
+and action, we employ a Hindsight Reasoning Generation strategy. Treating the ground-truth execution path as
+knownfutureinformation,weretrospectivelygeneratereasoningtracesz thatexplaintheobservedactions,thereby
+t
+augmentingphysicaltrajectorieswithcoherentcognitivechains.
+TrainingDetails. Formodeltraining,wedecomposethesemulti-turntrajectoriesintosingle-turnsamples. Tobalance
+informationdensitywithmemoryconstraints,theinputcontextretainsfullmultimodaldetails(screenshots,reasoning,
+andactions)onlyforthemostrecentfivesteps,whileearlierhistoryiscompressedintotext-onlysemanticactions. The
+traininglossiscomputedexclusivelyonthecurrentstep’sreasoningandaction.
+Finally,topreservegeneralfoundationcapabilities,weincorporateadiversemixtureofgeneral-purposedata,covering
+STEM,OCR,visualgrounding,andtext-basedreasoning. Thevolumeofthisgeneraldataisbalancedtomatchthe
+scaleofthedecomposedsingle-turntrajectorysamples.
+QualitativeAnalysis. Wesynthesizetrajectorydataadheringtothisschema. Followingcoldstarttraining,qualitative
+analysisconfirmstheagenteffectivelymastersatomiccapabilitiesasillustratedinAppendixD.However,acritical
+robustnessgappersistsincomplexscenarios. Whiletheagentcanexecutestandardlong-horizonworkflows,itexhibits
+fragilityinboundarycases. Toaddresstheselimitations,wemovetothenextstage: internalizingscalable,high-quality
+experiences.
+5.2 RejectionSamplingFine-Tuning
+TheobjectiveofRejectionSamplingFine-Tuning(RFT)[Ahnetal.,2024]istoconsolidatetheagent’sabilitytosolve
+tasksbylearningexclusivelyfromhigh-quality,successfulexecutions. Thisprocessinvolvestwokeycomponents:
+efficientlygeneratingsuccessfultrajectoriesviadynamiccompute,anddenoisingthemtomaximizethesignal-to-noise
+ratio.
+DynamicComputeBudgeting. Tooptimizethegenerationofhigh-qualityexperienceundercomputationalconstraints,
+weproposedynamiccomputebudgeting. Insteadofuniformlyallocatingrolloutresources,thismechanismadaptsthe
+explorationbudgettotheagent’scurrentproficiencylevelforeachspecifictask.
+We establish a hierarchical budget spectrum K = {k ,...,k } paired with descending success rate thresholds
+1 n
+Λ = {τ ,...,τ }. Foragiventaskqueryg drawnfromthesynthesisengineT ,thesystemidentifiestheoptimal
+1 n syn
+rolloutbudgetK∗thatsatisfiesthesufficiencycondition:
+K∗ =k where i∗ =min{i|SR(k )≥τ } (1)
+i∗ i i
+Here,SR(k )representsthepassrateobservedwithbudgetk . Thisstrategyeffectivelyprunesefficientlysolvedtasks
+i i
+andconcentratescomputationalpoweronboundaryqueries—taskswherethepolicyexhibitshighvariance.
+Step-LevelDenoising. Althoughsuccessfulrolloutsdemonstratethemodel’scapability,theyoftencontainsignificant
+noise. We use a judge model to analyze the trajectories and mask out redundant steps. This filtering is especially
+importantforinfeasibletasks;forthese,weremoveallintermediateactionsandstrictlykeepthereasoningtraceand
+thefinalterminate=failureaction. Thisprocessrefinestherawdataintohigh-qualitysupervision,whichisthen
+aggregatedintotheexperiencepoolB.
+Throughthisgenerationandfilteringpipeline,wescaleourhigh-fidelityexperiencepoolB totensofthousandsof
+trajectories. Weinterleavethisdomain-specificexperiencewithabalancedcorpusofgeneral-purposemultimodaldata
+topreventcatastrophicforgetting.
+5.3 ReinforcementLearning
+WhileRFTconsolidateswhattheagentcando,itdoesnotexplicitlycorrectwhatitdoeswrong. Topushthecapability
+boundary,weemployRLtolearnfromfailuresandexploreviaonlineinteraction.
+Standardtrajectory-levelpreferenceoptimizationisill-suitedforlong-horizontasksduetostatemisalignment. We
+insteadproposeaStep-LevelDirectPreferenceOptimizationstrategy[Laietal.,2024]thattargetsCriticalForking
+PointsillustratedinFigure5.
+CausalDeviationDiscovery. Givenafailedrolloutτ−andasuccessfulreferenceτ+(retrievedfromthesameora
+semanticallyequivalenttask),weemployaReference-GuidedDiagnosismechanism. WeidentifytheCriticalDeviation
+Stept∗ asthefirsttimestampwheretheagent’sactiondivergesfromthereference,despitetheenvironmentalstates
+remaining functionally equivalent. This isolates the specific response (z−,a−) that caused the agent to leave the
+t∗ t∗
+optimalsolutionmanifold.
+9
+
+--- Page 10 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+Figure5: OverviewoftheDual-ParadigmDPO.Theprocessbeginsatacriticalforkingpointt∗. ParadigmI(Action
+Correction) establishes a preference for the chosen action (z ,a ) over the rejected action (z ,a ). Paradigm II
+w w l l
+(Reflection)addressesthedeviatedstateatt∗+1,prioritizingReflectionoverBlindContinuation. Bothparadigms
+definepreferencepairsthatoptimizetheDPOLossJ(θ)tomaximizethemarginbetweeneffectiveandineffective
+strategies.
+StructuredPreferenceConstruction. Oncethecriticalerror(z ,a )=(z−,a−)isidentified,weconstructpreference
+l l t∗ t∗
+pairstoprovidecomprehensivesupervision.
+• ParadigmI:ActionCorrection(AtStept∗). Theobjectiveistoreplacetherejectederror(z ,a )withanoptimal
+l l
+chosen response (z ,a ). We obtain (z ,a ) via window-based reference alignment (migrating thoughts and
+w w w w
+actionsfromτ+ viaVLMsemanticmatching)orvisual-groundedsynthesis(synthesizingfreshtracesviaageneral
+modelwhennoalignmentexists).
+• ParadigmII:ReflectionandRecovery(AtStept∗+1). Toimproverobustness,weaddressthestateimmediately
+aftertheerror(t∗+1). Wetreattheagent’sblindcontinuationastherejectedsample. Forthechosensample,we
+synthesizeaReflectionTrace. Insteadofactingblindly,theagentistrainedtohaltandgenerateareasoningchain
+that: (1)observestheunexpectedscreenstate,and(2)formulatesaremedialplan.
+OptimizationObjective. Weoptimizethepolicyπ usingDirectPreferenceOptimization(DPO).Consistentwithour
+θ
+formulationwherethepolicygeneratesareasoningtracezandanactionaconditionedonhistoryh andobservation
+t
+o ,thelossfunctionisdefinedas:
+t
+(cid:20) (cid:18) (cid:19)(cid:21)
+π (z ,a |h ,o ) π (z ,a |h ,o )
+J(θ)=−E logσ βlog θ w w t t −βlog θ l l t t . (2)
+(ht,ot,(z,a)w,(z,a)l)∼D π (z ,a |h ,o ) π (z ,a |h ,o )
+ref w w t t ref l l t t
+By iteratively updating the policy with these structured preferences, EvoCUA continuously expands its capability
+boundary,effectivelyconvertingtransientinteractionexperienceintorobustmodelparameters.
+Insummary,theevolvingexperiencelearningparadigmestablishesarigorouscycleforenhancingagentreliability.
+By synergizing rejection fine-tuning to consolidate fundamental execution patterns with reinforcement learning to
+rectifyerrorsincomplex,long-tailscenarios,EvoCUAiterativelytransformsscalablesyntheticexperienceintopolicy
+parameters. Thisdualmechanismensuresthattheagentnotonlystabilizesperformanceonstandardtasksbutalso
+significantlyimprovesrobustnessandgeneralizationacrossboundaryconditions,therebyrealizingamorestableand
+universalcomputerusecapability.
+6 Evaluation
+Inthissection,weconductacomprehensiveempiricalevaluationofEvoCUA.Ouranalysisfocusesonthreecritical
+dimensions: (1)OnlineAgenticCapability,assessinglong-horizoninteractioninrealisticenvironments;(2)Offline
+Grounding, evaluatingfine-grainedUIelementunderstanding; and(3)GeneralVLMCapabilities, ensuringthe
+preservationofgeneralmultimodalreasoning.
+10
+
+--- Page 11 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+6.1 ExperimentalSetup
+Toadvancebeyondstaticimitation,weadoptaunifiedtrainingprocessthatbeginswithalightweightcoldstartphase,
+utilizingapproximately1khigh-qualitytrajectoriestoestablishthecompleteactionspaceandthestructuredreasoning
+pattern. Subsequently,themodelentersacontinuousiterativeoptimizationcyclethatcombinesexperiencegeneration
+withpolicyrefinement. Inthisevolvingphase,weprogressivelyexpandthetrainingdistributionbycollectingsuccessful
+trajectoriesfromlarge-scalerejectionsampling,applyingstep-leveldenoising,whilesimultaneouslyoptimizingthe
+policythroughamixofpreferencelearningderivedfromerrorsandonlineexplorationinrealisticenvironments. This
+entireprocessisdrivenbyapass@k-guideddynamiccomputestrategy,whichautomaticallyfocusescomputational
+resourcesonharderqueriesandsynthesizessupplementarydataforunder-performingdomains,ensuringcontinuous
+capabilitygrowthacrossiterations.
+Wevalidateourapproachacrossvaryingscalesbypost-trainingontheQwen3-VL-Thinking[Baietal.,2025a](8B,
+32B)andOpenCUA[Wangetal.,2025b](7B,32B,72B)foundationmodels.
+6.2 MainResults
+6.2.1 OnlineAgentEvaluation
+WeevaluateEvoCUAontheOSWorldbenchmark,whichservesasarepresentativetestbedforopen-endedcomputer
+usetasks. AssummarizedinTable1,ourresultshighlighttheeffectivenessoftheproposedmethod:
+• State-of-the-ArtOpen-WeightsPerformance. Ourprimarymodel,EvoCUA-32B,fine-tunedfromtheQwen3-VL-
+32B-Thinking[Baietal.,2025a]backbone,achievesasuccessrateof56.7%. Thisperformancesecuresthetoprank
+amongallevaluatedopen-weightsmodels.
+• SignificantImprovements&Efficiency. EvoCUA-32Bdemonstratesa+11.7%absoluteimprovementoverthe
+previousstate-of-the-artopenmodel,OpenCUA-72B(45.0%),anda+15.1%gainoveritsbasemodel. Notably,
+theseresultsareachievedunderastrict50-stepconstraint,whereasbaselinestypicallyrequirea100-stepbudgetto
+reachpeakperformance,indicatingourmodel’ssuperiorexecutionprecision.
+• CompetitivewithClosed-WeightsFrontiers. EvoCUA-32Beffectivelyclosesthegapwithclosed-weightsmodels.
+Mostnotably,itoutperformsthestrongclosed-weightsbaselineUI-TARS-2-2509(53.1%)byamarginof+3.6%.
+Underequivalentstepconstraints,theperformancegapbetweenEvoCUA-32Bandtheindustry-leadingClaude-4.5-
+Sonnet(58.1%)isnarrowedtoamere1.4%.
+• ScalingEfficiency&TrainingSuperiority. Theefficacyofourapproachextendstosmallermodelscales. EvoCUA-
+8Bachievesasuccessrateof46.1%,surpassingspecialized72B-parametermodelssuchasOpenCUA-72B.Adirect
+comparisonwithStep-GUI-8B[Yanetal.,2025]isparticularlyilluminating: althoughbothmodelsareinitialized
+fromtheidenticalQwen3-VL-8Bbackbone,EvoCUA-8Bachievesa+5.9%highersuccessrate(46.1%vs. 40.2%).
+Thisstrictlyisolatesthecontributionofourevolvingexperiencelearningparadigm,confirmingthatourdatasynthesis
+andRLstrategiesunlocksignificantlygreaterpotentialfromthesamefoundationalarchitecture.
+6.2.2 OfflineGroundingandGeneralCapabilities
+WeassessEvoCUA’sperformanceacrosstwocriticaldimensions: fine-grainedGUIgrounding(ScreenSpot-v2[Wu
+et al., 2024], ScreenSpot-Pro [Li et al., 2025], OSWorld-G [Xie et al., 2025]) and general multimodal robustness
+(MMMU[Yueetal.,2024],MMMU-Pro[Yueetal.,2025],MathVista[Luetal.,2024],MMStar[Chenetal.,2024],
+OCRBench[Liuetal.,2024]). Table2summarizestheresultsacrossdifferentmodelscalesandbackbones.
+Analysis. Weobservedistinctbehaviorsdependingonthebasemodelused. FortheOpenCUA-72Bbackbone,our
+post-trainingstrategymaintainsperformanceparityoryieldsslightimprovementsacrossbothgroundingandgeneral
+benchmarks(e.g.,preservingMMMUscoreswhileimprovingOSWorld-G).Thisstabilityconfirmsthatourtraining
+methodeffectivelypreservesthebasemodel’sknowledgewhenthedatadistributionisaligned.
+Conversely,theEvoCUA-32Bvariantexhibitsperformancedeclineinspecificmetrics,notablyonScreenSpot-Pro
+andMMMU,comparedtotheQwen3-VL-32B-Thinkingbaseline. Weattributethisperformancedropprimarilyto
+discrepanciesindatadistributionandpatterns. Duetotimeconstraints,thegeneraldatasetusedforfine-tuningEvoCUA
+was directly adopted from OpenCUA-72B variants experiments. However, this dataset is non-thinking, creating a
+significantmismatchwiththethinking-baseddistributionoftheQwen3-VL-32B-Thinkingmodel. Wefurtheranalyzed
+theoutputlengthsofQwen3-VL-32B-ThinkingandEvoCUAongeneralbenchmarks. Theresultsrevealasignificant
+reductioninEvoCUA’stokencountcomparedtoQwen3-VL-32B-Thinking(2,514vs3,620),accompaniedbyashiftin
+outputstyle.
+11
+
+--- Page 12 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+Table1: PerformancecomparisonontheOSWorld-Verifiedbenchmark. Modelsarecategorizedbyaccessibility
+(Closed-Weights vs. Open-Weights). Max Steps denotes the interaction budget per task. EvoCUA-32B achieves
+state-of-the-artperformanceamongopenmodels,significantlyoutperforminglargerbaselines.
+Model Type MaxSteps SuccessRate(Pass@1)
+Closed-WeightsModels
+OpenAICUA[OpenAI,2025] Specialized 50 31.3%
+Step-GUI-8B[Yanetal.,2025] Specialized 100 40.2%
+Qwen3-VL-Flash[Baietal.,2025a] General 100 41.6%
+UI-TARS-2-2509[Wangetal.,2025a] General 100 53.1%
+Claude-4.5-Sonnet[Anthropic,2025] General 50 58.1%
+Seed-1.8[ByteDanceSeedTeam,2025] General 100 61.9%
+Claude-4.5-Sonnet[Anthropic,2025] General 100 62.9%
+Open-WeightsModels
+Qwen2.5-VL-32B-Instruct[Baietal.,2025b] General 100 5.9%
+Qwen2.5-VL-72B-Instruct[Baietal.,2025b] General 100 8.8%
+ScaleCUA-32B[Liuetal.,2025] Specialized 50 17.7%
+UI-TARS-72B-DPO[Qinetal.,2025] Specialized 50 24.6%
+OpenCUA-7B[Wangetal.,2025b] Specialized 100 26.6%
+UI-TARS-1.5-7B[Qinetal.,2025] Specialized 100 27.5%
+Qwen3-VL-8B-Thinking[Baietal.,2025a] General 100 30.6%
+OpenCUA-32B[Wangetal.,2025b] Specialized 100 34.8%
+GUI-Owl-7B-Desktop-RL[Yeetal.,2025] Specialized 15 34.9%
+Qwen3-VL-235B-A22BThinking[Baietal.,2025a] General 100 38.1%
+Qwen3-VL-32B-Thinking[Baietal.,2025a] General 100 41.0%
+OpenCUA-72B[Wangetal.,2025b] Specialized 100 45.0%
+EvoCUA-8B(Ours) General 50 46.1%
+EvoCUA-32B(Ours) General 50 56.7%
+Table2: Performancecomparisonontheofflinegroundingandgeneralbenchmarks. Valuesmarkedwith*aresourced
+fromotherpublicreports.
+GUIGrounding GeneralMultimodalCapabilities
+Model
+ScreenSpotv2 ScreenSpotPro OSWorld-G MMMU MMMU-Pro MathVista MMStar OCRBench
+OpenCUA-72B 92.90* 60.80* 66.95 60.67 43.04 70.90 66.47 83.8
+Qwen3-VL-8B-Thinking 90.09 46.40* 56.70* 74.10* 60.40* 81.40* 75.30* 81.9*
+Qwen3-VL-32B-Thinking 91.11 57.10* 64.00* 78.10* 68.10* 85.90* 79.40* 85.5*
+EvoCUA-OpenCUA-72B 93.47 63.24 67.65 59.22 46.51 69.40 67.80 84.05
+EvoCUA-8B 85.21 45.39 55.08 62.11 53.30 75.80 69.07 80.30
+EvoCUA-32B 90.40 49.76 63.86 68.11 59.16 80.40 73.20 85.35
+Conclusion. The consistent performance on the OpenCUA backbone validates the effectiveness of our training
+strategy. TheperformancedeclineobservedintheQwen3-VL-Thinking-basedvariantsisprimarilyattributedtoa
+shiftingeneraldatadistributionandpatterns. FutureupdatesoftheEvoCUAmodelswillincorporateanupgraded
+thinking-basedgeneraldataset. Thisalignmentisexpectedtoresolvethecurrentdiscrepancyandfurtherimprovethe
+modelgeneralizationperformance.
+6.3 AblationStudy
+TorigorouslyverifythecontributionofeachcomponentwithintheEvoCUA,weconductedextensiveablationstudies.
+Weutilizedtwodistinctfoundationmodels,Qwen3-VL-32B-ThinkingandOpenCUA-72B,todemonstrateboththe
+efficacyofourspecificmodulesandtheuniversalityoftheEvolvingExperienceLearningparadigm.
+6.3.1 ComponentAnalysisonEvoCUA-32B
+WeadoptQwen3-VL-32B-ThinkingasourbasecheckpointtodissectthecumulativegainsfromtheUnifiedAction
+Space,ColdStart,RejectionFine-Tuning(RFT),andRL.AsshowninTable3,eachstageoftheevolutionarycycle
+yieldssignificantmonotonicimprovements.
+ImpactofActionSpace&ColdStart. Wefirstquantifiedtheimpactoftheunifiedactionspacethroughacontrolled
+univariateexperiment,comparingthestandardSFTbaselineagainstanSFTvariantincorporatingourrefinedaction
+definitions. Theexplicitformulationoftheunifiedactionspaceprovidesafoundationalgainof+4.84%. Byfurther
+12
+
+--- Page 13 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+Table3: DetailedablationstudyonEvoCUA-32B.Weshowtheabsolutegainrelativetothepreviousstage.
+Stage Improvement(∆)
++UnifiedActionSpace +4.84%
++ColdStart +2.62%
++RFT +3.13%
++OfflineDPO +3.21%
++IterativeTraining +1.90%
+injectingbehavioralpriorsthroughcoldstarttrainingonsynthesizedhigh-qualitytraces,weobserveanadditionalgain
+of+2.62%. Thisvalidatesthatgroundingthenativemodelwithastructuredactionschemaandcoherentreasoning
+patternsisaprerequisiteforeffectivelarge-scaleexperiencelearning.
+EfficacyofEvolutionaryLearning(RFT&DPO). Transitioningtotheactivelearningphase,RejectionFine-Tuning
+(RFT)significantlyboostsperformanceby+3.13%byconsolidatingsuccessfulexperiences. Subsequently,byexplicitly
+addressingfailuremodesviaDPO,weachieveasubstantial+3.21%improvement,highlightingthatlearningwhat
+not to do is as critical as learning successful routines. Crucially, performing an additional iteration of the entire
+evolutionarycycle(stackinganotherroundofRFTandDPO)yieldsafurther+1.90%. Thiscontinuousgainconfirms
+theself-sustainingnatureofourparadigm,wherethemodeliterativelyrefinesitscapabilityboundarythroughrecursive
+synthesisandcorrection.
+6.3.2 GeneralizabilityonOpenCUA-72B
+Toverifytheuniversalityofourapproach, weappliedthesameparadigmtothelargerOpenCUA-72Bmodel. As
+detailedinTable4,theEvolvingExperienceLearningparadigmdeliversconsistentgainsacrossmodelscales.
+Table4: AblationresultsonOpenCUA-72B,highlightingtherobustnessoftheparadigmacrossdifferentmodelscales.
+Stage Improvement(∆)
++ColdStart +2.14%
++RFT +3.69%
++OfflineDPO +3.02%
++IterativeTraining +1.82%
+TheresultsonOpenCUA-72BechoourfindingsonQwen3-VL,withDPO(+3.02%)andRFT(+3.69%)providing
+strongcontributions. Interestingly,weobservedthatpureRFT(stacking3roundswithoutexplicitcoldstart)achieveda
+remarkablegainof+8.12%showninTable5. Thissuggeststhatwithasufficientlystrongbasemodel,thesynthesis
+engineandscalableinteractioninfrastructurealonecandrivemassivecapabilityimprovements,evenwithoutexplicit
+priorinjection. Inaddition,OpenCUA-72Badoptsthestandardpyautoguiformat. Thisactionspacenativelysupports
+statefuloperations(suchasshift+click)andpossessesnoobviousfunctionaldeficiencies.
+6.4 ScalingAnalysis
+WeinvestigatethescalabilityofEvoCUAbyanalyzingtheperformancegain(∆%)acrossvaryingPass@kvalues,max
+inferencestepsanddatavolume.
+ScalingwithPass@k. Infigure6a,EvoCUAmaintainsaconsistentperformanceleadoverthebasemodel(Qwen3-
+VL-Thinking)acrossallPass@kmetrics. AsdepictedinFigure6a,the32Bmodelsustainsapositivegain,peakingat
++4.93%atk =16andmaintainingasignificantadvantageevenathigherkvalues. Thisconsistentgapdemonstratesthat
+ourtrainingstrategyoptimizingtheactionspaceandreasoningpriorsfundamentallyelevatesthemodel’sperformance
+ceiling.
+ScalingwithMaxSteps. Infigure6b,Weobservethatperformancesteadilyimprovesasthemaximumsteplimit
+increases. Increasingtheinferencecapacityfrom15to50stepsleadstoconsistentgains,withthe32Bmodelachieving
+a+16.25%improvementoverthebaseline. Beyond50steps,therateofimprovementmoderates,primarilyduetothe
+scarcityoftrajectoriesexceeding50stepsinthecurrenttrainingdistribution.
+13
+
+--- Page 14 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+ExperienceScaling. WeconductexperiencescalingexperimentsonRFT.Specifically,weperformanablationstudyon
+anearlyiterationoftheOpenCUA-72Bmodel,omittingthecold-startanddpophasetofocusexclusivelyonmulti-round
+RFT.AsshowninTable5,theperformancegainsrelativetothebaselineareasfollows:
+• Round1: Independenttrainingon20ksamplesyieldsa+2.61ppgain.
+• Round2: Iterativetrainingon226ksamples,initializedfromRound1checkpoint,increasesthegainto+6.79pp.
+• Round3: TrainingtheOpenCUA-72Bbaseon1MsamplesaggregatedfromthreeRFTiterationsachievesan+8.12
+ppimprovement.
+Ouranalysishighlightsacriticaltrade-offbetweendatascale, off-policydistribution, andthesignal-to-noiseratio
+(SNR).Asmodelcapabilitiesimprovewithscale,thetolerancefornoisedecreases,creatingabottleneckforexisting
+iterativemethods. Crucially,however,weremainconfidentthatfurtherscalingcanbesustained,providedthatdata
+quality,on-policyalignment,andSNRareeffectivelyoptimized.
+EnvironmentalUncertaintyandEvaluation. ItiscriticaltodistinguishtheroleofPass@kinagentictasksversus
+standardLLMbenchmarks. Intraditionaltextgeneration,the"environment"(theprompt)isstaticanddeterministic;
+thus,Pass@ksolelymeasuresthediversityofthemodel’sinternalcapacity. Incontrast,GUIenvironmentsintroduce
+inherent environmental stochasticity. Factors such as system latency, network fluctuations, and minor rendering
+variations mean that identical action sequences can yield different state transitions. Consequently, in this context,
+Pass@kservesadualpurpose: itevaluatesnotonlythemodel’sgenerativediversitybutalsoitsrobustnessagainst
+environmentalnoise. Weobservethatevenwithdeterministicsampling(temperature=0),successratesexhibitvariance
+duetothesesystemperturbations. Thisfindinghighlightsacriticallimitationofpuredatascaling. Toachievehuman-
+levelreliability,futureresearchmustprioritizeenvironmentscaling—expandingenvironmentaldiversityandmodeling
+dynamicuncertaintiestoensurerobustnessacrossreal-worldsystems.
+6
++4.93%
++4.55% +4.37%
++4.65%
+4 +3.74%
++4.21% +3.43%
++2.39% +2.99% +2.35%
+2
+0
+8 16 32 64 128
+Pass@k(k)
+)%∆(niaGecnamrofreP
+EvoCUA-32B-Qwen3-VL-32B-Thinking 20
+EvoCUA-8B-Qwen3-VL-8B-Thinking
++17.36%
++16.25%
+15
++10.71%
+10
++10.84% +10.25%
++7.58%
+5
+Baseline
+0
+15 30 50 100
+MaxInferenceSteps
+(a)PerformanceGainacrossPass@k.TheY-axisdisplaysthe
+absolutegainofEvoCUAovertheQwen3-VL-Thinkingbase-
+line.
+)%∆(niaGecnamrofreP
+EvoCUA-32B-EvoCUA-32B(Step15)
+EvoCUA-8B-EvoCUA-8B(Step15)
+(b) Scaling with Inference Steps. The Y-axis represents the
+absolutegainrelativetotheperformanceatstep=15.
+Figure6: PerformanceanalysisofEvoCUAmodels. (a)ImprovementoverthebasemodelacrossvaryingPass@k
+metrics. Legends indicate the specific backbone models used. (b) Performance scaling with increased maximum
+inference steps. The legends denote the performance gain relative to the Step 15 baseline. The 32B model shows
+significantlystrongerscalingcapabilities.
+Table5: ExperiencescalingresultsonRFT.Theabsolutegainsareallrelativetothebaseline.
+Stage DataSize Gain(∆%)
+RFTRound1 20k +2.61
+RFTRound2 226k +6.79
+RFTRound3 1M +8.12
+14
+
+--- Page 15 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+6.5 Discussions
+Drawingfromoverathousandindividualexperimentstotalingmorethan1millionacceleratorhours,wecategorize
+ourobservationsregardingthetrainingdynamicsofnativecomputeruseagentsintofourcriticaldimensions.
+1. TheDualNatureofExperiences. Ouranalysisrevealsthatthesignal-to-noiseratiovariesfundamentallybetween
+successandfailuretrajectories,necessitatingdistinctprocessingstrategies.
+• Successtrajectories: Trajectoriesgeneratedbythemodelrepresentknownknowledgecharacterizedbylownoise
+butlimitedinformationgain. Whilethefinaloutcomeiscorrect,step-levelredundancyconstitutesamajornoise
+source. Withoutaggressivefilteringoftheseinefficientsteps,themodelbecomesfragile,leadingtophenomenasuch
+asactionaliasing(outputtingconflictingactionsforasinglestate)andcyclicrepetition(endlesslyclickingthesame
+coordinates). Effectivefilteringisthusaprerequisiteformulti-roundrejectionsamplingfine-tuning.
+• Failuretrajectories: Conversely,failuretrajectoriesarehigh-noisebuthigh-information. Theydelineatethemodel’s
+capability boundaries and contain corner cases that the current policy cannot handle. While raw failure data is
+toonoisyfordirectlearning, identifyingcriticalerrorstepsallowsfortheconstructionofpreferencepairs. This
+transformsfailedattemptsintoahigh-valuesourceforboundaryalignment.
+2.FoundationalConstraintsandInitialization. Theinitializationphasesubstantiallyinfluencestheagent’spotential
+performance.
+• Completeness of action space: A comprehensive definition of the action space is a prerequisite. Missing high-
+efficiencyoperations(e.g.,tripleclick,shift-basedshortcuts)rendersspecifictasks,suchascomplexspreadsheet
+editing,effectivelyunsolvable. Post-hocadditionstotheactionspaceareinefficientcomparedtoacorrectinitial
+definition.
+• Pattern-centriccoldstart: Thecoldstartphaseshouldprioritizepatterndiversityoverdatavolume. Weobservedthat
+alightweightcoldstartissufficienttoestablishalatentalignment—groundingtheactionspaceandstabilizingoutput
+formatting. Aheavycoldstartoftenyieldshighsupervisedmetricsbutcreatesacheckpointthatishardertorefine
+later. Alightweightinitialization,followedbyrigorousrejectionsamplingandpreferenceoptimization,consistently
+producessuperiorfinalperformance.
+3. DynamicsofIterativeOptimization. Computerusetasksareinherentlylong-horizon,oftenrequiringdozensof
+interactionturns. Optimizingforthisrequiresstrictadherencetospecificdynamicproperties.
+• The on-policy imperative: We emphasize the necessity of using strictly on-policy data during iterative learning.
+Wehypothesizethatoff-policydatadisruptstheprincipaldirectionoftheoptimizationvectorestablishedduring
+supervision. Oncethemodel’sweightsdivergefromtheoptimalmanifoldduetodistributionshifts,recoveringthe
+correctoptimizationpathiscomputationallyprohibitive.
+• Terminationasymmetry: Thedistributionoftheterminateactionisthemostcriticalcontrolvariable. Weobserved
+adistinctasymmetry: themodelconvergesrapidlyonfailurerecognition,whereasrecognizingsuccessrequiresa
+carefullycalibrateddensityofpositivesamples. Anexcessiveconcentrationofsuccesssignalsleadstopremature
+termination,whileadeficitpreventstheagentfromstopping.
+• Self-correctionandfuturepotential: Tomitigateerroraccumulationinlong-horizontasks, weutilizepreference
+optimizationfocusedonstatecheckingandreflection. Bytargetingstepswheretheagentfailstoperceiveerrors,we
+enhancerobustness. Theseimprovementssuggestthatthelogicalevolutionisatransitiontoonlinereinforcement
+learning,whereadvancedcreditassignmentmechanismscanfurtheroptimizeperformanceincomplex,multi-step
+environments.
+4. Visualization-DrivenDiagnosisandIteration. WearguethatachievingSOTAperformanceinlong-horizon
+tasks requires more than algorithmic novelty; it demands a transparent debugging infrastructure. We developed a
+comprehensivesuiteoftrajectoryanalysisandvisualizationtoolsthatservedasthe"eyes"ofourevolutionarycycle.
+Thesetoolsplayedapivotalroleinthreecriticalphases:
+• QualityAssuranceforSynthesis: Theyallowedustovisualizesynthesizedsamplesalongsidetheirground-truthstates,
+enablingrapididentificationof"hallucinatedvalidators"orexecutablelogicerrorsinourSynthesisEnginebefore
+theypollutedthetrainingpool.
+• Cold-StartDataConstruction: Byvisuallycontrastingthetrajectorycharacteristicsofdifferentfoundationmodels,
+weidentifiedsuperiorreasoningpatternsandactionsequences. Thisguidedthecurationofourhigh-qualityCold
+Startdataset,ensuringtheagentlearnedrobustbehavioralpriorsratherthannoisyimitation.
+15
+
+--- Page 16 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+• FailureAnalysisforRefinement: OurPass@kDifferentialAnalysistoolaggregatessuccessfulandfailedtrajectories
+forthesamequery. Thisgranularcomparisonhelpeduspinpointspecificfailuremodes—suchascoordinatedriftor
+reasoning-actionmisalignment—directlyinformingthedesignofourstep-levelpolicyoptimizationtorectifythese
+specificweaknesses.
+7 FutureWorkonOnlineAgenticRL
+Reinforcement Learning with Verifiable Rewards (RLVR) [Guo et al., 2025] has become a crucial framework for
+boostingthereliability,generalization,andperformanceofmodel. Buildingonthis,ourfutureworkaimstoexplore
+onlineagenticreinforcementlearninginGUI-basedagenttasks. Constrainedbytimelimitations, wehavenotyet
+conductedsufficientmodeltrainingandcomprehensivebenchmarkevaluations. Accordingly,thesubsequentpartsof
+thissectionwillfirstconductanin-depthanalysisofthetraining-inferencediscrepancyissue,andthendiscussthe
+futureresearchdirectionstoadvancethiswork.
+Training-InferenceDiscrepancyinTrajectory-LevelTraining AlgorithmssuchasGRPO[Shaoetal.,2024]have
+beenshowntobeeffectiveonawiderangeofreasoningtasks. Thesealgorithmscollectasetoftrajectoriesforasingle
+query,calculatetheadvantagefunctionwithinthetrajectorygroup,andconducttrainingatthetrajectorygranularity.
+However,trajectory-leveltrainingwillcausetraining-inferencediscrepancyinGUItasks. Duringtherolloutphase,
+GUImodeldoesnotretainallcompletecontextinformation,butonlypreservesthecompleteinformationofrecent
+steps(includingscreenshots,reasoningandactions),whileearlierhistoricalinformationiscompressedintotext-only
+semanticactions. Ifthetrajectoryofthefinalstepisdirectlyusedfortraining,themodelwillnotbeabletolearnthe
+supervisionsignalsofintermediatesteps.
+Step-LevelPolicyOptimization Toaddressthetraining-inferencediscrepancyintrajectory-leveltraining,wepropose
+namelyStep-LevelPolicyOptimization(STEPO),asimpleyeteffectivepolicyoptimizationalgorithm.
+Foratrajectoryτ withlengthT,eachstept∈{1,2,...,T}containsK tokens. Wedenotethek-thtokeninsteptas
+t
+x (k ∈{1,2,...,K }),andthefulltokensequenceofsteptisrepresentedbyx =(x ,x ,...,x ). Forthe
+t,k t t t,1 t,2 t,Kt
+trajectorysetT ={τ ,τ ,...,τ },thetokenatpositionkofsteptinthei-thtrajectoryisdenotedasx .
+1 2 n i,t,k
+Foreachquestionq,similartoGRPO,STEPOsamplesagroupGoftrajectories{τ ,τ ,...,τ }andcalculatesthe
+1 2 n
+advantageswithinthetrajectorygroup:
+R −mean({R }G )
+Aˆ = i j j=1 (3)
+i std({R }G )
+j j=1
+Where R represents the reward of the trajectory τ . Subsequently, the advantage value Aˆ corresponding to each
+i i i
+trajectoryτ isuniformlyallocatedtoallstepscontainedinthetrajectory,thatis:
+i
+Aˆ =Aˆ /T ,t∈{1,2,...,T }, (4)
+i,t i i i
+where T denotes the number of steps contained in the trajectory τ . All tokens within the same step share the
+i i
+correspondingadvantagevalueA ofthisstep. Onthisbasis,weconductmodeltrainingusingallstep-levelsamples.
+i,t
+Theoptimizationobjectiveoftheproposedalgorithmcanbedemonstratedas:
+J (θ)=E[q ∼P(Q),{τ }G ∼π (T|q)]
+STEPO i i=1 θold
+1 (cid:88)
+G
+(cid:88)
+Ti
+1 (cid:88)
+Kt
+{min[r (θ)Aˆ ,clip(r ,1−ϵ ,1+ϵ )Aˆ ]−βD (π ∥π )}, (5)
+G K i,t,k i,t i,t,k low high i,t KL θ ref
+t
+i=1 t=1 k=1
+where
+π (τ |q,τ )
+r (θ)= θ i,t,k i,t,<k , (6)
+i,t,k π (τ |q,τ )
+θold i,t,k i,t,<k
+denotestheimportancesamplingratio. ϵdenotestheclippingparameter,D denotesaKLpenaltytermandβcontrols
+KL
+theKLdivergenceregularization. Byuniformlyallocatingtheadvantagevalueofatrajectorytoallstepsitcomprises,
+thisstrategyachievestwocoreoptimizationeffects: first,itdriveshigh-advantage-valuetrajectoriestocompletetasks
+withfewersteps,therebyreducingredundantexecutionsteps;second,itpromptslow-advantage-valuetrajectoriesto
+expandthenumberofexplorationsteps,soastoimprovethetaskcompletionrate. Bythestep-levelpolicyoptimization
+mechanism,STEPOcaneffectivelycircumventthetraining-inferencediscrepancyissue.
+16
+
+--- Page 17 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+Experiments and Analysis To clarify the impact of train-inference discrepancy and verify the effectiveness of
+STEPO, we conduct online RL training on the OpenCUA-32B model. As illustrated in the figure 7, the training
+performanceofSTEPOissignificantlysuperiortothatofGRPOtrainedwithfinaltrajectories,whichfullyconfirmsthe
+effectivenessofSTEPO.
+Figure7: Thevaluesillustratedinthisfiguredenotethe16-timeaveragescoresofthetwomethods,respectively.
+However,STEPOsuffersfromtheissueofhightrainingcost,asthenumberofupdatestothepolicymodelmultiplies
+significantly. Accordingly,wehypothesizethattherequirementsforstep-leveltrainingmaynotbeuniformacross
+differenttrainingphases,andtrainingonlyspecifickeystepsmightalsoachievecomparableperformancetotrainingall
+steps. Inthefuture,wewillexploredirectionssuchasscalinguponlineRLanddevelopingmoreeffectiveRLtraining
+recipes.
+8 RelatedWork
+Foundation VLMs and Computer Use Capabilities. The landscape of Large Visual Language Models (VLMs)
+has rapidly evolved to support complex agentic tasks. Proprietary frontier models, most notably Claude 4.5 Son-
+net [Anthropic, 2025] and Seed 1.8 [ByteDance Seed Team, 2025], have set the industry standard, demonstrating
+human-levelproficiencyinzero-shotinstructionfollowingandlong-horizonplanning. Intheopen-weightdomain,
+Qwen3-VL[Baietal.,2025a]hasemergedasarobustbackbone,introducingnext-generationdynamicresolutionand
+enhancedOCRcapabilities. EvoCUAbuildsdirectlyontheQwen3-VLarchitecture,enhancingitviaaspecialized
+evolutionarypost-trainingcurriculumtotranscendgeneral-purposepre-traininglimitations.
+GeneralistGUIAgentsandBenchmarks. Toevaluateonlineagentperformance,OSWorld[Xieetal.,2024]serveas
+primarytestbeds. OpenCUA[Wangetal.,2025b]establishesacriticalfoundationwiththeAgentNetdataset,while
+state-of-the-arteffortslikeUI-TARS-2[Wangetal.,2025a]andStep-GUI[Yanetal.,2025]utilizemulti-turnRLand
+step-wisevisualreasoning,respectively. Unlikethesedemonstration-heavyapproaches,EvoCUAutilizesautonomously
+synthesized,verifiableexperiencestoreduceannotationcostswhileachievingsuperiorperformanceontheOSWorld
+leaderboard.
+VisualGroundingandActionExecution. PreciseGUIgroundingremainsacornerstoneofnativecomputeruse. Early
+approacheslikeAguvis[Xuetal.,2024]laidthegroundwork,whilerecentmodelssuchasShowUI[Linetal.,2025]
+andUGround[Gouetal.,2024]haveoptimizedvision-language-actionarchitecturesspecificallyforhigh-resolution
+layouts. EvoCUAincorporatesinsightsfromthesegrounding-specializedarchitecturestoestablishrobustexecution
+primitivespriortohigh-levelplanningoptimization.
+FromImitationtoLearningfromExperience. TrainingparadigmsareshiftingfromBehaviorCloning(BC)toward
+ReinforcementLearning(RL).WhilestandardalgorithmslikePPO[Schulmanetal.,2017]havebeensuccessfully
+adaptedformulti-turnGUIinteractionbyUI-TARS-2[Wangetal.,2025a],recentresearchfocusesonincentivizing
+reasoningcapabilities.ThistransitionwaspioneeredbyDeepSeek-R1[Guoetal.,2025]andDeepSeekMath[Shaoetal.,
+2024],whichintroducedtheReinforcementLearningwithVerifiableRewards(RLVR)paradigm. Theydemonstrated
+thatRLcanimplicitlyverifycomplexreasoningchainswithoutdenseprocesssupervision. Followingthis,Fenget
+al.[Fengetal.,2025]proposedGroup-in-Groupoptimizationtostabilizesuchtraining,whileZhangetal.[Zhangetal.,
+17
+
+--- Page 18 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+2025]exploredlearningviareward-free"EarlyExperience."EvoCUAadvancesthisdirectionbyaddressingthedata
+scarcitybottleneckthroughaverifiablesynthesisengine,whichautonomouslyproducesscalable,ground-truth-verified
+syntheticdata. Thisfoundationenablesourevolvingparadigmvialearningfromexperience,aself-sustainingcycle
+thatiterativelyenhancesagentcapabilitiesthroughlarge-scalerejectionsamplingandpreferencelearningonverifiable
+synthetictrajectories.
+9 Conclusion
+Inthiswork,wepresentEvoCUA,anativecomputeruseagentdevelopedthroughtheevolvingparadigmvialearning
+fromexperience. Byintegratingverifiablesynthesiswithascalableinteractioninfrastructure, wedemonstratethe
+efficacyofconvertingsyntheticcomputeintohigh-qualitytrainingsignals. EmpiricalevaluationsontheOSWorld
+benchmarkvalidatethisapproach,withEvoCUAachievingasuccessrateof56.7%,establishinganewstate-of-the-art
+amongopen-weightsmodels.
+Despitetheseadvancements, aperformancegappersistsbetweencurrentopenmodelsandleadingclosed-weights
+systems or human-level reliability. This disparity highlights the limits of offline learning from synthesized traces
+alone. Toaddressthis,ourpreliminaryinvestigationintoonlinereinforcementlearningidentifiesactiveenvironmental
+interactionasacriticaldriverforfurtherimprovement,evidencedbyaconsistentupwardtrendinrewardaccumulation.
+Futureworkwillfocusonsystematicallyexpandingthisonlineevolutionaryboundary,aimingtobridgetheremaining
+gapandachievefullyautonomouscomputerusecapabilities.
+18
+
+--- Page 19 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+Acknowledgments
+Wesincerelythanktheopen-sourcecommunityfortheirsignificantcontributionstothecomputeruseagentfield. We
+areparticularlygratefultoXinyuanWangandTianbaoXie,thecoreauthorsofOpenCUAandOSWorldrespectively,
+fortheirinsightfuldiscussions,valuablefeedbackonevaluation,andcontinuoussupportthroughoutthisproject. Their
+pioneeringworkhasgreatlyinspiredandadvancedourresearch. Wearecommittedtogivingbacktothecommunity
+andwillcontinuetoopen-sourceourresearchtoadvancethefield.
+Wealsothankourcolleaguesandfamilymemberslistedbelow. Wetrulyappreciatetheirconstantsupport,encourage-
+ment,andhelpfuldiscussionsthroughoutthisproject. Thelistingisinalphabeticalorderbyfirstname:
+ChenGao XuejiaShi
+DaorunPan XuezhiCao
+JiahuiWang YingOuyang
+JiangkeFan YeruiSun
+JiarongShi YuchaoZhu
+KefengZhang YufeiZhang
+RumeiLi YuweiJiang
+WenlongZhu
+19
+
+--- Page 20 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+References
+ShuaiBai,YuxuanCai,RuizheChen,KeqinChen,XionghuiChen,ZesenCheng,LianghaoDeng,WeiDing,Chang
+Gao,ChunjiangGe,WenbinGe,ZhifangGuo,QidongHuang,JieHuang,FeiHuang,BinyuanHui,ShutongJiang,
+ZhaohaiLi,MingshengLi,MeiLi,KaixinLi,ZichengLin,JunyangLin,XuejingLiu,JiaweiLiu,ChenglongLiu,
+YangLiu,DayihengLiu,ShixuanLiu,DunjieLu,RuilinLuo,ChenxuLv,RuiMen,LingchenMeng,Xuancheng
+Ren,XingzhangRen,SiboSong,YuchongSun,JunTang,JianhongTu,JianqiangWan,PengWang,PengfeiWang,
+QiuyueWang,YuxuanWang,TianbaoXie,YihengXu,HaiyangXu,JinXu,ZhiboYang,MingkunYang,Jianxin
+Yang,AnYang,BowenYu,FeiZhang,HangZhang,XiZhang,BoZheng,HumenZhong,JingrenZhou,FanZhou,
+JingZhou,YuanzhiZhu,andKeZhu. Qwen3-vltechnicalreport. arXivpreprintarXiv:2511.21631,2025a.
+ByteDanceSeedTeam. Seed1.8. https://github.com/ByteDance-Seed/Seed-1.8/,2025. GitHubrepository.
+HaomingWang,HaoyangZou,HuatongSong,JiazhanFeng,JunjieFang,JuntingLu,LongxiangLiu,QinyuLuo,
+ShihaoLiang,ShijueHuang,etal. Ui-tars-2technicalreport: Advancingguiagentwithmulti-turnreinforcement
+learning. arXivpreprintarXiv:2509.02544,2025a.
+XinyuanWang,BowenWang,DunjieLu,JunlinYang,TianbaoXie,JunliWang,JiaqiDeng,XiaoleGuo,YihengXu,
+ChenHenryWu,etal. Opencua: Openfoundationsforcomputer-useagents. arXivpreprintarXiv:2508.09123,
+2025b.
+TianbaoXie,DanyangZhang,JixuanChen,XiaochuanLi,SihengZhao,RuishengCao,TohJHua,ZhoujunCheng,
+DongchanShin,FangyuLei,etal. Osworld: Benchmarkingmultimodalagentsforopen-endedtasksinrealcomputer
+environments. AdvancesinNeuralInformationProcessingSystems,37:52040–52094,2024.
+LesliePackKaelbling,MichaelLLittman,andAnthonyRCassandra. Planningandactinginpartiallyobservable
+stochasticdomains. Artificialintelligence,101(1-2):99–134,1998.
+Tao Ge, Xin Chan, Xiaoyang Wang, Dian Yu, Haitao Mi, and Dong Yu. Scaling synthetic data creation with
+1,000,000,000personas. arXivpreprintarXiv:2406.20094,2024.
+ShunyuYao,JeffreyZhao,DianYu,NanDu,IzhakShafran,KarthikRNarasimhan,andYuanCao. React: Synergizing
+reasoningandactinginlanguagemodels. InTheeleventhinternationalconferenceonlearningrepresentations,2022.
+YuhaoYang,ZhenYang,Zi-YiDou,AnhNguyen,KeenYou,OmarAttia,AndrewSzot,MichaelFeng,RamRamrakhya,
+AlexanderToshev,etal. Ultracua: Afoundationmodelforcomputeruseagentswithhybridaction. arXivpreprint
+arXiv:2510.17790,2025.
+JaniceAhn,RishuVerma,RenzeLou,DiLiu,RuiZhang,andWenpengYin. Largelanguagemodelsformathematical
+reasoning: Progressesandchallenges. arXivpreprintarXiv:2402.00157,2024.
+XinLai,ZhuotaoTian,YukangChen,SenqiaoYang,XiangruPeng,andJiayaJia. Step-dpo: Step-wisepreference
+optimizationforlong-chainreasoningofllms. arXivpreprintarXiv:2406.18629,2024.
+HaolongYan,JiaWang,XinHuang,YeqingShen,ZiyangMeng,ZhiminFan,KaijunTan,JinGao,LieyuShi,MiYang,
+etal. Step-guitechnicalreport. arXivpreprintarXiv:2512.15431,2025.
+OpenAI. Computer-usingagent(cua). https://openai.com/index/computer-using-agent/,2025. Accessed:
+2025-10-01.
+Anthropic. Introducing claude sonnet 4.5. https://www.anthropic.com/news/claude-sonnet-4-5, 2025.
+Accessed: 2025-10-31.
+ShuaiBai,KeqinChen,XuejingLiu,JialinWang,WenbinGe,SiboSong,KaiDang,PengWang,ShijieWang,Jun
+Tang,HumenZhong,YuanzhiZhu,MingkunYang,ZhaohaiLi,JianqiangWan,PengfeiWang,WeiDing,ZherenFu,
+YihengXu,JiaboYe,XiZhang,TianbaoXie,ZesenCheng,HangZhang,ZhiboYang,HaiyangXu,andJunyangLin.
+Qwen2.5-vltechnicalreport. arXivpreprintarXiv:2502.13923,2025b.
+ZhaoyangLiu,JingjingXie,ZichenDing,ZehaoLi,BowenYang,ZhenyuWu,XuehuiWang,QiushiSun,ShiLiu,
+WeiyunWang,ShenglongYe,QingyunLi,XuanDong,YueYu,ChenyuLu,YunXiangMo,YaoYan,ZeyueTian,
+Xiao Zhang, Yuan Huang, Yiqian Liu, Weijie Su, Gen Luo, Xiangyu Yue, Biqing Qi, Kai Chen, Bowen Zhou,
+YuQiao,QifengChen,andWenhaiWang. Scalecua: Scalingopen-sourcecomputeruseagentswithcross-platform
+data. 2025. URLhttps://github.com/OpenGVLab/ScaleCUA.
+YujiaQin,YiningYe,JunjieFang,HaomingWang,ShihaoLiang,ShizuoTian,JundaZhang,JiahaoLi,YunxinLi,Shi-
+jueHuang,etal. Ui-tars: Pioneeringautomatedguiinteractionwithnativeagents. arXivpreprintarXiv:2501.12326,
+2025.
+JiaboYe,XiZhang,HaiyangXu,HaoweiLiu,JunyangWang,ZhaoqingZhu,ZiweiZheng,FeiyuGao,JunjieCao,
+ZhengxiLu,etal. Mobile-agent-v3: Foundamentalagentsforguiautomation. arXivpreprintarXiv:2508.15144,
+2025.
+20
+
+--- Page 21 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+Zhiyong Wu, Zhenyu Wu, Fangzhi Xu, Yian Wang, Qiushi Sun, Chengyou Jia, Kanzhi Cheng, Zichen Ding, Li-
+hengChen, PaulPuLiang, etal. Os-atlas: Afoundationactionmodelforgeneralistguiagents. arXivpreprint
+arXiv:2410.23218,2024.
+KaixinLi,MengZiyang,HongzhanLin,ZiyangLuo,YuchenTian,JingMa,ZhiyongHuang,andTat-SengChua.
+Screenspot-pro: GUIgroundingforprofessionalhigh-resolutioncomputeruse. InWorkshoponReasoningand
+PlanningforLargeLanguageModels,2025. URLhttps://openreview.net/forum?id=XaKNDIAHas.
+TianbaoXie,JiaqiDeng,XiaochuanLi,JunlinYang,HaoyuanWu,JixuanChen,WenjingHu,XinyuanWang,Yuhui
+Xu, Zekun Wang, Yiheng Xu, Junli Wang, Doyen Sahoo, Tao Yu, and Caiming Xiong. Scaling computer-use
+groundingviauserinterfacedecompositionandsynthesis,2025. URLhttps://arxiv.org/abs/2505.13227.
+XiangYue,YuanshengNi,KaiZhang,TianyuZheng,RuoqiLiu,GeZhang,SamuelStevens,DongfuJiang,Weiming
+Ren, YuxuanSun, CongWei, BotaoYu, RuibinYuan, RenliangSun, MingYin, BoyuanZheng, ZhenzhuYang,
+YiboLiu,WenhaoHuang,HuanSun,YuSu,andWenhuChen. Mmmu: Amassivemulti-disciplinemultimodal
+understandingandreasoningbenchmarkforexpertagi,2024. URLhttps://arxiv.org/abs/2311.16502.
+XiangYue,TianyuZheng,YuanshengNi,YuboWang,KaiZhang,ShengbangTong,YuxuanSun,BotaoYu,GeZhang,
+Huan Sun, Yu Su, Wenhu Chen, and Graham Neubig. Mmmu-pro: A more robust multi-discipline multimodal
+understandingbenchmark,2025. URLhttps://arxiv.org/abs/2409.02813.
+PanLu,HritikBansal,TonyXia,JiachengLiu,ChunyuanLi,HannanehHajishirzi,HaoCheng,Kai-WeiChang,Michel
+Galley,andJianfengGao. Mathvista: Evaluatingmathematicalreasoningoffoundationmodelsinvisualcontexts,
+2024. URLhttps://arxiv.org/abs/2310.02255.
+LinChen,JinsongLi,XiaoyiDong,PanZhang,YuhangZang,ZehuiChen,HaodongDuan,JiaqiWang,YuQiao,
+DahuaLin,andFengZhao. Areweontherightwayforevaluatinglargevision-languagemodels?,2024. URL
+https://arxiv.org/abs/2403.20330.
+Yuliang Liu, Zhang Li, Mingxin Huang, Biao Yang, Wenwen Yu, Chunyuan Li, Xu-Cheng Yin, Cheng-Lin Liu,
+Lianwen Jin, and Xiang Bai. Ocrbench: on the hidden mystery of ocr in large multimodal models. Science
+ChinaInformationSciences,67(12),December2024. ISSN1869-1919. doi:10.1007/s11432-024-4235-6. URL
+http://dx.doi.org/10.1007/s11432-024-4235-6.
+DayaGuo,DejianYang,HaoweiZhang,JunxiaoSong,RuoyuZhang,RunxinXu,QihaoZhu,ShirongMa,PeiyiWang,
+XiaoBi,etal. Deepseek-r1: Incentivizingreasoningcapabilityinllmsviareinforcementlearning. arXivpreprint
+arXiv:2501.12948,2025.
+ZhihongShao,PeiyiWang,QihaoZhu,RunxinXu,JunxiaoSong,XiaoBi,HaoweiZhang,MingchuanZhang,YKLi,
+Yang Wu, et al. Deepseekmath: Pushing the limits of mathematical reasoning in open language models. arXiv
+preprintarXiv:2402.03300,2024.
+YihengXu,ZekunWang,JunliWang,DunjieLu,TianbaoXie,AmritaSaha,DoyenSahoo,TaoYu,andCaiming
+Xiong. Aguvis: Unifiedpurevisionagentsforautonomousguiinteraction. arXivpreprintarXiv:2412.04454,2024.
+KevinQinghongLin,LinjieLi,DifeiGao,ZhengyuanYang,ShiweiWu,ZechenBai,StanWeixianLei,LijuanWang,
+and Mike Zheng Shou. Showui: One vision-language-action model for gui visual agent. In Proceedings of the
+ComputerVisionandPatternRecognitionConference,pages19498–19508,2025.
+BoyuGou,RuohanWang,BoyuanZheng,YananXie,ChengChang,YihengShu,HuanSun,andYuSu. Navigating
+thedigitalworldashumansdo: Universalvisualgroundingforguiagents. arXivpreprintarXiv:2410.05243,2024.
+John Schulman, Filip Wolski, Prafulla Dhariwal, Alec Radford, and Oleg Klimov. Proximal policy optimization
+algorithms. arXivpreprintarXiv:1707.06347,2017.
+LangFeng,ZhenghaiXue,TingcongLiu,andBoAn. Group-in-grouppolicyoptimizationforllmagenttraining. arXiv
+preprintarXiv:2505.10978,2025.
+KaiZhang,XiangchaoChen,BoLiu,TianciXue,ZeyiLiao,ZhihanLiu,XiyaoWang,YutingNing,ZhaorunChen,
+XiaohanFu,etal. Agentlearningviaearlyexperience. arXivpreprintarXiv:2510.08558,2025.
+21
+
+--- Page 22 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+A UnifiedActionSpace
+ThefollowingtabledetailstheunifiednativeactionspaceAimplementedinEvoCUA.Theagentinteractswiththe
+environmentbyinvokingthecomputer_usefunctionwithaspecificactionanditscorrespondingarguments.
+Table6: DetailedDefinitionoftheEvoCUANativeActionSpace
+Category ActionPrimitive Description RequiredArguments
+key Performsakeypressandreleasesequenceonthespecified keys(array)
+keys.
+Keyboard
+key_down Pressesandholdsthespecifiedkey(s).Usedforstateful keys(array)
+operations(e.g.,holdingShift).
+key_up Releasesthespecifiedkey(s)inreverseorder. keys(array)
+type Typesastringoftextonthekeyboard. text(string)
+mouse_move Movesthecursortothespecifiedpixelcoordinates. coordinate(x,y)
+left_click Clickstheleftmousebuttonatthespecifiedcoordinates. coordinate(x,y)
+right_click Clickstherightmousebuttonatthespecifiedcoordinates. coordinate(x,y)
+middle_click Clicksthemiddlemousebuttonatthespecifiedcoordi- coordinate(x,y)
+Mouse
+nates.
+double_click Double-clickstheleftmousebuttonatthespecifiedcoor- coordinate(x,y)
+dinates.
+triple_click Triple-clickstheleftmousebutton(usefulfortextselec- coordinate(x,y)
+tion).
+left_click_drag Clicksanddragsthecursortothetargetcoordinates. coordinate(x,y)
+scroll/hscroll Performsaverticalorhorizontalscroll. pixels(number)
+wait PausesexecutionforaspecifieddurationtoallowUIren- time(number)
+Control dering.
+terminate Terminatesthecurrenttaskandreportsthefinalstatus. status("success"|"failure")
+B ColdStart: HindsightReasoningGeneration
+Toconstructhigh-qualitydataforthesupervisedcold-startphase,wetransformrawphysicalinteractiontracesinto
+trainingsamplesaugmentedwithexplicitcognitivechains. WeemployaHindsightReasoningGenerationstrategyto
+achievethis. Bytreatingtheground-truthexecutionpathasknownfutureinformation,weutilizeageneralmodelto
+retrospectivelygeneratereasoningtraces(z )thatexplaintheobservedactions,therebyestablishingacausalalignment
+t
+betweencognitionandexecution.
+Thegenerationprocessisdrivenbyaseriesofcontext-awareprompttemplatesthatenforcethestructuralschemas
+definedinourThoughtSpace(Z). Dependingontheexecutionphase,thegenerationlogicadaptsasfollows:
+1. GoalClarification(z ) Attheinitialstepofatrajectory(t=0),thereasoninggenerationfocusesonresolving
+0
+ambiguityandestablishingaglobalplan.
+• Context: Thegeneralmodelisprovidedwiththeuserinstruction,theinitialscreenshot,andthefirstexecutablecode
+block.
+• GenerationLogic: Weutilizeaspecifictemplatethatenforcesafirst-personperspective. Themodelmustexplicitly
+statethecurrentenvironmentstate,clarifythetaskgoal,andarticulateahigh-levelplan(e.g.,“Ineedtoopenthe
+browser to search for...”) before justifying the specific action taken. This ensures that the subsequent physical
+executionisgroundedinaclearintent.
+2. ObservationConsistency(z ) Forintermediatesteps,theobjectiveistomaintainsemanticconsistencybetween
+obs
+thevisualobservationandthereasoningtrace.
+• Context: Themodelanalyzesthetransitionfromthepreviousstatetothecurrentstate.
+• GenerationLogic: Thepromptinstructsthemodeltoidentify“Whatchanged”intheenvironmentandexplain
+“Whythisactionisneeded”toadvancetheworkflow.
+22
+
+--- Page 23 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+• SemanticAbstraction: Topreventoverfittingtospecificscreenresolutions,thepromptexplicitlyconstrainsthe
+generationtoavoidmentioningrawpixelcoordinates. Instead,themodelisguidedtodescribetargetUIelements
+semantically(e.g.,“Clickonthe‘File’menu”ratherthan“Clickat(100,200)”),ensuringthereasoningremains
+robusttolayoutvariations.
+3. ReflectionandCorrection(z ) Fortrajectoriesinvolvingerrorrecovery(“resume”traces),weimplementa
+reflect
+specializedReflectionMechanism.
+• Context: Whenprocessingatrajectorysegmentthatrecoversfromafailure,thesynthesisengineinjectsthespecific
+analysis_reason(therootcauseofthepriorfailure)intothepromptcontext.
+• GenerationLogic: Themodelisenforcedtobeginthethoughttracewithadedicatedheader: “Reflection: ”. It
+mustretrospectivelyanalyzethefailure(e.g.,“Reflection: Irealizethatmypreviousattempttoclicktheiconfailed
+because...”).
+• Self-Correction: Followingthereflection,themodelmustnaturallytransitiontoacorrectedplan(e.g.,“NowIwill
+tryadifferentapproach...”),effectivelyinternalizingthelogicofself-correctionintothetrainingdata.
+4. Reasoning-AugmentedTermination(z ) Tomitigateprematureordelayedstopping,theterminationactionis
+T
+conditionedonarigorousvisualverificationprocess.
+• Context: Thegenerationistriggeredatthefinalstepofatrajectory.
+• GenerationLogic: Thegeneralmodelisrequiredtoassessthefinalscreenshotagainsttheinitialinstruction. It
+mustgenerateareasoningtracethatprovidesvisualevidenceoftaskcompletion(orfailure)beforeemittingthefinal
+terminatesignal. Thisensuresthattheagent’sterminationdecisionisgroundedinlogicalverificationratherthan
+memorizedtrajectorylengths.
+Algorithm1HindsightReasoningGeneration
+Input: Instructiong;RawTrajectoryτ ={(o ,a )}T ;ErrorContextc (optional,forresumetraces)
+t t t=0 err
+Output: ReasoningTracesZ ={z }T
+t t=0
+1: Z ←∅
+2: h prev ←∅ ▷Initializeinteractionhistory
+3: fort←0toT do
+4: prompt←NULL
+5: ift=0then ▷Phase1: Initialization
+6: ifc err ̸=NULLthen
+7: ▷TriggerReflectionMechanismforerrorrecovery
+8: prompt← CONSTRUCTREFLECTPROMPT(g,c err ,o 0 ,a 0 )
+9: else
+10: ▷StandardGoalClarification
+11: prompt← CONSTRUCTGOALPROMPT(g,o 0 ,a 0 )
+12: endif
+13: elseift=T then ▷Phase3: Termination
+14: ▷Reasoning-AugmentedTerminationVerification
+15: prompt← CONSTRUCTTERMPROMPT(g,h prev ,o T )
+16: else ▷Phase2: IntermediateExecution
+17: ▷EnsureObservationConsistency
+18: prompt← CONSTRUCTOBSPROMPT(g,h prev ,o t ,a t )
+19: endif
+20: ▷QueryGeneralModel
+21: z t ←GeneralLLM(prompt)
+22: Z ←Z ∪{z t }
+23: h prev ←h prev ∪{(z t ,a t )}
+24: endfor
+25: returnZ
+23
+
+--- Page 24 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+C AlgorithmforDPO
+Inthissection,wepresentthealgorithmicimplementationofStep-LevelDirectPreferenceOptimization(DPO).This
+methodfocusesontwocoreprocesses: KeyErrorIdentificationandPreferencePairConstruction. Algorithm
+2detailshowweidentifyCriticalForkingPointsfromfailuretrajectoriesandconstructpaireddataforbothAction
+CorrectionandReflection.
+Algorithm2Step-LevelDPOPairConstruction
+Input: TargetTrajectoryT (FailureCase),ReferenceTrajectoryT (SuccessCase)
+tgt ref
+Input: VLMM(foralignmentandsynthesis)
+Output: DPODatasetD
+dpo
+1: ▷Step1: ErrorIdentification
+2: E ←AnalyzeErrorSteps(T tgt ,T ref )
+3: D dpo ←∅
+4: foreacherrorstepindextinE do
+5: ▷Extractcontextfromthefailuretrajectory
+6: o t ,a rejected ←GetStateAndAction(T tgt ,t)
+7: ▷Step2: CriticalForkingPointDiscovery
+8: S aligned ←None
+9: fork ←t−wtot+wdo
+10: o ref ,a ref ←GetStateAndAction(T ref ,k)
+11: ifCheckAlignment(M,o t ,a rejected ,a ref )isTruethen
+12: S aligned ←NormalizeCoords(a ref ,o t )
+13: break
+14: endif
+15: endfor
+16: ifS aligned ̸=Nonethen
+17: ▷Step3: ConstructParadigmI(Correction)
+18: z enhanced ←M.SynthesizeThought(o t ,S aligned )
+19: τ chosen ←(z enhanced ,S aligned )
+20: D dpo .add({state:o t ,chosen:τ chosen ,rejected:a rejected })
+21: ▷Step4: ConstructParadigmII(Reflection)
+22: ift+1<Length(T tgt )then
+23: o next ,a blind ←GetStateAndAction(T tgt ,t+1)
+24: ▷ObserveError→Stop→Plan
+25: z reflect ←M.GenerateReflection(o next ,a rejected ,S aligned )
+26: τ chosen_ref ←(z reflect ,S aligned )
+27: D dpo .add({state:o next ,chosen:τ chosen_ref ,rejected:a blind })
+28: endif
+29: endif
+30: endfor
+31: returnD dpo
+D TrajectoryAnalysisandVisualization
+To enable granular diagnosis of agent behaviors and strictly validate the quality of our synthetically generated
+experience,wedevelopedtheEvoCUATrajectoryInspector. Thisvisualizationsystemallowsustoexaminethe
+frame-by-framealignmentbetweentheagent’svisualobservation(o ),internalreasoningtrace(z ),andtheexecutable
+t t
+codeaction(a ).
+t
+Weillustratetheutilityofthissystemusingarepresentativesynthetictaskfromthespreadsheetdomain: "Findthe
+greatestvalueperrowandplaceitinColumnG."Thislong-horizontaskservesasarigoroustestbedforvalidatingthe
+logicalconsistencyofoursynthesisengine. Figure8presentsthevisualizationofthesekeytimestamps.
+24
+
+--- Page 25 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+(a)Step1:GoalClarification(t=1).Theinspectorvisualizestheinitialstate.Thereasoningpaneldisplaystheagent’sexplicit
+paraphrasingoftheinstruction("Findthegreatestvalue...placeitinColumnG"),validatingthegoalgroundingmechanisminour
+syntheticdata.
+↓
+(b)Step2: TextEntry(t = 1). Thesystemcapturesthetransitionfromplanningtoexecution. Theagent’sreasoning("Type
+’Max’...")isperfectlyalignedwiththegeneratedatomicactionsequence(press(’M’), press(’a’), press(’x’)).
+Figure8: VisualizationofSynthesizedTrajectory(PartI).TheEvoCUATrajectoryInspectorvalidatesthelogical
+consistencyofsynthetictrainingdata: (a)Clearalignmentbetweenuserinstructionandagentplanning;(b)Precise
+correspondencebetweenreasoningandatomickeyboardactions.
+25
+
+--- Page 26 ---
+EvoCUA:EvolvingComputerUseAgentsviaLearningfromScalableSyntheticExperience
+.
+.
+.
+(c)Step9: StatefulInteraction(t = 9). ThisviewvalidatestheUnifiedActionSpace. Thesyntheticgroundtruthrequiresa
+statefuloperation(Shift-Select).Theinspectorconfirmstheagentcorrectlyexecutesthekey_down: shift→click→key_up:
+shiftsequence.
+.
+.
+.
+(d)Step15:VerifiedTermination(t=15).ThefinalframevalidatestheReasoning-AugmentedTerminationschema.Thetool
+highlightsthattheagentgeneratesvisualevidence("Icansee...Maxcolumn...calculated")tojustifythesuccessfultermination
+status.
+Figure8:VisualizationofSynthesizedTrajectory(PartII).(c)Validationofcomplexstatefulprimitives(Shift+Click)
+essentialforGUImanipulation. (d)Validationoftheterminationlogictoensuretaskcompleteness.
+26

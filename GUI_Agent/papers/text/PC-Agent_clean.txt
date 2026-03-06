@@ -1,0 +1,884 @@
+--- Page 1 ---
+PC-Agent: A Hierarchical Multi-Agent Collaboration Framework for
+Complex Task Automation on PC
+HaoweiLiu1,2∗,XiZhang3∗,HaiyangXu3†,YuyangWanyan1,2,JunyangWang4,MingYan3†,
+JiZhang3,ChunfengYuan1,2†,ChangshengXu1,2,WeimingHu1,2,5,FeiHuang3
+1MAIS,InstituteofAutomation,ChineseAcademyofSciences,China
+2SchoolofArtificialIntelligence,UniversityofChineseAcademyofSciences,China
+3AlibabaGroup4BeijingJiaotongUniversity
+5SchoolofInformationScienceandTechnology,ShanghaiTechUniversity,China
+liuhaowei2019@ia.ac.cn,cfyuan@nlpr.ia.ac.cn
+{shuofeng.xhy, ym119608}@alibaba-inc.com
+Abstract intomulti-modalagentstoassisthumansincom-
+pletingvarioustasks. Inthisfield, graphicaluser
+InthefieldofMLLM-basedGUIagents,com- interface (GUI) agents have garnered significant
+paredtosmartphones,thePCscenarionotonly attention(Wangetal.,2024a;Agasheetal.,2024;
+features a more complex interactive environ-
+Zhangetal.,2023;WangandLiu,2024),astheau-
+ment, but also involves more intricate intra-
+tomationofsmartdevices(e.g.,smartphones,PCs)
+andinter-appworkflows. Toaddresstheseis-
+byagentsholdsvastapplicationpotential.
+sues, we propose a hierarchical agent frame-
+work named PC-Agent. Specifically, from Comparedtosmartphones,thecomplexityofthe
+the perception perspective, we devise an Ac- PC scenario manifests in two aspects: (1) More
+tive Perception Module (APM) to overcome complexinteractiveenvironment. PC’sGUIen-
+the inadequate abilities of current MLLMs compassesdenserandmorediverseinteractiveele-
+in perceiving screenshot content. From the
+ments(i.e.,iconsandwidgets),alongwithvaried
+decision-making perspective, to handle com-
+textlayouts(e.g.,documentsinWord andcodein
+plexuserinstructionsandinterdependentsub-
+VSCode),posingsignificantchallengesforscreen
+tasks more effectively, we propose a hierar-
+perception. For example, as Figure 1 shows, the
+chical multi-agent collaboration architecture
+that decomposes decision-making processes top ribbon of Word contains a plethora of icons
+intoInstruction-Subtask-Actionlevels. Within and widgets, yet lacks textual labels indicating
+this architecture, three agents (i.e., Manager, their functions. As a result, even state-of-the-art
+ProgressandDecision)aresetupforinstruc- MLLMs(e.g.,Claude-3.5)exhibitinadequateabil-
+tiondecomposition,progresstrackingandstep-
+ities in perceiving and grounding icons and text
+by-step decision-making respectively. Addi-
+on PC screens, and only achieves 24.0% accu-
+tionally, a Reflection agent is adopted to en-
+racy on a GUI grounding dataset in Figure 1(a).
+abletimelybottom-uperrorfeedbackandad-
+justment. We also introduce a new bench- (2)Morecomplextasksequences. Comparedto
+mark PC-Eval with 25 real-world complex smartphones,PCsaregenerallyusedinproductiv-
+instructions. Empirical results on PC-Eval ityscenariosthatinvolvemoreintricateintra-and
+show that our PC-Agent achieves a 32% ab- inter-appworkflows,andrequirelongerandmore
+soluteimprovementoftasksuccessrateover
+intricate operation steps. Taking making a travel
+previous state-of-the-art methods. The code
+planonPC(asinFigure1)asanexample,itmight
+isavailableathttps://github.com/X-PLUG/
+involvemultiplesubtasksacrossfourapplications.
+MobileAgent/tree/main/PC-Agent.
+Asaresult,ontheonehand,thelengthyoperation
+sequences(i.e.,28stepsintotal)increasethedif-
+1 Introduction
+ficulty of sensing the task progress. On the other
+Recently, Multi-modal Large Language Models hand,theexistenceofinter-subtaskdependencies
+(MLLM) (Bai et al., 2023; Ye et al., 2024; Chen requirestheagenttoconsidertheexecutionresults
+etal.,2024;Lietal.,2024)haveachievedimpres- ofprecedingsubtaskswhenmakingdecisions,fur-
+sive progress across various domains. Building therincreasingthedecision-makingdifficulty. As
+on the powerful perception and reasoning abili- Figure1(b)shows,theinstruction-levelsuccessrate
+ties of MLLMs, researchers have extended them (SR)ofasingleagent(GPT-4oHurstetal.,2024)
+∗Thefirsttwoauthorscontributedequallytothiswork. Moredetailsaboutthegroundingdatasetcanbefoundin
+†Correspondingauthors. AppendixA.5
+1
+5202
+beF
+12
+]VC.sc[
+2v28241.2052:viXra
+
+--- Page 2 ---
+Icons; Widgets;
+Complex Interactive Environment & Complex Instruction Text… The coordinate of the Refined
+Paragraph center button ? Perception
+U H s o e w r i e in i s n t r O u u c t t l i o o o n k : . V S i e e a w rc t h h e fo T r r t a o v u e ri l s P t l a a t n tr s a s c e ti n o t n t s o in ❌ Claude 3.5: [644, 132] Lengthy
+these destinations using Chrome. Create a new The coordinate of the start sequence
+Word document introducing the tourist attractions of second paragraph? Inter-subtask
+y in o t u er f v o a u l n b d e t f w or e e e n a c 1 h . 8 d e a s n t d in t a h t e io s n ta . r C t a d l a c y u l i a n t e C t a h l e c ulator. ❌ Claude 3.5: [419, 490] dependency
+Grounding Acc. Success Rate (SR)
+88.0% Subtask SR SR
+76.0%
+56.0%
+41.8%
+Outlook Chrome Microsoft Word Calculator 24.0%
+View the Travel Plans Search for tourist attractions Create a new Word document introducing the tourist Calculate the interval between 8.0%
+sent to Howie (6steps) in these destinations (6 steps) attractions you found for each destination (7 steps) 1.8 and the start day (9 steps) Claude-3.5 OurAPM Single Agent Ours
+Inter-subtask dependency (a) (b)
+Figure1: IllustrationofthecomplexityofthePCscenario: (1)Complexinteractiveenvironmentwithdenseand
+diverseelements. (2)Longandcomplextasksequencescontainingintra-andinter-softwareworkflows.
+declinesdrasticallyfrom41.8%to8%comparedto dle complex dependencies between them. At the
+subtaskSR,highlightingthechallengeofcomplet- subtask level, a Progress Agent (PA) tracks and
+ingreal-worldinstructionsonPC.Tohandlecross- summarizesoperationhistoryforpreciseprogress
+app tasks, the previous work UFO (Zhang et al., awareness. At the action level, a Decision Agent
+2024)designsadual-agentframework,oneforap- (DA) makes decisions step-by-step by combin-
+plicationselectionandtheotherforspecificcontrol ing the APM’s perception information and PA’s
+interactions. To tackle complex PC tasks, Agent- progressinformation,andinteractswiththePCen-
+S(Agasheetal.,2024)combinesonlinesearchand vironment to complete the decomposed subtasks.
+localmemoryforexperience-augmentedplanning. (3)Reflection-basedDynamicDecision-making.
+However,thesemethodslackfine-grainedpercep- Buildingontheabovearchitecture,wealsointro-
+tionandoperationabilitiesofon-screentext,which duceareflection-baseddynamicdecision-making
+iscrucialinproductivityscenarios(e.g.,Worddoc- mechanismforerrordetectioninexecutionresults,
+ument editing). Moreover, they generally over- with timely feedback and adjustments. An addi-
+lookthecomplexdependenciesbetweensubtasks, tional Reflection Agent (RA) is set at the action
+therebyexhibitinglimitedabilitiesonrealisticintra- leveltoobservescreenchangesbeforeandafterDA
+andinter-appcomplextasks. decisions,assessingthecorrectnessofthisstepand
+Inthispaper, weproposethePC-Agentframe- conveying feedback to the DA and PA. Figure 2
+work to handle the complex interactive environ- shows the entire process. Combining the hierar-
+ment and complex tasks in PC scenarios, which chicalmulti-agentcollaborationarchitecturewith
+comprisesthreecoredesigns: (1)ActivePercep- reflection-baseddynamicdecision-making,ourPC-
+tion Module. To enhance the fine-grained per- Agent framework can decompose complex user
+ception and operation abilities of the agent, we instructionsfromtoptobottomandprovidepre-
+proposeanActivePerceptionModule(APM).For cisefeedbackfrombottomtotopduringexecu-
+interactiveelements,weusetheaccessibilitytree tion. Consequently,thefouragentscollaborateto
+to extract their locations and meanings. For text, alleviatethedifficultyofinteractiveenvironments
+weemployanMLLM-drivenintentionunderstand- andcomplexworkflowtasksonPC.
+ing agent for target text extraction, followed by Tobetterevaluatethecapabilitiesofagentson
+OCRtoobtainpreciselocations. (2)Hierarchical complextasks,wepresentanewbenchmarkPC-
+Multi-agentCollaboration. Toimprovetheabil- EvalforPCproductivityenvironments. PC-Eval
+ities of handling complex instructions, we adopt comprises8popularapplicationsand25complex
+adivide-and-conquerapproachandproposeaHi- userinstructions,eachconsistingofseveralinterde-
+erarchicalMulti-agentCollaborationarchitecture. pendentsubtasks. Itprovidesachallengingandre-
+Specifically, we break down decision processes alisticbenchmark,byemphasizingcomplexwork-
+intothreelevels: Instruction-Subtask-Action. At flowsandlong-horizondecision-making. Compar-
+the instruction level, a Manager Agent (MA) de- ing our PC-Agent with advanced MLLM-based
+composestheuserinstructionintoparameterized singleagentsandexistingopen-sourcePCagents
+subtasks,withsignificantlyfeweroperationsteps on PC-Eval, we can find that PC-Agent achieves
+and lower decision-making difficulty. The MA significantimprovementsinbothinstruction-and
+alsomanagesinter-subtaskcommunicationtohan- subtask-levelsuccessrates, demonstratingtheef-
+2
+
+--- Page 3 ---
+Instruction Level
+Sub-task 1: Open the 'memo’ in 'Documents’, Communication Hub
+User’s Complicate Instruction and check time and location of the meeting,
+Open the 'memo' file in 'Documents'. Check the Manager output as {T1: T1_v, LOC: LOC_v}. T1 3:10pm
+t S im ea e r c a h n d o n l o C c h at r i o o m n e o f h o th w e m m u e c e h ti n ti g m w e i i t t h t J a o k h e n s . t o Agent S ou u t b p - u ta t s a k s 2 { : T S 2 e : a T rc 2 h _ v o } n Chrome ... to {LOC}, LOC Am N er a i t c u a r n a l M H u is s t e o u r m y of
+get from the Empire State Building to this
+location. Set an appropriate alarm so I can ... Sub-task 3: Set an alarm at {T2} in {D}. T2 10 min
+Update
+Subtask Level Instantiation Sub-task 2 LOC Am N er a i t c u a r n a l M H u is s t e o u r m y of {T2: 10 min}
+a
+Progress Sub-task 2: Search on Chrome ... To Sub-task process Previous Action: Reflection Feedback: the input field
+Agent American Museum of Natural History, Open the Chrome click the input field has been activated. | Successful ✅
+output as {T2: T2_v}
+Action Level
+Active Perception information:
+Sub- O ta p s e k n p t r h o e c C es h s rome Perception t i e c x o t n : : G N o e o w g l T e a , b [1 , 4 m 3 a 9 r , k 5 : 8 1 1 2 ] , ✅/ ❌
+Active the input filed Module [584, 41] ……
+Thought:Inputfieldhasbeenactivated,
+Decision nowIneedtoinputthequestion… Reflection
+Agent Action:Type(Howmuchtime…) Agent
+Summary:Itypethequestion.
+After the Action Before the Action
+Figure2: OverviewoftheproposedPC-Agent,whichdecomposesthedecision-makingprocessintothreelevels.Theorange
+linesdenotethetop-downdecision-makingdecomposition,andthepurplelinesrepresentthebottom-upreflectionprocess.
+fectivenessoftheproposedframework.
+Ourcontributionscanbesummarizedasfollows: A = ρ(I,O ,H ), (1)
+i i i−1
+(1) We propose a PC-Agent framework to over-
+where A and O represent the action and obser-
+come the limitations of existing methods in han- i i
+vation in the i-th step, and H is the operation
+dlingcomplexinteractiveenvironmentsandcom- i−1
+history until the (i−1)-th step. The complex in-
+plextasksinPCscenarios. AnActivePerception
+teractive environments and task sequences in PC
+Module(APM)isdevisedtoenablePC-Agentwith
+increasesthecomplexityofI, O andH, necessi-
+refinedperceptionandoperationcapabilities.
+tating designing an agent framework tailored for
+(2) Totackle complexPC tasks, we propose a hi-
+complexPCscenarios.
+erarchical multi-agent collaboration architecture
+decomposingthedecisionprocessintothreelevels
+2.2 ActivePerceptionModule
+(i.e., instruction-subtask-action), and introduce a
+reflection-baseddynamicdecision-makingmecha- Firstly,toenablerefinedperceptionandoperation
+nismfortimelyerrorfeedbackandadjustments. of interactive elements and text, we propose an
+activeperceptionmodule(APM).
+(3) We create a PC-Eval benchmark involving 8
+commonly used PC applications to better assess Interactiveelementperception. Wefirstusethe
+the agent’s capabilities in handling complex user pywinautoAPItoextracttheaccessibility(A11y)
+instructions. Experimentalresultsdemonstratethat tree of the screen interface, filtering and parsing
+theproposedPC-Agentlargelyoutperformsprevi- thecoordinatesanddescriptionsoftheinteractive
+ousmethodsincompletingcomplexPCtasks. elements. Thenweannotatetheelements’bound-
+ingboxesonthescreenshotinanSoM(Yangetal.,
+2 PC-Agent 2023)mannertohelpMLLMunderstandtheposi-
+tionsandmeaningsoftheelements.
+2.1 TaskFormulation
+Text perception. Text information cannot be ob-
+GivenanGUIenvironmentandauserinstruction tainedviatheA11ytree,anduserinstructionsoften
+I,theGUIAgent(denotedasρ)obtainsanobser- referencetextvaguely,makingitdifficulttodirectly
+vationO (e.g.,screenshot)abouttheenvironment. acquirethetargettext’scontentandposition. For
+Basedoninternalreasoningandplanning,itmakes instance,boldthelasttwoparagraphsofthisdocu-
+adecisionaboutthecurrentstep’sactionA,which ment. Toaddressthis,weproposeutilizingactive
+interactswiththeGUIenvironmentandaltersthe perceptiontoobtainthecontentandpositionofthe
+environment’sstate. Thisprocessgenerallyoccurs targettext. AsFigure3shows,fortasksinvolving
+step-by-step. Thisprocesscanbeformalizedas: refinedtextoperations(e.g.,selectionorediting),
+3
+
+--- Page 4 ---
+Subtask:
+Set the last paragraph of current Decision Select (Last Paragraph) APM Drag([804, 1252], [1908, 1496])
+document to be underlined. Agent
+Active Perception Module (APM)
+OCR Tool
+A11y
+Tree Intention London, the
+Und A er g st e a n n t ding c E th a n e p g i e l t a n a n l t i d o re f . . c . i a ty nd L rig ef h t t _ _ t b o o p t : t o [8 m 0 : 4 [ , 1 1 9 2 0 5 8 2 , ] 1 496]
+Figure3: Illustrationoftheactiveperceptionmodule. Forinteractiveelements,theA11ytreeisadoptedtoobtain
+theboundingboxesandfunctionalinformation. Fortext,anintentionunderstandingagentandanOCRtoolare
+utilizedtoperformpreciseselectingorediting.
+the decision agent outputs the Select (target text) Figure2,givenacomplexuserinstruction,theMA
+action. ThentheAPMemploysanMLLM-driven firstdecomposesitintoaseriesofparameterized
+intentionunderstandingagenttodeterminethestart subtasks. Eachsubtask,onceinstantiated,canbe
+andendrangeofthetargettext,followedbyusing independentlyexecutedbytheprogressagentand
+OCR tools to precisely locate the target text for decisionagent,thuseffectivelyreducingthecom-
+subsequent detailed operations such as drag. A plexityofindividualtasks.
+detailedcaseisshowninFigure6intheappendix. (2) communication between subtasks. The de-
+composedsubtasksoftenhavecomplexinterdepen-
+2.3 HierarchicalMulti-agentCollaboration
+dency. Specifically,therearefourtypesofsubtasks:
+PC scenarios often involve intra- and inter-app (a)Theexecutionresultofthesubtaskcanbeused
+workflows, increasing the complexity of user in- toinstantiatesubsequentsubtasks(e.g.,Subtask1
+structions. To address this issue, we employ a inFigure2);(b)Thesubtaskdependsontheexecu-
+divide-and-conquerapproach,breakingdownthe tionresultsofprecedingsubtasksforinstantiation
+decision-makingprocessintothreelevels: Instruc- (e.g.,Subtask3inFigure2);(c)Thesubtaskboth
+tion, Subtask and Action. As shown in Figure 2, dependsonprecedingsubtasksforinstantiationand
+basedonthistop-downhierarchicaldecomposition, producesexecutionresultsforsubsequentsubtasks
+wedesignamulti-agentcollaborationarchitecture: (e.g., Subtask 2 in Figure 2); (d) The subtask is
+(1)Instruction-level: Amanageragent(MA)isset independentofothersubtasks(e.g.,setanalarmat
+upforhigh-leveltaskmanagement,whichincludes 10am in the Clock app). As Figure 2 shows, dur-
+decomposing instructions into subtasks, commu- ingthewholeprocess,themanageragentmanages
+nication between subtasks, and overall progress. communicationbetweensubtasksandcomplexpa-
+(2) Subtask-level: A progress agent (PA) is es- rametertransmissionrelationships. Itmaintainsa
+tablishedtomanagetheprogressofsubtasks. (3) communicationhub,updatestheoutputofsuccess-
+Action-level: Adecisionagent(DA)isdesignated fullyexecutedsubtasksintothishub,andusesthe
+to complete subtasks. Given a specific subtask, hubtoinstantiatesubsequentsubtasks.
+the DA makes decisions for each step iteratively,
+2.3.2 ProgressAgent
+basedontheperceptionoftheenvironmentandthe
+operationhistoryprovidedbythePA. AftertheManagerAgentcompletesinstructionde-
+Throughthishierarchicalmulti-agentcollabora- compositionandnecessaryinter-subtaskcommu-
+tion, complex user instructions are decomposed nicationtoinstantiateparameterizedsubtasks,the
+into several interdependent subtasks. The col- currentindependentlyexecutablesubtaskishanded
+laborative efforts of manager, progress and deci- over to the Progress Agent (PA). The PA, also
+sionagentseffectivelyreducetheoveralldecision- driven by LLM, is responsible for tracking and
+makingdifficultyandimprovethesuccessrate. summarizingtheprogressofsubtasksbasedonthe
+decisions of the decision agent and the feedback
+2.3.1 ManagerAgent
+fromthereflectionagent(willbeintroducedinSec-
+Inourhierarchicalmulti-agentcollaborationarchi- tion 2.4). Once the current subtask is completed,
+tecture,theLLM-drivenmanageragent(MA)plays thePAfeedsbacktheoutputresultstotheMA.
+acrucialroleinhigh-leveltaskmanagement: ThepurposeofsettingupanindependentPAbe-
+(1)Instructiondecomposition. Asillustratedin tweentheMAandDAistwofold: (1)Itachieves
+4
+
+--- Page 5 ---
+more precise progress tracking by divide-and- action space ensures that the DA can effectively
+conquer. PA tracks the progress of each subtask generateandexecutedecisions,leadingtoefficient
+individually. This avoids summarizing the entire andaccuratetaskcompletion.
+instruction-levelhistory,whichcanbelengthyand
+2.4 Reflection-basedDynamic
+cumbersome. (2)Itfacilitatesdecision-makingby
+Decision-making
+providingthedecisionagentwithaclearerunder-
+standingoftheoperationhistoryandwhichparts Due to factors such as hallucinations and limited
+ofthesubtaskremainincomplete. Thisavoidsin- reasoning capabilities, even the most advanced
+terferencefromlengthyhistoryinformationinthe MLLMs (e.g., GPT-4o Hurstet al., 2024, claude-
+decision-makingprocess. 3.5 Anthropic, 2024) find it challenging to avoid
+Specifically,theinputforthePAatthei-thstep errorsinperceptionanddecision-making. Thisis-
+includes four parts: (1) the current subtask T as- suebecomesmorepronouncedwithlongoperation
+signedbytheMA;(2)theprevioustaskprogress sequences required by tasks, as a single error in
+TP ;(3)theactionA outputbythei-thstep’s anystepcanleadtothefailureoftheentiretask.
+i−1 i
+DA; and (4) the reflection R after executing the To detect potential errors in execution results
+i
+i-th step’s action. Based on this information, the andprovidetimelyfeedbackandadjustments,we
+PAoutputstheupdatedprogressTP . Theabove designareflection-baseddynamicdecision-making
+i
+processcanbeformalizedas: mechanism. Builtonthehierarchicalarchitecture
+introduced in Section 2.3, the dynamic decision-
+makingmechanismoperatesinabottom-upman-
+TP = PA(T,TP ,A ,R ). (2)
+i i−1 i i
+nerwiththeReflectionAgentatitscore.
+2.3.3 DecisionAgent
+2.4.1 ReflectionAgent
+DrivenbyMLLM,theDecisionAgent(DA)isthe
+Intheaction-levelofthehierarchicalarchitecture,
+coreagentwithintheentirePC-Agentframework
+wesetupareflectionagent(RA)paralleltothede-
+that generates action decisions and directly inter-
+cisionagent(DA).AftertheDAmakesadecision
+actswiththeenvironment. GivenasubtaskT,at
+andexecutesthecorrespondingaction,theRAob-
+eachstep,DAfirstobtainsanobservationO ofthe
+i servesthechangeinthesystem’sstatebeforeand
+currentenvironmentusingtheperceptionmodule.
+aftertheactiontodeterminewhethertheoutcome
+It then combines this with the progress informa-
+of thisstep meetsexpectations. Thisprocess can
+tionTP outputbyPAinthepreviousstep,and
+i−1 beformalizedas:
+thereflectioninformationR outputbyRA,to
+i−1
+generatethedecisionforthecurrentstepA . This
+i R = RA(T,A ,O ,O ). (4)
+i i i−1 i
+processcanbeformalizedas:
+Depending on the execution results, the RA
+makesthreetypesofjudgments: (1)Theexecution
+A = DA(T,O ,TP ,R ). (3)
+i i i−1 i−1
+oftheactionresultedinchangestothescreenshot
+Here, decisions are generated in a Chain-of- that did not meet expectations. This may be due
+Thought(Weietal.,2022)manner. Aninnermono- to incorrect action type or position parameters in
+logue for the current step is first generated, fol- DA’sdecision,requiringreplanningtocorrectthe
+lowedbythecorrespondingactiondecision. This mistake. (2)Noeffectiveresponsewasproduced
+approachnotonlyaidstheMLLMinmakingbetter onthescreenshotafterexecutingtheaction. This
+decisionsbutalsohelpstheRAtojudgewhether mightbebecausetheactionwasexecutedonapo-
+theexecutionresultsmeetexpectations. sitionwithnointeractiveelements,ortheelement
+Afterobtainingthedecisionforthecurrentstep, (such as an input box) was not yet activated, ne-
+weconvertthedecisioninformationintoaspecific cessitating an adjustment in the action execution
+actiontypeandcorrespondingparameters,andthen position. (3) The action execution produced the
+usethepyautoguiapitoexecutethecorresponding correctresult,allowingtheDAtoproceedwiththe
+keyboardandmouseoperations. Tosimplifyoper- nextdecisionbasedonthis.
+ationsandmakedecisionseasytoparse,wedefine In the first two scenarios, the RA’s output will
+a constrained action space, which includes click, befedbacktotheDA,enablingtheDAtoproduce
+doubleclick,type,select,drag,scroll,shortcutand decisionsbasedonreflectioninformationtocorrect
+stop(detailedinAppendixA.3). Thisconstrained errorsoravoidrepeatingineffectiveactions. The
+5
+
+--- Page 6 ---
+RA’sreflectioninformationwillalsobefedbackto 2025), as well as previous open-source PC agent
+theprogressagent(PA),allowingthePAtodetect methods such as UFO (Zhang et al., 2024) and
+errorsandachievemoreaccurateprogresstracking. Agent-S (Agashe et al., 2024). For as fair a com-
+parisonaspossible,wesetthesameactionspace
+3 Experiments
+forMLLMsviaprompting,enablingthemtooper-
+ateasasingledecisionagent. Asformulti-agent
+3.1 PC-Eval
+methodsUFOandAgent-S,wealsoadoptGPT-4o
+Existing benchmarks in real computer environ-
+astheirfoundationmodels.
+ments (e.g., OSWorld Xie et al., 2024 and Win-
+Resultsofsingleagents. Table2presentstheper-
+dowsAgentArenaBonattietal.,2024),thoughwith
+formance comparison of PC-Agent against other
+large scale, contain mostly basic tasks that may
+methods on PC-Eval. It can be seen that those
+not align with practical workflow requirements,
+MLLM-based single agents have almost failed
+such as Open Paint and draw a red circle. To
+on all the instructions. Even the best-performing
+betterevaluatetheabilitiesofagentsoncomplex
+Qwen2.5-VLachievesmerelya12%successrate.
+PCtasks,weproposeanewbenchmarkPC-Eval,
+Thisresultindicatesthatrelyingsolelyontheabil-
+which consists of 25 complex instructions (with
+ities of a single decision agent to fulfill complex
+79subtasksintotal)involving8popularPCappli-
+user instructions on PC is extremely challenging
+cations(i.e.,Chrome,MicrosoftWord,Microsoft
+for the current MLLMs. Meanwhile, the success
+Excel, Notepad, Clock, Calculator, Outlook and
+rateofthesemodelsissignificantlylowerthanthe
+FileExplorer). Eachinstructioncomprisesseveral
+subtasksuccessrate. Thisdemonstratesthat,due
+interdependent subtasks, and emphasizes refined
+to the lengthy operation sequences and complex
+operations,practicalworkflowsandlong-horizon
+dependenciesbetweensubtasks,completingtheen-
+decision-making. Three annotators created and
+tireinstructionisfarmoredifficultthancompleting
+checked these instructions to ensure they are re-
+theindividualsubtasks.
+alistic and challenging. Table 1 shows three ex-
+ample instructions, with the complete list in Ap- Resultsofmulti-agentmethods. UFOandAgent-
+pendixA.4. Sincedifferentsubtaskscorrespondto SaretwoagentframeworkstailoredforPCscenar-
+differentpagesandsuccesscriteria,creatingsepa- ios. However, on PC-Eval, UFO only achieves a
+ratescriptsforautomaticevaluationofeachsubtask slightadvantageoverthesingleagentusingGPT-
+would be prohibitively costly. Therefore, we em- 4o. WhileAgent-SshowsanimprovementinSSR
+ployhumanevaluationinthisstudy,andweadopt oversingleagents,itsinstruction-levelSRremains
+thefollowingtwometricsforevaluation: low. Adetailedanalysisrevealstheirproblemsin
+(1) Success Rate (SR): The success rate metric bothperceptionanddecision-making:
+referstotheproportionofsuccessfullycompleted (1)Existingmethodshavelimitedfine-grainedper-
+instructions by the agents. (2) Subtask Success ception and operation abilities. For instance, in
+Rate(SSR):Tocomprehensivelyevaluatetheabil- Excel scenarios such as the one shown in Figure
+ityofagents,weannotatedthesubtasksofthePC- 4,UFOmayinputmultiplepiecesofinformation
+Evalinstructions,andcalculatethesuccessrateof intothesamecell. InWordscenariossuchasthe
+thesubtaskscompletedbytheagents. oneshowninFigure6,bothUFOandAgent-Sare
+unabletoperformeditingoperations(e.g.,“under-
+3.2 Results
+linethelastparagraph”). (2)Existingmethodsare
+Experimental setup. In the experiments, unless insufficient in handling the dependency between
+otherwise specified, we use GPT-4o as the foun- subtasksincomplexinstructions,especiallyinsce-
+dationmodelforthemanager, progress, decision narios where the execution of later subtasks de-
+andreflectionagentsofourPC-Agentframework. pendsontheresultsofearlierones. Forexample,
+And we use the OpenOCR tool for OCR in the intheinstruction“... andwritedownthetransla-
+APM. We compare our PC-Agent with a wide tionofthecontent”,Agent-Swoulddirectlywrite
+rangeofsingle-andmulti-agentmethods,includ- down the text “The translation of the content”,
+ingadvancedMLLMssuchasGPT-4o(Hurstetal., ratherthanthetranslatedcontentobtainedearlier.
+2024), Gemini-2.0 (Team et al., 2023), Claude-
+Incontrast,ourproposedAPMenablesthePC-
+3.5 (Anthropic, 2024), Qwen2.5-VL 72B (Team,
+Agenttohaverefinedoperationabilities. Addition-
+https://github.com/Topdu/OpenOCR ally,throughhierarchicalmulti-agentcollaboration,
+6
+
+--- Page 7 ---
+Table1: ExamplesofcomplexinstructionsinPC-Eval.
+Applications Instruction Steps
+FileExplorer IntheNotepadapp,openthe’travel_plan’filein’Documents’,andcheckthetimeandlocation 20
+Notepad,Clock ofthetravelplans.AddthetraveldestinationtotheWorldClocklistontheClockapp.Calculate
+Calculator theintervalbetweenFebruary18andthestarttimeofthetravelontheCalculator.
+Chrome Search on Chrome for the total population of China, the United States, and India in 2024 23
+Excel respectively.CreateanewspreadsheetinExcel,writethethreecountries’namesincolumnAin
+descendingorderofpopulation,andthecorrespondingpopulationsincolumnB.
+FileExplorer Openthe’test_doc1’filein’Documents’inFileExplorer,setthetitletobebold,andsettheline 8
+Word spacingofthefirsttwoparagraphsto1.5xinWord.
+Table2: DynamicevaluationresultsonthePC-Evalbenchmark.
+Model Type SubtaskSR(%)↑ SuccessRate(%)↑
+Gemini-2.0 35.4% 0.0%
+Claude-3.5 15.2% 0.0%
+Single-Agent
+Qwen2.5-VL 46.8% 12.0%
+GPT-4o 41.8% 8.0%
+UFO(Zhangetal.,2024) 43.0% 12.0%
+Agent-S(Agasheetal.,2024) Multi-Agent 55.7% 24.0%
+PC-Agent(Ours) 76.0% 56.0%
+PC-Agentachieveseffectiveinstructiondecompo- forPAandDAtoexecute. Thelengthyoperation
+sition,inter-subtaskcommunication,progressman- sequences and complex dependency between the
+agement,anderrorreflection,whichsignificantly subtasksposegreatchallengestoprogresstracking
+improvestheperformanceoncomplextasks. Asa andalsointerferewithDA’sdecision-making.
+result,ourPC-Agentlargelyoutperformsallprevi- (3) The reflection-based dynamic decision-
+ousmethods,surpassingUFOandAgent-Sby44% making mechanism helps the model recover
+and32%respectivelyintermsofSR. fromerrors. Comparingthethirdandfourthlines,
+it can be seen that removing RA leads to a very
+3.3 AblationStudy significant performance decrease (i.e., 27.9% in
+SSRand44.0%inSR).Thisisbecauseduringthe
+Table3showstheresultsoftheablationstudyon
+executionofcomplexinstructions,errorsinpercep-
+differentcomponentsofthePC-Agentframework,
+tionanddecision-makingareinevitable. Removing
+fromwhichwecanconclude:
+RAcausesthemodeltolackawarenessandtimely
+(1) The active perception module has a signifi-
+correctionoferrors,whichpredisposesittogetting
+cantimpactonperformance. Comparingthefirst
+stuckinmeaninglessrepetitionorincorrectsteps.
+andfourthlines,itcanbeseenthatafterremoving
+Wealsoconductablationexperimentsonfounda-
+APM,theSSRdecreasesbynearly20%,whilethe
+tionmodels,pleaseseeAppendix A.1fordetails.
+SRdecreasesdrasticallybyover30%. Ontheone
+hand,withoutAPM,theDecisionAgentisunable
+3.4 CaseStudy
+to grasp the meaning of interactive elements and
+thus makes more errors. On the other hand, the Figure 4 illustrates a complete operation process
+PC-Agent loses the ability to precisely perceive of our PC-Agent framework. Given a complex
+andmanipulatethereferredtext. Asaresult,thein- userinstruction,theManagerAgentfirstbreaksit
+structioncompletionratehassignificantlydeclined. downintofoursubtasks. Forthefirstthreesubtasks,
+(2)ThemanageragenteffectivelyimprovesPC- wheneachissuccessfullyexecuted,thecorrespond-
+Agent’sabilitiesincomplexworkflowscenarios. ingsearchresultisupdatedinthecommunication
+Comparing the second and fourth lines, it can be hub. ThentheMAusesthehubtoinstantiatethe
+seenthatremovingMAcausesSRtosignificantly fourthsubtask,whichreducesthedifficultyofthe
+decline to 12%. This is because without MA, a longhorizondecision-makingprocess. Besides,the
+complexinstructionwillbetreatedasasingletask preciseclickandtypeoperationsinExceldemon-
+7
+
+--- Page 8 ---
+Table3: TheresultsoftheablationstudyontheAPMmodule,ManageragentandReflectionAgent.
+Ablationstudy
+SubtaskSuccessRate SuccessRate
+APM ManagerAgent ReflectionAgent
+✓ ✓ 58.2% 20.0%
+✓ ✓ 50.6% 12.0%
+✓ ✓ 48.1% 12.0%
+✓ ✓ ✓ 76.0% 56.0%
+Task Instruction:Search on Chrome for the current stock prices of Nvidia, Apple, and Microsoft Communication Hub
+respect-tively. Create a new spreadsheet in Excel, write the company names in column A and the Nvidia_stock_price Apple_stock_price Microsoft_stock_price
+corresponding stock prices in column B, and save the file. 142.62 USD 222.78USD 444.06USD
+Open App Chrome ['Ap R p e l p e l c a u c r e r e (1 n 4 t 1 s 5 to , c 1 k 2 p 6 r ) ice'] Tell
+Type Click
+Nvidia_stock_price: 142.62 USD Apple_stock_price: 222.78 USD Microsoft_stock_price: 222.78 USD
+1.Search for 'Nvidia current stock price' on Chrome and output {'Nvidia_stock_price': ‘142.62'} 2 o . n “ C S h e r a o rc m h e f a o n r d ‘ A o p u p tp le u t current stock price’ 3 p . ri S c e e a ' o rc n h C fo h r r o 'M m i e c a ro n s d o o ft u c tp u u rr t e nt stock
+{'Apple_stock_price’: 222.78'} {'Microsoft_stock_price': ‘444.06'}
+Open App Excel
+Click Type Click Type Click
+4.Create a new spreadsheet in Excel, write 'Nvidia' in cell A1 and {Nvidia_stock_price} in cell B1, 'Apple' in cell A2 and {Apple_stock_price} in cell B2,
+Shortcut Stop
+(Command+ S)
+Type
+Click
+‘Microsoft’ in cell A3 and {Microsoft_stock_price} in cell B3, then save the file.
+Figure4: AcaseofsearchingforinformationmultipletimesandbuildanExcelsheetaccordingly.
+stratetheeffectivenessofourproposedAPMinper- plication selection, and the other agent handles
+ceivingcomplexscreenelements. Wealsoprovide thespecificcontrolinteractions. ToinjectPCtask
+acasestudyonreflection-baseddynamicdecision- knowledgeintodecision-making,Agent-S(Agashe
+making. PleaserefertoAppendixA.2fordetails. etal.,2024)combinesonlinesearchandlocalmem-
+oryforexperience-augmentedplanning. Compared
+4 RelatedWork
+to previous methods, our PC-Agent focuses on
+complex PC tasks. We achieve more refined per-
+RecentadvancesinMLLMs(Hurstetal.,2024;Liu
+ception and operation (e.g., editing Word docu-
+etal.,2024;Wangetal.,2024b)haveinspiredre-
+ments)viathedevisedAPM.Andtheproposedhi-
+searchtoextendthesemodelstointelligentagents
+erarchicalframeworkrealizesadivide-and-conquer
+in various domains. Among these, there’s signif-
+pipelineforcomplexinstructions,whicheffectively
+icant focus on GUI Agents for task automation
+addressestheinter-subtaskdependenciesandsig-
+onsmartdevices. Currently,researchinthisfield
+nificantlyimprovesperformanceoncomplextasks.
+ismoreconcentratedontheMobile(Zhangetal.,
+2023;Wangetal.,2024a;Hongetal.,2024)and
+5 Conclusion
+Web(Guretal.,2023;Zhengetal.,2024)scenar-
+ios. In the PC scenario, Cradle (Tan et al., 2024) Inthiswork,weproposedaPC-Agentframework
+focuses on employing MLLM’s reasoning abili- to handle complex interactive environments and
+ties to realize operations in AAA games, while tasksinPCscenarios. AnActivePerceptionMod-
+PCAgent(Heetal.,2024)aimstoenableagents ulewasdevisedforrefinedperceptionandopera-
+to create and modify PowerPoint presentations. tioncapabilities. Andweproposedahierarchical
+Despite the notable progress, their versatility re- multi-agent collaboration architecture to decom-
+mainsrelativelylimited. Tohandlecross-apptasks, pose the decision-making process into three lev-
+UFO (Zhang et al., 2024) designs a dual-agent els,andadoptedreflection-baseddynamicdecision-
+framework,whereoneagentisresponsibleforap- makingfortimelyerrorfeedbackandadjustments.
+8
+
+--- Page 9 ---
+WecreatedaPC-Evalbenchmarkofrealisticand Wenyi Hong, Weihan Wang, Qingsong Lv, Jiazheng
+complex user instructions. Experimental results Xu,WenmengYu,JunhuiJi,YanWang,ZihanWang,
+YuxiaoDong,MingDing,etal.2024. Cogagent: A
+verifythatPC-Agentexhibitssuperiorperformance
+visuallanguagemodelforguiagents. InProceedings
+overpreviousmethodsoncomplexPCtasks.
+of the IEEE/CVF Conference on Computer Vision
+andPatternRecognition,pages14281–14290.
+Limitations
+Aaron Hurst, Adam Lerer, Adam P Goucher, Adam
+Inthispaper,weexploredavarietyofMLLMsas
+Perelman, Aditya Ramesh, Aidan Clark, AJ Os-
+foundationmodels. Currently,thebestperforming trow, Akila Welihinda, Alan Hayes, Alec Radford,
+model remains the closed-source GPT-4o. How- et al. 2024. Gpt-4o system card. arXiv preprint
+arXiv:2410.21276.
+ever, there is still significant room for improving
+theefficiencyofcompletingcomplextasksbyin-
+Bo Li, Yuanhan Zhang, Dong Guo, Renrui Zhang,
+vokingclosed-sourcemodels. Andtheprivacyand Feng Li, Hao Zhang, Kaichen Zhang, Peiyuan
+securityissuesassociatedwithclosed-sourcemod- Zhang, Yanwei Li, Ziwei Liu, et al. 2024. Llava-
+onevision: Easyvisualtasktransfer. arXivpreprint
+elsalsodeserveattention. Additionally,ourfocus
+arXiv:2408.03326.
+inthisworkhasprimarilybeenonproductivitysce-
+narios. Infuturework,wewillexploreexpanding HaotianLiu,ChunyuanLi,QingyangWu,andYongJae
+intomorescenariossuchassocialinteractionand Lee.2024. Visualinstructiontuning. Advancesin
+neuralinformationprocessingsystems,36.
+entertainment.
+Weihao Tan, Wentao Zhang, Xinrun Xu, Haochong
+Xia, Gang Ding, Boyu Li, Bohan Zhou, Junpeng
+References
+Yue, Jiechuan Jiang, Yewen Li, et al. 2024. Cra-
+dle: Empoweringfoundationagentstowardsgeneral
+SaaketAgashe,JiuzhouHan,ShuyuGan,JiachenYang,
+computer control. In NeurIPS 2024 Workshop on
+AngLi,andXinEricWang.2024. Agents: Anopen
+Open-WorldAgents.
+agenticframeworkthatusescomputerslikeahuman.
+arXivpreprintarXiv:2410.08164.
+Gemini Team, Rohan Anil, Sebastian Borgeaud,
+Anthropic. 2024. Claude 3.5 sonnet. Yonghui Wu, Jean-Baptiste Alayrac, Jiahui Yu,
+https://www.anthropic.com/news/ 3-5-models- Radu Soricut, Johan Schalkwyk, Andrew M Dai,
+and-computer-use. Anja Hauth, et al. 2023. Gemini: a family of
+highlycapablemultimodalmodels. arXivpreprint
+Jinze Bai, Shuai Bai, Shusheng Yang, Shijie Wang, arXiv:2312.11805.
+SinanTan, PengWang, JunyangLin, ChangZhou,
+andJingrenZhou.2023. Qwen-vl: Afrontierlarge Qwen Team. 2025. Qwen 2.5 vl.
+vision-languagemodelwithversatileabilities. arXiv https://qwenlm.github.io/blog/qwen2.5-vl.
+preprintarXiv:2308.12966.
+Junyang Wang, Haiyang Xu, Jiabo Ye, Ming Yan,
+RogerioBonatti,DanZhao,FrancescoBonacci,Dillon
+WeizhouShen,JiZhang,FeiHuang,andJitaoSang.
+Dupont,SaraAbdali,YinhengLi,YadongLu,Justin
+2024a. Mobile-agent: Autonomous multi-modal
+Wagle,KazuhitoKoishida,ArthurBucker,etal.2024.
+mobile device agent with visual perception. arXiv
+Windows agent arena: Evaluating multi-modal os
+preprintarXiv:2401.16158.
+agentsatscale. arXivpreprintarXiv:2409.08264.
+Peng Wang, Shuai Bai, Sinan Tan, Shijie Wang, Zhi-
+ZheChen,JiannanWu,WenhaiWang,WeijieSu,Guo
+haoFan,JinzeBai,KeqinChen,XuejingLiu,Jialin
+Chen, Sen Xing, Muyan Zhong, Qinglong Zhang,
+Wang,WenbinGe,etal.2024b. Qwen2-vl: Enhanc-
+XizhouZhu,LeweiLu,etal.2024. Internvl: Scal-
+ingvision-languagemodel’sperceptionoftheworld
+ing up vision foundation models and aligning for
+atanyresolution. arXivpreprintarXiv:2409.12191.
+generic visual-linguistic tasks. In Proceedings of
+theIEEE/CVFConferenceonComputerVisionand
+Xiaoqiang Wang and Bang Liu. 2024. Oscar: Oper-
+PatternRecognition,pages24185–24198.
+atingsystemcontrolviastate-awarereasoningand
+Izzeddin Gur, Hiroki Furuta, Austin Huang, Mustafa re-planning. arXivpreprintarXiv:2410.18963.
+Safdari,YutakaMatsuo,DouglasEck,andAleksan-
+draFaust.2023. Areal-worldwebagentwithplan- JasonWei,XuezhiWang,DaleSchuurmans,Maarten
+ning,longcontextunderstanding,andprogramsyn- Bosma,FeiXia,EdChi,QuocVLe,DennyZhou,
+thesis. arXivpreprintarXiv:2307.12856. etal.2022. Chain-of-thoughtpromptingelicitsrea-
+soninginlargelanguagemodels. Advancesinneural
+Yanheng He, Jiahe Jin, Shijie Xia, Jiadi Su, Runze informationprocessingsystems,35:24824–24837.
+Fan,HaoyangZou,XiangkunHu,andPengfeiLiu.
+2024. Pc agent: While you sleep, ai works–a cog- TianbaoXie,DanyangZhang,JixuanChen,Xiaochuan
+nitive journey into digital world. arXiv preprint Li,SihengZhao,RuishengCao,TohJingHua,Zhou-
+arXiv:2412.17589. junCheng,DongchanShin,FangyuLei,etal.2024.
+9
+
+--- Page 10 ---
+Osworld:Benchmarkingmultimodalagentsforopen- Qwen2.5-VL, the SSR and SR of the PC-Agent
+ended tasks in real computer environments. arXiv using Qwen2.5-VL actually decreased. Detailed
+preprintarXiv:2404.07972.
+analysisrevealsthat thisisdueto Qwen2.5-VL’s
+JianweiYang,HaoZhang,FengLi,XueyanZou,Chun- limited textual ability to follow the format of the
+yuan Li, and Jianfeng Gao. 2023. Set-of-mark output action and unsatisfactory ability to judge
+promptingunleashesextraordinaryvisualgrounding
+whetherthetaskiscompleted. Andthelatterissue
+ingpt-4v. arXivpreprintarXiv:2310.11441.
+becomesmoresevereaftertheinstructionisdecom-
+Qinghao Ye, Haiyang Xu, Jiabo Ye, Ming Yan, An- posed into subtasks. In conclusion, the result in
+wen Hu, Haowei Liu, Qi Qian, Ji Zhang, and Fei Table4highlightsthattheabilitiesofMLLMsare
+Huang.2024. mplug-owl2: Revolutionizingmulti-
+thefoundationoftheframework’seffectiveness.
+modallargelanguagemodelwithmodalitycollabo-
+ration. InProceedingsoftheIEEE/CVFConference
+A.2 MoreCaseStudy
+onComputerVisionandPatternRecognition,pages
+13040–13051.
+Figure 5 shows an example within the PC-Agent
+Chaoyun Zhang, Liqun Li, Shilin He, Xu Zhang, framework where the proposed reflection mecha-
+Bo Qiao, Si Qin, Minghua Ma, Yu Kang, Qing- nismpreventsrepetitiveinvalidoperations. Ascan
+wei Lin, Saravan Rajmohan, Dongmei Zhang, and beseen,aftertheDecisionAgent(DA)clickedthe
+Qi Zhang. 2024. UFO: A UI-Focused Agent
+forwardbuttonoftheChromebrowserwithoutpro-
+for Windows OS Interaction. arXiv preprint
+arXiv:2402.07939. ducingavalidresponse,theReflectionAgent(RA)
+detectedthiserrorandfeditbacktotheDA.Based
+ChiZhang,ZhaoYang,JiaxuanLiu,YuchengHan,Xin
+onthisfeedback,theDAreconsideredinthenext
+Chen, Zebiao Huang, Bin Fu, and Gang Yu. 2023.
+step and executed the correct operation (i.e., use
+Appagent: Multimodalagentsassmartphoneusers.
+arXivpreprintarXiv:2312.13771. theShortcutCommand+Ttoopenanewtab).
+BoyuanZheng,BoyuGou,JihyungKil,HuanSun,and A.3 ActionSpace
+YuSu.2024. Gpt-4v(ision)isageneralistwebagent,
+ifgrounded. arXivpreprintarXiv:2401.01614. Wedefinetheactionspaceasfollows:
+A Appendix • OpenApp(name): Openaspecificappusing
+thesystem’ssearchfunction.
+A.1 AblationonFoundationModels
+Table 4 compares the performance of different • Click (x, y): Click the mouse at position (x,
+MLLMs. Hereweintroducetwometricsbesides y).
+SRandSSRtocomparetheresultsofusingdiffer-
+entMLLMsasthefoundationmodel: • DoubleClick(x,y): Clickthemousetwiceat
+position(x,y).
+• Recovery Rate: It measures the proportion
+ofinstructionswhererecoveryoccurred. The • Select (text): Acquire the content and posi-
+recoverybehaviorindicatesthattheagentde- tion of the target text by invoking the active
+tectsanerrorandcorrectsitviareflection(no perceptionmodule(APM).
+matter whether the instruction is ultimately
+completed). • Type (x, y) [text]: Input text content at posi-
+tion(x,y).
+• Manager SR: It assesses the ability of the
+Manager Agent to correctly decompose the • Drag(x1,y1)(x2,y2): Selectaspecificarea
+userinstructions. oftextcontentbydragging.
+Fromthetable,wecanobservethatboththeSSR
+• Scroll (x, y) (value): Scroll the page up or
+andSRofthePC-AgentdrivenbyGPT-4oaresig-
+downatposition(x,y).
+nificantlybetterthantheresultsusingGemini-2.0,
+Claude-3.5andQwen2.5-VL.AndGPT-4oleads • Shortcut(keylist): Useshortcutkeys,suchas
+Gemini-2.0by40%intermsoftheRecoveryRate. savingthroughctrl+s.
+It may be benefit from the better perception and
+reasoningabilitiesofGPT-4o. Besides,itisworth • Stop: Alltherequirementshavebeenmet,end
+noting that, compared to the single agent using thecurrentprocess.
+10
+
+--- Page 11 ---
+Table4: PerformanceresultsofPC-AgentwithdifferentfoundationmodelsonPC-Eval.
+Model SubtaskSR(%)↑ SuccessRate(%)↑ RecoveryRate(%)↑ ManagerSR(%)↑
+Gemini-2.0 55.7% 28.0% 24.0% 84.0%
+Claude-3.5 63.3% 40.0% 48.0% 88.0%
+Qwen2.5-VL 32.9% 12.0% 40.0% 88.0%
+GPT-4o 76.0% 56.0% 64.0% 96.0%
+Task Instruction: Search on Chrome for the dates of International Labour Day and American Independence Dayin 2025 respectively, and
+calculate the interval bet-ween the two dates using the Calculator app.
+# 1Start # 4WrongDecision # 5WrongDecision😭 #6Reflect😄 #7Recorrect 😄 #25Finish
+Open App Chrome Shortcut
+(Command+ T)
+Type
+Error Recover!
+Decision: Click(110, 126) ❌ Decision: Shortcut (command, t)
+Reflection: By comparing the before and after screenshots, it seems the search bar Reflection: The after screenshot shows a new Chrome tab being opened, which
+change wasn‘t executed as expected because the after screenshot does not reflect a indicates that the shortcut was successfully executed. This aligns with the operation
+new search page for the desired search term \“American Independence Day 2025 date. thought since opening a new tabgives the user a fresh interface to start the search for
+"American Independence Day 2025 date.
+Figure5: AcaseofreflectionwhenperformingmultiplesuccessivesearchesinChrome.
+A.4 InstructionsinPC-Eval the interval between the two dates using the
+Calculatorapp.
+WeshowthecompleteinstructionlistofPC-Eval
+asfollows:
+• Open the ‘travel_plan2’ file in ‘Documents’
+intheNotepadapp,andcheckthethreecan-
+• IntheNotepadapp, openthe‘memo’filein
+didatedestinationsforthetravelplan. Search
+‘Documents’, and check the second event in
+onChromefortheflighttimefromBeijingto
+themorning. Setanalarm1hourbeforethis
+eachdestination,andtellmewhichcandidate
+eventintheClockapp.
+destinationhastheshortestflighttime.
+• IntheNotepadapp, openthe‘memo’filein
+‘Documents’, and check the location of the • SearchonChromeforthecurrentstockprices
+meeting with John. Search on Chrome how ofNvidia,Apple,andMicrosoftrespectively.
+much time it takes to get from the Empire CreateanewspreadsheetinExcel,writethe
+StateBuildingtothislocation. company names in column A and the corre-
+spondingstockpricesincolumnB.
+• IntheNotepadapp, openthe‘memo’filein
+‘Documents’,andcheckthetimeandlocation • SearchonChromeforthetotalpopulationof
+ofthemeetingwithJohn. SearchonChrome China,theUnitedStates,andIndiain2024re-
+how much time it takes to get from the Em- spectively. CreateanewspreadsheetinExcel,
+pireStateBuildingtothislocation,andsetan write the three countries’ names in column
+appropriatealarmontheClockappsothatI Aindescendingorderofpopulation,andthe
+can leave the Empire State Building in time correspondingpopulationnumbersincolumn
+toarriveatthemeetinglocationpunctually. B.
+• IntheNotepadapp,openthe‘travel_plan’file • CreateanewdocumentinWord. Writedown
+in‘Documents’,andcheckthetraveldestina- twoparagraphsintroducingAlibabaandOpe-
+tion. UseChrometosearchifthetrafficatthe nAIrespectively. Savethedocumentas‘Tech-
+destinationdrivesontheleftortheright. Companies’.
+• Search on Chrome for the dates of Interna- • Searchforthepaper‘Attentionisallyouneed’
+tional Labour Day and American Indepen- on Chrome, download the paper and record
+denceDayin2025respectively,andcalculate itsabstract. CreateanewdocumentinWord,
+11
+
+--- Page 12 ---
+TaskInstruction: Open the 'test_doc2' file in 'Documents' in File Explorer, set the title to be centered, and set the last paragraph to be underlined in Word.
+Open App Home Stop
+DoubleClick click click
+DoubleClick
+Drag
+1.Open the ‘test_doc2’ file in the ‘Documents’ Folder 2. Center the title in the ‘test_doc2’ 3. Underline the last paragraph in the ‘test_doc2’
+Figure6: AcaseofrefinedtexteditingoperationsintheWordapplication.
+writedowntheabstractofthepaper,andsave • Search for tourist attractions in Tokyo and
+itas‘Transformer’. KyotorespectivelyinChrome,andrecordthe
+informationinanewWorddocument.
+• Searchfortheratingsof‘Interstellar’and‘12
+AngryMen’onimdb.comonChrome. Open • Open the ‘test_doc3’ file located in ’Docu-
+the‘movie_rate’excelfilein‘Documents’in ments’inFileExplorer,noteitsChinesecon-
+File Explorer, and fill in the corresponding tent,createanewWorddocument,andwrite
+movieratings. down the English translation of the Chinese
+contentfromtest_doc3.
+• Open the ‘test_doc1’ file in ‘Documents’ in
+• Open the ‘test_doc1’ file located in ’Docu-
+FileExplorer,setthetitletobebold,andset
+ments’inFileExplorer,increasethefontsize
+thelinespacingofthefirsttwoparagraphsto
+ofthetitlebyonelevel.
+1.5xinWord.
+• IntheNotepadapp,openthe‘travel_plan’file
+• Open the ‘test_doc2’ file in ‘Documents’ in
+in’Documents’,andcheckthetimeandloca-
+FileExplorer,setthetitletobecentered,and
+tionofthetravelplans. Addthetraveldesti-
+set the last paragraph to be underlined in
+nation to the World Clock list on the Clock
+Word.
+app. Calculate the interval between Febru-
+• Open the ‘test_doc3’ file in ‘Documents’ in ary18and thestarttimeofthe travel onthe
+File Explorer, write down the translation of Calculator.
+thecontentbelowthemaintext.
+• SearchonChromeforthetotalpopulationof
+China,theUnitedStates,andIndiain2024re-
+• Access https://arxiv.org/ in Chrome, search
+spectively. CreateanewspreadsheetinExcel,
+forpapersrelatedto‘multimodalagent’,and
+write the three countries’ names in column
+downloadthefirstpaper.
+Aindescendingorderofpopulation,andthe
+• Readthesentmail‘Travel’toHowieinOut- correspondingpopulationsincolumnB.
+look, record the departure, destination and
+• Open the ‘test_doc1’ file in ‘Documents’ in
+startdateofthejourney. Searchforaone-way
+FileExplorer,setthetitletobebold,andset
+flightonbooking.comonChrome.
+thelinespacingofthefirsttwoparagraphsto
+• Search in Chrome for the IMDb ratings of 1.5xinWord.
+‘Leon: The Professional’, ‘The Shawshank
+• ComparethepricesofAmazon,Walmart,and
+Redemption’,and‘2001: ASpaceOdyssey’.
+BestBuyforanewNintendoSwitchconsole
+Recordtheminanew.txtfileusingNotepad,
+inChrome,andwritethesitewiththecheapest
+sortedfromhighesttolowest.
+priceandthepriceonNotepad.
+• Checkthesentmail‘Code’toHowieinOut-
+• Readthemail‘Travel’inOutlook,recordthe
+look,downloadtheattachment‘homework.py’
+departure,destinationanddateofthejourney.
+andopenitinVisualStudioCode. Fixtheer-
+Searchforaround-tripflightonbooking.com
+rorinthispythoncode.
+onChrome.
+• Create a new Python file in Visual Studio A.5 OurGUIGroundingDataset
+Code,writeafunctionthattakesalistasinput
+OnthewebpageofBooking.com:
+andoutputsthek-thlargestnumberinthelist.
+SendthiscodefiletoHowieviaOutlook. • Clicktobookflights
+12
+
+--- Page 13 ---
+Figure7: ExamplescreenshotsfromtheGUIgroundingdatasetwebuiltforcommonlyusedapplicationsinPC
+scenarios.
+• Clicktoselectone-way • Clicktochangefilename
+• Clicktoselectdeparturelocation • Clicktochangesavelocation
+OntheFileExplorerpage:
+• Clicktoselectdestination
+• ClicktheDownloadsfolder
+• Clicktoselectdate
+• ClicktheDocumentsfolder
+• ClicktoselectMarch21st
+• ClickthePicturesfolder
+• ClicktoselectApril1st
+• ClicktheMusicfolder
+• Clicktoselectpreviousmonth
+OntheOutlookpage:
+• Clicktoselectnextmonth
+• Clicktoviewinbox
+OntheExcelpage:
+• Clicktoviewspam/junkemail
+• ClicktoselectA3
+• Clicktoviewsentemails
+• ClicktoselectE5
+• ClicktoviewtheTravelemailsenttoHowie
+• Clicktoselecttopalign
+• ClicktoviewtheCodeemailsenttoHowie
+• Clicktoselectbottomalign
+• Clicktosearch
+• Clicktoselectleftalign
+• Clicktocreateanewemail
+• Clicktoselectrightalign • Clicktomarkasread
+• Clicktosave OntheChromepage:
+13
+
+--- Page 14 ---
+• Clickthesearchbar
+• Clickthesearchbox
+• Clicktoopenanewtab
+• Clicktobookmark
+• Clicksettings
+• Clickrefresh
+• ClicktoswitchtoBooking.comtab
+OntheWordpage:
+• Clickforbold
+• Clickforitalic
+• Clicktoaddunderline
+• Clicktochangetextcolor
+• Clicktocentertext
+• Clicktoincreasefontsize
+• Clicktodecreasefontsize
+• Clicktoadjustlinespacing
+• Clickthetop-leftcornerofthetitle
+• Clickthebottom-rightcornerofthetitle
+• Clickthetop-leftcornerofthesecond-to-last
+paragraph
+• Click the bottom-right corner of the second-
+to-lastparagraph
+• Clickthebottom-rightcornerofthelastline
+14

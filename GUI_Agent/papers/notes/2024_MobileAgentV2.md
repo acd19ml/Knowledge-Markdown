@@ -60,11 +60,11 @@ The **Reflection Agent** (GPT-4V) observes the screen states before and after ea
 
 ### Position in Survey
 - **Corresponding survey section/category**: GUI_Agent survey — Section on Multi-Agent Architectures for Mobile GUI Agents; also relevant to Memory & State Management subsection.
-> ⚠️ NEEDS YOUR INPUT: 建议放在 GUI Agent 综述的「多智能体协作」分支下，作为任务级工作记忆（working memory）的典型正例。与 AppAgent（单智能体探索）形成对比。在 Cross_Topic/gui-agent-x-memory.md 中可作为 episodic/working memory 的代表案例引用。
+> ⚠️ NEEDS YOUR INPUT: 建议放在 GUI Agent 综述的「多智能体协作」分支下，作为任务级工作记忆（working memory）的典型正例。与 AppAgent（单智能体探索）形成对比。在 Cross_Topic/comparison-matrix.md 与 Cross_Topic/gap-tracker.md 中可作为 working memory 的代表案例引用。
 
 ### Gap Signals (extracted from this paper)
 - Gap signal 1: "automating the generation of high-quality operation knowledge can further improve the performance of Mobile-Agent-v2" (Section 4.3, Page 8) → 作者明确承认缺乏自动化知识生成（即 A-1 技能库自动构建），这是直接支持 A-1 gap 的作者自我陈述。
-- Gap signal 2: The Memory Unit is session-scoped short-term memory. Focus content is not stored after task completion. No mechanism exists to learn sub-task procedures for reuse across future tasks — a direct structural gap matching A-1 (procedural memory) and A-4 (offline evolution).
+- Gap signal 2: "we design a memory unit to store the focus content related to the current task from history screens" (Section 3.2, p.4-5) → 作者明确把 Memory Unit 定义为 current-task scoped working memory，而不是跨任务可复用的 procedure memory。
 - Gap signal 3: Failed operations are discarded from history (Page 6): "Neither erroneous nor ineffective operations are recorded in the operation history to prevent the agent from following these operations." → 失败轨迹被主动丢弃，无法用于离线学习（A-4 gap 的直接证据）。
 
 > ⚠️ NEEDS YOUR INPUT: 这篇论文的 gap signal 价值极高。Memory Unit 明确只解决了「当前任务内」的焦点内容保留问题，完全没有触及跨任务技能积累。知识注入实验（Section 4.3）间接证明：若有结构化操作知识库，性能可进一步显著提升——这正是 A-1 要构建的东西。此论文可以作为「现有工作已有 working memory，但缺少 procedural/skill memory」这一论断的强有力引用。

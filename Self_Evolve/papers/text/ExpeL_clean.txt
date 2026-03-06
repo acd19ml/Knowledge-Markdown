@@ -1,0 +1,1133 @@
+--- Page 1 ---
+ExpeL: LLM Agents Are Experiential Learners
+AndrewZhao,♠ DanielHuang,♣ QuentinXu,♣ MatthieuLin,♣ Yong-JinLiu,♣ GaoHuang♠*
+♠DepartmentofAutomation,BNRist,TsinghuaUniversity
+♣DepartmentofComputerScience,BNRist,TsinghuaUniversity
+{zqc21,huang-jy22,xgd22,lyh21}@mails.tsinghua.edu.cn,
+{liuyongjin,gaohuang}@tsinghua.edu.cn
+Abstract
+Therecentsurgeinresearchinterestinapplyinglargelanguagemodels(LLMs)todecision-makingtaskshasflourished
+byleveragingtheextensiveworldknowledgeembeddedinLLMs.WhilethereisagrowingdemandtotailorLLMsfor
+custom decision-making tasks, finetuning them for specific tasks is resource-intensive and may diminish the model’s
+generalizationcapabilities.Moreover,state-of-the-artlanguagemodelslikeGPT-4andClaudeareprimarilyaccessible
+throughAPIcalls,withtheirparametricweightsremainingproprietaryandunavailabletothepublic.Thisscenarioem-
+phasizesthegrowingneedfornewmethodologiesthatallowlearningfromagentexperienceswithoutrequiringparamet-
+ricupdates.Toaddresstheseproblems,weintroducetheExperientialLearning(ExpeL)agent.Ouragentautonomously
+gathersexperiencesandextractsknowledgeusingnaturallanguagefromacollectionoftrainingtasks.Atinference,the
+agentrecallsitsextractedinsightsandpastexperiencestomakeinformeddecisions.Ourempiricalresultshighlightthe
+robust learning efficacy of the ExpeL agent, indicating a consistent enhancement in its performance as it accumulates
+experiences. We further explore the emerging capabilities and transfer learning potential of the ExpeL agent through
+qualitativeobservationsandadditionalexperiments.1
+Acomputerprogramissaidtolearnfromexperience
+EwithrespecttosomeclassoftasksT and
+performancemeasureP,ifitsperformanceattasksin
+T,asmeasuredbyP,improveswithexperienceE.
+TomMitchell
+*Correspondingauthor.
+Copyright©2024,AssociationfortheAdvancementofArtificialIntelligence(www.aaai.org).Allrightsreserved.
+1Visithttps://andrewzh112.github.io/expelforprojectpage,andhttps://github.com/LeapLabTHU/ExpeLforcode.
+4202
+ceD
+02
+]GL.sc[
+3v44101.8032:viXra
+
+--- Page 2 ---
+1 Introduction 2 RelatedWork
+Machine learning research has long been captivated by the We discuss the most relevant related works in this section.
+potentialofautonomousagentsandtheircapabilities.Inre- SeeAppendixAfordetaileddiscussionsonrelatedworks.
+cent times, incorporating large language models into these Prompt-basedLearning:Prompt-basedlearningrefines
+agents (Wang et al. 2023b; Xi et al. 2023) has unveiled labelpredictiontasksbymodifyingtheinputcontext,facili-
+a broad spectrum of applications, even extending beyond tatingswiftadaptationtonewtaskswithminimaldata(Liu
+academia (Yang et al. 2023a; Nakajima 2023; Significant- et al. 2023a). This approach capitalizes on LLMs for an-
+Gravitas2023).OneofthesignificantadvantagesofLLMs swers without parameter tuning as they can be augmented
+liesintheirworldknowledge,allowingthemtobeinherently using in-context learning (Brown et al. 2020). LAMA
+versatileacrossvariousscenarios(Zhaoetal.2023b). (Petroni et al. 2019) and GPT-3 (Brown et al. 2020) are
+earlyworksthatpromotedthisformulation.Effortstoreduce
+On the one hand, previous works investigated finetun-
+the intricacies of prompt design include automatic reason-
+ingLLMswithalargenumberofenvironmentinteractions
+ingchainsforNLP(Kojimaetal.2022;Zhangetal.2023).
+(Yaoetal.2023c)orwithalargeamountofhuman-labeled
+Similarly, the ExpeL agent also autonomously learns from
+datasets (Nakano et al. 2021; Shaw et al. 2023). This class
+experiences using extracted insights and self-generated in-
+of methods incurs high computational costs and needs ac-
+contexttrajectoriesbyalteringtheexecutionprompt.
+cess to the LLM’s parametric weights. Furthermore, fine-
+tuning an LLM restricts its functionalities and can hurt its Retrieval Augmented Generation (RAG): Retrieval al-
+generalizationabilities(Duetal.2022).Ontheotherhand, lows LLMs to access databases, mitigating hallucinations
+prompting methods can augment an LLM with better se- (Lietal.2022;Wang,Yang,andWei2023;Rubin,Herzig,
+quentialdecision-makingplanningabilitieswithonlyafew and Berant 2022; Liu et al. 2022). Retrieval has also been
+in-contextexamples(Haoetal.2023;Linetal.2023b;Sun used to enhance the capabilities of decision-making agents
+et al. 2023). However, since current LLMs are bounded by (Humphreys et al. 2022; Zhao et al. 2023a). In contrast
+contextwindowsize(Tworkowskietal.2023),theseagents to these works, we focus on retrieving the ExpeL agent’s
+havenorecollectionsofwhattheyhaveseen,andtherefore self-generatedexperiences,thusreducingthedependencyon
+nolearningcanbedoneoutsideofafewdemonstrations.So, goldexamplesandleveragingdomain-specificcorpus.
+howcanwestrikeabalancebetweentheseparadigms? Planning for LLM Agents: Application of LLM agents
+in fields like robotics, natural sciences, game-playing, and
+WepresenttheExperientialLearning(ExpeL)agentasa
+workflowshassurged,withemphasisontheirworldknowl-
+solution.Ouragentautonomouslygathersexperiencesfrom
+edge in fewshot settings (Ha, Florence, and Song 2023;
+a collection of training tasks through trial and error. From
+Mu et al. 2023; Bran et al. 2023; Boiko, MacKnight, and
+these experiences, it derives natural language insights and
+Gomes 2023; Yang et al. 2023b; Lin et al. 2023a; Nakano
+employsitsownsuccessfulexperiencesasin-contextexam-
+etal.2021;Wangetal.2023c;Liuetal.2023b).Moreover,
+plesduringtesttime.Ouragent’slearningprocessisanalo-
+LLMshavedemonstratedpromisingzero/few-shotplanning
+goustoastudentstudyingforanexamandthentakingiton
+andreasoningcapabilitiesinvariousconfigurations(Sumers
+asingleattempt,reflectingmanyreal-worldsituations.Un-
+et al. 2023), including embodied environments and reason-
+like self-improvement methods like Reflexion (Shinn et al.
+ing tasks (Huang et al. 2022; Yao et al. 2023a; Wei et al.
+2023),ourapproachemphasizestheimportanceofretaining
+2022b;Yaoetal.2023b;Gongetal.2023).
+experiences across multiple tasks to enhance agent perfor-
+mance.Moreover,ExpeLlearnswithoutparameterupdates, Self-improvementandMemoryforLLMAgents:Agents
+making it compatible with powerful closed-source models like Reflexion showcase feedback-based improvement, yet
+likeGPT-4orClaude.Lastly,theexperience-gatheringstep often lack cross-task memory (Shinn et al. 2023). Other
+doesnotrequirealargeamountofdataorhumanlabels. agents exhibit potential in persistent memory within multi-
+agent contexts (Park et al. 2023; Maas et al. 2023). Our
+WeevaluatedExpeLonthreevastlydifferentdomainsand
+ExpeLagentcombinestheseapproaches,focusingontask-
+consistently outperformed strong baselines. Additionally,
+solving while benefiting from self-generated in-context ex-
+we showcased a transfer learning scenario where our agent
+amplesandabstractedinsightsfrommemory.
+thataccumulatedknowledgefromsourcetasksshowedpos-
+itiveforwardtransfertotargettasks.Finally,wehighlighted
+someunexpectedemergedabilitiestheExpeLagentgained. 3 Preliminaries
+Insummary,ourkeycontributionsareasfollows:(1)we ComplexInteractiveTasks Weworkwithcomplexinter-
+introduced ExpeL, a novel LLM agent that autonomously active tasks where at each time step i ∈ {0,...,H}, the
+learns from experience without gradient updates; (2) We agentreceivesanobservationo ∈ O,andfromitsobserva-
+evaluated ExpeL on a diverse set of tasks to showcase its tion history H decides to perform action a ∈ A. The ob-
+t
+learning abilities and improvement on top of existing plan- jectiveoftheagentistoachievesomegoalg ∈ G.Weonly
+ning methods; (3) we showed a novel setting of transfer dealwithdeterministicenvironmentsinthiswork.
+learningforourLLMagentanddemonstratedforwardtrans-
+ferability from source tasks to target tasks. Lastly, we be- Large Language Models A large language model is a
+lieve that as planning algorithms and foundational models statistical model of the natural language, typically a neu-
+continue to improve, ExpeL’s paradigm stands to gain sig- ral network. In our setting, we use an autoregressive lan-
+nificantbenefitsfromtheirenhancedperformances. guage model (OpenAI 2023; Brown et al. 2020; Touvron
+
+--- Page 3 ---
+Figure1:ExpeLAgentOverview.Left:ExpeLoperatesinthreestages:(1)Collectionofsuccessandfailureexperiencesinto
+apool.(2)Extraction/abstractionofcross-taskknowledgefromtheseexperiences.(3)Applicationofthegainedinsightsand
+recallofpastsuccessesinevaluationtasks.Right:(A)IllustratestheexperiencegatheringprocessviaReflexion(Shinnetal.
+2023),enablingtaskreattemptafterself-reflectiononfailures.(B)Illustratestheinsightextractionstep.Whenpresentedwith
+success/failurepairsoralistofLsuccesses,theagentdynamicallymodifiesanexistinglistofinsightsˆιusingoperationsADD,
+UPVOTE,DOWNVOTE,andEDIT.Thisprocesshasanemphasisonextractingprevalentfailurepatternsorbestpractices.
+et al. 2023b,a; Chowdhery et al. 2023), which given an or- thropic 2023). Thus, focusing on prompt-based methods
+deredlistofexistingtokensx = {x ,x ,...,x },outputs seemspromisingasawaytoharnessthestrengthsofthese
+1 2 l−1
+theprobabilityofthenexttokenp(x |x ).Aninstruction- advanced LLMs. Additionally, previous works on learning
+l <l
+following LLM (Thoppilan et al. 2022; Chung et al. 2022; in LLM agents have primarily been trained on extensive
+Weietal.2022a)istypicallyfinetunedonvariousNLPtasks human-labeleddatasets(Linetal.2023a;Shawetal.2023)
+that are formatted into instruction, input, response tuples orimprovedviaiterativeretries(Shinnetal.2023)onasin-
+(Taori et al. 2023). Instruction-tuned models are better at gletask.Arelativelylessexploredareaisfacilitatingagents
+followingnaturallanguageinstructionswhichalleviatesthe to learn autonomously from their own experiences, similar
+needforheavypromptengineering(Weietal.2022a). to a student gaining insights from practicing for an exam.
+Thestudenttacklespracticeproblemsmultipletimestode-
+ReAct and Reflexion ReAct (Yao et al. 2023b) and Re-
+rive insights. At the exam, the student rely solely on these
+flexion (Shinn et al. 2023) are promising frameworks en-
+insights and draw memories of similar problems to answer
+abling the aforementioned proficiency of LLMs in reason-
+thequestionswithoneattempt.Withthisinmind,wewishto
+ingandself-improvement.ReActexplicitlyintertwinesob-
+designanLLMagentthatautonomouslygathersexperiences
+servations,actions,andthoughts,providingafoundationfor
+andextractsinsights,thenusesthesecross-taskinsightsand
+robust planning and reasoning capabilities. Building upon
+memoriesofsimilartaskstoaiditsdecision-making.
+it, Reflexion introduces an additional reflective step before
+reattempting the subsequent trial of the same task, enhanc-
+We aim to enhance a planning LLM agent, such as Re-
+ingthemodel’sadaptivelearningprocess.
+Act,withlearningabilitiesthatallowittoimprovethrough
+inter-task experiences without any parameter updates. In-
+4 ExpeL:AnExperientialLearningAgent
+spiredbythecognitiveabilitiesinherentinhumanlearning,
+Recent advancements in generative LLMs suggest an in- aswellasthebenefitsobservedinself-learningautonomous
+triguing approach. Rather than altering the LLM param- agentsandtheprogressmadeinprompt-basedmethods,we
+eters, adjusting the prompts may be more beneficial: this developedtheExperientialLearning(ExpeL)agent.During
+strategy ensures that the LLM’s inherent common sense thetrainingstage,theagentinteractswiththeenvironment,
+knowledgeremainsintact,allowingforsuperiorgeneraliza- gatheringexperiencesviatrialanderror.Theseexperiences
+tion (Liu et al. 2023a). Furthermore, some of the most po- arestoredinanexperiencepool(Lin1992).Fromthispool,
+tent language models are proprietary (OpenAI 2023; An- the agent later extracts insights, similar to off-policy learn-
+
+--- Page 4 ---
+ing(WatkinsandDayan1992),inwhichtheagentcanlearn encerecalltoretrievesuccessfultrajectoriesfromtheexpe-
+fromexperiencesofabehaviorpolicy.Duringtheevaluation riencepoolgatheredduringtrainingbasedontasksimilarity.
+stage,theagentattemptsunseentaskswithasingletry,aug- Concretely, we used the Faiss vectorstore (Johnson,
+mentedwithextractedinsightsandsuccessfultrajectoriesin Douze, and Je´gou 2019) as the experience pool, kNN re-
+its experience pool gathered from the training stage. Refer trieverandall-mpnet-base-v2(Songetal.2020)em-
+toFig.1fordetailedinformationonouragentframework. bedder to obtain top-k successful trajectories that have the
+maximum inner-product task similarity with the evaluation
+4.1 GatheringExperiences task.The advantageof usingtasksimilarity asthe retrieval
+rank is that if the agent repeats a task or does a task simi-
+To gather diverse experiences that can be useful to extract
+lar to an existing successful trajectory from the experience
+informationfrom,weleverageReflexion(Shinnetal.2023)
+pool, the agent only needs to closely imitate the successful
+to continuously retry the training task at most Z times.
+trajectoryandhavelessburdenonabilityextrapolation.
+In particular, the agent will be given a training task t
+n
+at the z-th trial, fewshot examples F and past reflec- Learning from Successes and Failures To leverage the
+manual
+tions ν (initially, ν is the empty string). At first, the diverseoutcomesgatheredduringtheexperiencecollection
+n,z n,0
+agentwillattemptthetaskwithfewshotexamplesconcate- phase, we believe the agent should analyze experiences in
+nated with its current trajectory τ as the context, and two distinct ways. First, we let the agent compare a failed
+n,0
+use ReAct (Yao et al. 2023b) as the base planning algo- trajectorywithasuccessfultrajectoryforthesametask.This
+rithm, LLM (· | τ ,F ,ν ). On the z-th trial, comparison offers a concrete understanding of the agent’s
+ReAct n,0 manual n,0
+when the agent finishes the task or the maximum number shortcomings,highlightingthecorrectandincorrectactions.
+of steps H is reached, the ExpeL agent’s experience pool Second, we let the agent identify patterns within a set of
+B ingests the trajectory τ . Then, if the agent succeeds, successful trajectories from different tasks. This approach
+n,z
+it moves on to the next task. However, if the agent fails, shedslightoncommon“goodpractices”thattheagentcan
+it will look at its failed trajectory and self-reflect to pro- adopttoensuresuccessinevaluationtasks.
+duce ν n,z+1 = concat(ν n,z ,LLM reflect (τ n,z )) to see where For the implementation, we give the agent’s instruction-
+itcandobetteronthenextretry,concatenatedwiththepre- following LLM several operators to apply on an ex-
+insights
+viousreflections.Inthenextretry,theagentwillaugmentits isting set of insights ˆι. We initialize the set of insights to
+contextwithreflectionν n,z+1 ,theinputtotheLLMpolicy, an empty set ˆι = ∅ and iteratively provide the LLM with
+LLM ReAct (·|τ n,z+1 ,F manual ,ν n,z+1 ). fail/success pairs or lists of L successes (created by sam-
+To highlight, this trial and error way of gathering expe- pling without replacement) from the experience pool. The
+riencesnotonlyimprovesthechancesofgettingmorepos- operations the LLM can perform are: ADD a new insight,
+itive examples for experience recall during evaluation but EDITthecontentofanexistinginsight,DOWNVOTEtodis-
+alsoallowsforcollectingvaluablesuccess/failurepairsused agreewithanexistinginsight,orUPVOTEtoagreewithan
+for comparisons during insight extraction (Sec. 4.2). The existing insight. A newly added insight will have an initial
+pseudo-codecanbefoundinAlg.1. importance count of two associated with it, and the count
+will increment if subsequent operators UPVOTE or EDIT
+4.2 LearningfromExperiences areappliedtoitandwilldecrementwhenDOWNVOTEisap-
+plied to it. If an insight’s importance count reaches zero, it
+Human learning occurs mainly either by storing successful
+willberemoved.Thisparticulardesignchoicerobustifiesthe
+trajectories in memory, which can be later recalled as spe-
+processsinceevensuccessfultrajectoriescanbesuboptimal
+cificexamples,orbyextractinghigh-levelinsightsfromex-
+andmisleadthegeneratedinsights.Theprompttemplatewe
+periences, enabling generalization to novel situations. Ex-
+usedcanbefoundinFig.2.Wekeptthemaximumsizefora
+peL considers both of these learning modes to boost task listofsuccessestoLandusedgpt-4-0613asthedefault
+performance.Concretely,aninstructionI giventoanLLM LLM .Weempiricallyfoundthatgpt-4-0613isbet-
+insights
+agentcanbebrokendownintotaskspecificationsandfew- terthangpt-3.5-turbo-0613atfollowinginstructions
+shotexamples.Wecanaugmenttaskspecificationswithan
+on how to use the insight extraction operators and halluci-
+agent’s extracted insights from past experiences, where an
+natedless.Pseudo-codeforthisprocesscanbefoundinAlg.
+instruction-followingLLMcanbeleveraged(OpenAI2023)
+2. Finally, ExpeL utilizes these generated insights ˆι in the
+to follow them closely. For fewshot examples, we can al-
+taskinferencephase,describednext.
+lowtheagenttoretrievefromitsexperiencepoolwithtop-k
+relevant examples to aid its decisions. Next, we detail our
+4.3 TaskInference
+experiencerecallandinsightextractionmechanisms.
+After the agent gathers experiences, extracts insights from
+Similar Experiences as Demonstrations Works have them,andsetsupavectorstoreofsuccessfultrajectories,it
+shownthatusing in-contextexamplesthatare semantically canproceedtotheevaluation.Foreachtask,thetaskspecifi-
+similartothetaskathandresultsinbetterperformance(Liu cationswillbeaugmentedwiththeconcatenationofthefull
+et al. 2022). Moreover, when involved in a novel situation, list of extracted insights ˆι = concat(ι ,ι ,ι ,...), and the
+1 2 3
+humansalsorecallfromtheirmemorysimilartasksthey’ve top-ktrajectorieswiththehighesttasksimilaritywillbere-
+solved as references when attempting the task (Kahneman trievedandusedasfewshotin-contextexamples,F .
+similartasks
+2011).Motivatedbytheseobservations,weproposeexperi- Fig. 3 shows an example prompt template structure, and a
+
+--- Page 5 ---
+pseudo-codeforthisstepcanbefoundinAlg.3.Webelieve
+as the list of extracted insights grows, retrieval could be a
+feasiblesolutiontomanagethecontextwindowsize.
+Figure 3: Task Inference Prompt Template. We illustrate
+ExpeL’sprompttemplateduringevaluation.Theareaswith
+a white background are identical to the base ReAct agent’s
+inputs. We differ by (purple areas) having additional ex-
+tracted insights from past experience, and dynamically re-
+trievedsuccessfulin-contextexamplesfrompastexperiences
+basedontasksimilarity.
+4.4 TransferLearning
+After demonstrating how learning by using experiences
+from a training set can benefit an LLM agent in solving an
+unseentaskinthesametaskdistribution,weinvestigatean-
+otherinterestingsettingwhereknowledgeaccumulatedfrom
+a source task distribution could be useful for a target task
+distribution with minimal target task examples for the Ex-
+peL agent. Like most transfer learning settings, we assume
+thatthesourceandtargettasksexhibitcommonknowledge.
+Therefore, experiences accumulated from source tasks can
+benefittheagentinsolvinganewsetoftargettasks.
+Similartopretrainingonsourcetaskandfinetuningontar-
+get task in transfer learning literature (Zhuang et al. 2020),
+we propose to use the extracted insights ˆι from the source
+Figure 2: Insight Extraction Prompt Template. The taskandfewshotexamplesfromthetargettaskto“finetune”
+prompt template ExpeL agents used for insight extraction. the insights so that they are more applicable in the target
+Thesametemplateisusedbothforsuccess/failpairs(A,in task.Wehypothesizethatusingtargettaskfewshotexamples
+yellow)andL-sizedsuccesses(B,ingreen). can better ground the insights into the target task and miti-
+gate hallucinations. An example prompt template to “fine-
+tune”extractedinsightsfromasourcedomaintotailorthem
+
+--- Page 6 ---
+Algorithm3:ExpeL-Evaluation
+Algorithm1:ExpeL-ExperienceGathering
+Initialize:
+Initialize: ExpeLagentLLM
+ExpeL
+PolicyLLM TextEmbedderE
+ReAct
+Self-reflectionmodelLLM ExperiencepoolB(fromAlg.1)
+reflect
+CollectionoftasksT Setofinsightsˆι(fromAlg.2)
+train
+FewshotexamplesF CollectionofevaluationtasksT
+manual evaluation
+ExperiencepoolB ←F NumberofevaluationtasksM
+manual
+NumberoftrainingtasksN Numberoffewshotsk
+MaximumretrynumberZ NumberofsuccessesS ←0
+MaximumstepnumberH fortaskm=1toM do
+Currenttaskindexn←1 t ←T [m]
+m evaluation
+whiletaskn≤N do o ←env.reset(t )
+0 m
+t ←T [n] Initializetrajectoryτ ←o
+n train m 0
+Reflectionν ←“” F ←Faiss(t ,B,E,k)
+n,0 similartasks m
+fortrialz =0toZ do fortimestepi=1toH do
+o ←env.reset(t ) a ←LLM (a |τ ,F ,ˆι)
+0 n i ExpeL i m similartasks
+Initializetrajectoryτ ←o o ,r ,done←env.step(a )
+n,z 0 i+1 i+1 i
+fortimestepi=0toH do τ ←τ ∪{(o ,a ,o ,r )}
+m m i i i+1 i+1
+a ←LLM (a |τ ,F ,ν ) ifdonethen
+i ReAct i n,z manual n,z
+o ,r ,done←env.step(a ) break
+i+1 i+1 i
+τ ←τ ∪{(o ,a ,o ,r )} endif
+n,z n,z i i i+1 i+1
+ifdonethen endfor
+break ifr =1then
+i+1
+endif S ←S+1
+endfor endif
+B ←B∪τ endfor
+n,z
+if doneorz =Z then return S
+M
+n←n+1
+break
+else
+toatargetdomainisillustratedinFig.4.
+ν ←concat(ν +LLM (τ ))
+n,z+1 n,z reflect n,z
+endif
+4.5 ExpeL’sStrengths
+endfor
+endwhile In this section, we outline the key strengths of our frame-
+return B work. First and foremost, ExpeL offers inherent inter-
+pretability,asboththeextractedexperiencesandsuccessful
+trajectories are presented in natural language. This design
+allowsuserstoeasilyinspect,modify,orremovepotentially
+Algorithm2:ExpeL-InsightExtraction harmful trajectories/insights — a challenge in finetuned
+models.Moreover,userscanseamlesslyaddexpertinsights
+Initialize:
+ortrajectoriestoanExpeLagent.Additionally,ourlearning
+ExperiencepoolB(fromAlg.1)
+approachishighlyaccessible;itdemandslessdata,reduces
+InsightextractionmodelLLM
+insights computational resources, and is straightforward to imple-
+Setofinsightsˆι←∅
+ment. Furthermore, self-improvement methods like Reflex-
+DividethesuccessesinBintoL-sizedchunks:
+ion (Shinn et al. 2023) facilitate intra-task improvements,
+C ={{τsuccess,τsuccess,...τsuccess},
+success 1 2 L butExpeLenablesinter-tasklearning.ExpeLdoesnotrely
+{τsuccess,τsuccess,...τsuccess},...}
+L+1 L+2 2L on retries during deployment, which certain domains re-
+Constructfail/successtuplesofthesametasksinB:
+quire. On the flexibility front, the ExpeL agent boasts a
+C ={(τsuccess,τfail),(τsuccess,τfail),...,
+compare 1 1,0 1 1,1 significant level of versatility. It is not restricted to spe-
+(τsuccess,τfail),...}
+2 2,0 cific language models and complements existing strategies
+foreachc inC do
+compare compare aimedatenhancingLLMagentplanningcapabilities.More-
+ˆι←LLM (c ,ˆι)
+insights compare over,whenappliedinconjunctionwiththem,ExpeLmight
+endfor
+even improve the capabilities of finetuned agents. Another
+foreachc inC do
+success success strengthliesincontinuousimprovement.Ourmethodstands
+ˆι←LLM (c ,ˆι)
+insights success to benefit from the ongoing enhancements in foundational
+endfor
+models.Asanillustration,ourexperimentsshowthatusing
+return ˆι
+gpt-4 to extract insights outperforms gpt-3.5-turbo
+(refertoSec.5.6).Lastly,weintroducedamethodfortrans-
+
+--- Page 7 ---
+folds. Following ReAct, for all environments, we use suc-
+cess rate as the evaluation metric: exact matching for Hot-
+potQA and FEVER, completing the task in time for ALF-
+World, and purchasing the item that matches all attributes
+forWebShop.Someadditionalmetricsareintroducedwhen
+theenvironmentoffersthem:meanreward(calculatedusing
+Eq.1inAppendix)scorer ∈[0,1]forWebShopandascore
+breakdownpertasktypeforALFWorld.
+We use ReAct and Act as main baselines planning LLM
+agents(Yaoetal.2023b),whereActdoesnothavetherea-
+soningstepslikeReAct.Allagents,includingExpeL,used
+gpt-3.5-turbo-0613whenperformingactionsduring
+evaluation.Alltextgenerationsweredonewithtemperature
+0andgreedydecoding.Imitationlearning(IL)resultswere
+takenfromtheReActpaper(Yaoetal.2023b).Moredetails
+abouttheexperimentalsetupcanbefoundinAppendixD.
+5.2 MainResults
+The primary findings of this study are presented in Fig. 5.
+IL-based method struggles to efficiently perform in Web-
+ShopandALFWorld,possiblyduetotheirdemandformore
+substantialpriorandreasoningabilities,whichconventional
+trainingsfromscratchfailtoprovide.Thislimitationshows
+thepromiseofleveragingknowledge-basedlanguagemod-
+els to address these challenges. The following claims were
+made based on (1) a deep understanding of each environ-
+ment;(2)extractedinsightsandretrievablein-contextexam-
+ples; and (3) statistics (e.g. number of invalid actions per
+trial)oftheruns.
+Experiential learning Augmenting agents with ab-
+stractedinsightsandtheabilitytorecallsuccessfultrajecto-
+riesimproveperformanceacrossallenvironmentscompared
+tobaselineagents.WhenrestrictingtheExpeLagenttoonly
+Figure 4: Transfer Learning Finetuning Prompt Tem-
+onemodeoflearning(insights-onlyorretrieval-only),Hot-
+plate.Theprompttemplateusedtofinetuneknowledgefrom
+potQA and ALFWorld environments demonstrate contrast-
+sourcetotargetdomain.Highlightedingreyshouldbefor-
+ing quantitative distinctions (36%/31% and 50%/55% for
+mattedwithconcisedescriptionsofthetasks.
+HotpotQAandALFWorld,respectively).Theprominentin-
+fluenceofinsightsonHotpotQAcanbeduetoitsrelianceon
+analysing (Wikipedia results) abilities. This highlights the
+ferringextractedinsightsacrossdomainsusingonlyasmall
+need for general guidelines across various question types.
+amount of finetuning examples, demonstrating the advan-
+Conversely, ALFWorld’s task completion, dependent on
+tageofourapproachindiversesettingswithlimiteddata.
+specific action sets, is better derived from past experiential
+trajectories.Furthermore,WebShoppresentsauniquechal-
+5 Experiments
+lenge, requiring both website-based reasoning (price com-
+5.1 ExperimentalSetup parisons, query reformulation, etc.) and precise execution
+ofactions(searching,clicking,optionselection,etc.).Con-
+In line with ReAct (Yao et al. 2023b), the experiments
+sequently, the performance across these tasks shows a near
+are designed based on four text-based benchmarks: Hot-
+equilibrium, as reflected in both the success rate and score
+potQA (Yang et al. 2018), a knowledge-intensive dataset
+(37%/38%and0.675/0.67forinsights/retrieve-onlyrespec-
+thatchallengesanagenttoperformreasoningandquestion
+tively, see Tab. 5 in Appendix for scores). These observa-
+answering using the search tool Wikipedia Docstore API,
+tionshighlightthesynergisticinterplaybetweenabstraction
+ALFWorld and WebShop (Shridhar et al. 2021; Yao et al.
+andrecollectioninexperientiallearning,withExpeLshow-
+2022)thatrequiretheagenttoperforminteractivemulti-step
+ingaquantitativeadvantageoverbaseline/restrictedlearning
+decision-making tasks in respectively a household and an
+modeagents.
+onlineshoppingwebsiteenvironments,andFEVER(Thorne
+etal.2018),thatfocusesonfactverificationtasksusingthe Cross-task learning Another important finding we ob-
+sameAPIasHotpotQAwhichmakesitsuitableforknowl- serve is the comparison with the Reflexion agent (Shinn
+edgetransfer(Sec.5.4).Allexperimentsusefour-foldvali- etal.2023).ExpeLmatchesReflexion’sperformance(40%
+dation, and we report the mean and standard error over the at R3 vs. 39%) for HotpotQA and even outperforms it for
+
+--- Page 8 ---
+Figure 5: Main Results. Average task success rates (std. error in gray arrows) across three different domains: HotpotQA,
+ALFWorld,andWebShop.ReActandActareusedasbaselines.ExpeLconsistentlyoutperformsthebaselinesonalldomains,
+highlighting the importance of learning from experience. Additionally, we compare ExpeL with ExpeL (retrieve-only) and
+ExpeL(insights-only)tohighlightthatbothinsightextractionandtasksimilarityretrievalareessentialandsynergistic.
+ALFWorld(54%atR3vs.59%)withoutrepeatedattempts. claimingthat“whensearchingforanitem”itneedsto“con-
+WhileReflexionimprovesresultsbyiterativelyrefiningin- sideritsnatureanditstypicalusage”(Fig.18inAppendix),
+sights through repeated task execution (R1, R2, R3...), our leadingtheagenttopromptlyandaccuratelyfindthecorrect
+ExpeLagentleveragescross-tasklearningbyaccumulating itematthefirststepwhiletheReActagentcouldnotfindit
+taskexperience.However,itisnoteworthythatthereremains intime.
+roomforimprovementinthecontextofWebShoptasks,ap-
+Self-correction Although ReAct was sometimes not able
+proachingthelowersideofReflexion’ssuccessrates.
+toreassessitssituationwhenattemptingtosolveatask,Ex-
+peLdemonstrateditsproficiencyinidentifyingandrectify-
+5.3 AgentBehavioralAnalysis
+ingmissteps.Notably,whenincorrectlytakinganobjectin
+In this section, we highlight some observations made by ALFWorld,theagenthasshownitsabilitytoputitbackand
+manuallyinspectingthetrajectoriesofReActagentsandEx- resume the task by searching for the proper object (Fig. 19
+peLagents,andbypinpointingpossiblecausesofhowsome in Appendix). This highlights ExpeL’s capacity to recover
+unexpected behaviors might have emerged. Please visit the from errors and stay on course without hallucinating when
+paper’s webpage, https://andrewzh112.github.io/expel, for completing tasks. This behavior is possibly encouraged by
+fulltrajectorydemosillustratingthefollowingfindings. thegeneratedinsight“reassessthesituationandconsideral-
+ternativeactions”if“anattemptdoesnotprogressthetask”.
+HypothesisFormulation&ConstraintsAdaptation Af-
+ter extracting the insights from experiences gathered in the 5.4 TransferLearning
+training set, we noticed the agent subsequently gained the
+ability to reassess its whole trajectory in the last steps and In this experiment, we use the HotpotQA dataset (Yang
+etal.2018)assourcetasksandtheFEVERdataset(Thorne
+conclusively end the task rather than expressing its inepti-
+et al. 2018) as target tasks. Like the HotpotQA dataset, we
+tude in providing a solution. This ability was particularly
+equip the agent with the ability to navigate on Wikipedia
+observed in HotpotQA (Fig. 16, 17 in Appendix) where a
+using a Docstore API; therefore, we hypothesize that some
+likely influential insight was stating that the agent should
+of the knowledge obtained from HotpotQA tasks should
+“consider the answer might be in the observations already
+alsobebeneficialwhentransferredtotheFEVERtasks.We
+made”. Therefore the agent would finish by proposing the
+usegpt-4-0613foradaptingtheHotpotQAinsightsinto
+mostprobableanswergivenitspastobservationsratherthan
+FEVERinsights.Weusethesamefewshotexamplestofine-
+concludingwith“Unknown”or“Informationnotavailable”.
+tune the insights as the ones that will be used during task
+WorldModelBeliefUpdate WenoticedourExpeLagent execution.WecompareourExpeLTransferagent’stransfer
+updated its beliefs through the insights and over its gained learning ability with (1) ReAct; (2) Act; and (3) an agent
+experience. This belief thereby update enables the agent to that “finetunes” insights without task demonstrations. No-
+avoid unnecessary actions and increase efficiency in solv- tice that since source and target tasks are inherently differ-
+ingagiventask.Forexample,inALFWorld,theagentcom- ent,wedonothaveanexperiencepooltoretrievefrom;thus,
+pletelychangedthepriorsithadinReActonthelikelyloca- theExpeLTransferagentsusetheexistingfixedfewshotex-
+tions of a pan (from drawers/countertops/cabinets to stove- amplesasin-contextexamples.
+burners). This behavior emerged from the extracted insight Tab.1showcasesthetransferlearningresults.Bothagents
+
+--- Page 9 ---
+FEVER(SR%) verse set of experiences (failure and success pairs obtained
+Act 58±0.0 using Reflexion) performs better than the agent using only
+ReAct 63±0.4 ReActduringexperiencegathering.
+ExpeLTransferw/oTaskDemos 65±1.7
+ExpeLTransfer 70±0.7
+Table 1: Transfer Results. We transfer insights extracted
+from HotpotQA to FEVER. Act and ReAct are baseline
+agents,ExpeLw/oTaskDemosdoesnotutilizefewshotex-
+ampleswhenalteringtheinsightsforthetargettask.
+R0 R1 R2 R3
+ReAct+Reflexion 40.3% 47.8% 52.2% 54.4%
+ExpeLretrieveonly 54.5% 57.5% 59.7% 60.4%
+Figure6:EffectsofExperienceonPerformance.Wehigh-
+ExpeL+Reflexion 59.0% 60.4% 63.4% 64.2%
+light the correlation between the number of diverse expe-
+rience samples and the final performance. Concretely, we
+Table 2: Success Rate on ALFWorld with Reflexion
+compare ExpeL with (1) ReAct, (2) ExpeL that only has
+Rounds. ExpeL and Reflexion appear to be synergistic in
+access to fewshot examples, and (3) ExpeL that only uses
+the ALFWorld environment (Highlight = ExpeL with one
+ReAct during the experience gathering step. It is evident
+attempt).R1-R3wereobtainedfromfailedR0checkpoints.
+thatextra autonomouslycollected experiencesare essential
+toExpeL’ssuccessandthatdiversityofsuccess/failuredata
+gatheredusingReflexionwassuperiortousingReActonly.
+thattransferredknowledgefromthesourcedomainsawper-
+formance gains. Notably, the agent with a few in-context
+Next, we will scrutinize the efficacy of the insight ex-
+exampleshadamoresignificantimprovementthantheone
+traction step of ExpeL. Since insights had the most signif-
+without, indicating the effectiveness of the proposed “fine-
+icantimpactontheHotpotQAenvironment(Fig.5),weper-
+tuning”methodintransferlearningscenarios.
+formed the ablations on insights in this environment. We
+use three dimensions to ablate the design choices for in-
+5.5 ExpeLwithTaskReattempts
+sightextractionbycreatingthefollowingvariantsofExpeL
+While not being the central focus of our study, we present
+agents: (1) human-crafted insights (Fig. 12 in Appendix),
+preliminary findings on the effectiveness of incorporating
+which were manually engineered by carefully studying the
+task reattempts into the evaluation phase using ExpeL by
+agent’s mistakes during the experience gathering step; (2)
+resumingthefailedcheckpointsfromR0.Theperformance
+adding reflections ν into the insights construction step in
+of ExpeL combined with Reflexion, alongside two base-
+addition to using fail/success pairs and lists of successes;
+lines:ReAct/ReflexionandExpeLwithoutinsights(ExpeL (3)usinggpt-3.5-turbo-0613astheLLM .Re-
+insights
+retrieveonly),isdetailedinTable2.Theresultsdemonstrate
+sultsinTab.3showseveralsignificantfindings:(1)learned
+a notable improvement in the success rate when ExpeL is
+insights by the agent are more advantageous than hand-
+paired with Reflexion, with the success rate increasing as
+crafted ones; (2) using reflections in addition to success/-
+thenumberoftaskreattemptsgrows.
+failure pairs and lists of successes is disadvantageous, pos-
+siblyduetoreflectionssometimesoutputtinghallucinations,
+5.6 AblationStudies
+therefore misleading the insight extraction stage; and (3) a
+OnemaincomponentofExpeListheagent’sabilitytoau- betterLLMismoreadvantageousatimprovingExpeL’sper-
+tonomously gather valuable experiences benefiting its own formance,suggestingouragentwillenjoyfreeperformance
+learning.Therefore,wewishtoinvestigateifthenumberof boosts with the ever-improving nature of base foundation
+usefulexperiencesimpactsthedownstreamperformanceof models.
+ExpeL. We designed two different agents to compare our Lastly, we investigated the design choice of using task
+agent with. The first one only has access to initial fewshot similarity as the ranking score for retrieving successful in-
+examplesandextractsinsightsfromthem.Thesecondgath- context examples in ALFWorld. In particular, we use (1)
+ers experience using ReAct where the agent has no retries. reason similarity by retrieving top-k trajectories with the
+Thus, the agent will not only get less successful trajecto- most similar reasoning step as the latest reasoning step in
+ries but will also not have any success/failure comparison thecurrenttrajectory,and(2)randomlysamplingsuccessful
+pairsduringinsightsextraction.Weconductedexperiments trajectoriesfromtheexperiencepool.Weclearlyobservein
+in the HotpotQA environment and presented the results in Tab.3thatretrievingwithtasksimilarity(ExpeL)performs
+Fig. 6. As we can see, the agent that extracts insights from thebest.Reasonsimilarityisstilladvantageousbutslightly
+theexistingfewshotshasnoadvantagecomparedtotheRe- drops in performance, possibly due to dynamically chang-
+Actagent,illustratingthatexperienceisessentialforExpeL ingfewshotsduringasingletrajectory,causinginstabilities.
+tolearnfrom.Thiswasreflectedinasignificantlybetterper- Lastly, random sampling has a significant drop in perfor-
+formanceforthetwootheragentshavingaccesstomoreex- mance, suggesting that our design choice of selecting the
+perience.Furthermore,theExpeLagentwithaccesstoadi- mostpertinentin-contextexampleisadvantageous.
+
+--- Page 10 ---
+HotpotQA(SR%) Acknowledgement
+This work is supported in part by the National Key R&D
+ReAct 28.0±1.4
+Program of China (2022ZD0114900), the National Natu-
+Hand-craftedinsights 32.0±1.1
+ral Science Foundation of China under Grants 62022048,
+Insightswithreflections 29.0±0.4
+U2336214,and62332019,andtheGuoqiangInstituteofTs-
+gpt-3.5-turboinsights 32.0±0.4
+inghuaUniversity.
+ExpeL(ours) 39.0±1.7
+ALFWorld(SR%) References
+Anthropic.2023. IntroducingClaude.
+ReAct 40.0±0.3
+Reasoningsimilarity 48.5±2.1 Boiko,D.A.;MacKnight,R.;andGomes,G.2023. Emer-
+Randomsampled 42.5±0.8 gentAutonomousScientificResearchCapabilitiesofLarge
+ExpeL(ours) 59.0±0.3 LanguageModels. arXivpreprint.
+Bran, A. M.; Cox, S.; White, A. D.; and Schwaller, P.
+Table 3: Ablations Results. Upper: Ablations on in- 2023. ChemCrow: Augmenting Large-Language Models
+sight extraction. Hand-crafted insights enjoyed a per- withChemistryTools. arXivpreprint.
+formance boost over ReAct but were less effective than Brown,T.;Mann,B.;Ryder,N.;Subbiah,M.;Kaplan,J.D.;
+LLM-generatedones.Furthermore,addingreflectionstothe Dhariwal,P.;Neelakantan,A.;Shyam,P.;Sastry,G.;Askell,
+insight-generating process hurt performance. Lastly, better A.; et al. 2020. Language Models are Few-Shot Learners.
+LLMbasemodelsgivebetterinsights.Lower:Ablationson NeurIPS.
+in-contextexamplesselectionstrategy.Randomlyselected Chase,H.2023. Langchain.
+baselinehasasignificantdropinperformancewhileranking
+Chowdhery,A.;Narang,S.;Devlin,J.;Bosma,M.;Mishra,
+usingreasonsimilarityalsohasanoticeabledip.
+G.; Roberts, A.; Barham, P.; Chung, H. W.; Sutton,
+C.; Gehrmann, S.; Schuh, P.; Shi, K.; Tsvyashchenko,
+S.; Maynez, J.; Rao, A.; Barnes, P.; Tay, Y.; Shazeer,
+6 ConclusionandLimitations
+N.; Prabhakaran, V.; Reif, E.; Du, N.; Hutchinson, B.;
+Limitations In this work, we investigated tasks with tex- Pope, R.; Bradbury, J.; Austin, J.; Isard, M.; Gur-Ari, G.;
+tual observation, which is limiting in real-world scenar- Yin, P.; Duke, T.; Levskaya, A.; Ghemawat, S.; Dev, S.;
+ios. Thus, incorporating image observations will make our Michalewski, H.; Garcia, X.; Misra, V.; Robinson, K.; Fe-
+method more generally applicable. Using Vision-Language dus,L.;Zhou,D.;Ippolito,D.;Luan,D.;Lim,H.;Zoph,B.;
+ModelsorcaptioningmodelstosupplementtheLLMtoen- Spiridonov,A.;Sepassi,R.;Dohan,D.;Agrawal,S.;Omer-
+ableimageobservationscouldbeaninterestingnewavenue nick, M.; Dai, A. M.; Pillai, T. S.; Pellat, M.; Lewkowycz,
+ofresearch.Additionally,weinvestigatedtheefficacyofour A.; Moreira, E.; Child, R.; Polozov, O.; Lee, K.; Zhou, Z.;
+method by using closed-source API LLMs, which can be Wang, X.; Saeta, B.; Diaz, M.; Firat, O.; Catasta, M.; Wei,
+off-limits in some applications. Exploring LLM agents us- J.; Meier-Hellstern, K.; Eck, D.; Dean, J.; Petrov, S.; and
+ing open-source LLMs should be another promising future Fiedel, N. 2023. PaLM: Scaling Language Modeling with
+work(Zengetal.2023).Furthermore,sinceourextractedin- Pathways. JMLR.
+sightsdonotexceedthecurrentLLM’stokenlimit,wecan Chung, H. W.; Hou, L.; Longpre, S.; Zoph, B.; Tay, Y.;
+fitthemintotheagent’scontextwindow.However,extrare- Fedus, W.; Li, E.; Wang, X.; Dehghani, M.; Brahma, S.;
+trieval steps for insights might be needed for truly lifelong et al. 2022. Scaling Instruction-Finetuned Language Mod-
+learningagentstoensureamanageablecontextwindowsize. els. arXivpreprint.
+Lastly, unlike reinforcement learning methods, prompting
+Du,M.;He,F.;Zou,N.;Tao,D.;andHu,X.2022. Shortcut
+techniqueslacktheoreticalunderpinningsthatcouldpoten-
+Learning of Large Language Models in Natural Language
+tially impact the efficiency of the resulting policies. Future
+Understanding:ASurvey. arXivpreprint.
+researchshouldexploretheintegrationoftheseapproaches
+Gong,R.;Huang,Q.;Ma,X.;Vo,H.;Durante,Z.;Noda,Y.;
+toyieldmoreeffectiveandoptimalsolutions.
+Zheng, Z.; Zhu, S.-C.; Terzopoulos, D.; Fei-Fei, L.; et al.
+Insummary,weintroducedExpeL,anovellearningLLM
+2023. MindAgent: Emergent Gaming Interaction. arXiv
+agent that autonomously gathers experience from a set of
+preprint.
+training tasks to improve its abilities in solving evaluation
+Gur,I.;Furuta,H.;Huang,A.;Safdari,M.;Matsuo,Y.;Eck,
+taskswithoutaccesstomodelparameters.Wedemonstrated
+D.;andFaust,A.2023. AReal-WorldWebAgentwithPlan-
+its learning abilities by showing its performance gain com-
+ning,LongContextUnderstanding,andProgramSynthesis.
+paredtovanillaReActandActagents.Furthermore,wein-
+arXivpreprint.
+vestigated a transfer learning scenario where extracting in-
+sightsfromasetofsourcetaskscanbenefittheExpeLagent Ha, H.; Florence, P.; and Song, S. 2023. Scaling Up and
+in solving a target task. Lastly, we presented several unex- DistillingDown:Language-GuidedRobotSkillAcquisition.
+pected emerged abilities our agent developed at the end of InCoRL.PMLR.
+itstraining.Webelievethatautonomouslylearningfromex- Hao,S.;Gu,Y.;Ma,H.;Hong,J.J.;Wang,Z.;Wang,D.Z.;
+perience is essential for developing human-like intelligent andHu,Z.2023. ReasoningwithLanguageModelisPlan-
+agents,andourExpeLagentisasteptowardthatgoal. ningwithWorldModel. arXivpreprint.
+
+--- Page 11 ---
+Huang, W.; Abbeel, P.; Pathak, D.; and Mordatch, I. 2022. Knight, M.; Chess, B.; and Schulman, J. 2021. WebGPT:
+LanguageModelsasZero-ShotPlanners:ExtractingAction- Browser-Assisted Question-Answering with Human Feed-
+ableKnowledgeforEmbodiedAgents. InICML.PMLR. back. arXivpreprint.
+Humphreys,P.;Guez,A.;Tieleman,O.;Sifre,L.;Weber,T.; OpenAI.2023. GPT-4TechnicalReport.
+andLillicrap,T.2022. Large-scaleRetrievalforReinforce- Ouyang, L.; Wu, J.; Jiang, X.; Almeida, D.; Wainwright,
+mentLearning. NeurIPS. C.; Mishkin, P.; Zhang, C.; Agarwal, S.; Slama, K.; Ray,
+Johnson, J.; Douze, M.; and Je´gou, H. 2019. Billion-scale A.; Schulman, J.; Hilton, J.; Kelton, F.; Miller, L.; Simens,
+Similarity Search with GPUs. IEEE Transactions on Big M.;Askell,A.;Welinder,P.;Christiano,P.F.;Leike,J.;and
+Data. Lowe, R. 2022. Training Language Models to Follow In-
+Kahneman,D.2011.Thinking,FastandSlow.Farrar,Straus structionswithHumanFeedback. InNeurIPS.
+andGiroux. Park,J.S.;O’Brien,J.;Cai,C.J.;Morris,M.R.;Liang,P.;
+Kojima, T.; Gu, S. S.; Reid, M.; Matsuo, Y.; and Iwasawa, and Bernstein, M. S. 2023. Generative Agents: Interactive
+Y.2022. LargeLanguageModelsareZero-ShotReasoners. SimulacraofHumanBehavior.InACMSymposiumonUser
+NeurIPS. InterfaceSoftwareandTechnology.
+Li,H.;Su,Y.;Cai,D.;Wang,Y.;andLiu,L.2022.ASurvey Petroni, F.; Rockta¨schel, T.; Riedel, S.; Lewis, P.; Bakhtin,
+onRetrieval-AugmentedTextGeneration. arXivpreprint. A.; Wu, Y.; and Miller, A. 2019. Language Models as
+Knowledge Bases? In EMNLP-IJCNLP. Association for
+Lin,B.Y.;Fu,Y.;Yang,K.;Ammanabrolu,P.;Brahman,F.;
+ComputationalLinguistics.
+Huang, S.; Bhagavatula, C.; Choi, Y.; and Ren, X. 2023a.
+SwiftSage:A GenerativeAgentwith FastandSlow Think- Qian,C.;Cong,X.;Yang,C.;Chen,W.;Su,Y.;Xu,J.;Liu,
+ingforComplexInteractiveTasks. NeurIPS. Z.;andSun,M.2023. CommunicativeAgentsforSoftware
+Development. arXiv:2307.07924.
+Lin,K.;Agia,C.;Migimatsu,T.;Pavone,M.;andBohg,J.
+2023b. Text2Motion: From Natural Language Instructions Rubin,O.;Herzig,J.;andBerant,J.2022. LearningToRe-
+toFeasiblePlans. AutonomousRobots. trievePromptsforIn-ContextLearning. InNAACL.Associ-
+ationforComputationalLinguistics.
+Lin,L.-J.1992. Self-ImprovingReactiveAgentsBased on
+Reinforcement Learning, Planning and Teaching. Machine Schaul, T.; Quan, J.; Antonoglou, I.; and Silver, D. 2015.
+learning. PrioritizedExperienceReplay. InICLR.
+Liu,J.;Shen,D.;Zhang,Y.;Dolan,B.;Carin,L.;andChen, Shaw, P.; Joshi, M.; Cohan, J.; Berant, J.; Pasupat, P.; Hu,
+W.2022. WhatMakesGoodIn-ContextExamplesforGPT- H.;Khandelwal,U.;Lee,K.;andToutanova,K.2023. From
+3? InDeeLIO.AssociationforComputationalLinguistics. Pixels to UI Actions: Learning to Follow Instructions via
+GraphicalUserInterfaces. NeurIPS.
+Liu,P.;Yuan,W.;Fu,J.;Jiang,Z.;Hayashi,H.;andNeubig,
+G.2023a. Pre-train,Prompt,andPredict:ASystematicSur- Shinn, N.; Cassano, F.; Gopinath, A.; Narasimhan, K. R.;
+veyofPromptingMethodsinNaturalLanguageProcessing. andYao,S.2023. Reflexion:LanguageAgentswithVerbal
+ACMComputingSurveys. ReinforcementLearning. InNeurIPS.
+Liu,X.;Yu,H.;Zhang,H.;Xu,Y.;Lei,X.;Lai,H.;Gu,Y.; Shridhar,M.;Yuan,X.;Coˆte´,M.-A.;Bisk,Y.;Trischler,A.;
+Ding, H.; Men, K.; Yang, K.; et al. 2023b. AgentBench: and Hausknecht, M. 2021. ALFWorld: Aligning Text and
+EvaluatingLLMsasAgents. arXivpreprint. EmbodiedEnvironmentsforInteractiveLearning. InICLR.
+Liu,Z.;Bahety,A.;andSong,S.2023. REFLECT:Summa- Significant-Gravitas. 2023. AutoGPT. https://github.com/
+rizing Robot Experiences for Failure Explanation and Cor- Significant-Gravitas/Auto-GPT.
+rection. InCoRL.PMLR. Song,K.;Tan,X.;Qin,T.;Lu,J.;andLiu,T.-Y.2020. MP-
+Maas; Carey; Wheeler; Saatchi; Billington; and Shamash. Net: Masked and Permuted Pre-training for Language Un-
+2023. To Infinity and Beyond: SHOW-1 and Showrunner derstanding. NeurIPS.
+AgentsinMulti-AgentSimulations. arXivpreprint. Sumers,T.R.;Yao,S.;Narasimhan,K.;andGriffiths,T.L.
+Mirchandani,S.;Xia,F.;Florence,P.;Ichter,B.;Driess,D.; 2023. CognitiveArchitecturesforLanguageAgents. arXiv
+Arenas, M. G.; Rao, K.; Sadigh, D.; and Zeng, A. 2023. preprint.
+Large Language Models as General Pattern Machines. In Sun,H.;Zhuang,Y.;Kong,L.;Dai,B.;andZhang,C.2023.
+CoRL.PMLR. AdaPlanner: Adaptive Planning from Feedback with Lan-
+Mu, Y.; Zhang, Q.; Hu, M.; Wang, W.; Ding, M.; Jin, guageModels. NeurIPS.
+J.; Wang, B.; Dai, J.; Qiao, Y.; and Luo, P. 2023. Em- Sutton,R.S.;andBarto,A.G.2018. ReinforcementLearn-
+bodiedGPT: Vision-Language Pre-Training via Embodied ing:AnIntroduction. MITpress.
+ChainofThought. NeurIPS. Taori, R.; Gulrajani, I.; Zhang, T.; Dubois, Y.; Li, X.;
+Nakajima, Y. 2023. BabyAGI. https://github.com/ Guestrin,C.;Liang,P.;andHashimoto,T.B.2023.Stanford
+yoheinakajima/babyagi. Alpaca: An Instruction-Following LLaMA Model. https:
+Nakano, R.; Hilton, J.; Balaji, S. A.; Wu, J.; Ouyang, L.; //github.com/tatsu-lab/stanford alpaca.
+Kim, C.; Hesse, C.; Jain, S.; Kosaraju, V.; Saunders, W.; Thoppilan, R.; De Freitas, D.; Hall, J.; Shazeer, N.; Kul-
+Jiang,X.;Cobbe,K.;Eloundou,T.;Krueger,G.;Button,K.; shreshtha,A.;Cheng,H.-T.;Jin,A.;Bos,T.;Baker,L.;Du,
+
+--- Page 12 ---
+Y.;etal.2022. LaMDA:LanguageModelsforDialogAp- Yang,Z.;Qi,P.;Zhang,S.;Bengio,Y.;Cohen,W.;Salakhut-
+plications. arXivpreprint. dinov,R.;andManning,C.D.2018. HotpotQA:ADataset
+forDiverse,ExplainableMulti-hopQuestionAnswering. In
+Thorne,J.;Vlachos,A.;Christodoulopoulos,C.;andMittal,
+EMNLP.AssociationforComputationalLinguistics.
+A.2018. FEVER:aLarge-scaleDatasetforFactExtraction
+andVERification. InNAACL. Yao,S.;Chen,H.;Yang,J.;andNarasimhan,K.2022. Web-
+Shop: Towards Scalable Real-World Web Interaction with
+Touvron,H.;Lavril,T.;Izacard,G.;Martinet,X.;Lachaux,
+GroundedLanguageAgents. InNeurIPS.
+M.-A.; Lacroix, T.; Rozie`re, B.; Goyal, N.; Hambro, E.;
+Azhar,F.; etal. 2023a. LLaMA:Open andEfficient Foun- Yao, S.; Yu, D.; Zhao, J.; Shafran, I.; Griffiths, T. L.; Cao,
+dationLanguageModels. arXivpreprint. Y.;andNarasimhan,K.2023a.TreeofThoughts:Deliberate
+ProblemSolvingwithLargeLanguageModels. NeurIPS.
+Touvron,H.;Martin,L.;Stone,K.;Albert,P.;Almahairi,A.;
+Babaei,Y.;Bashlykov,N.;Batra,S.;Bhargava,P.;Bhosale, Yao, S.; Zhao, J.; Yu, D.; Du, N.; Shafran, I.; Narasimhan,
+S.;etal.2023b. Llama2:OpenFoundationandFine-Tuned K.;andCao,Y.2023b. ReAct:SynergizingReasoningand
+ChatModels. arXivpreprint. ActinginLanguageModels. InICLR.
+Tworkowski, S.; Staniszewski, K.; Pacek, M.; Wu, Y.; Yao,W.;Heinecke,S.;Niebles,J.C.;Liu,Z.;Feng,Y.;Xue,
+Michalewski,H.;andMiłos´,P.2023. FocusedTransformer: L.;Murthy,R.;Chen,Z.;Zhang,J.;Arpit,D.;Xu,R.;Mui,
+ContrastiveTrainingforContextScaling. InNeurIPS. P.; Wang, H.; Xiong, C.; and Savarese, S. 2023c. Retro-
+former: Retrospective Large Language Agents with Policy
+Wang,G.;Xie,Y.;Jiang,Y.;Mandlekar,A.;Xiao,C.;Zhu,
+GradientOptimization.
+Y.;Fan,L.;andAnandkumar,A.2023a. Voyager:AnOpen-
+endedEmbodiedAgentwithLargeLanguageModels.arXiv Yue,Y.;Kang,B.;Ma,X.;Huang,G.;Song,S.;andYan,S.
+preprint. 2023.OfflinePrioritizedExperienceReplay.arXivpreprint.
+Zeng,A.;Liu,M.;Lu,R.;Wang,B.;Liu,X.;Dong,Y.;and
+Wang,L.;Ma,C.;Feng,X.;Zhang,Z.;Yang,H.;Zhang,J.;
+Tang, J. 2023. AgentTuning: Enabling Generalized Agent
+Chen, Z.; Tang, J.; Chen, X.; Lin, Y.; et al. 2023b. A Sur-
+AbilitiesforLLMs. arXivpreprint.
+veyonLargeLanguageModelBasedAutonomousAgents.
+arXivpreprint. Zhang, Z.; Zhang, A.; Li, M.; and Smola, A. 2023. Auto-
+maticChainofThoughtPromptinginLargeLanguageMod-
+Wang,L.;Yang,N.;andWei,F.2023. LearningtoRetrieve
+els. InICLR.
+In-Context Examples for Large Language Models. arXiv
+preprint. Zhao,A.;Zhu,E.;Lu,R.;Lin,M.;Liu,Y.-J.;andHuang,G.
+2023a. AugmentingUnsupervisedReinforcementLearning
+Wang, S.; Liu, C.; Zheng, Z.; Qi, S.; Chen, S.; Yang,
+withSelf-Reference. arXivpreprint.
+Q.; Zhao, A.; Wang, C.; Song, S.; and Huang, G. 2023c.
+Avalon’s Game of Thoughts: Battle Against Deception Zhao,W.X.;Zhou,K.;Li,J.;Tang,T.;Wang,X.;Hou,Y.;
+throughRecursiveContemplation. arXivpreprint. Min, Y.; Zhang, B.; Zhang, J.; Dong, Z.; et al. 2023b. A
+SurveyofLargeLanguageModels. arXivpreprint.
+Watkins, C. J.; and Dayan, P. 1992. Q-learning. Machine
+learning. Zhuang, F.; Qi, Z.; Duan, K.; Xi, D.; Zhu, Y.; Zhu, H.;
+Xiong, H.; and He, Q. 2020. A Comprehensive Survey on
+Wei, J.; Bosma, M.; Zhao, V.; Guu, K.; Yu, A. W.; Lester,
+TransferLearning. ProceedingsoftheIEEE.
+B.; Du, N.; Dai, A. M.; and Le, Q. V. 2022a. Finetuned
+Zitkovich,B.;Yu,T.;Xu,S.;Xu,P.;Xiao,T.;Xia,F.;Wu,
+LanguageModelsareZero-ShotLearners. InICLR.
+J.; Wohlhart, P.; Welker, S.; Wahid, A.; et al. 2023. RT-2:
+Wei,J.;Wang,X.;Schuurmans,D.;Bosma,M.;Xia,F.;Chi,
+Vision-Language-Action Models Transfer Web Knowledge
+E.; Le, Q. V.; Zhou, D.; et al. 2022b. Chain-of-Thought
+toRoboticControl. InCoRL.PMLR.
+Prompting Elicits Reasoning in Large Language Models.
+NeurIPS.
+Wu,J.;Antonova,R.;Kan,A.;Lepert,M.;Zeng,A.;Song,
+S.; Bohg, J.; Rusinkiewicz, S.; and Funkhouser, T. 2023.
+TidyBot: Personalized Robot Assistance with Large Lan-
+guageModels. AutonomousRobots.
+Xi, Z.; Chen, W.; Guo, X.; He, W.; Ding, Y.; Hong, B.;
+Zhang, M.; Wang, J.; Jin, S.; Zhou, E.; et al. 2023. The
+RiseandPotentialofLargeLanguageModelBasedAgents:
+ASurvey. arXivpreprint.
+Yang,S.;Nachum,O.;Du,Y.;Wei,J.;Abbeel,P.;andSchu-
+urmans,D.2023a.FoundationModelsforDecisionMaking:
+Problems,Methods,andOpportunities. arXivpreprint.
+Yang, Z.; Li, L.; Wang, J.; Lin, K.; Azarnasab, E.; Ahmed,
+F.; Liu, Z.; Liu, C.; Zeng, M.; and Wang, L. 2023b. MM-
+REACT: Prompting ChatGPT for Multimodal Reasoning
+andAction. arXivpreprint.
+
+--- Page 13 ---
+Appendix
+A DetailedRelatedWorks
+A.1 Prompt-basedLearning
+Prompt-based learning is a paradigm where the language model that originally outputs the label y from context c improves
+on the label prediction task with a modified context cˆ (Liu et al. 2023a). This framework is compelling as it enables the us-
+ageofpre-trainedLLMstrainedonvasttextvolumes.Furthermore,anewpromptingfunctionsupportsfewshotorzero-shot
+learning, thereby adapting swiftly to tasks with minimal or no labeled data. Specifically, tuning-free prompting directly pro-
+duces answers using a pre-trained language model’s prompt without altering its parameters. This method can be enhanced
+with answered prompts, a strategy termed in-context learning (Brown et al. 2020). Examples include LAMA (Petroni et al.
+2019),GPT-3(Brownetal.2020)andCoT(Weietal.2022b).Itsbenefitsincludeefficiency,noparameterupdates,avoidance
+of catastrophic forgetting, and zero/fewshot setting applicability. However, it demands intricate prompt engineering and do-
+mainknowledgeexpertisetoincreaseaccuracy.WorkslikeAutoPromptandZero-shot-CoT(Kojimaetal.2022;Zhangetal.
+2023) alleviate the burden on the engineer by automatically generating reasoning chains for NLP reasoning tasks. Likewise,
+ExpeLagentautomaticallygathersexperiencesinsequentialdecision-makingtasks,generatesitsowninsights,andusesthese
+insightsalongsidesuccessfulin-contextexamplestoinformitsdecisions,takingtheburdensawayfromheavymanualprompt
+engineeringandtherequirementofexpertdomainknowledge.
+A.2 RetrievalAugmentedGeneration
+Retrievalaugmentedgenerationhasgainedpopularity,whichishelpfultoreducehallucinationandgiveLLMsaccesstointernal
+databases(Lietal.2022).SeveralworksinthefieldofNLPdemonstratedtheefficacyofretrievingin-contextexamples(Wang,
+Yang, and Wei 2023; Rubin, Herzig, and Berant 2022) from a database of gold demonstrations. On the contrary, our work
+explores LLM agents retrieving from their own generated experiences, which lessens the burden of the user’s engineering
+effortsanddomainexpertise.
+A.3 LLMAgents
+Research involving using LLMs as the “brain” of an agent has surged in recent years. LLM agents have been instantiated in
+manyareassuchasrobotics(Ha,Florence,andSong2023;Zitkovichetal.2023;Muetal.2023;Mirchandanietal.2023;Wu
+et al. 2023), natural sciences (Bran et al. 2023; Boiko, MacKnight, and Gomes 2023) and automated workflows (Yang et al.
+2023b;Guretal.2023).MostoftheseworksleverageLLMs’strongcommonsenseknowledgetoachievedownstreamtasksina
+zeroorfewshotmannertokeeptheLLM’sstrongworldknowledgepriors.OurExpeLagentalsoleveragesthepowerfulworld
+knowledge of LLMs. Concretely, we use LLMs during gathering experience, extracting insights, and downstream execution
+steps.
+Planning LLMshavedemonstratedtheabilitytoplaninembodiedenvironmentsinazero-shotmanner(Huangetal.2022).
+However, many works show that LLMs’ planning ability can be further enhanced by improving their reasoning capabilities
+(Yaoetal.2023a;Weietal.2022b).TheReActagent(Yaoetal.2023b)demonstratesacombinationofreasoningandacting.
+Thisapproachhasnotonlybeenproventobesuperiortoagentsthatonlyoutputactionsinvariousscenarios,butalsoprovides
+insight into what the agent is thinking while acting. Because of its simplicity and effectiveness, we used ReAct as our base
+planningalgorithm.
+Self-improvement AclassofmethodsthatleveragesLLMs’abilitytoself-reflectbasedonfeedbackfromtheenvironment
+has shown their superiority compared to algorithms that do not have an awareness of doing the task a second time (Shinn
+et al. 2023; Liu, Bahety, and Song 2023). In particular, the Reflexion agent (Shinn et al. 2023) provides a verbal hypothesis
+on why a task failed based on the failed trajectory/environment feedback and improved if given a second chance. However,
+self-reflectingmethodsassumethetasksarerepeatable,andenvironmentfeedbackisavailableattesttime.Furthermore,self-
+reflectionmethodsarestatelessandcannotlearncross-taskinsights.Instead,ourapproachleveragesthestrengthsofReflexion
+andusesittogathermorefailed/successfultrajectoriestoextractinsightsfromthemandperformbetterattesttime.Workslike
+Voyager(Wangetal.2023a)exploredskilllearninginspecificenvironmentslikeMinecraft.
+MemoryMechanisms Agentswithpersistentlong-termmemoryhavedemonstratedexcitingresultsinmulti-agentsettings
+(Park et al. 2023; Maas et al. 2023; Qian et al. 2023). These works usually have multiple instantiations of generative agents
+thatinteractwitheachotherandsimulatehumansocietiesorfictionalsettings.Ingenerativeagents(Parketal.2023),agents
+haveamemorymechanismwheretheycanretrieveinformationbasedonrecency,relevance,andimportance,muchlikehow
+humanssometimesrefertoandassociatewithdifferentmemoriesduringtheirday.Theselinesofworkusuallyareopen-ended,
+whileExpeLagentsaretask-solving.Likegenerativeagents,ourworkalsousesmemory:successfulin-contextexamplesand
+extractedinsightsascondensedmemorywhichwerebothgatheredfromtheagent’sownexperience.
+
+--- Page 14 ---
+A.4 ReinforcementLearning
+Our agent gathers experience autonomously, reminiscent of online reinforcement learning methods (Sutton and Barto 2018).
+Especially,ourmethodusesoff-policylearning(WatkinsandDayan1992),wherethepolicyusesReflexionduringexperience
+gatheringandperformspolicyimprovementviainsightextractionandretrievalofsimilartasksasin-contextexamples.Specif-
+ically,theretrievalstepissimilartoexperiencereplay(Lin1992),whereresearchhasbeendonetoselectwhichexamplesto
+givetheagentfortraining(Schauletal.2015;Yueetal.2023).However,unliketheseexistingmethods,ExpeLdoesn’trequire
+accesstomodelparameters,thedesignofcomplicatedrewardorlossfunctions,oralargenumberofenvironmentinteractions.
+B BroaderImpacts
+OurresearchfocusesonLLMagents.Iftheseautonomousprogramsaregiveninternetaccess,there’sarisktheymightcause
+unexpected harm. However, techniques such as RLHF could potentially mitigate these adverse effects (Nakano et al. 2021;
+Ouyangetal.2022).
+C ComputationalResources
+Allexperimentswereperformedonadesktop:Intel(R)Core(TM)i9-9900KCPU@3.60GHzwith16cores,64GBRAM,and
+asingleNVIDIAGeForceRTX2080Ti.
+D EnvironmentDetails
+D.1 EvaluationTaskSet
+Weemployfour-foldvalidationforallexperiments.Wetrainononehalfofthedatasetandevaluateontheotherhalf,andvice
+versa. All results include the mean and standard error of the results across the folds. For HotpotQA, we assess performance
+using 100 validation tasks from the distractor dev split of the HotPotQA dataset (Yang et al. 2018), which were also used
+by ReAct and Reflexion. In the case of ALFWorld (Shridhar et al. 2021), we utilized the 134 solvable tasks that ReAct and
+Reflexionused.Similarly,forWebShoptasks,weevaluatedusingthesame100tasksusedbyReActandReflexion.
+D.2 Prompts/FewshotExamples
+Weusedthesamefewshotexamples/promptsfromReActandReflexion(Yaoetal.2023b;Shinnetal.2023)duringappropriate
+stages. For WebShop, we added one additional fewshot to make the environment have two fewshot examples. We show our
+prompttemplatesinAppendixFandwillmakethecodepubliclyavailable.
+D.3 WebShopEnvironmentSpecificDetail
+WeslightlymodifiedWebShopenvironmentfoundathttps://github.com/princeton-nlp/WebShop.Ourgoalwastoensureeach
+experimentinstantiationwasdeterministic.Intheoriginalversion,itempricesandpriceconstraintsininstructionsweregener-
+atedbysamplingfromauniformrange.Instead,weusedtheaveragevalue.Whilethisshouldproducearesultsimilartothe
+originalimplementationonaverage,itensuresconsistencyacrossdifferentinstantiationsforeasierreproducibility.Lastly,we
+extendtheitemsperpagefrom3to10sincerecentLLMssawanincreaseincontextwindowsizethatcanaccommodatemore
+observations.
+D.4 WebShopRewardFunction
+Another metric introduced in the WebShop (Yao et al. 2022) is their reward function, which converts the similarity between
+expectedproductattributesandtheattributesofthepurchasedproductintoavaluerangingfrom0to1:
+|U ∩Y |+|U ∩Y |+I[y ≤u ]
+r = att att opt opt price price ·r , (1)
+|U |+|U |+1 type
+att opt
+where,
+0, ifTextMatch=0
+0.1,
+ifTextMatch<0.1
+r = (2)
+type 0.5, ifTextMatch≤0.2andquerynotmatchandcategorynotmatch
+
+1, otherwise.
+Since a single query could yield multiple appropriate items, WebShop utilizes a matching reward for assessment. The term
+“TextMatch” denotes the textual overlap of pronouns, nouns, and proper nouns between the selected product’s title and the
+targetproduct’stitle(Liuetal.2023b).
+
+--- Page 15 ---
+D.5 BaseLanguageModel
+All experiments were conducted using Langchain (Chase 2023), making API calls to the OpenAI API. For Reflexion during
+experience gathering, we used gpt-3.5-turbo-0613 and gpt-3.5-turbo-16k-0613 when it is over the context
+window limit. For insight extraction, we used gpt-4-0613. We used gpt-3.5-turbo-0613 for all evaluation stage
+agents.AllexperimentswereconductedfromJuly10,2023,toAugust10,2023.
+E Environment,Agent,RetrievalParameters
+RetrievalParameters
+Vectorstore Faiss
+Retrievertype kNN
+Embedder all-mpnet-base-v2
+AgentHyperparameters
+MaxReflectionRetries 3
+ReflectionLLM gpt-3.5-turbo-0613
+PolicyLLM gpt-3.5-turbo-0613
+InsightExtractionLLM gpt-4-0613
+DecodingTemperature 0
+DecodingStrategy greedy
+HotpotQA-specificParameters
+NumberofSuccessExamplesinInsightExtractionL 8
+MaxNumberofEnvironmentStepsH 7
+MaxNumberofFewshotExamplesk 6
+MaxNumberofReflectionFewshotExamplesk 2
+reflections
+WebShop-specificParameters
+NumberofSuccessExamplesinInsightExtractionL 4
+MaxNumberofEnvironmentStepsH 15
+MaxNumberofFewshotExamplesk 2
+MaxNumberofReflectionFewshotExamplesk 2
+reflections
+Searcheditemsperpage 10
+ALFWorld-specificParameters
+NumberofSuccessExamplesinInsightExtractionL 8
+MaxNumberofEnvironmentStepsH 20
+MaxNumberofFewshotExamplesk 2
+MaxNumberofReflectionFewshotExamplesk 2
+reflections
+FEVER-specificParameters
+MaxNumberofEnvironmentStepsH 7
+MaxNumberofFewshotExamplesk 3
+Table4:Environment,RetrievalandAgentParameters.
+F PromptTemplates
+F.1 Policy/ActorPromptTemplates
+Policy/actor prompt templates were taken from ReAct (Yao et al. 2023b) (https://github.com/ysymyth/ReAct) with minimal
+alterationstofitextractedinsightsforourExpeLagents.
+
+--- Page 16 ---
+Figure7:ExpeLHotpotQAActingTemplate.
+Figure8:ExpeLALFWorldActingTemplate.
+
+--- Page 17 ---
+Figure9:ExpeLWebShopActingTemplate.
+Figure10:ExpeLFEVERActingTemplate.
+
+--- Page 18 ---
+F.2 TransferLearningPromptTemplate
+G ExampleInsights
+Belowaresomeexampleinsightsextractedbygpt-4-0613orhumansbyexaminingthefailedandsuccessfultrajectories.
+Someinterestinginsightsarehighlightedinpurple(includingtheemergentonesdemonstratedinSec.5.3).
+G.1 HotpotQAinsights
+Figure 11: An example of Extracted Insights for HotpotQA. One component resulting to the improved performance of
+ExpeLonHotpotQAcanbetracedtoseveralpivotalinsightsextractedfromitspastexperiences.Aspecialemphasisisplaced
+on insights 2 and 4, which suggest breaking down complex questions into simpler queries, reminiscent of the mechanism of
+Auto-GPT(Significant-Gravitas2023).Besides,asmentioned,theemergentabilitiesarisingfrominsight8werediscussedin
+Sec.5.3andillustratedinFig.16,17.
+
+--- Page 19 ---
+Figure12:Hand-craftedinsightsfortheHotpotQAenvironment.Thisfiguresummarizesinsightsderivedthroughamanual
+examinationofbothsuccessfulandunsuccessfulReflexion(Shinnetal.2023)trajectories.Theseinsightshavebeencarefully
+craftedtoaddressthemostprevalentmistakes.Onarelatednote,weobservethatGPT-4isabletoextractavarietyofinsights
+(Fig. 11) in common with these hand-crafted ones, as depicted in this figure. For instance, insights 3 and 6 underscore the
+importanceofexhaustingallstepsbeforeconcedinganddiversifyingsearchkeywordstoachievebetterresultsifinitialattempts
+are inconclusive. This illustrates that our proposed method accompanied by powerful gpt-4-0613 LLM, shows traces of
+human-likeabstractioncapabilities.
+G.2 ALFWorldinsights
+
+--- Page 20 ---
+Figure13:AnexampleofExtractedInsightsforALFWorld.WeshowcaseinsightsextractedbyouragentintheALFWorld
+Environment.Someparticularlyinterestinginsightsarehighlightedinpurple.
+
+--- Page 21 ---
+G.3 WebShopinsights
+Figure 14: An example of Extracted Insights for WebShop. We showcase insights extracted by our agent in the WebShop
+Environment.Someparticularlyinterestinginsightsarehighlightedinpurple.
+G.4 FEVERinsights
+
+--- Page 22 ---
+Figure 15: An example of Transferred Insights for FEVER. We showcase insights extracted by our agent in the FEVER
+Environment.Someparticularlyinterestinginsightsarehighlightedinpurple.
+H EmergentAbilitiesShowcase
+Inthissection,weshowcaseexamplesofExpeL’semergentabilitiesindifferentenvironments.Irrelevantornon-representative
+stepsareomittedforclarityandconciseness.
+H.1 HotpotQA,FormingAnalyticalDeduction&AwarenessofEnvironmentConstraints
+
+--- Page 23 ---
+Figure 16: ExpeL Emergent Abilities in HotpotQA, Example 1. ExpeL demonstrates its adaptation to its environment,
+in particular, by reevaluating its trajectory to formulate an educated guess and successfully answer the question, rather than
+conceding,asobservedwiththevanillaReActagent.Weprovideapossibleinfluencinginsightforthistrajectory,showninthe
+purplebox.
+
+--- Page 24 ---
+Figure17:ExpeLEmergentAbilitiesinHotpotQA,Example2.ExpeLisgoingovertheobservationmadeduringitstrajec-
+torytomakeaneducatedguess.Weprovideapossibleinfluencinginsightforthistrajectory,showninthepurplebox.
+
+--- Page 25 ---
+H.2 ALFWorld,WorldModelBeliefUpdate
+Figure18:ExpeLEmergentAbilitiesinALFWorld,WorldModelBeliefUpdate.Throughexperience,ExpeLupdatedits
+priorknowledgeofapan’slikelylocationfromacountertoptoastoveburner,enablingsuccessfultaskcompletion.Weprovide
+apossibleinfluencinginsightforthistrajectory,showninthepurplebox.
+
+--- Page 26 ---
+Figure19:ExpeLEmergentAbilitiesinALFWorld,Self-Correction.ExpeLdevelopedtheabilitytoself-correctbyrectify-
+ingerrors,asillustratedbyputtingbackavasethathadbeenmistakenlytaken.Weprovideapossibleinfluencinginsightfor
+thistrajectory,showninthepurplebox.Inourexperiments,whiletheReActagentoccasionallyrecognizeditserrorsbytaking
+the wrong items, it never remedied them by discarding the incorrect item. As a result, the ReAct agent consistently failed to
+rectifyitsmistakes,leadingtotaskfailure.
+
+--- Page 27 ---
+I ExampleTrajectories
+Weprovidesomeexampletrajectoriesforthedifferentenvironments.Ineachofthem,bothExpeLandReActwereassigned
+anidenticaltaskforcomparison.
+I.1 HotpotQA,anExpeL&ReActexampletrajectory
+Figure20:AnExpeLexampletrajectoryinHotpotQA.EffectivequeryingstrategyleadstotasksuccessinHotpotQA.
+
+--- Page 28 ---
+Figure21:AReActexampletrajectoryinHotpotQA.Failuretoswitchquerystrategy.
+
+--- Page 29 ---
+I.2 ALFWorld,anExpeL&ReActexampletrajectory
+
+--- Page 30 ---
+
+
+--- Page 31 ---
+Figure22:AnExpeL&ReActexampletrajectoryinALFWorld.ExpeL’sefficienttaskexecutioninALFWorld.
+
+--- Page 32 ---
+I.3 WebShop,anExpeL&ReActexampletrajectory
+
+--- Page 33 ---
+
+
+--- Page 34 ---
+Figure 23: An ExpeL & ReAct example trajectory in WebShop. Possible candidate item identification and correct option
+selectionbyourExpeLagent.
+
+--- Page 35 ---
+I.4 FEVER,anExpeL&ReActexampletrajectory
+Figure24:AnExpeL&ReActexampletrajectoryinFEVER.ExpeLagentshowcasingqueryrefinement.
+J AdditionalQuantitativeResults
+Weshareadditionalquantitativeresultsinthissection.AbreakdownofaveragesuccessrateperenvironmentforALFWorldand
+environment-specific average reward for WebShop is presented in Tab. 5. Breakdown of task outcomes (success, failed, halt)
+isillustratedinFig.25,26,and27,forHotpotQA,ALFWorld,andWebShop,respectively.Finally,wesharesomeadditional
+metricsregardingstepstatisticsandusedtokensinTab.6.
+
+--- Page 36 ---
+Gradient-based Prompt-based
+Benchmark Env.Name
+ImitationLearning Act ReAct ExpeL(insights) ExpeL(retrieve) ExpeL(ours)
+ALFWorld(SR%) put 46 46 50 61 73 83
+clean 39 39 61 87 74 74
+heat 74 4 13 12 43 43
+cool 100 48 71 76 71 67
+look 22 11 0 0 17 39
+puttwo 24 6 0 29 29 29
+WebShop(rscore) shop 0.599 0.666 0.665 0.675 0.67 0.701
+Table 5: Environment-Specific Scores. We present the decomposed ALFWorld success rate per environment name and the
+WebShopmeanenvironmentaveragereward(SeeAppendixD.4fortherewardfunction).
+Figure25:Training&Evaluationoutcomesbreakdown,HotpotQA.
+
+--- Page 37 ---
+Figure26:Training&Evaluationoutcomesbreakdown,ALFWorld.
+Figure27:Training&Evaluationoutcomesbreakdown,WebShop.
+
+--- Page 38 ---
+AdditionalMetrics(avg.pertraj.) HotpotQA ALFWorld WebShop
+Act 0.0 0.0 0.0
+ReAct 5.19 8.96 3.08
+Numberofthoughts Insights-only 5.28 7.57 3.26
+Retrieve-only 4.65 7.9 2.91
+ExpeL 5.02 8.16 3.2
+Act 5.08 11.13 4.32
+ReAct 5.18 14.82 4.47
+Numberofactions Insights-only 5.04 14.0 4.72
+Retrieve-only 4.63 13.08 4.24
+ExpeL 4.8 14.3 4.33
+Act 5.08 23.37 4.37
+ReAct 5.19 20.01 7.68
+Numberofobservations Insights-only 5.12 18.1 8.05
+Retrieve-only 4.63 17.22 7.55
+ExpeL 4.87 18.32 7.56
+Act 0.0 6.25 0.16
+ReAct 0.0 2.84 0.42
+Numberofinvalidactions Insights-only 0.01 2.34 0.26
+Retrieve-only 0.01 1.95 0.61
+ExpeL 0.03 2.32 0.35
+Act 1920.48 1498.63 2191.57
+ReAct 1319.75 2051.49 2575.41
+Tokens Insights-only 3525.7 2790.05 3224.95
+Retrieve-only 3609.43 2190.35 2889.57
+ExpeL 4310.06 2856.7 3291.31
+Act 0.0 0.0 0.0
+ReAct 192.51 282.28 116.41
+Thoughttokens Insights-only 231.48 241.62 118.8
+Retrieve-only 176.71 260.27 103.52
+ExpeL 212.13 262.66 111.51
+Act 58.79 81.19 43.8
+ReAct 68.07 104.14 45.33
+Actiontokens Insights-only 71.4 98.98 50.39
+Retrieve-only 60.34 93.75 44.35
+ExpeL 66.41 100.78 44.99
+Act 445.72 416.46 41.52
+ReAct 625.46 393.16 58.27
+Observationtokens Insights-only 560.42 384.54 58.97
+Retrieve-only 496.69 376.1 56.66
+ExpeL 547.23 393.19 57.23
+Table6:AdditionalStatisticalMetrics.Averagecountspertrajectoryforeachbenchmark.Allstringsweretokenizedusing
+tiktoken(https://github.com/openai/tiktoken).

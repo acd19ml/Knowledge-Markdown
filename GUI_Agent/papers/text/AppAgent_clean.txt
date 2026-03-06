@@ -1,0 +1,665 @@
+--- Page 1 ---
+AppAgent: Multimodal Agents as Smartphone Users
+ChiZhang∗ ZhaoYang∗ JiaxuanLiu∗ YuchengHan XinChen
+ZebiaoHuang BinFu GangYu†
+Tencent
+{johnczhang,jayzyang,jiaxuanliu,yuchenghan,shingxchen,zebiaohuang,brianfu,skicyyu}@tencent.com
+https://appagent-official.github.io/
+Chatwith the user Searchmusic video song Send an email to
+Agent Liu and Wonderful Tonightand janedoe@email.com to
+answerhis question leave a praising comment askher about her new job
+Observation:The screenshot shows the Telegram app, Observation:The screenshot shows a YouTube search Observation:The screenshot shows a smartphone's
+a conversation from "Agent Liu" with a message... result for "Wonderful Tonight"... email application ...
+Thought: To complete this task, I should input the text with Thought: To complete this task, I should insert a Thought: To complete this task, I should type the
+this answer into the input field labeled with the tag ‘7’ praising comment into the text input field labeled ‘2’. content of the email asking Jane Doe about her new job.
+Action:text("The Toronto Raptors won the 2019 NBA ... ") Action:text(“This is such a timeless piece...") Action:text(“Dear Jane Doe,\n\nIam writing to ...")
+Improvethe quality of Clock Setan alarm at 12:30 pm TEMU Searchfor a gaming
+this image until it looks every Friday and Sunday, headset and addit to my
+good to you and disablethe vibration shopping cart.
+Observation:The screenshot shows a photo editing app on Observation:The image shows a screenshot of an Observation: The screenshot displays a shopping app
+a smartphone with an image displayed on the screen... alarm application on a smartphone... with a variety of headsets listed ...
+Thought: To complete this task, I should adjust the noise Thought: To complete this task, I should disable the Thought: To complete this task, I should add the
+reduction levelusing the slider. vibrationfeature by tapping on the UI element. selected headset into my shopping cart.
+Action:Action: swipe(23, "right", "medium") Action:tap(17) Action:tap(14)
+Figure 1: Diverse applications of our multimodal agent framework for smartphone App operation. We
+evaluatetheeffectivenessofouragentmodelon50tasksacross10differentApps,highlightingitsadaptabilityand
+effectivenessinareal-worldcontext.
+Abstract tionsthroughasimplifiedactionspace,mim-
+ickinghuman-likeinteractionssuchastapping
+Recentadvancementsinlargelanguagemodels
+and swiping. This novel approach bypasses
+(LLMs)haveledtothecreationofintelligent
+theneedforsystemback-endaccess,thereby
+agents capable of performing complex tasks.
+broadeningitsapplicabilityacrossdiverseapps.
+ThispaperintroducesanovelLLM-basedmul-
+Central to our agent’s functionality is its in-
+timodalagentframeworkdesignedtooperate
+novative learning method. The agent learns
+smartphone applications. Our framework en-
+to navigate and use new apps either through
+ablestheagenttooperatesmartphoneapplica-
+autonomous exploration or by observing hu-
+*Equalcontributions. man demonstrations. This process generates
+†CorrespondingAuthor.
+1
+3202
+ceD
+22
+]VC.sc[
+2v17731.2132:viXra
+
+--- Page 2 ---
+a knowledge base that the agent refers to for ingapplicationthatbuildsanagenttooperateany
+executingcomplextasksacrossdifferentappli- smartphoneapplication(App)inthemobileoper-
+cations. Todemonstratethepracticalityofour ating system. Our approach differs significantly
+agent,weconductedextensivetestingover50
+fromexistingintelligentphoneassistantslikeSiri,
+tasksin10differentapplications,includingso-
+whichoperatethroughsystemback-endaccessand
+cialmedia,email,maps,shopping,andsophis-
+function calls. Instead, our agent interacts with
+ticatedimageeditingtools. Theresultsaffirm
+smartphone apps in a human-like manner, using
+our agent’s proficiency in handling a diverse
+arrayofhigh-leveltasks. low-leveloperationssuchastappingandswiping
+onthegraphicaluserinterface(GUI).Theproposed
+1 Introduction agentoffersmultipleadvantages. Firstly,itelimi-
+natestheneedforsystemback-endaccess,making
+Theemergenceoflargelanguagemodels(LLMs),
+ouragentuniversallyapplicableacrossvariousap-
+suchasChatGPT(OpenAI,2021)andGPT-4(Ope-
+plications. Additionally, this approach enhances
+nAI, 2023), marks a significant milestone in the
+securityandprivacy,astheagentdoesnotrequire
+fieldofartificialintelligenceandnaturallanguage
+deepsystemintegration. Furthermore,byoperating
+processing. These advanced models represent a
+ontheGUIlevel, ouragentcanadapttochanges
+fundamentalchangeinhowmachinesunderstand
+inappinterfacesandupdates,ensuringlong-term
+andgeneratehumanlanguage,exhibitingalevelof
+applicabilityandflexibility.
+sophisticationandversatilitypreviouslyunattain-
+However,creatingamultimodalagentcapable
+able. One of the most exciting developments in
+ofoperatingdiversesmartphoneappspresentssig-
+thisfieldisthecapabilityofLLMstofunctionnot
+nificantchallenges. Existingresearchindicatesthat
+justaslanguageprocessors,butasagentscapable
+adapting current models for embodied tasks ne-
+ofperformingcomplextasks. Thisevolutionisev-
+cessitatesextensivetrainingdata,andcollectinga
+identin initiatives suchasAutoGPT (Yangetal.,
+largedatasetofappdemonstrationsfortrainingis
+2023a) and MetaGPT (Hong et al., 2023), which
+aformidabletask. Moreover,differentappshave
+showcase the practical applications of LLMs in
+uniqueGUIswithvaryingiconmeaningsandop-
+tasksrequiringadvancedcognitivefunctionslike
+erational logic, and it remains uncertain whether
+reasoning,planning,andcollaboration. Thesignifi-
+theseadaptedmodelscaneffectivelygeneralizeto
+canceofthesedevelopmentscannotbeoverstated,
+unseenapps.
+astheyextendtheutilityofLLMsbeyondsimple
+languagetasks,revolutionizingvariousaspectsof Inthispaper,weintroduceamultimodalagent
+technologyanddailylife. frameworkaimedatoperatinganysmartphoneapp
+likehumanusers. Thelearningofourframework
+However,akeylimitationoftheseLLM-based
+involvesanexplorationphasewheretheagentin-
+agentshasbeentheirreliancesolelyontext-based
+teracts autonomously with apps through a set of
+information. This restriction has historically cur-
+pre-definedactionsandlearnsfromtheiroutcomes.
+tailed their perception and interaction with their
+Theseinteractionsaredocumented,whichassists
+environment. Theintroductionofmodelsequipped
+theagentinnavigatingandoperatingtheapps. This
+with vision capabilities, such as the latest itera-
+learningprocesscanbeacceleratedbyobserving
+tion of GPT-4, marks a pivotal breakthrough. By
+a few human demonstrations. Following this ex-
+integrating the ability to process and interpret vi-
+ploratoryphase,theagentcanoperatetheappby
+sualinformation,thesemodelscannowunderstand
+consultingtheconstructeddocumentbasedonits
+aspects of their surroundings that are difficult or
+currentstate,eliminatingtheneedtoadaptthepa-
+impossibletoconveythroughtextalone. Thisex-
+rametersoftheLLMsorcollectextensivetraining
+tended capability enables LLMs to interpret con-
+dataforeachapp.
+text,recognizepatterns,andrespondtovisualcues,
+thusprovidingamoreholisticandinteractiveexpe- Tovalidateitseffectiveness,wetestedouragent
+riencewiththeworld. on50tasksacross10differentapps,rangingfrom
+Inourwork,wefocusonbuildingamultimodal socialmediaandmessagingtoemail,maps,shop-
+agent leveraging the vision capabilities of multi- ping,andevencompleximageeditingapps. Both
+modal large language models to undertake tasks quantitativeresultsanduserstudiesunderscorethe
+previously unachievable by text-only agents. In advantages of our design, particularly its adapt-
+particular,weexploreaninterestingbutchalleng- ability,user-friendliness,andefficientlearningand
+2
+
+--- Page 3 ---
+operatingcapabilitiesacrossawiderangeofappli- 2023b,a),ChartLlama(Hanetal.,2023),andSta-
+cations. Thisunderlinesthepotentialofouragent bleLLaVA(Lietal.,2023),alsodemonstratevision
+as a versatile and effective tool in the realm of understandingcapabilitiesakintothoseofGPT-4V.
+smartphoneappoperation. Nevertheless,aperformancegappersistsbetween
+Insummary,thispapermakesthefollowingcon- theseopen-sourcemodelsandGPT-4V,suggesting
+tributions: potentialareasforfurtherdevelopment.
+• We open-source a multimodal agent frame-
+2.2 LLMsasagents
+work, focusing on operating smartphone ap-
+plicationswithourdevelopedactionspace. The use of LLMs as agents for executing com-
+plex tasks has gained increasing attention. Ini-
+• Weproposeaninnovativeexplorationstrategy,
+tiatives like AutoGPT (Yang et al., 2023a), Hug-
+whichenablestheagenttolearntousenovel
+gingGPT(Shenetal.,2023),andMetaGPT(Hong
+apps.
+etal.,2023)illustratethistrend,andmanyprojects
+• Throughextensiveexperimentsacrossmulti- demonstrate impressive capabilities, moving be-
+ple apps, we validate the advantages of our yond basic language tasks to engaging in activi-
+framework,demonstratingitspotentialinthe ties requiring higher cognitive functions, such as
+realm of AI-assisted smartphone app opera- software development (Qian et al., 2023; Chen
+tion. etal.,2021)andgaming(FAIRetal.,2022;Park
+et al., 2023; Xu et al., 2023). In this context,
+Yao et al. (Yao et al., 2023) introduce an innova-
+2 RelatedWork
+tiveapproachthatsynergizesreasoningandacting
+2.1 Largelanguagemodels in LLMs, significantly enhancing their decision-
+ThedevelopmentofChatGPT(OpenAI,2021)and making and interactive capabilities. LLM-based
+GPT-4 (OpenAI, 2023) represents a crucial ad- agents are designed to utilize the advanced lan-
+vancementinnaturallanguageprocessing. Unlike guage and reasoning skills of LLMs to interact
+earlierlargelanguagemodels(LLMs),thesenew withandmanipulatetheirenvironment(Liuetal.,
+models(Touvronetal.,2023a,b;Zengetal.,2022; 2023c;Guretal.,2023;Xieetal.,2023). Thisin-
+Taorietal.,2023;Zhengetal.,2023)enablemulti- cludesperformingtasksthatrequireunderstanding
+roundconversationsandhavetheimpressiveability context,makingdecisions,andlearningfrominter-
+tofollowcomplexinstructions. Theintegrationof actions(Xietal.,2023;HuandShu,2023). Such
+visioncapabilitiesinGPT-4V(Yangetal.,2023b) agentsarepivotalinapplicationswherehuman-like
+isafurthermilestone,enablingthelanguagemodel cognitiveabilitiesareessential.
+toprocessandinterpretvisualdata. Thisaddition The emergence of multimodal LLM
+has broadened the scope of potential AI applica- agents (Wang et al., 2023; Furuta et al., 2023;
+tions, allowing GPT-4 to undertake diverse tasks Brohan et al., 2022, 2023; Reed et al., 2022),
+such as problem-solving, logical reasoning, tool capableofprocessingvariousinputsincludingtext,
+usage,APIcalls,andcoding. Recentstudies(Yang images, audio, and video, has further broadened
+et al., 2023c; Yan et al., 2023) have shown that the scope of LLM applications. This versatility
+GPT-4V can understand various types of images, is particularly beneficial for LLM-based agents,
+including simple user interfaces (UIs) in popular enabling them to interact more effectively with
+smartphoneapps. However,challengesarisewhen their environment and complete more complex
+the apps are new and their UIs are less typical, tasks, be it completing household tasks in a
+which highlights a major problem that our work physical world (Ahn et al., 2022), generating 3D
+aimstoaddress. Amongopen-sourceeffortsfrom assetsviaproceduraltooluse(Sunetal.,2023),or
+theindustryandresearchcommunity,theLLaMA masteringover600tasksacrossdifferentdomains
+series(Touvronetal.,2023a,b)arethemostpop- atthesametime(Reedetal.,2022). Ourresearch
+ular equivalents and have been fine-tuned to ac- contributes to this area by focusing on an agent
+quireconversationalabilities,employingadecoder- designedtooperatesmartphoneapplications. This
+onlyarchitecturesimilartoChatGPT(Taorietal., agent’s ability to interpret screenshots from the
+2023;Zhengetal.,2023). BuildinguponLLaMA, operating system demonstrates its flexibility and
+manymultimodalLLMs,suchasLLaVA(Liuetal., adaptability, making it a valuable tool in a wide
+3
+
+--- Page 4 ---
+ExplorationPhase DeploymentPhase:“beautifythisphotoforme…”
+… … … …
+Tap Swipe
+👀 👀
+🤔 “Tappingthis UI elementopens “Swipingthis UI element allows the
+the color settings to adjust the user to adjust the color
+color of the image.” temperatureof the image.”
+DocforApp
+Observe,Think,Act,andSummarize
+Figure2: Overviewofourmultimodalagentframeworkdesignedtooperatesmartphoneapplications. The
+figureillustratesthetwo-phaseapproachofourframework. Intheexplorationphase,theagentinteractswitha
+smartphone application and learns from their outcomes to create a comprehensive reference document. In the
+deploymentphase,theagentutilizestheinformationcompiledinthisdocumenttooperateandnavigatetheapps
+effectively.
+rangeofapplications. Thishelpstheagenttointeractaccuratelywithout
+needing to specify exact positions on the screen
+3 Method and enhancesthe agent’sprecision in controlling
+thephone.
+Thissectiondetailsthemethodologybehindourin-
+Action Space: Our agent’s action space mir-
+novativemultimodalagentframework. Thisframe-
+rorscommonhumaninteractionswithsmartphones:
+workenablesanagenttointeractwithsmartphone
+tapsandswipes. Wedesignedfourbasicfunctions:
+applicationsinamannerakintohumanbehavior.
+Wefirstdescribetheexperimentalenvironmentand • Tap(element : int) : This function simu-
+actionspace,whicharefoundationalelementsof lates a tap on the UI element numbered on
+oursystem. Next,wediscusstheexplorationphase, the screen. For example, tap(5) would tap
+where the agent learns app functionalities either theelementlabeled‘5’.
+throughautonomousinteractionsorbyobserving
+• Long_press(element : int) : This func-
+humandemonstrations. Finally,weoutlinethede-
+tionemulatesalongpress(for1second)ona
+ploymentphase,explaininghowtheagentapplies
+UIelement.
+itsacquiredknowledgetoexecutehigh-leveltasks.
+• Swipe ( element : int, direction : str,
+3.1 EnvironmentandActionSpace
+dist : str): Itallowstheagenttoswipeon
+Experimental Environment: Our experimental anelementinaspecifieddirection(up,down,
+environmentisbuiltonacommand-lineinterface left,right)anddistance(short,medium,long).
+(CLI), allowing the agent to interact with smart- For instance, swipe(21,“up”,“medium”)
+phoneapps. WechosetheAndroidoperatingsys- wouldswipeuponelement‘21’foramedium
+tem for our experiments. The agent receives two distance.
+key inputs: a real-time screenshot showing the
+• Text(text : str) :Tobypassinefficientvir-
+app’s interface and an XML file detailing the in-
+tual keyboard typing, this function inputs
+teractiveelements. Toenhancetheagent’sability
+text directly into an input field when a
+toidentifyandinteractwiththeseelementsseam-
+virtual keyboard is visible. For exam-
+lessly,weassigneachelementauniqueidentifier.
+ple,text(“Hello,world!”)inputsthestring
+These identifiers are derived either from the re-
+“Hello,world!".
+sourceIDintheXMLfile(ifprovided)orarecon-
+structed by combining the class name, size, and • Back() : A system-level function that helps
+content of the element. These elements are over- theagentreturntothepreviousUIpage,espe-
+laidassemi-transparentnumbersonthescreenshot. ciallyusefulforexitingirrelevantpages.
+4
+
+--- Page 5 ---
+• Exit() :Aspecializedfunctionisemployed Thisstrategynarrowsdowntheexplorationspace
+toconcludeprocesses,typicallyinvokedupon andpreventstheagentfromengagingwithirrele-
+successfultaskcompletion. vantapppages,makingitamorestreamlinedand
+efficientapproachcomparedtoautonomousinter-
+These predefined actions are designed to sim-
+actions.
+plifytheagent’sinteractions,particularlybyelim-
+inating the need for precise screen coordinates, 3.3 DeploymentPhase
+which can pose challenges for language models
+Followingtheexplorationphase,theagentiswell-
+inaccuratelypredicting.
+equipped to execute complex tasks based on its
+accrued experience. The agent adheres to a step-
+3.2 ExplorationPhase
+by-stepapproachwhengivenatask,witheachstep
+Exploringbyautonomousinteractions. TheEx-
+encompassingaccesstoascreenshotofthecurrent
+plorationPhaseiscentraltoourframework. Here,
+UIandadynamicallygenerateddocumentdetail-
+theagentlearnsaboutthefunctionalitiesandfea-
+ing the functions of UI elements and the actions’
+turesofsmartphoneappsthroughtrialanderror. In
+effects on the current UI page. The prompts also
+this phase, the agent is assigned a task and starts
+provide detailed explanations of all available ac-
+interactingautonomouslywiththeUIelements. It
+tions. In each step, the agent is first tasked with
+uses different actions and observes the resulting
+providing its observations of the current UI, fol-
+changes in the app interface to understand how
+lowedbyarticulatingitsthoughtprocessconcern-
+it works. The agent, driven by a large language
+ingthetaskandcurrentobservations. Subsequently,
+model, attempts to figure out the functions of UI
+theagentproceedstoexecuteactionsbyinvoking
+elementsandtheeffectsofspecificactionsbyan-
+available functions. After each action, the agent
+alyzing screenshots before and after each action.
+summarizestheinteractionhistoryandtheactions
+Thisinformationiscompiledintoadocumentthat
+takenduringthecurrentstep. Thisinformationis
+recordstheeffectsofactionsappliedtodifferentel-
+incorporatedintothenextprompt,whichprovides
+ements. WhenaUIelementisacteduponmultiple
+theagentwithaformofmemory. Thismeticulous
+times, the agent will update the document based
+approachenhancesthereliabilityandinterpretabil-
+onpastdocumentsandcurrentobservationstoim-
+ityoftheagent’sactions,therebyfacilitatingmore
+provequality. Tomakeexplorationmoreefficient,
+informeddecision-making. Thedeploymentphase
+theagentstopsfurtherexploringUIelementsifthe
+stopswhentheagentdeterminesthatthetaskhas
+currentUIpageseemsunrelatedtothemaintasks
+beenaccomplished,atwhichpointitcanexitthe
+oftheapp,likeadvertisementpages. Insuchcases,
+processbytakingtheExit()action.
+it uses the Android system’s Back() function to
+return to the previous UI page. Compared with 4 Experiments
+random exploration, such as Depth-First Search
+andBreadth-FirstSearch,thisgoal-orientedexplo- In this section, we will present our evaluation of
+rationapproachensuresthattheagentfocuseson themultimodalagentframeworkthroughacombi-
+elementscrucialfortheeffectiveoperationofthe nationofquantitativeandqualitativeexperiments.
+app. The agent also utilizes the LLM’s existing Our primary goal is to assess the agent’s perfor-
+knowledgeaboutuserinterfacestoimproveexplo- mance and its ability to operate a diverse set of
+rationefficiency. Theexplorationstopswhenthe smartphoneapplicationseffectively.
+agentcompletestheassignedtask.
+4.1 ExperimentalSetup
+Exploringbywatchingdemos. Analternative
+and often more effective exploration method in- Tocomprehensivelyevaluateourmethod,wecon-
+volvestheagentobservinghumandemonstrations. structabenchmarkthatincludes10popularappli-
+These demonstrations provide the agent with ex- cations,eachservingvariouspurposes. Theseap-
+amples of efficient app usage, especially for un- plicationsincludeGoogleMaps,Twitter,Telegram,
+derstandingcomplexfunctionalitiesthatmightbe YouTube,Spotify,Yelp,Gmail,TEMU,Clock,and
+challengingtodiscoverthroughautonomousinter- Lightroom. Wehaveintentionallychosenthisdi-
+actions. In this method, a human user operates verse set of apps to test the agent’s adaptability
+theappswhiletheagentobserves,recordingonly acrossvariousfunctionsandinterfaces. Inparticu-
+theelementsandactionsemployedbythehuman. lar,togainamorecomprehensiveinsightintothe
+5
+
+--- Page 6 ---
+Google Maps: navigate to Tencent Shanghai Branch
+Observation Observation Observation
+The search field is focused and a keyboard is A keyboardand a search resultfor "Tencent Shanghai The screenshot shows a map application with the
+present on the lower half of the screen. UI Branch" with address detailsand a distance measurement location "Tencent Shanghai Branch" pinpointed
+element labeled '6' appears to be the search input are displayed. with a red marker. There are two buttons at the
+field where text can be input to find locations, bottom of the screen, one labeled "Directions" and
+addresses, or points of interest. the other labeled "Start", with numeric tags 1 and
+3respectively.
+Thought Thought Thought
+To complete the given task, I should enter the To complete the given task, I should confirm the search To complete the given task, which is to
+text"Tencent Shanghai Branch" in the search for "Tencent Shanghai Branch". In this screenshot, the navigate to Tencent Shanghai Branch, I should
+field to proceed with the search for the search confirm buttonis represented by the blue button tap the "Directions" buttonto initiate the
+destination. with the text “\u641c\u7d22” (“Search” in Chinese) on it. route finding process.
+Action Action Action
+text("Tencent Shanghai Branch") tap(1) tap(2)
+Gmail: send an email to janedoe@email.comto ask her about her new job
+Observation Observation Observation
+T i Y n n o o h , t u e a v r n r e i d N s c i i t e b p h w l i e e e , P n s a u t o n 's b s d i j e t e t m i h o ct e n a r i . l e " l i n ' a s T e d a h r d e e U r a b e I d o s s e s d l " y e i I s m n o a q f e l r n u t e h t i a r e l y d a e y b A m e f b l a i e l o i l d l u e i d t s T j A t a h h b n e e e o m d u re o a t c e i Y i n @ p o i b u e e o m n r d t N a 's y i e l e a . w c m r o e P a m a i o l o s a a i f n t d d t i h o d t e n r h e . e e " s m s s T u a i h s i b e l a j , c e l i u r c n e t r d s a i l o c i d n r a y e t i i s f n i i s b g l l l " e t i I h n d n a k i q t i n n u i t g a i r i s i s y n T J e b a a u h n g e t e e t o e r D n m n e o a l s e a i s l b a t b e b o l o o e h d u d e y t a w h i r s e i f t r t r h y o r p t e m h c e e e d h n n e w t u r . j i m o t T h b h e a r e a i r n m c e d e t i e a s s s x g a a p g ' s r 3 e e e ’ s n . a s d s i k n i g n g
+'11'which is used to collapse the keyboard. ready to receive text input. The on-screen keyboard is
+also visible.
+Thought Thought Thought
+T t t o h o e c c o b o l o m l d a y p p l s o e e f t e t t h h th e e e k e t m e a y s a b k il , o t t a h o r e d t y n s p e o x e t t t h s h a t e t e p I m c s e a h s n o s u a a l g c d c e e b t s e o s T t h o e o r t c y n o p e m e w p t j h l o e e b t e c . o th n e t e g n iv t e o n f t t a h s e k e , m th a e i l n a e s x k t i s n t g e p J a I n s e h D ou o l e d a d b o o i u s t T s th h o o e c u s o l e d m n t d p a l k b e e t u e i t s t t h o t e o n . g se iv n e d n t t h a e sk e , m th a e i l n b ex y t t s a t p ep p i I n g
+Jane Doe asking about her new job.
+Action Action Action
+tap(11) text("Dear Jane Doe,\n\nIam writing to inquire tap(3)
+about your new position that you recently started…")
+Lightroom: improve the quality of this image until it looks good to you
+Observation Observation Observation
+T i e T a n x n h h t p d e e e o r s s f 2 e s a c 3 u c r a r e e d r e e e j w , n u s p c s s i h t o t e m h c o n t t v t e i r v n s a a h e r ts i s o l o y t w h , u . a h s T s v i h a a e g d e h p n j s l u h u i e s o g m t t t h t m o i e t n s e r e g , n i d s c a t i t a n t s i r a d e n e g t g s t s c i h a n u 2 a p g r 0 d p r s e , l o f i n 2 w o c t 1 a r l s y , t . i 2 o a 2 n t , T s c w o l o t h i i h n d t e h e e t r e r r t x a a h t p d a s e t g j i o , u r g s h s s u e t l i d m r i g d e h w e e l l n r i e i t t g s v h h o e a n p t l t s u t h , t i m o h a a n s e n b s d e b n r a e e s v 2 e h u a n 0 a t i r l d b i a a n o e b l c w i l p n r e s g e o , a s a s t i s u r o t e e c i t d o h y h n , e e a a . t s r s T t i c g o i h o n h e b l d t r o . i e e r c T a a a a h t r d n e e e j d d u a d b s ls t e y o e t a d th i , l e , T w c s a h o d h i n a t j e h u d t e r s o t x a h t w m p s e t s o e e s i s n x n u l p t i c r d e o r h e e s a a r u a s n s s r d a b e e r d e c e i e o n t a n n o c t t r m r + 0 e a , 2 a a s i 4 s t d n e . s e d d l T i i t d c h t o a o e e t r t i + h s h n 2 i e a g g . m r 2 h e n 0 . l o v ig a is h n i d t b s l t e a h , n e d
+their default values, and the image appears which could further improve the image quality if needed.
+underexposed, needing improvement in lighting.
+Thought Thought Thought
+T u e i i s e s n w x x o n t l p p e i d a i p o o r m b e a e s s r e c p u u e l r t r e r r x i o w d g e e p v . . h i o w e t T t s h i t h u o t h t h e r n o e e n s t a , i l m h u d i I d i m j a n s u e g e e s r s e e t r l f i d i t q o d c h u r t e e o t a r t a e l h i g t i n x t o e y p c 2 e i r o 0 a n x e s , n c a p u w d r s r o e e e h c s a i u o l t s c e h r r e h v r e e e t e I s h l c . c e e t a t I t t n w i h n e i g l l T t m t i c o h n o h e a t n a e e k i t d r n n r e a j c a e u c a r x s s t e n t t i t a n l s i s t e t m g h e e v d e p w e a l g e c i t t o x o o e h p f n i a o m t t U p h r s p p I a e u r e s r e i o e t a m l , v . e r a e a m B m s g t a e e h i s o n n . e e r c t d e q r l e u a o v a a b n i s v l e i i t i n t l h d y e g e d a o c d n f 2 o o d 1 t n c h t c u w e r a m a i n i s l m e l t c n a a c o t g a d a m n e t j i u p o c o l s o n f e t t u , m e t l n h d e e n b t e S a c f t d w u h n o i e i r n e d u t t t h a c l h h a d e o i e l d i u r g I b j i t u h n e i h m a s l a t t i f t o v g p h f e e e d h r e a c o t p d t t b v s h i r j n r e e e m u i g v t g s c i h i t h t g o o e h t h t n u e h e i t t s m r r e o l h a y v p a e h s g e l t a i i p n r g e r s a c h l t i q l i r n s l l g e u i o e h g b a a x f s t h l r l i e p i t y t t n h d y s o , e . g s t o t h u A h i i r n e m r e d e g s n e a j h t u o e x g o a x u s p e o d t t o t i o m s s n m w t u g e u r o s p c e r t h e o .
+Action Action Action
+swipe(20, "right", "medium") swipe(21, "right", "short") tap(22)
+Figure3: QualitativeTaskEvaluationAcrossThreeApps. Thisfigurepresentsqualitativeresultsforthree
+distincttasksconductedonGoogleMaps,Gmail,andLightroom. ItshowcasesAppAgent’sabilitytoaccurately
+perceive,reason,andexecutetasks,demonstratingitscompetenceinvariousapplicationcontexts. Duetospace
+constraints,somelesscriticaldetailshavebeenomittedfromthedescription.
+visioncapabilitiesofouragent,weconductedan 4.2 DesignandAnalysis
+in-depth case study using Adobe Lightroom, an
+Baselines. Tocomprehensivelyevaluateourmul-
+image-editingapplication. Thisspecificcasestudy
+timodal agent framework, we considered various
+allowed us to evaluate the agent’s proficiency in
+design choices and their impact on performance.
+handling visual tasks and its ability to interpret
+Weconductedexperimentsusingdifferentconfigu-
+and manipulate images within the app. For the
+rationstoprovidevaluableinsightsintotheagent’s
+explorationphase,wecappedthemaximumnum-
+behavior. WestartedwithGPT-4withoutanyref-
+ber of steps at 40. During testing, we limited the
+erencedocumentsduringtestingandexaminedits
+maximumnumberofstepsto10. Fortheseexperi-
+performance both with the raw action API and
+ments,weutilizedthestate-of-the-artmultimodal
+our simplified action space. Next, we explored
+largelanguagemodel,GPT-4. GPT-4isequipped
+differentwaystogenerateguidingdocumentsfor
+toprocessinterleavedimage-and-textinputseffec-
+the agent. These included documents generated
+tively. Thisuniquecapabilityenablesouragentto
+throughautonomousexploration,watchinghuman
+interpretandinteractwithbothvisualandtextual
+demonstrations, and the manually crafted docu-
+informationseamlesslywithintheapplications.
+mentasanoraclebenchmark.
+Toeffectivelycomparetheperformanceofdif-
+6
+
+--- Page 7 ---
+Method Document ActionSpace SR↑ Reward↑ Avg. Steps
+None Raw 2.2% 0.6 4.0
+GPT4(Baseline)
+None Ours 48.9% 3.5 6.9
+Auto. Exploration Ours 73.3% 5.1 4.4
+AppAgent WatchingDemos Ours 84.4% 4.7 5.1
+ManuallyCrafted Ours 95.6% 5.5 5.5
+Table1: EvaluatingDesignChoicesinAppAgentPerformance. Thistablecontrastsdifferentdesignelements
+withinAppAgent. Keyfindingsinclude: ourcustom-developedactionspacesurpassestherawactionspaceineffi-
+ciency;theexplorationphase,incorporatingbothautonomousinteractionandobservationofhumandemonstrations,
+significantlyenhancesagentperformance;andtheauto-generateddocumentationyieldsoutcomesonparwiththose
+derivedfrommanuallycrafteddocuments.
+Method Document ActionSpace Avg. Rank↓ Num. Tools
+GPT4(Baseline) None Ours 2.30 2.4
+WatchingDemos Ours 1.95 5.8
+AppAgent
+ManuallyCrafted Ours 1.75 4.0
+Table2: CasestudyonimageeditingtaskswithLightroomApp. Weconductauserstudytoranktheimage
+editingresultsofdifferentmethods. OuragentsproducebetterresultsthantheGPT-4baseline.
+ferentmethods,weemployedthreekeymetrics: inghumandemonstrationsprovedtobehighlyef-
+Successful Rate (SR): This metric measures the fective. Theirresultsconsistentlyoutperformedthe
+averagerateatwhichtheagentsuccessfullycom- GPT-4baselineandarecomparabletotheresults
+pletes tasks within an app. If the agent fails to ofhuman-writtendocuments,whichhighlightsthe
+finishthetaskin10steps,itisconsideredafailure. efficacyofourdesigninenhancingtheagent’sper-
+Reward: Toprovideamorefine-grainedmeasure- formanceacrossadiversesetofapplications.
+ment,wedevelopedarewardmodeltoassessper- Qualitative results. In Fig. 3, we provide ex-
+formance. Foreachtaskwithinanapp,wescored amplesshowcasingtheagent’sexecutionprocess
+differentUIpages. TheclosertheUIpagewasto forvarioustasks. Thisqualitativeanalysisserves
+the objective, the higher the score received. This to demonstrate the agent’s capacity to accurately
+meansthateveniftheagentfailedtocompletethe perceive,reason,andactinresponsetogiventasks.
+task,itwouldstillreceivecreditbasedonitsfinal For a more comprehensive understanding of our
+state. agent’scapabilities,pleaserefertoourprojectpage,
+AverageSteps: Wealsoreportedtheaveragenum- whichincludesadditionaldemonstrationvideos.
+ber of steps required to successfully finish tasks
+acrosstheselectedapplications. 4.3 CaseStudy
+Results. Thecomparisonofourexperimentalre- To gain deeper insights into the vision capabili-
+sultsispresentedinTable1. Wereporttheaverage tiesofouragent,weconductedanextensivecase
+performanceof45taskson9ofthe10previously study using Adobe Lightroom, an image-editing
+describedapps. Notably,weexcludedLightroom application. This specific case study allowed us
+fromthisevaluation,asassessingtaskcompletion toevaluatetheagent’sproficiencyinhandlingvi-
+inthisapplicationpresentedinherentambiguities. sual tasks, which was previously impossible for
+Asdemonstrated,oursimplifiedactionspacesig- text-only agent models. Lightroom, as an image-
+nificantlyimprovestheperformanceoftheGPT-4 editingappwithvariouseditingtools,demandsa
+baseline. OurobservationsindicatethatLLMstrug- widerangeofoperations,suchasselectingappro-
+gleswithproducingaccuratexycoordinates,while priate tools and manipulating image parameters.
+oursimplifiedactionspaceeliminatesthischalleng- Thiscasestudyprovidesarobustevaluationofthe
+ing requirement. Additionally, documents gener- agent’soverallcapabilities. Additionally,theopen-
+atedthroughautonomousexplorationandobserv- ended nature of image editing tasks allows us to
+7
+
+--- Page 8 ---
+assess the agent’s problem-solving abilities. We Hausman, Alex Herzog, Daniel Ho, Jasmine Hsu,
+prepared five images with visual issues, such as Julian Ibarz, Brian Ichter, Alex Irpan, Eric Jang,
+Rosario Jauregui Ruano, Kyle Jeffrey, Sally Jes-
+low contrast and overexposure. Various variants
+month, Nikhil Joshi, Ryan Julian, Dmitry Kalash-
+ofourmodel,aspreviouslyillustrated,wereused
+nikov, Yuheng Kuang, Kuang-Huei Lee, Sergey
+toedittheseimages. Auserstudywasconducted Levine, Yao Lu, Linda Luu, Carolina Parada, Pe-
+to rank the editing results produced by different terPastor, JornellQuiambao, KanishkaRao, Jarek
+Rettinghouse,DiegoReyes,PierreSermanet,Nico-
+methods. Wealsoreportedtheaveragenumberof
+lasSievers,ClaytonTan,AlexanderToshev,Vincent
+tools used for image editing, providing an addi-
+Vanhoucke,FeiXia,TedXiao,PengXu,SichunXu,
+tionalreferencetotheeditingprocess’scomplexity. MengyuanYan,andAndyZeng.2022. Doasican
+Allmodelswereassignedthetaskof“fixthisimage andnotasisay: Groundinglanguageinroboticaf-
+fordances. InarXivpreprintarXiv:2204.01691.
+untilitlooksgoodtoyou”withoutspecifyingthe
+image’sproblems. Thecomparisonoftheresults
+AnthonyBrohan,NoahBrown,JusticeCarbajal,Yevgen
+ispresentedinTable2. Aswecansee,ouragent Chebotar,XiChen,KrzysztofChoromanski,Tianli
+model with documents yields consistently better Ding,DannyDriess,AvinavaDubey,ChelseaFinn,
+resultsthantheGPT-4baseline,whichemphasizes et al. 2023. Rt-2: Vision-language-action models
+transfer web knowledge to robotic control. arXiv
+theinfluenceofdocumentsinourdesign. Thegen-
+preprintarXiv:2307.15818.
+erateddocumentsbywatchingthedemonstration
+produced comparable results with the results of AnthonyBrohan,NoahBrown,JusticeCarbajal,Yev-
+manually crafted documents, which suggests the genChebotar,JosephDabis,ChelseaFinn,Keerthana
+Gopalakrishnan,KarolHausman,AlexHerzog,Jas-
+effectiveness of the exploration phase. We also
+mineHsu, etal.2022. Rt-1: Roboticstransformer
+find that with a document, the agent tends to use
+for real-world control at scale. arXiv preprint
+varioustoolstoimprovetheimagequality,while arXiv:2212.06817.
+theGPT-4baselineusesfewertools.
+Mark Chen, Jerry Tworek, Heewoo Jun, Qiming
+5 Conclusion Yuan,HenriquePondedeOliveiraPinto,JaredKa-
+plan, HarriEdwards, YuriBurda, NicholasJoseph,
+In this paper, we have introduced a novel multi- Greg Brockman, et al. 2021. Evaluating large
+language models trained on code. arXiv preprint
+modal agent framework that leverages the vision
+arXiv:2107.03374.
+capabilities of large language models to operate
+smartphoneapplicationsinahuman-likemanner. MetaFAIR,AntonBakhtin, NoamBrown, EmilyDi-
+Ourapproacheliminatestheneedforsystemback- nan, Gabriele Farina, Colin Flaherty, Daniel Fried,
+Andrew Goff, Jonathan Gray, Hengyuan Hu, et al.
+end access and offers security, adaptability, and
+2022. Human-levelplayinthegameofdiplomacy
+flexibilityadvantages. Ourexploration-basedlearn-
+bycombininglanguagemodelswithstrategicreason-
+ing strategy allows the agent to quickly adapt to ing. Science,378(6624):1067–1074.
+new applications with unfamiliar user interfaces,
+HirokiFuruta,Kuang-HueiLee,OfirNachum,Yutaka
+making it a versatile tool for various tasks. Our
+Matsuo,AleksandraFaust,ShixiangShaneGu,and
+extensive experiments across various apps high-
+IzzeddinGur.2023. Multimodalwebnavigationwith
+lightouragent’sabilitytohandlediversehigh-level instruction-finetunedfoundationmodels.
+tasksandunderscoreitsadaptabilityandlearning
+Izzeddin Gur, Hiroki Furuta, Austin Huang, Mustafa
+efficiency.
+Safdari,YutakaMatsuo,DouglasEck,andAleksan-
+Limitation. Wehaveadoptedasimplifiedaction
+draFaust.2023. Areal-worldwebagentwithplan-
+spaceforsmartphoneoperations,whichmeansthat ning,longcontextunderstanding,andprogramsyn-
+advancedcontrolssuchasmulti-touchandirregu- thesis.
+largesturesarenotsupported. Thislimitationmay
+YuchengHan,ChiZhang,XinChen,XuYang,Zhibin
+restricttheagent’sapplicabilityinsomechalleng-
+Wang,GangYu,BinFu,andHanwangZhang.2023.
+ingscenarios. Nevertheless,werecognizethisas Chartllama: Amultimodalllmforchartunderstand-
+anavenueforfutureresearchanddevelopment. ingandgeneration.
+SiruiHong,MingchenZhuge,JonathanChen,Xiawu
+References Zheng,YuhengCheng,CeyaoZhang,JinlinWang,
+ZiliWang,StevenKaShingYau,ZijuanLin,Liyang
+Michael Ahn, Anthony Brohan, Noah Brown, Yev- Zhou, Chenyu Ran, Lingfeng Xiao, Chenglin Wu,
+genChebotar,OmarCortes,ByronDavid,Chelsea andJürgenSchmidhuber.2023. Metagpt: Metapro-
+Finn,ChuyuanFu,KeerthanaGopalakrishnan,Karol grammingforamulti-agentcollaborativeframework.
+8
+
+--- Page 9 ---
+Zhiting Hu and Tianmin Shu. 2023. Language mod- HugoTouvron,ThibautLavril,GautierIzacard,Xavier
+els, agent models, and world models: The law for Martinet,Marie-AnneLachaux,TimothéeLacroix,
+machine reasoning and planning. arXiv preprint BaptisteRozière,NamanGoyal,EricHambro,Faisal
+arXiv:2312.05230. Azhar,AurelienRodriguez,ArmandJoulin,Edouard
+Grave,andGuillaumeLample.2023a. Llama: Open
+Yanda Li, Chi Zhang, Gang Yu, Zhibin Wang, Bin andefficientfoundationlanguagemodels.
+Fu,GuoshengLin,ChunhuaShen,LingChen,and
+Yunchao Wei. 2023. Stablellava: Enhanced visual
+Hugo Touvron, Louis Martin, Kevin Stone, Peter Al-
+instructiontuningwithsynthesizedimage-dialogue
+bert, Amjad Almahairi, Yasmine Babaei, Nikolay
+data.
+Bashlykov,SoumyaBatra,PrajjwalBhargava,Shruti
+Bhosale,DanBikel,LukasBlecher,CristianCanton
+Haotian Liu, Chunyuan Li, Yuheng Li, and Yong Jae
+Ferrer,MoyaChen,GuillemCucurull,DavidEsiobu,
+Lee.2023a. Improvedbaselineswithvisualinstruc-
+JudeFernandes,JeremyFu,WenyinFu,BrianFuller,
+tiontuning.
+CynthiaGao,VedanujGoswami,NamanGoyal,An-
+thonyHartshorn,SagharHosseini,RuiHou,Hakan
+HaotianLiu,ChunyuanLi,QingyangWu,andYongJae
+Inan,MarcinKardas,ViktorKerkez,MadianKhabsa,
+Lee.2023b. Visualinstructiontuning.
+IsabelKloumann,ArtemKorenev,PunitSinghKoura,
+XiaoLiu,HaoYu,HanchenZhang,YifanXu,Xuanyu Marie-AnneLachaux,ThibautLavril,JenyaLee,Di-
+Lei, Hanyu Lai, Yu Gu, Hangliang Ding, Kaiwen anaLiskovich,YinghaiLu,YuningMao,XavierMar-
+Men,KejuanYang,ShudanZhang,XiangDeng,Ao- tinet,TodorMihaylov,PushkarMishra,IgorMoly-
+han Zeng, Zhengxiao Du, Chenhui Zhang, Sheng bog, Yixin Nie, Andrew Poulton, Jeremy Reizen-
+Shen, Tianjun Zhang, Yu Su, Huan Sun, Minlie stein,RashiRungta,KalyanSaladi,AlanSchelten,
+Huang,YuxiaoDong,andJieTang.2023c. Agent- Ruan Silva, Eric Michael Smith, Ranjan Subrama-
+Bench: EvaluatingLLMsasagents. arXivpreprint nian, Xiaoqing Ellen Tan, Binh Tang, Ross Tay-
+arXiv: 2308.03688. lor, Adina Williams, Jian Xiang Kuan, Puxin Xu,
+ZhengYan,IliyanZarov,YuchenZhang,AngelaFan,
+OpenAI. 2021. Chatgpt. https://openai.com/ Melanie Kambadur, Sharan Narang, Aurelien Ro-
+research/chatgpt. driguez,RobertStojnic,SergeyEdunov,andThomas
+Scialom. 2023b. Llama 2: Open foundation and
+OpenAI.2023. Gpt-4technicalreport. fine-tunedchatmodels.
+JoonSungPark,JosephO’Brien,CarrieJunCai,Mered-
+ZihaoWang,ShaofeiCai,AnjiLiu,YonggangJin,Jin-
+ithRingelMorris,PercyLiang,andMichaelSBern-
+bingHou,BoweiZhang,HaoweiLin,ZhaofengHe,
+stein.2023. Generativeagents: Interactivesimulacra
+Zilong Zheng, Yaodong Yang, Xiaojian Ma, and
+ofhumanbehavior. InProceedingsofthe36thAn-
+Yitao Liang. 2023. Jarvis-1: Open-world multi-
+nual ACM Symposium on User Interface Software
+taskagentswithmemory-augmentedmultimodallan-
+andTechnology,pages1–22.
+guagemodels.
+Chen Qian, Xin Cong, Cheng Yang, Weize Chen,
+YushengSu,JuyuanXu,ZhiyuanLiu,andMaosong ZhihengXi,WenxiangChen,XinGuo,WeiHe,Yiwen
+Sun.2023. Communicativeagentsforsoftwarede- Ding, Boyang Hong, Ming Zhang, Junzhe Wang,
+velopment. arXivpreprintarXiv:2307.07924. Senjie Jin, Enyu Zhou, et al. 2023. The rise and
+potential of large language model based agents: A
+Scott Reed, Konrad Zolna, Emilio Parisotto, Ser- survey. arXivpreprintarXiv:2309.07864.
+gio Gomez Colmenarejo, Alexander Novikov,
+Gabriel Barth-Maron, Mai Gimenez, Yury Sulsky, TianbaoXie,FanZhou,ZhoujunCheng,PengShi,Lu-
+JackieKay,JostTobiasSpringenberg,etal.2022. A oxuanWeng,YitaoLiu,TohJingHua,JunningZhao,
+generalistagent. arXivpreprintarXiv:2205.06175. QianLiu,CheLiu,LeoZ.Liu,YihengXu,Hongjin
+Su, Dongchan Shin, Caiming Xiong, and Tao Yu.
+YongliangShen,KaitaoSong,XuTan,DongshengLi,
+2023. Openagents: Anopenplatformforlanguage
+WeimingLu,andYuetingZhuang.2023. Hugging-
+agentsinthewild.
+gpt: Solving ai tasks with chatgpt and its friends
+inhuggingface. InAdvancesinNeuralInformation
+Yuzhuang Xu, Shuo Wang, Peng Li, Fuwen Luo, Xi-
+ProcessingSystems.
+aolong Wang, Weidong Liu, and Yang Liu. 2023.
+Exploring large language models for communica-
+ChunyiSun,JunlinHan,WeijianDeng,XinlongWang,
+tiongames: Anempiricalstudyonwerewolf. arXiv
+ZishanQin,andStephenGould.2023. 3d-gpt:Proce-
+preprintarXiv:2309.04658.
+dural3dmodelingwithlargelanguagemodels. arXiv
+preprintarXiv:2310.12945.
+An Yan, Zhengyuan Yang, Wanrong Zhu, Kevin Lin,
+Rohan Taori, Ishaan Gulrajani, Tianyi Zhang, Yann LinjieLi,JianfengWang,JianweiYang,YiwuZhong,
+Dubois,XuechenLi,CarlosGuestrin,PercyLiang, Julian McAuley, Jianfeng Gao, Zicheng Liu, and
+andTatsunoriB.Hashimoto.2023. Stanfordalpaca: LijuanWang.2023. Gpt-4vinwonderland: Large
+An instruction-following llama model. https:// multimodalmodelsforzero-shotsmartphoneguinav-
+github.com/tatsu-lab/stanford_alpaca. igation. arXivpreprintarXiv: 2311.07562.
+9
+
+--- Page 10 ---
+HuiYang,SifuYue,andYunzhongHe.2023a. Auto-
+gpt for online decision making: Benchmarks and
+additionalopinions.
+Zhengyuan Yang, Linjie Li, Kevin Lin, Jianfeng
+Wang, Chung-Ching Lin, Zicheng Liu, and Lijuan
+Wang. 2023b. The dawn of lmms: Preliminary
+explorations with gpt-4v (ision). arXiv preprint
+arXiv:2309.17421.
+ZhengyuanYang,LinjieLi,KevinLin,JianfengWang,
+Chung-Ching Lin, Zicheng Liu, and Lijuan Wang.
+2023c. The dawn of lmms: Preliminary explo-
+rations with gpt-4v(ision). arXiv preprint arXiv:
+2309.17421.
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak
+Shafran,KarthikNarasimhan,andYuanCao.2023.
+ReAct:Synergizingreasoningandactinginlanguage
+models. InICLR.
+Aohan Zeng, Xiao Liu, Zhengxiao Du, Zihan Wang,
+Hanyu Lai, Ming Ding, Zhuoyi Yang, Yifan Xu,
+Wendi Zheng, Xiao Xia, et al. 2022. Glm-130b:
+Anopenbilingualpre-trainedmodel. arXivpreprint
+arXiv:2210.02414.
+LianminZheng,Wei-LinChiang,YingSheng,Siyuan
+Zhuang, Zhanghao Wu, Yonghao Zhuang, Zi Lin,
+ZhuohanLi,DachengLi,Eric.PXing,HaoZhang,
+JosephE.Gonzalez,andIonStoica.2023. Judging
+llm-as-a-judgewithmt-benchandchatbotarena.
+10

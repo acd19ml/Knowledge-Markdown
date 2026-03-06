@@ -66,7 +66,7 @@ MAGNET is a memory-driven adaptive agent framework built on a planner–actor ar
 ### Gap Signals (extracted from this paper)
 - Gap signal 1: "The framework requires successful trajectories for memory construction, making it less effective in completely novel domains where initial exploration fails." (Limitations, p.9) → 无法从失败轨迹构建记忆，离线进化能力受限（直接对应Gap A-4：No offline experience evolution for GUI agents）
 - Gap signal 2: "memory-augmented systems … mainly focus on text-based workflow descriptions that lack multimodal knowledge, making them vulnerable to visual changes in UI elements" (Introduction, p.1) → 即使MAGNET引入了视觉patch，仍是检索式的点对点匹配，缺乏结构化的多模态情景记忆流（对应Gap A-2）
-- Gap signal 3: Procedural memory stores abstract workflows per task category; there is no mechanism to generalize across semantically related but categorically different tasks → 程序性记忆的迁移粒度较粗，依赖任务分类聚类，对细粒度技能（如"在任意app中搜索"这种原子操作）的跨场景复用支持不足（对应Gap A-1的深层问题）
+- Gap signal 3: "the clustering-based workflow extraction may struggle with highly diverse task structures that do not form clear patterns." (Limitations, p.9) → procedural memory 目前仍依赖 task clustering 质量，说明其跨任务迁移粒度和技能抽象稳定性还不够强。
 
 > ⚠️ NEEDS YOUR INPUT: MAGNET对研究的核心价值：(1) 它是最接近"解决Gap A-1+A-4"的现有工作，可直接作为研究的强baseline——如果本研究在AndroidWorld或相同offline benchmarks上超过MAGNET，即为显著的positive result；(2) MAGNET的stationary memory构建流水线（triplet collection → region annotation → function description）是memory construction的工程参考，可以参考其UI-40K数据集的构建方式；(3) MAGNET的局限（只从成功轨迹学习）是本研究"从失败中学习/离线进化"这一研究方向的直接motivation支撑。
 

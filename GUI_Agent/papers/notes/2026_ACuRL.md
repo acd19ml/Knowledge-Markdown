@@ -6,7 +6,7 @@
 - **Venue**: Preprint, 2026 | arXiv:2602.10356
 - **Links**: [PDF](../source_todo/Autonomous-Continual-Learning.pdf) | Code: github.com/OSU-NLP-Group/ACuRL | Project: not listed in PDF
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-06
-- **Priority**: P1 | **Reading progress**: Pass 1
+- **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
 ACuRL 让 computer-use agent 在零人工数据条件下，通过 autonomous exploration + curriculum RL + CUAJudge 自动评估，在 6 个 GUI 环境中实现 4-22% 的持续学习收益，并保持无灾难性遗忘（Abstract, p.1）。
@@ -59,7 +59,7 @@ ACuRL 让 computer-use agent 在零人工数据条件下，通过 autonomous exp
 
 ### Gap Signals (extracted from this paper)
 - Gap signal 1: "continual learning in specific target environments ... remains unexplored" (Introduction, p.1) → 说明环境适应本身在 GUI agent 里仍是空白地带。
-- Gap signal 2: 适应依赖显式 RL 循环、task generation 与 evaluator，而非 deployment-time memory retrieval → 训练期 continual learning 仍未等价解决使用期 continual improvement。
+- Gap signal 2: ACuRL 的适应闭环由 autonomous exploration、curriculum generation、RL 更新和 CUAJudge 组成（Sections 3-4, p.3-8）→ 这是训练期 continual learning 方案，而不是 deployment-time retrieval / memory reuse；两类持续改进机制仍应区分。
 - Gap signal 3: sparse updates around only 20% parameters and about 80% unchanged (Abstract / Figure 2 discussion, p.1, p.8) → 暗示也许存在更轻量的 parameter-efficient or memory-based adaptation 路径。
 
 > ⚠️ NEEDS YOUR INPUT: 如果你的 RQ 聚焦“agent 如何持续吸收经验”，ACuRL 可以作为训练期自演化的强基线，而你的工作可进一步问: 能不能把这套能力搬到 inference-time、无显式 RL 的设置里。

@@ -6,7 +6,7 @@
 - **Venue**: Preprint, 2026 | arXiv:2602.14093
 - **Links**: [PDF](../source_todo/GUI-GENESIS.pdf) | Code: not listed in PDF | Project: not listed in PDF
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-06
-- **Priority**: P1 | **Reading progress**: Pass 1
+- **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
 GUI-GENESIS 用 coding LLM 把真实 GUI traces 反向合成为轻量、可验证的 synthetic web environments，并通过 code-native rewards 支持 GUI agent post-training，在真实 WeChat mini-app 任务上把 base model 的成功率从 36.91% 提升到 42.28%，同时比真实环境训练更稳、更便宜（Abstract; Table 1, p.1, p.6）。

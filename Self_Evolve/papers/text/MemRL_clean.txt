@@ -1,0 +1,2266 @@
+--- Page 1 ---
+MemRL: Self-Evolving Agents via Runtime Reinforcement Learning on
+Episodic Memory
+ShengtaoZhang1* JiaqianWang2* RuiwenZhou3 JunweiLiao14 YuchenFeng5 ZhuoLi1 YujieZheng1
+WeinanZhang14 YingWen14 ZhiyuLi5 FeiyuXiong5 YutaoQi2 BoTang65 MuningWen1
+Abstract soningcapabilities,currentAIagentsstruggletoemulate
+thisdecoupledself-evolution(Weietal.,2022;Yaoetal.,
+The hallmark of human intelligence is the self-
+2023;Schicketal.,2023;Wangetal.,2023). Specifically,
+evolving ability to master new skills by learn-
+fine-tuninginternalizesexperiencebymodifyingweights
+ingfrompastexperiences. However,currentAI
+(Ouyangetal.,2022;Stiennonetal.,2020;Rafailovetal.,
+agentsstruggletoemulatethisself-evolution:fine-
+2023; Ethayarajh et al., 2024) but suffers from computa-
+tuningiscomputationallyexpensiveandproneto
+tionalcostsandcatastrophicforgetting(Kirkpatricketal.,
+catastrophic forgetting, while existing memory-
+2017;Lietal.,2024;Wuetal.,2024).Conversely,Retrieval-
+basedmethodsrelyonpassivesemanticmatching
+AugmentedGeneration(RAG)(Lewisetal.,2020)provides
+thatoftenretrievesnoise. Toaddressthesechal-
+anon-parametricalternativebutremainspassive,retrieving
+lenges, we propose MEMRL, a non-parametric
+bysemanticsimilarityratherthanutility(Karpukhinetal.,
+approachthatevolvesviareinforcementlearning
+2020; Gao et al., 2024); this prevents agents from effec-
+onepisodicmemory. Bydecouplingstablerea-
+tivelyleveragingruntimefeedbacktodistinguishhigh-value
+soningfromplasticmemory,MEMRLemploysa
+strategiesfromnoise.
+Two-Phase Retrieval mechanism to filter noise
+and identify high-utility strategies through en-
+vironmental feedback. Extensive experiments Human cognition MemRL (runtime learning)
+on HLE, BigCodeBench, ALFWorld, and Life- mental simulation / rollout constructive
+episodic
+simulation
+longAgentBenchdemonstratethatMEMRLsig-
+nificantlyoutperformsstate-of-the-artbaselines, Intent e o x u p tc e o c m te e d Query / Intent Environment
+confirming that MEMRL effectively reconciles upd o a u te tc e o x m p e ected I c n o s n p s ir t e ru d c b ti y ve Fr ( o lo z c e k n e L d L ) M
+thestability-plasticitydilemma,enablingcontinu- D e si e p m c is o u o u la p d t l i e i c o s n table weights frozen Feedback
+o C u o s d r e u i n s ti a m v e ai i l m ab p l r e ov a e t m ht en t t p w s i : th / o / u g tw it ei h g u ht b u . p c d o at m e / s. re ( S C a t s o a o r b t n e l i e n x) g e o e x u p p t i c e s o o c m t d e e e d r p m e la e a s m s t o i o c n r i y e n p g i s fr o o d m e Va r l e u t e ri - e a v w a a l re s a i o t n t l t e u e m t n io p t n t U u s p t c i d o li a t r y e te
+MemTensor/MemRL. utility score
+strategy utility score Evolving learning happens
+estimate expected in memory
+Episodic memory outcome (no weight updates)
+1.Introduction Figure1.TheconceptualframeworkofMemRL.
+Humanintelligencebalancescognitivestabilityandepisodic
+This limitation underscores a critical research question:
+plasticity (Grossberg, 2013; McClelland et al., 1995; Ku- How can we enable an agent to continuously improve
+maranetal.,2016)viaConstructiveEpisodicSimulation, itsperformanceafterdeployment,withoutcompromis-
+enablingadaptationwithoutrewiringneuralcircuitry(Schac- ing the stability of its pre-trained backbone? Our ob-
+ter & Addis, 2007; Hassabis & Maguire, 2007; Schacter
+jectiveistoachieveanagentthatevolveswithcontinued
+et al., 2012; Gick & Holyoak, 1980). Despite their rea-
+usage and rapidly adapts to new tasks after deployment,
+referredtoasRuntimeContinuousLearning(Javedetal.,
+*Equalcontribution 1ShanghaiJiaoTongUniversity,Shanghai,
+China2XidianUniversity,Xi’an,China3NationalUniversityof 2023;Silver&Sutton,2025;Parisietal.,2019;Wuetal.,
+Singapore,Singapore4ShanghaiInnovationInstitute,Shanghai, 2024),allwhilekeepingthebackbonemodelfrozentopre-
+China5MemTensor(Shanghai)TechnologyCo.,Ltd.,Shanghai, vent catastrophic forgetting (Finn et al., 2017; Wei et al.,
+China 6University of Science and Technology of China, Hefei,
+2025).Toaddressthischallenge,inspiredbythehumancog-
+China. Correspondenceto: BoTang<tangb@memtensor.cn>,
+nitivemechanismofconstructivesimulation, wepropose
+MuningWen<muningwen@sjtu.edu.cn>.
+MEMRL,anapproachthatfacilitatesself-evolvingagents
+Preprint.February13,2026. byexplicitlydecouplingthemodel’sstablecognitivereason-
+1
+6202
+beF
+21
+]LC.sc[
+2v29130.1062:viXra
+
+--- Page 2 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+ingfromdynamicepisodicmemory. Figure1illustratesthe the backbone to remain frozen to ensure stability and ef-
+conceptualframeworkofourproposedMEMRL.Drawing ficiency. Whilerecentmemory-augmentedagents(Zheng
+ontries-and-errorsmannerinReinforcementLearning(RL) etal.,2025;Weietal.,2025;Zhouetal.,2025b)emphasize
+toestimateexpectedexperienceutilities(Sutton&Barto, memoryorganization,theselectionproblem—identifying
+2018),weformalizetheinteractionbetweenthefrozenLLM whichexperiencestoreuseunderfeedback—remainsacrit-
+andexternalmemoryasaMarkovDecisionProcess(MDP) icalchallenge. Drawingfromvalue-awareepisodiccontrol
+(Puterman,2014). Unliketraditionalmethodsthatoptimize (Tulvingetal.,1972;McClellandetal.,1995), weframe
+thebackbonemodel,MEMRLoptimizesthepolicyofmem- runtimelearningasidentifyingvaluableepisodes. Byusing
+oryusagewithouttuningmodelweights. interactionfeedbacktoassignutility,ourapproachguides
+retrieval and reuse without weight modification, thereby
+MEMRL organizes memory into a structured Intent-
+ensuringsustainedimprovement(Pritzeletal.,2017).
+Experience-Utility triplet. This structure transforms re-
+trieval from a passive semantic match task into an active
+Reinforcement Learning Reinforcement learning has
+decision-makingprocess: Two-PhaseRetrievalselectsex-
+beenwidelyadoptedforLLMsenhancement. Arepresen-
+periences based on their learned Q-values, reflecting ex-
+tativeparadigmistoconstructrewardsignalsfromhuman
+pectedutility,ratherthansemanticsimilarityalone(Watkins
+feedbackandoptimizethemodelpolicyaccordinglytoalign
+& Dayan, 1992); Utility-Driven Update refines these Q-
+withhumanpreference(Stiennonetal.,2020;Ouyangetal.,
+values through environmental feedback, applying Monte
+2022). Other recent approaches leverage rule-based veri-
+Carlostyleupdates(Metropolis&Ulam,1949).Thisclosed-
+fierstoimproveLLMs’reasoningcapabilities(Guoetal.,
+loopcycleenablestheagenttodistinguishhigh-valuemem-
+2025;Yuetal.,2025). Inparallel,agent-orientedresearch
+oriesfromsimilarnoise,effectivelylearningfrombothsuc-
+exploreshowinteractionsignalscanimprovetooluseand
+cessandfailurewithouthighcomputationalcostorcatas-
+action decision-making, and investigates mechanisms by
+trophicforgettingrisksassociatedwithweightupdates. As
+whichlanguagemodelsexecutecompositeactionsinenvi-
+forexperiments,wevalidateMEMRLonfourdiversebench-
+ronments(Schicketal.,2023). Despitethedemonstrated
+marks, including HLE, BigCodeBench, ALFWorld, and
+effectivenessofreward-drivenoptimization,thesemethods
+LifelongAgentBench. Ourresultsdemonstrateconsistent
+generallyplacelearninginthemodelparametersoraddi-
+superiorityoverbaselines,achievingrelativeimprovement
+tionalparametricmodules,andthusdonotavoidthecost
+inexploration-heavyenvironments. Ourin-depthanalysis
+ofonlineupdatesortheriskofforgetting. Incontrast,our
+revealsastrongcorrelationbetweenlearnedutilityandtask
+methodframesmemoryusageasalearnabledecisionprob-
+success,furtherconfirmingMEMRL’seffectiveness.
+lemandappliesnon-parametricreinforcementlearningon
+Insummary,ourcontributionsarethreefold: memorytobypasstherisk.
+• WeproposearuntimelearningframeworkusingModel-
+Agentic Memory To avoid the costs of fine-tuning, ex-
+Memory decoupling and Intent-Experience-Utility
+ternal memory systems have evolved from a static RAG
+triplettoreconcilethestability-plasticitydilemma,en-
+paradigmtodynamic,governablememorystructures(Lewis
+ablingtuning-freeagentlearning.
+etal.,2020;Karpukhinetal.,2020). Earlyagenticmemory
+introducedreflectionmechanismsandhierarchicalmanage-
+• We introduce MEMRL, a non-parametric approach
+menttohandlelongcontextexperiences(Shinnetal.,2023;
+enablingagentself-evolutionviaTwo-PhaseRetrieval
+Packeretal.,2024). Morerecentframeworkshavesystem-
+andUtility-DrivenUpdate.
+atized the memory lifecycle, focusing on unified storage
+• Weconductextensiveevaluationsandprovidearigor- andstructuredindexingforcomplextasks(Lietal.,2025b;
+ousanalysisfor MEMRL’sstability,showinghowit Xu et al., 2025; Huang et al., 2025; Ye, 2025). Further-
+ensurestaskintegrityandminimizesforgetting. more,adaptiveapproachesnowexploreimprovingretrieval
+via feedback-driven updates or automated augmentation
+2.RelatedWorks (Salama et al., 2025; Zhang et al., 2025; Li et al., 2025a;
+Zhouetal.,2025a). However,exceptfortrainingadditional
+Runtime Learning Runtime Learning focuses on the learnablemodules,mostexistingmethodsstillrelypredom-
+post-deployment improvement of agents through interac- inantlyonsemanticsimilarityorheuristicrules,lackinga
+tionstreamsratherthanofflinedata,markingashifttoward rigorousmetrictoevaluatetheactualutilityofamemory
+the “era of experience” (Silver & Sutton, 2025). Unlike in maximizing returns. Inspired by cognitive theories of
+ContinualLearning(Parisietal.,2019;Wuetal.,2024)or memory reconsolidation (Schacter & Addis, 2007; Gick
+Test-TimeAdaptation(Sunetal.,2020;Wangetal.,2020; & Holyoak, 1980; Nader et al., 2000), MEMRL bridges
+Liang et al., 2025), which typically update parameters to thisgapbyformulatingretrievalasavalue-baseddecision
+handleforgettingordistributionshifts,oursettingconstrains process,learningrobustutilityestimates(Q-values)fromen-
+2
+
+--- Page 3 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Time Step T Time Step T+1 Time Step T+2
+Intent A Intent A Intent A
+Retrieval &Gen. Retrieval &Gen. Retrieval &Gen.
+m1 m2 Failure m1 m3 Failure m1 m5 Success
+Intent Reward Intent Reward Intent Reward
+Experience Experience Experience
+Utility Intent B Utility Intent B Utility Intent B
+Retrieval &Gen. Retrieval &Gen. Retrieval &Gen.
+Memory Memory Memory
+m1 m3 Failure m2 m4 Success m2 m4 Success
+Reward Reward Reward
+Figure2.Anillustrativeexampleofmemory-augmenteddecisionmakingunderaMarkovDecisionProcess.Attimestept,theagent
+startswithaninitialmemorysetM .Attimestept+1,anintent(IntentA)retrievesrelevantpastexperiences,butinitiallyleadstoa
+t
+failedgeneration.Incontrast,anotherintent(IntentB)succeeds,anditsassociatedexperienceisaddedtomemory.Attimestept+2,
+IntentAretrievesthenewlystoredsuccessfulexperiencefromIntentB,resultinginasuccessfuloutcome. Thisexampleshowshow
+memoryretrievalenablesknowledgereuseacrossintents,implicitlysupportingself-evolutionthroughsharedexperiences.
+vironmentalrewardstodistinguishhigh-valueexperiences. InpreviousRAGormemory-basedagenticparadigms,the
+retrievalpolicyµisusuallydeterminedbyafixedvectorsim-
+ilaritymetric,e.g.,cosinesimilarityofembeddings. While
+3.ProblemFormulation
+effective for semantic matching, such policies fail to ac-
+Inthissection,weformallydefinetheproblemofmemory- countfortheutilityofamemory,i.e.,whetherretrievingm
+augmentedgenerationandestablishthetheoreticallinkbe- actuallyleadstoasuccessfuloutcomea .
+t
+tweenagentpolicyandmemoryretrieval. Weadoptthefor-
+mulationofMemory-BasedMarkovDecisionProcess(M- 3.2.Non-ParametricReinforcementLearning
+MDP)(Zhouetal.,2025a),andapplyournon-parametric
+Toovercomestaticsimilaritylimitations,weoperationalize
+reinforcement learning approach to it. Figure 2 provides
+theM-MDPframeworkbyformulatingmemoryretrievalas
+anillustrativeexampleofthismemory-augmenteddecision
+avalue-baseddecision-makingprocess(Zhouetal.,2025a).
+process,showinghowretrievaloutcomesandmemoryevo-
+Unlikeparametricmethodsoptimizingπ viaweightup-
+lutionunfoldovermultipletimesteps. LLM
+dates,weoptimizetheretrievalpolicyµ(m|s,M)directly
+withinthememoryspacebymappingM-MDPcomponents
+3.1.Memory-AugmentedAgentPolicy
+toastructuredIntent-Experience-Utilitytriplet:
+To enable the agent to self-evolution, we adopt the M-
+FromSemanticMatchingtoDecisionMaking.Weinstan-
+MDPframework(Zhouetal.,2025a),definedbythetuple
+tiatestatesastheUserIntent,encapsulatedbythecurrent
+(S,A,P,R,γ,M). Here,S andArepresentstateandac-
+queryembedding(Lewisetal.,2020). Consequently,the
+tionspaces,P isthetransitiondynamics,Risthereward
+actionspaceA becomesdynamicanddiscrete,correspond-
+functionofstateandaction,γ ∈[0,1)denotesthediscount t
+ing to selecting a specific m from the memory bank M
+factor, and M = (S ×A×R)∗ constitutes the evolving t
+(Zhouetal.,2025a). Inthisformulation,retrievalisnota
+memorybankofpastexperiences(Zhouetal.,2025a). At
+passivematchingtaskbutastrategicdecisionsteptakento
+each step t, the agent receives state s and leverages M
+t t augmentthegenerator’sactiona(Zhouetal.,2025a).
+togeneratearesponsea maximizingtheexpectedreward.
+t
+Thejointpolicyπ(a |s ,M )isformulatedasthemarginal Defining Utility via Q-Values. While the agent’s exe-
+t t t
+probabilityoverallpossibleretrieveditemsm(Zhouetal., cutable action a is generated by the policy π (as formal-
+2025a): ized in Sec. 3.1), the quality of this generation is strictly
+conditionedontheretrievedcontext. Therefore,weadapt
+(cid:88) thetraditionalvaluefunctionQ(s,a)totheretrievalphase,
+π(a |s ,M )= µ(m|s ,M )p (a |s ,m).
+t t t t t LLM t t definingQ(s,m)astheexpectedutilityofthesubsequent
+m∈Mt
+(1)
+action a augmented by memory m. MEMRL learns an
+where µ(m|s ,M ) is the Retrieval Policy for selecting
+optimalretrievalpolicyµ∗thatmaximizesthisutility:
+t t
+memory contexts, and p (a |s ,m) is the Inference
+LLM t t µ∗(m|s,M)=arg max Q(s,m). (2)
+PolicyparameterizedbyafrozenLLM.Thisapproachtrans-
+m∈M
+formsretrievalfromapassivematchintoanactivedecision
+process,effectivelyaccountingforthefunctionalutilityof In this view, the Q-value acts as a critic for the retrieval
+mingeneratingsuccessfuloutcomesa . mechanism,distinguishingmemoriesthatstrategicallyaid
+t
+3
+
+--- Page 4 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+End-to-End Framework
+Query Two-Phase Context Frozen LLM Action Environment Reward
+Retrieval
+LLM Summary
+Intent Experience
+Experience
+M RL
+EM Utility
+Update
+Two-Phase Retrieval (Zoom-In) Memory Item & Utility Update (Zoom-In)
+Phase A: Similarity Recall Phase B:Value-aware Selection
+Intent Z
+Sim:0.87 Intent Find best Italian restaurant in NYC
+Experience E
+Q:0.92 Experience
+LLM: 'Carbone' is highly rated...
+Sim: Sim:
+Utility User: Booked it! Great experience.
+0.87 0.83 Sim:0.83 Utility Q (Score: 0.95)
+Q:0.95
+Context
+Sim: Sim: Sim:0.83 Update
+0.83 0.83 Q:0.82
+Figure3.OverviewofMEMRL.Theend-to-endlearningloop(Top):givenaquerys,theagentretrievescontextm
+ctx
+frommemory
+M,generatesoutputy,andupdatesmemoryvalueQbasedonrewardR.Two-PhaseRetrieval(BottomLeft):Candidatesarerecalled
+viasimilarity,thenre-rankedusinglearnedQ-values. UtilityUpdate(BottomRight): Values(Q)areupdatedusingenvironmental
+rewardstodistinguishfunctionalutilityfromsemanticsimilarity.
+thegeneratorfromirrelevantnoisethatmerelyshareshigh 4. MEMRL
+semanticsimilarity.
+Building upon the M-MDP formulation defined in Sec-
+Non-ParametricLearning. Sincetheretrievalactionspace tion 3, we propose MEMRL, a framework that enables
+isdecoupledfromLLMgeneration, weperformlearning frozenLLMstoself-evolvevianon-parametricreinforce-
+withoutmodifyingmodelweights. Uponreceivingenviron- mentlearning. Insteadofmodifyingthemodelweightsθ,
+mentalfeedbackr,weupdatetheQ-valueviaaTemporal- MEMRLoptimizestheretrievalpolicyµ(m|s,M)within
+Difference(TD)error(Sutton,1988): anevolvingmemoryspace. AsillustratedinFigure3,the
+frameworkconsistsofthreecorecomponents: (i)astruc-
+Q(s,m)←Q(s,m)+α[r+γmaxQ(s′,m′)−Q(s,m)],
+turedIntent-Experience-Utilitymemorybank,(ii)aTwo-
+(3) PhaseRetrievalmechanismthatdecouplessemanticrecall
+orMonteCarlostylerule(Metropolis&Ulam,1949): from value-aware selection, and (iii) a Runtime Utility
+UpdaterulethatstabilizesQ-valueestimation.
+(cid:0) (cid:1)
+Q ←Q +α r−Q , (4)
+new old old
+4.1.TheIntent-Experience-UtilityTriplet
+where α is the learning rate. Equation 4 performs as a
+naturallysimplifiedversionofEquation3bysettings′ as Tosupportvalue-baseddecision-making,westructurethe
+externalmemoryMnotmerelyaskey-valuepairs,butasa
+a terminal state to balance complexity and performance,
+setoftriplets:
+sharingasimilarone-stepMDPformulationwithGuoetal.
+(2025). Thesemannersallowutilityestimatestoconverge M={(z ,e ,Q )}|M|, (5)
+to true expected returns over time (Bellman, 1966). By i i i i=1
+explicitlyupdatingQ-valueswithinthememorystructure, where z represents the Intent, e stores the raw Experi-
+i i
+MEMRLprovidesanon-parametriclearningmannerwitha ence(e.g.,asuccessfulsolutiontraceortrajectory),andQ
+i
+theoreticalguarantee,enablingagentstoself-evolvethrough denotesthelearnedUtility. Q approximatestheexpected
+i
+interaction. return of applying experience e to intents similar to z ,
+i i
+4
+
+--- Page 5 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+servingasthecriticinRL. pendixA.Weposittwostandardassumptions:afrozeninfer-
+encepolicyp andastationarytaskdistribution. Under
+LLM
+4.2.FromSemanticRecalltoValue-AwareSelection theseconditions,thelearningtargetβ(s,m)=E[r t |s,m]is
+well-defined,wheretheexpectationistakenoverthestochas-
+Standard RAG systems assume “similar implies useful,”
+ticrewardsresultingfromtheInferencePolicyp dis-
+LLM
+but agentic tasks often involve environment-specific rou-
+tribution. WeprovethatutilityestimatesupdatedviaEq.4
+tinesthatgeneralizepoorly(Singhetal.,2025;Cuconasu
+areunbiasedandvariance-bounded(Sutton&Barto,2018).
+et al., 2024; Gan et al., 2024; Zhou et al., 2024). There-
+Specifically,ast→∞:
+fore,MEMRLimplementsaTwo-PhaseRetrievalstrategy.
+Phase A: Similarity-Based Recall. Given query s, we lim E[Q ]=β(s,m),
+t
+isolateacandidatepoolC(s)ofsemanticallyconsistentex- t→∞ α (8)
+periencesbyfilteringmemorybankMviacosinesimilarity limsupVar(Q t )≤ 2−α Var(r t |s,m).
+andasparsitythresholdδ: t→∞
+C(s)=TopK ({i|sim(Emb(s),Emb(z ))>δ}), (6) Furthermore,weaddressthechallengeofthelatentretrieval
+k1 i
+distribution Pr(s|m) shifting during training by framing
+whereEmbrepresentstheEmbeddingModeltotransferthe MEMRL as a Generalized Expectation-Maximization
+rawtexttoavector. IfC(s)=∅,MEMRLreliessolelyon (GEM)(Dempsteretal.,1977)process. Thesystemper-
+thefrozenLLMforexploration. PhaseB:Value-AwareSe- formscoordinateascentonaglobalobjective: theretrieval
+lection. TodeterminethefinalcontextM (s),weselect rankingactsasthePolicyImprovement(E-step),whilethe
+ctx
+top-k itemsfromC(s)usingacompositescorebalancing utility update acts as the Value Update (M-step). By the
+2
+exploration(similarity)andexploitation(utilityQ): monotonic improvement theorem (Neal & Hinton, 1998),
+thesystemconvergestoastationarypointwheretheglobal
+score(s,z i ,e i )=(1−λ)·siˆm(Emb(s),Emb(z i ))+λ·Qˆ i . memoryutilitystabilizes:
+(7)
+(cid:88)
+whereˆ·denotesz-scorenormalizationandλ∈[0,1]modu- lim E[Q (m)]= E[r|s,m]Pr(s|m). (9)
+t
+t→∞
+latesthetrade-off. Thismechanismfiltersout“distractor”
+s∈S(m)
+memories—thosesemanticallysimilarbutwithlowhistori-
+calutility. AsdetailedinSection5.4.2,normalizationand whereS(m)istheeffectivesupportsetofthememory. This
+strictsimilaritythresholdsareessentialfornoisefiltering formulationguaranteesglobalstabilityandpreventscatas-
+andmaintainingstabilityduringself-evolution. trophicforgetting. DetailscanbefoundinAppendixA.4.
+4.3.Non-ParametricRLonMemory 5.Experiments
+The core of MEMRL is the continuous refinement of Q- 5.1.ExperimentalSetup
+valuesbasedonenvironmentalfeedback,enablingtheagent
+Baselines&Benchmarks. WecompareMemRLagainst
+to“remember”whatworks. Duringruntime,MEMRLper-
+RAG-based(RAG,Self-RAG),AgenticMemory(Mem0,
+formslearningentirelyinmemoryspace. Withtheretrieved
+MemP),andTest-TimeScaling(Pass@k)baselinesundera
+contextm,theagentsamplesanactionaaccordingtothe
+frozen-backbonesetting(seeAppendixD.1). Evaluations
+policyπdefinedinEq.1. Executingathenyieldsanenvi-
+span four domains: BigCodeBench (coding), ALFWorld
+ronmentalrewardr(e.g.,executionsuccessorscalarscore).
+(navigation),LifelongAgentBench(OS/DB),andHuman-
+For the memories actually injected into the input context
+ity’sLastExam(HLE).DetailsareinAppendixD.2. Back-
+M (s),weupdatetheirutilitiesintripletswithaMonte
+ctx
+bones are selected per benchmark to avoid no-signal or
+Carlostylerule,i.e.,theEq.4,followingtheruntimelearn-
+ceilingproblems,ensuringvalidlearningsignals,whileAp-
+ingloopshowninFigure3. ThisupdatedrivesQ toward
+new
+pendixE.4providesaunifiedcomparisontodemonstrate
+theempiricalexpectedreturnofusingexperiencee under
+i
+cross-taskconsistencyunderidenticalcapacity.
+similar intents. Meanwhile, for each sampled trajectory,
+weuseanLLMtosummarizetheexperience(Fangetal., Metrics. Weemploytwometrics: (1)SuccessRate(SR),
+2025), and write it back into the memory bank as a new theratiooftaskscompletedinanepoch;(2)Cumulative
+triplet(z,e new ,Q init ),enablingcontinualexpansionofexpe- SuccessRate(CSR),theproportionoftaskssolvedatleast
+riencewhilekeepingtheLLMparametersunchanged. onceacrossepochs.
+WeevaluateourMEMRLandbaselinesundertwodistinct
+4.4.TheoreticalStabilityAnalysis
+settings: RuntimeLearning,whichassessestheabilityto
+WeanalyzethestabilityofMEMRLfromareinforcement learnandadaptwithinatrainingsession,andTransferring,
+learning perspective, with full analysis provided in Ap- whichevaluatesthegeneralizationcapabilityofthelearned
+5
+
+--- Page 6 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+80.0
+77.5
+75.0
+72.5
+70.0
+67.5
+65.0
+1 2 3 4 5 6 7 8 9 10
+Epoch
+)%(
+etaR
+sseccuS
+80.0
+77.5
+75.0
+72.5
+70.0
+67.5
+MemP+RL MemP 65.0
+RAG+RL 62.5
+RAG
+60.0
+1 2 3 4 5 6 7 8 9 10
+Epoch
+Figure4.OSInteractionPerformance.Performancecomparison
+ofMEMRLvs.baselines(MemP,RAG).Solidlinesrepresentthe
+EpochSuccessRate,whiledashedlinesindicatetheCumulative
+SuccessRate(CSR).MEMRLdemonstratessuperiorstabilityand
+awideningperformancegapinCSR.
+memoryonunseentasks. Implementationandreproducibil-
+itydetails,includingallpromptsusedinourexperiments,
+canbefoundinAppendixEandAppendixI.
+5.2.MainResults
+Runtime Learning Results. As detailed in Table 1,
+MEMRLdemonstratesrobustsuperiorityacrossalldomains,
+surpassing the strongest baseline (MemP) by an average
+of +3.8% in Cumulative Success Rate (CSR). The gains
+aremostsignificantinexploration-intensiveenvironments
+like ALFWorld and OS tasks (both +6.2%), while main-
+tainingasteadyleadonthechallengingHLEbenchmark
+(+3.6%). Thisconfirmsthatourvalue-basedmechanism,
+unlikeMemP’sheuristicretrieval,effectivelyfiltersnoiseto
+retainhigh-utilityproceduralpatterns.
+TransferringResults. Weevaluatememorytransferabil-
+itybyfreezingthememorybankaftertrainingandtesting
+onheld-outsets. AsshowninTable2,MEMRLexhibitssu-
+periortransferability,outperformingthestrongestbaseline
+(MemP)byanaverageof+2.8%inSuccessRate. Thead-
+vantageisparticularlypronouncedincomplexenvironments
+like ALFWorld (+5.8%) and OS tasks (+2.6%). These
+marginsvalidatethatourTwo-PhaseRetrievaleffectively
+filterslow-valuenoise,retaininghigh-utilityproceduralpat-
+ternsthatgeneralizerobustlytounseenscenarios.
+5.3.Ablations
+5.3.1.EFFECTIVENESSOFRUNTIMERL
+ToisolatetheefficacyofruntimeRL,wecompareMEMRL
+anditsRAG-basedvariantagainsttheirnon-RLcounterparts
+(MemPandstandardRAG)intheOSinteractionenviron-
+ment. AsshowninFigure4,whileinitialperformanceis
+comparable, a clear divergence emerges as training pro-
+gresses: MEMRLachievesasmootherlearningcurveand
+superior stability. Crucially, this advantage is most pro-
+nounced in the Cumulative Success Rate (dashed lines),
+)%(
+etaR
+sseccuS
+Q-Weight = 0 Q-Weight = 0.75
+Q-Weight = 0.25 Q-Weight = 1
+Q-Weight = 0.5
+Figure5.AblationonQ-valueweightingfactorλ.Performance
+comparisonacrossλ∈{0,0.25,0.5,0.75,1}.Solidlinesdenote
+EpochSuccessRate,whiledashedlinesindicateCumulativeSuc-
+cess Rate (CSR). The balanced setting (λ = 0.5) achieves the
+optimaltrade-offbetweenrelevanceandhelpfulness.
+wherethemonotonicwideninggapindicatesthattheRL-
+drivenvaluefunctioneffectivelyfiltersnoisymemoriesand
+consolidatessuccessfulexperiences.
+5.3.2.IMPACTOFQ-VALUEWEIGHTING
+To determine the optimal equilibrium between semantic
+grounding and value-based exploitation, we evaluate the
+Q-weightingfactorλ ∈ {0,0.25,0.5,0.75,1}. Asshown
+in Figure 5, performance exhibits a clear concave trend
+peakingatλ = 0.5. Deviatingtowardextremesdegrades
+results: puresemanticretrieval(λ=0)plateausduetoan
+inabilitytofilterfunctionaldistractors,whileexcessiveRL
+weight(λ→1)inducesvolatilityandcontextdetachment.
+Thisconfirmsthatλ=0.5representsaneffectivebalance,
+wheresemanticsimilarityguaranteescontentrelevanceand
+Q-valueensuresitshelpfulness.
+5.3.3.ABLATIONANALYSIS: CROSS-TASKVS.
+SINGLE-TASKOPTIMIZATION
+Toinvestigatethesourceofourperformancegains,wecon-
+ductanablationstudyinTable3byrestrictingthememory
+retrievalscope. WecomparethefullMEMRL(Cross-Task
+Retrieval)againstanablatedsettingthatonlyutilizesfeed-
+backfromthesingletaskinstance,conceptuallyequivalent
+to Reflexion (Shinn et al., 2023). MEMRL demonstrates
+superior performance in structured environments, partic-
+ularly on OS-Agent (+9.0%) and ALFWorld (+5.1%).
+Thesebenchmarksexhibithighintra-datasetsimilarity,al-
+lowing MEMRL to effectively perform horizontal trans-
+fer—retrieving and adapting successful policies from se-
+manticallysimilarhistoricaltasks.WhileontheHLEbench-
+mark,thesingle-taskbaseline(0.610)istiedwithMEMRL
+(0.606). WeattributethistotheHLEdataset’slowinternal
+semantic similarity (0.186), as detailed in Appendix B.3.
+Thispreventseffectivecross-taskgeneralization,forcingthe
+agenttorelysolelyonsinglefeedback.
+6
+
+--- Page 7 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Table1.RuntimeLearningresults.WecompareMEMRLagainstvariousbaselinesover10epochs.TheresultsarereportedasLast
+EpochSuccessRate/CumulativeSuccessRate(CSR).TheAveragecolumnindicatesthemeanperformanceacrossallbenchmarks.
+BigCodeBench LifelongAgentBench ALFWorld HLE Average
+CodeGen OSTask DBTask Exploration KnowledgeFrontier
+Method (Last/CSR)
+(Last/CSR) (Last/CSR) (Last/CSR) (Last/CSR) (Last/CSR)
+Model GPT-4o GPT-4o-mini GPT-4o-mini GPT-5-mini Gemini-3-pro -
+NoMemory 0.485 0.674 0.860 0.777 0.357 0.631
+Pass@10 –/0.577 –/0.756 –/0.928 –/0.928 –/0.524 –/0.743
+RAG 0.475/0.483 0.690/0.700 0.914/0.916 0.887/0.930 0.430/0.475 0.679/0.699
+Self-RAG 0.497/0.561 0.646/0.732 0.891/0.898 0.907/0.962 0.423/0.475 0.673/0.726
+Mem0 0.487/0.495 0.670/0.702 0.920/0.926 0.894/0.969 0.436/0.470 0.681/0.712
+MemP 0.578/0.602 0.736/0.742 0.960/0.966 0.885/0.919 0.522/0.570 0.736/0.760
+MemRL(ours) 0.595/0.627 0.788/0.804 0.960/0.972 0.949/0.981 0.570/0.606 0.772/0.798
+Table2.TransferLearningresultsonBigCodeBench,LifelongAgentBenchandALFWorld.WecompareMEMRLagainstvarious
+baselinesusingthebestvalidationresults.TheAveragecolumnrepresentsthemeanSuccessRateacrossallbenchmarks.
+BigCodeBench LifelongAgentBench ALFWorld Average
+CodeGeneration OSTask DBTask Exploration
+Method (SuccessRate)
+(SuccessRate) (SuccessRate) (SuccessRate) (SuccessRate)
+Model GPT-4o GPT-4o-mini GPT-4o-mini GPT-5-mini -
+NoMemory 0.485 0.673 0.841 0.836 0.709
+RAG 0.479 0.713 0.920 0.950 0.765
+Self-RAG 0.500 0.653 0.881 0.950 0.746
+Mem0 0.485 0.686 0.935 0.950 0.764
+MemP 0.494 0.720 0.928 0.921 0.766
+MemRL(ours) 0.508 0.746 0.942 0.979 0.794
+Table3. AblationonRetrievalScope. Wecompare MEMRL
+againstanablatedversionrestrictedtoSingle-TaskReflection.
+55
+Setting BCB OS DB ALFWorld HLE Avg. 50
+Single-TaskReflection 0.614 0.714 0.938 0.930 0.610 0.761
+MEMRL(Cross-Task) 0.627 0.804 0.972 0.981 0.606 0.798 45
+40
+5.3.4.SENSITIVITYTORETRIEVALSIZE(k 1 ANDk 2 ). 35
+2 4 6 8 10
+Toinvestigatetheimpactofretrievalbandwidth,wecom- Epoch
+pare three memory density configurations on the HLE
+(CS/AI)subsetbenchmark: sparse(k =3,k =1),mod- 1 2
+erate (k = 5,k = 3), and dense (k = 10,k = 5). 1 2 1 2
+As shown in Figure 6, performance follows an inverted-
+Utrajectory,illustratingthetrade-offbetweeninformation
+sufficiencyandcontextnoise. Thesparsesettinglimitsper-
+formanceduetoinsufficientguidance,whereasthedense
+settingdegradessuccessratebyintroducingdistractionsinto
+thereasoningcontext. Consequently,themoderateconfigu-
+ration(k =5,k =3)achievesthebestresult,effectively
+1 2
+maximizingthesignal-to-noiseratiooftheretrievedcontext.
+5.4.Discussion
+Inthissection,wedelvedeeperintothemechanismsdriving
+MEMRL’sperformance,connectingempiricalresultstothe
+challengeofbalancingknowledgeretentionandadaptation.
+)%(
+etaR
+sseccuS
+k1=3,k2=1 Epoch Success Rate
+k1=3,k2=1 Cumulative Success Rate (CSR)
+k1=5,k2=3 Epoch Success Rate
+k1=5,k2=3 Cumulative Success Rate (CSR)
+k1=10,k2=5 Epoch Success Rate k1=10,k2=5 Cumulative Success Rate (CSR)
+Figure6.AblationonRetrievalSize(k ,k ).Performancecom-
+1 2
+parisonontheHLE(CS/AI)subsetacrosssparse(3/1),moderate
+(5/3),anddense(10/5)retrievalsettings. Themoderatesetting
+achievestheoptimaltrade-off.
+5.4.1.PREDICTIVEPOWEROFTHEQCRITIC
+AsshowninFigure7a,thelearnedQ-valuesexhibitastrong
+positivecorrelation(Pearsonr =0.861)withempiricaltask
+successrates,risingfrom21.5%inthelowest-confidence
+bin to 88.1% in the highest, which confirms the Critic’s
+abilitytoeffectivelyrankmemoriesbysuccesslikelihood.
+Beyondsimpleranking,memorycompositionanalysis(Fig-
+ure 7b) reveals that the agent retains a small fraction of
+“failure”memories(∼12%)eveninhigh-Qbins(0.9−1.0),
+suggestingthatQ-valuescaptureutilitybeyondbinaryout-
+comesbyrecognizingstrategicallyusefulnear-misses. We
+7
+
+--- Page 8 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+100
+80
+60
+40
+20
+0
+0.2-0.3 0.3-0.4 0.4-0.5 0.5-0.6 0.6-0.7 0.7-0.8 0.8-0.9 0.9-1.0
+Q-Estimate Range
+)%(
+etaR
+sseccuS
+ksaT
+maertsnwoD
+Pearson r = 0.861 82.4% 84.3% 86.2% 88.1%
+79.1%
+73.4%
+46.5%
+21.5%
+(a)SuccessRatevs.Q-Range
+100
+80
+60
+40
+20
+0
+0.2-0.3 0.3-0.4 0.4-0.5 0.5-0.6 0.6-0.7 0.7-0.8 0.8-0.9 0.9-1.0
+Q-Estimate Range
+)%(
+noitroporP
+yromeM
+0.60
+0.55
+0.50
+0.45
+0.40
+0.35
+2 4 6 8 10
+Epoch
+SUCCESS Memory
+FAILURE Memory 21% 18% 16% 14% 12%
+27%
+Pool Avg: 74.6% 53%
+78%
+79% 82% 84% 86% 88% 73%
+47%
+22%
+(b)MemoryComposition
+Figure7. Q-ValueAnalysis. (a)Pearsonr = 0.861confirms
+Critic’spredictivepower.(b)Failurememories(∼12%)inhigh
+Q-binsindicatelatentstrategicutility.
+furthersubstantiatethiswithconcretecasestudiesinAp-
+pendixH.ThisindicatesthattheCriticprioritizesreusable
+guidance—includingtransferableprocedurallessonsfrom
+high-utilityfailures—ratherthanmerelyseparatingsuccess
+fromfailure,therebyofferinggreaterrobustnessthansimple
+success-replaymechanisms.
+5.4.2.STABILITYOFMEMRL
+We analyze MEMRL through the lens of the stability-
+plasticitydilemma. ThesuperiorCSR(Table1)confirms
+that MEMRL effectively expands the solution space, en-
+ablingtheagenttobreakthroughlocaloptima.Furthermore,
+long-termdynamics(Figure8)revealacriticalstabilityad-
+vantage: while heuristic methods like MemP suffer from
+catastrophicforgetting—evidencedbyawideninggapbe-
+tweenCSRandcurrentSuccessRate—MEMRLmaintains
+synchronizedgrowth. Thisistheoreticallyguaranteedby
+ourstabilityanalysisinSection4.4,whichconstrainsthe
+policytoimprovemonotonicallywithoutdrift.
+WequantitativelyvalidatetheseinsightsusingtheForget-
+ting Rate, defined as FR = N /N , where N de-
+lost fail lost
+notestaskstransitioningfromprevioussuccesstocurrent
+failureandN isthetotalnumberoffailuresinthecurrent
+fail
+epoch(seeFigure9inAppendixB.1forthefulltrajectory).
+MEMRLachievesthelowestmeanforgettingrate(0.041),
+etaR
+sseccuS MemP Epoch Success Rate MemRL Epoch Success Rate
+MemP Cumulative Success Rate (CSR)
+MemRL Cumulative Success Rate (CSR)
+pass@1
+pass@2
+pass@4
+pass@6
+pass@8 pass@10
+Figure8.EpochSuccessRateandCumulativeSuccessRate(CSR)
+ofMEMRLandMemPinHLE.
+outperforming MEMP (0.051). Additionally, ablation re-
+sultsdemonstratethatremovingz-scorenormalizationand
+similarity gating causes the rate to spike to 0.073. This
+confirms that strict filtering is essential to manage utility
+varianceandensurethatself-evolutionremainsstable.
+5.4.3.EXTENDEDANALYSIS.
+Weconductfurtherinvestigationstocharacterizetheunder-
+lyingmechanismsandgeneralizationofMEMRL.Specifi-
+cally,AppendixBanalyzesMEMRL’sroleasastructural
+trajectory verifier and the correlation between task simi-
+larity and performance gains. Additionally, evaluations
+ofadvancedcapabilities—includingcross-modelmemory
+transferability and modular multi-task merging—are de-
+tailedinAppendixC,demonstratingMEMRL’sversatility
+anditscapacityformodularcapabilityexpansion. Wealso
+analyzethecostandefficiencyofMEMRLinAppendixF.
+6.LimitationsandConclusion
+Limitations and Future Work. While MEMRL estab-
+lishesafoundationfornon-parametricevolution,itsruntime
+dynamicsrevealseveralpromisingavenues. (i)Thecurrent
+step-wiseupdate,thoughfast,mayintroducehigh-variance
+noiseinlong-horizontrajectories, inspiringustoexplore
+multi-stepupdatesorperiodicmemoryconsolidation. (ii)
+Credit-assignmentambiguityduringutilityupdates,espe-
+ciallywithmultiplereferencedexperiences,raisestheneed
+for more precise attribution methods like Shapley meth-
+ods(Shapleyetal.,1953)orvaluedecompositioninmulti-
+agentreinforcementlearning(Rashidetal.,2020;Sunehag
+etal.,2017). (iii)WhileMEMRLimproveswithincreasing
+task exposure, performance may drift toward reflection-
+likebehaviorwhentasksimilarityislow,highlightingthe
+needforasufficientlydiverseyetrelevantexperiencebase;
+forindustrialdeployment,ensuringhightaskdensityand
+hierarchical abstraction may be crucial. Further detailed
+discussionsontheseandotherchallenges,includingmem-
+orysecurity,dedicateddomains,andmulti-agentmemory
+sharing,areprovidedinAppendixG.
+8
+
+--- Page 9 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Conclusion. WeproposedMEMRL,anon-parametricap- July2024. doi: 10.1145/3626772.3657834. URLhttp:
+proachreconcilingthestability-plasticitydilemmabytreat- //dx.doi.org/10.1145/3626772.3657834.
+ing memory retrieval as a value-based decision process.
+ThroughtheIntent-Experience-Utilitytripletstructureand Dempster,A.P.,Laird,N.M.,andRubin,D.B. Maximum
+MonteCarlostyleupdates,MEMRLenablesagentstoself- likelihood from incomplete data via the em algorithm.
+JournaloftheRoyalStatisticalSociety.SeriesB(Method-
+evolveanddifferentiatehigh-utilitystrategiesfromsemantic
+noisewithoutweightupdates. Extensiveevaluationscon- ological), 39(1):1–38, 1977. ISSN 00359246. URL
+firm MEMRL significantlyoutperformsbaselinesinboth
+http://www.jstor.org/stable/2984875.
+runtime adaptation and generalization. In a future where
+Ethayarajh,K.,Xu,W.,Muennighoff,N.,Jurafsky,D.,and
+statictrainingdatabecomesscarce,theinteractiveexperi-
+Kiela, D. Kto: Model alignment as prospect theoretic
+encesgeneratedbyagentsthroughouttheirlifecyclewill
+optimization. arXivpreprintarXiv:2402.01306,2024.
+become a new, vital source of knowledge. We hope this
+paradigmpavesthewayforbuildingstable,continuously
+Fang, R., Liang, Y., Wang, X., Wu, J., Qiao, S., Xie,
+learningagentsthatefficientlyadaptfrominteraction.
+P., Huang, F., Chen, H., and Zhang, N. Memp:
+Exploring agent procedural memory. arXiv preprint
+ImpactStatement arXiv:2508.06433, 2025. URL https://arxiv.
+org/abs/2508.06433.
+ThispaperpresentsMEMRL,avalue-reinforcedmemoryre-
+trievalmechanismdesignedtoenhancethelong-termreason- Finn,C.,Abbeel,P.,andLevine,S. Model-agnosticmeta-
+ingcapabilitiesofLLMAgents.Fromabroaderperspective, learningforfastadaptationofdeepnetworks. InInterna-
+ourworkcontributestothedevelopmentofmoreefficient tionalconferenceonmachinelearning,pp.1126–1135.
+andreliableautonomoussystems. Byoptimizingthemem- PMLR,2017.
+oryretrievalprocess,MEMRLreducesthecomputational
+overheadoflarge-scaleagentdeployments,potentiallylow- Gan, C., Yang, D., Hu, B., Zhang, H., Li, S., Liu, Z.,
+eringthe environmental impactofAIinfrastructure. Fur- Shen, Y., Ju, L., Zhang, Z., Gu, J., Liang, L., and
+thermore,asLLMagentsbecomemoreintegratedintodaily Zhou, J. Similarity is not all you need: Endow-
+workflows,researchintorobustmemorymechanismshelps ing retrieval augmented generation with multi layered
+ensure these systems remain grounded and consistent in thoughts. arXivpreprintarXiv:2405.19893,2024. doi:
+theiractions. Wedonotforeseeanyimmediatenegativeso- 10.48550/arXiv.2405.19893. URL https://arxiv.
+cialconsequencesspecifictothisalgorithmicadvancement,
+org/abs/2405.19893.
+thoughweacknowledgethatallautonomoussystemsshould
+Gao,Y.,Xiong,Y.,Gao,X.,Jia,K.,Pan,J.,Bi,Y.,Dai,Y.,
+bedeployedwithappropriatehumanoversighttomitigate
+Sun,J.,Wang,M.,andWang,H. Retrieval-augmented
+broaderrisksassociatedwithAIdecision-making.
+generation for large language models: A survey, 2024.
+URLhttps://arxiv.org/abs/2312.10997.
+References
+Gick,M.L.andHolyoak,K.J. Analogicalproblemsolving.
+Asai,A.,Wu,Z.,Wang,Y.,Sil,A.,andHajishirzi,H. Self-
+Cognitivepsychology,12(3):306–355,1980.
+rag: Learningtoretrieve,generate,andcritiquethrough
+self-reflection, 2023. URL https://arxiv.org/ Grossberg, S. Adaptive resonance theory: How a brain
+abs/2310.11511. learnstoconsciouslyattend,learn,andrecognizeachang-
+ingworld. Neuralnetworks,37:1–47,2013.
+Bellman,R. Dynamicprogramming. science,153(3731):
+34–37,1966. Guo,D.,Yang,D.,Zhang,H.,Song,J.,Zhang,R.,Xu,R.,
+Zhu,Q.,Ma,S.,Wang,P.,Bi,X.,etal. Deepseek-r1: In-
+Chhikara, P., Khant, D., Aryan, S., Singh, T., and Ya-
+centivizingreasoningcapabilityinllmsviareinforcement
+dav, D. Mem0: Building production-ready ai agents
+learning. arXivpreprintarXiv:2501.12948,2025.
+with scalable long-term memory, 2025. URL https:
+//arxiv.org/abs/2504.19413. Hassabis,D.andMaguire,E.A. Deconstructingepisodic
+memorywithconstruction. Trendsincognitivesciences,
+Cuconasu,F.,Trappolini,G.,Siciliano,F.,Filice,S.,Cam- 11(7):299–306,2007.
+pagnano, C., Maarek, Y., Tonellotto, N., and Silvestri,
+F. Thepowerofnoise: Redefiningretrievalforragsys- Huang,Z.,Tian,Z.,Guo,Q.,Zhang,F.,Zhou,Y.,Jiang,D.,
+tems. In Proceedings of the 47th International ACM andZhou,X. Licomemory: Lightweightandcognitive
+SIGIRConferenceonResearchandDevelopmentinIn- agenticmemoryforefficientlong-termreasoning. arXiv
+formation Retrieval, SIGIR 2024, pp. 719–729. ACM, preprintarXiv:2511.01448,2025.
+9
+
+--- Page 10 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Javed,K.,Shah,H.,Sutton,R.,andWhite,M. Onlinereal- Neal, R. M. and Hinton, G. E. A View of the Em Al-
+timerecurrentlearningusingsparseconnectionsandse- gorithm that Justifies Incremental, Sparse, and other
+lectivelearning. JournalofMachineLearningResearch, Variants, pp. 355–368. Springer Netherlands, Dor-
+2023. drecht,1998. ISBN978-94-011-5014-9. doi: 10.1007/
+978-94-011-5014-9 12. URL https://doi.org/
+Karpukhin, V., Oguz, B., Min, S., Lewis, P. S., Wu, L.,
+10.1007/978-94-011-5014-9_12.
+Edunov, S., Chen, D., and Yih, W.-t. Dense passage
+retrievalforopen-domainquestionanswering.InEMNLP
+Ouyang,L.,Wu,J.,Jiang,X.,Almeida,D.,Wainwright,C.,
+(1),pp.6769–6781,2020.
+Mishkin,P.,Zhang,C.,Agarwal,S.,Slama,K.,Ray,A.,
+et al. Training language models to follow instructions
+Kirkpatrick,J.,Pascanu,R.,Rabinowitz,N.,Veness,J.,Des-
+withhumanfeedback. Advancesinneuralinformation
+jardins,G.,Rusu,A.A.,Milan,K.,Quan,J.,Ramalho,T.,
+processingsystems,35:27730–27744,2022.
+Grabska-Barwinska,A.,etal. Overcomingcatastrophic
+forgettinginneuralnetworks.Proceedingsofthenational
+Packer, C., Wooders, S., Lin, K., Fang, V., Patil, S. G.,
+academyofsciences,114(13):3521–3526,2017.
+Stoica, I., andGonzalez, J.E. Memgpt: Towardsllms
+Kumaran, D., Hassabis, D., and McClelland, J. L. What as operating systems, 2024. URL https://arxiv.
+learningsystemsdointelligentagentsneed? complemen- org/abs/2310.08560.
+tarylearningsystemstheoryupdated. Trendsincognitive
+sciences,20(7):512–534,2016. Parisi,G.I.,Kemker,R.,Part,J.L.,Kanan,C.,andWermter,
+S. Continuallifelonglearningwithneuralnetworks: A
+Lewis,P.,Perez,E.,Piktus,A.,Petroni,F.,Karpukhin,V., review. Neuralnetworks,113:54–71,2019.
+Goyal,N.,Ku¨ttler,H.,Lewis,M.,Yih,W.-t.,Rockta¨schel,
+T.,etal. Retrieval-augmentedgenerationforknowledge- Phan,L.,Gatti,A.,Han,Z.,Li,N.,Hu,J.,Zhang,H.,Zhang,
+intensivenlptasks. Advancesinneuralinformationpro- C.B.C.,Shaaban,M.,Ling,J.,Shi,S.,etal. Humanity’s
+cessingsystems,33:9459–9474,2020. lastexam,2025. URLhttps://arxiv.org/abs/
+2501.14249.
+Li, H., Ding, L., Fang, M., and Tao, D. Revisiting catas-
+trophicforgettinginlargelanguagemodeltuning. arXiv
+Pritzel,A.,Uria,B.,Srinivasan,S.,Badia,A.P.,Vinyals,
+preprintarXiv:2406.04836,2024.
+O.,Hassabis,D.,Wierstra,D.,andBlundell,C. Neural
+episodiccontrol. InInternationalconferenceonmachine
+Li, L., Shi, D., Zhou, J., Wei, X., Yang, M., Jin, S.,
+learning,pp.2827–2836.PMLR,2017.
+andYang,S. Retrievalfeedbackmemoryenhancement
+largemodelretrievalgenerationmethod. arXivpreprint
+Puterman, M. L. Markov decision processes: discrete
+arXiv:2508.17862,2025a.
+stochasticdynamicprogramming. JohnWiley&Sons,
+Li,Z.,Song,S.,Wang,H.,Niu,S.,Chen,D.,Yang,J.,Xi, 2014.
+C.,Lai,H.,Zhao,J.,Wang,Y.,etal. Memos: Anoperat-
+ingsystemformemory-augmentedgeneration(mag)in Rafailov, R., Sharma, A., Mitchell, E., Manning, C. D.,
+largelanguagemodels. arXivpreprintarXiv:2505.22101, Ermon, S., and Finn, C. Direct preference optimiza-
+2025b. tion: Your language model is secretly a reward model.
+Advancesinneuralinformationprocessingsystems,36:
+Liang,J.,He,R.,andTan,T. Acomprehensivesurveyon 53728–53741,2023.
+test-time adaptation under distribution shifts. Interna-
+tionalJournalofComputerVision,133(1):31–64,2025. Rashid, T., Samvelyan, M., De Witt, C. S., Farquhar, G.,
+Foerster,J.,andWhiteson,S. Monotonicvaluefunction
+McClelland,J.L.,McNaughton,B.L.,andO’Reilly,R.C.
+factorisationfordeepmulti-agentreinforcementlearning.
+Whytherearecomplementarylearningsystemsinthehip-
+Journal of Machine Learning Research, 21(178):1–51,
+pocampusandneocortex:insightsfromthesuccessesand
+2020.
+failuresofconnectionistmodelsoflearningandmemory.
+Psychologicalreview,102(3):419–457,1995.
+Salama, R., Cai, J., Yuan, M., Currey, A., Sunkara, M.,
+Zhang,Y.,andBenajiba,Y. Meminsight: Autonomous
+Metropolis, N. and Ulam, S. The monte carlo method.
+JournaloftheAmericanstatisticalassociation,44(247): memory augmentation for llm agents. arXiv preprint
+arXiv:2503.21760,2025.
+335–341,1949.
+Nader,K.,Schafe,G.E.,andLeDoux,J.E. Fearmemories Schacter, D. L. and Addis, D. R. On the constructive
+requireproteinsynthesisintheamygdalaforreconsolida- episodic simulation of past and future events. Behav-
+tionafterretrieval. Nature,406(6797):722–726,2000. ioralandBrainSciences,30(3):331–332,2007.
+10
+
+--- Page 11 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Schacter,D.L.,Addis,D.R.,Hassabis,D.,Martin,V.C., Wang,D.,Shelhamer,E.,Liu,S.,Olshausen,B.,andDarrell,
+Spreng,R.N.,andSzpunar,K.K. Thefutureofmemory: T. Tent: Fullytest-timeadaptationbyentropyminimiza-
+remembering,imagining,andthebrain. Neuron,76(4): tion. arXivpreprintarXiv:2006.10726,2020.
+677–694,2012.
+Wang,G.,Xie,Y.,Jiang,Y.,Mandlekar,A.,Xiao,C.,Zhu,
+Schick,T.,Dwivedi-Yu,J.,Dess`ı,R.,Raileanu,R.,Lomeli, Y., Fan, L., and Anandkumar, A. Voyager: An open-
+M., Hambro, E., Zettlemoyer, L., Cancedda, N., and endedembodiedagentwithlargelanguagemodels. arXiv
+Scialom, T. Toolformer: Language models can teach preprintarXiv:2305.16291,2023.
+themselvestousetools. AdvancesinNeuralInformation
+Watkins,C.J.andDayan,P. Q-learning. Machinelearning,
+ProcessingSystems,36:68539–68551,2023.
+8(3):279–292,1992.
+Shapley,L.S.etal. Avalueforn-persongames. 1953.
+Wei,J.,Wang,X.,Schuurmans,D.,Bosma,M.,Xia,F.,Chi,
+E.,Le,Q.V.,Zhou,D.,etal.Chain-of-thoughtprompting
+Shinn,N.,Cassano,F.,Gopinath,A.,Narasimhan,K.,and
+elicitsreasoninginlargelanguagemodels. Advancesin
+Yao, S. Reflexion: Language agents with verbal rein-
+neuralinformationprocessingsystems,35:24824–24837,
+forcement learning. Advances in Neural Information
+2022.
+ProcessingSystems,36:8634–8652,2023.
+Wei,T.,Sachdeva,N.,Coleman,B.,He,Z.,Bei,Y.,Ning,
+Shridhar, M., Yuan, X., Coˆte´, M.-A., Bisk, Y., Trischler,
+X.,Ai,M.,Li,Y.,He,J.,Chi,E.H.,etal. Evo-memory:
+A., and Hausknecht, M. Alfworld: Aligning text and
+Benchmarking llm agent test-time learning with self-
+embodied environments for interactive learning, 2021.
+evolving memory. arXiv preprint arXiv:2511.20857,
+URLhttps://arxiv.org/abs/2010.03768.
+2025.
+Silver,D.andSutton,R.S. Welcometotheeraofexperi-
+Wu, T., Luo, L., Li, Y.-F., Pan, S., Vu, T.-T., andHaffari,
+ence. GoogleAI,1,2025.
+G. Continuallearningforlargelanguagemodels: Asur-
+vey,2024. URLhttps://arxiv.org/abs/2402.
+Singh,J.,Magazine,R.,Pandya,Y.,andNambi,A. Agentic
+01364.
+reasoningandtoolintegrationforllmsviareinforcement
+learning. arXivpreprintarXiv:2505.01441,2025. URL
+Xu,W.,Liang,Z.,Mei,K.,Gao,H.,Tan,J.,andZhang,Y.
+https://arxiv.org/abs/2505.01441.
+A-mem: Agenticmemoryforllmagents. arXivpreprint
+arXiv:2502.12110,2025.
+Stiennon, N., Ouyang, L., Wu, J., Ziegler, D., Lowe, R.,
+Voss,C.,Radford,A.,Amodei,D.,andChristiano,P.F. Yao,S.,Zhao,J.,Yu,D.,Du,N.,Shafran,I.,Narasimhan,
+Learningtosummarizewithhumanfeedback. Advances K. R., and Cao, Y. React: Synergizing reasoning and
+inneuralinformationprocessingsystems,33:3008–3021, acting in language models. In The Eleventh Interna-
+2020. tional Conference on Learning Representations, ICLR
+2023,Kigali,Rwanda,May1-5,2023.OpenReview.net,
+Sun,Y.,Wang,X.,Liu,Z.,Miller,J.,Efros,A.,andHardt,
+2023. URLhttps://openreview.net/forum?
+M.Test-timetrainingwithself-supervisionforgeneraliza-
+id=WE_vluYUL-X.
+tionunderdistributionshifts. InInternationalconference
+onmachinelearning,pp.9229–9248.PMLR,2020. Ye, Y. Task memory engine: Spatial memory for robust
+multi-stepllmagents. arXivpreprintarXiv:2505.19436,
+Sunehag,P.,Lever,G.,Gruslys,A.,Czarnecki,W.M.,Zam-
+2025.
+baldi,V.,Jaderberg,M.,Lanctot,M.,Sonnerat,N.,Leibo,
+J. Z., Tuyls, K., et al. Value-decomposition networks Yu,Q.,Zhang,Z.,Zhu,R.,Yuan,Y.,Zuo,X.,Yue,Y.,Dai,
+for cooperative multi-agent learning. arXiv preprint W.,Fan,T.,Liu,G.,Liu,L.,etal. Dapo: Anopen-source
+arXiv:1706.05296,2017. llmreinforcementlearningsystematscale.arXivpreprint
+arXiv:2503.14476,2025.
+Sutton,R.S.Learningtopredictbythemethodsoftemporal
+differences. Machinelearning,3(1):9–44,1988. Zhang, Z., Dai, Q., Li, R., Bo, X., Chen, X., and
+Dong, Z. Learn to memorize: Optimizing llm-based
+Sutton, R. S. and Barto, A. G. Reinforcement agentswithadaptivememoryframework. arXivpreprint
+Learning: An Introduction. MIT Press, 2 edition, arXiv:2508.16629,2025.
+2018. URL http://incompleteideas.net/
+book/the-book-2nd.html. Zheng, J., Cai, X., Li, Q., Zhang, D., Li, Z., Zhang, Y.,
+Song, L., andMa, Q. Lifelongagentbench: Evaluating
+Tulving,E.etal. Episodicandsemanticmemory. Organi- llmagentsaslifelonglearners,2025. URLhttps://
+zationofmemory,1(381-403):1,1972. arxiv.org/abs/2505.11942.
+11
+
+--- Page 12 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Zhou,H.,Chen,Y.,Guo,S.,Yan,X.,Lee,K.H.,Wang,Z.,
+Lee,K.Y.,Zhang,G.,Shao,K.,Yang,L.,etal.Memento:
+Fine-tuningllmagentswithoutfine-tuningllms. arXiv
+preprintarXiv:2508.16153,2025a.
+Zhou, R., Yang, Y., Wen, M., Wen, Y., Wang, W., Xi, C.,
+Xu, G., Yu, Y., and Zhang, W. TRAD: Enhancing llm
+agents with step-wise thought retrieval and aligned de-
+cision. In Proceedings of the 47th International ACM
+SIGIRConferenceonResearchandDevelopmentinIn-
+formationRetrieval(SIGIR),pp.3–13.ACM,2024. URL
+https://arxiv.org/abs/2403.06221.
+Zhou,R.,Hua,W.,Pan,L.,Cheng,S.,Wu,X.,Yu,E.,and
+Wang,W.Y.Rulearena:Abenchmarkforrule-guidedrea-
+soningwithllmsinreal-worldscenarios. InProceedings
+ofthe63rdAnnualMeetingoftheAssociationforCom-
+putationalLinguistics(Volume1: LongPapers),2025b.
+Zhuo,T.Y.,Vu,M.C.,Chim,J.,Hu,H.,Yu,W.,Widyasari,
+R., Yusuf, I. N. B., Zhan, H., He, J., Paul, I., Brun-
+ner, S., Gong, C., Hoang, T., Zebaze, A. R., Hong,
+X., Li, W.-D., Kaddour, J., Xu, M., Zhang, Z., Ya-
+dav, P., Jain, N., Gu, A., Cheng, Z., Liu, J., Liu, Q.,
+Wang, Z., Hui, B., Muennighoff, N., Lo, D., Fried, D.,
+Du, X., de Vries, H., and Werra, L. V. Bigcodebench:
+Benchmarking code generation with diverse function
+calls and complex instructions, 2025. URL https:
+//arxiv.org/abs/2406.15877.
+12
+
+--- Page 13 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+A.TheoreticalAnalysisandProofs
+A.1.StabilityAnalysis
+WeanalyzethestabilityofMEMRLfromareinforcementlearningperspective,focusingontheconvergencebehaviorofthe
+utilityestimatesstoredinmemory. MEMRLperformsnon-parametricruntimelearningusingaconstant-step-sizeupdate.
+Weshowthatundermildandrealisticassumptions,thelearnedutilityvaluesconvergeinexpectationtostableestimatesof
+memoryeffectiveness,withboundedvariance.
+Setup. Ateachtimestept,theagentobservesanintentstates ,retrievesamemoryitemm ∈M ,generatesanoutputa ,
+t t t t
+andreceivesascalarrewardr ∈[−1,1]indicatingtasksuccessorfailure. Thegenerationpolicyfollowsthedecomposition
+t
+definedinEq.1,whereµdenotestheretrievalpolicyandp isafrozeninferencepolicy.
+LLM
+Foreachretrievedmemory,MEMRLupdatesitsutilityusingtheexponentialmovingaverageruleasformulatedinEq.4,with
+learningrateα∈(0,1]. Forclarityinthisanalysis,weconsiderafixedstate–memorypair(s,m)andwriteQ ≡Q (s,m).
+t t
+StationaryRewardAssumption. Weanalyzethelearningprocessonafixeddatasetandposittwokeyconditionsthat
+ensurethestabilityoftheenvironment:
+1. FrozenInferencePolicy. Theparametersofp (y|s,m)andtheevaluator’scriteriaarefixed.
+LLM
+2. FixedTaskDistribution. Taskssaredrawnfromastationarydistributionoverafixeddataset.
+Theseassumptionsguaranteethatthelearningtargetiswell-defined: theexpectedrewardforanyspecifictask-memorypair
+istime-invariant. Thus,wehave:
+E[r |s =s, m =m]=β(s,m). (10)
+t t t
+wheretheexpectationistakenoverthestochasticrewardsresultingfromtheInferencePolicyp distribution.
+LLM
+ExpectedConvergenceofUtilityEstimates. Wenowstatethemainstabilityresult.
+TheoremA.1. Let{Q }beupdatedaccordingtotheruleinEq.4withconstantstepsizeα∈(0,1]. IfEq.10holdsand
+t
+thepair(s,m)isupdatedinfinitelyoften,then:
+lim E[Q ]=E[r |s =s, m =m]=β(s,m). (11)
+t t t t
+t→∞
+Moreover,theconvergencerateisexponential(Sutton&Barto,2018):
+E[Q ]−β(s,m)=(1−α)t(cid:0) Q −β(s,m) (cid:1) . (12)
+t 0
+Proof. Definetheestimationerrore ≜Q −β(s,m). BasedontheupdateruleinEq.4,theerrorrecurrencerelationis:
+t t
+(cid:0) (cid:1)
+e =(1−α)e +α r −β(s,m) .
+t+1 t t
+TakingconditionalexpectationgiventhehistoryF andusingEq.10,weobtain:
+t
+E[e |F ]=(1−α)e .
+t+1 t t
+Takingfullexpectationyields:
+E[e ]=(1−α)E[e ].
+t+1 t
+IteratingtherecursiongivesE[e ]=(1−α)te ,whichconvergestozeroast→∞. □
+t 0
+WeprovidethedetailedderivationoftheconvergenceproofinAppendixA.2.
+BoundedVarianceandStability. IftherewardvarianceVar(r |s,m)<∞,thenthevarianceofQ remainsbounded:
+t t
+α
+limsupVar(Q )≤ Var(r |s,m). (13)
+t 2−α t
+t→∞
+Thus, constant-step-size updates do not induce unbounded oscillations; instead, they yield stable utility estimates that
+trackexpectedmemoryeffectivenesswhilefilteringhigh-frequencynoise. Weexplicitlyderivethevarianceboundsto
+demonstratetheglobalstabilityoftheestimatorundertaskclusteringinAppendixA.3.
+13
+
+--- Page 14 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+GlobalStabilityviaEMConvergence. Thestabilityofthelocalestimate(TheoremA.1)extendstotheglobalmemory
+utilityQ(m). Bythelinearityofexpectation,Q(m)actsasaMonteCarlointegratorstrivingtoconvergeto:
+(cid:88)
+lim E[Q (m)]=E[r|m]= E[r|s,m] Pr(s|m) . (14)
+t
+t→∞ (cid:124) (cid:123)(cid:122) (cid:125) (cid:124) (cid:123)(cid:122) (cid:125)
+s∈S(m)
+Stationary Retrieve-Dependent
+whereS(m) ≜ {s ∈ S|sim(s,z ) ≥ τ }denotestheeffectivesupportsetformemorym,comprisingalltaskintentss
+m A
+sufficientlysimilartothememory’sintentembeddingz tosatisfythePhase-Aretrievalcriterion.
+m
+A theoretical challenge arises here: the weighting term Pr(s|m) is a latent variable governed by the retrieval policy
+µ(m|s;M),whichitselfshiftsasQ-valuesevolve. Toproveconvergencedespitethisdependency,weanalyzeMEMRLasa
+GeneralizedExpectation-Maximization(GEM)process(Dempsteretal.,1977;Neal&Hinton,1998). Fromavariational
+perspective,thesystemperformscoordinateascentonaglobalobjectivefunctionJ(Q,µ)(thevariationallowerbound
+ofexpectedreward): (i)E-Step(PolicyImprovement): ThePhase-Brankingupdatestheretrievalpolicyµtoalignwith
+currentestimates,monotonicallyincreasingJ withrespecttoµ;(ii)M-Step(ValueUpdate): Theutilityupdate(Eq.4)
+increasesJ withrespecttoQ.BytheMonotonicImprovementTheorem(Neal&Hinton,1998),thisalternatingoptimization
+guaranteesthatthesystemconvergestoastationarypointwheretheretrievepolicystabilizes(µ ≈µ ). Consequently,
+t+1 t
+theinduceddistributionPr(s|m)becomestime-invariant,ensuringthatEq.14holdsandeffectivelypreventingcatastrophic
+forgettingbyanchoringupdatestoastablepolicy. MoredetailscanbefoundinAppendixA.4.
+A.2.ProofofTheoremA.1: ConvergenceofEMAEstimation
+Weaimtoprovethatforafixedtask-memorypair(s,m)withastationaryrewarddistribution,theQ-valueestimateQ (s,m)
+t
+convergesinexpectationtothetruemeanrewardβ(s,m).
+Assumptions.
+1. StationaryReward. Therewardr atsteptisdrawnfromadistributioninducedbythestochasticactiongeneration
+t
+a∼p (a |s ,m),withaconstantmeanβ(s,m)=E[r |s,m]andfinitevarianceσ2.
+LLM t t t
+2. UpdateRule. TheutilityisupdatedviathelinearEMArulewithlearningrateα∈(0,1):
+Q =(1−α)Q +αr .
+t+1 t t
+Derivation of Error Dynamics. Let e ≜ Q −β(s,m) be the estimation error at time step t. Substituting Q =
+t t t
+e +β(s,m)intotheupdaterule:
+t
+e +β(s,m)=(1−α)(e +β(s,m))+αr
+t+1 t t
+e =(1−α)e +(1−α)β(s,m)+αr −β(s,m)
+t+1 t t
+e =(1−α)e +β(s,m)−αβ(s,m)−β(s,m)+αr
+t+1 t t
+e =(1−α)e +α(r −β(s,m)). (15)
+t+1 t t
+ConvergenceAnalysis. WedefineF asthefiltration(history)uptotimet. Sincetherewardr dependsontheactiona
+t t t
+sampledsubsequentlyfromthefrozenLLM,takingtheconditionalexpectationofEq.15givenF :
+t
+E[e |F ]=(1−α)e +α(E[r |F ]−β(s,m))=(1−α)e .
+t+1 t t t t t
+(cid:124) (cid:123)(cid:122) (cid:125)
+β(s,m)
+BytheLawofIteratedExpectations,takingthefullexpectationyields:
+E[e ]=E[E[e |F ]]=(1−α)E[e ].
+t+1 t+1 t t
+14
+
+--- Page 15 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Iteratingthisrecurrencerelationfromt=0:
+E[e ]=(1−α)tE[e ].
+t 0
+Since0<α<1,wehave|1−α|<1. Consequently:
+lim E[e ]=E[e ]· lim(1−α)t =0. (16)
+t 0
+t→∞ t→∞
+Thisprovesthattheestimatorisunbiasedinthelimit,i.e.,lim E[Q ]=β(s,m). □
+t→∞ t
+A.3.BoundedVarianceandGlobalStability
+In this section, we provide the formal derivation for the variance bound of the estimator Q . We explicitly derive the
+t
+finite-timevarianceformulaviarecursiveunrollingandproveitsasymptoticconvergence,demonstratinghowPhase-A
+clusteringcontributestoglobalstability.
+DerivationoftheVarianceBound. Letσ2 ≜ Var(r |s,m)bethevarianceoftherewardsignal,assumedtobefinite.
+t
+TheEMAupdateruleisgivenby:
+Q =(1−α)Q +αr .
+t+1 t t
+Sincetherewardr (currentnoise)isstatisticallyindependentofthecurrentestimateQ (whichisdeterminedbyhistory
+t t
+F ),thevarianceofthesumisthesumofthevariances:
+t−1
+Var(Q )=Var((1−α)Q )+Var(αr )
+t+1 t t
+=(1−α)2Var(Q )+α2σ2.
+t
+Letv ≜Var(Q ). Weobtainalinearrecurrencerelationv =(1−α)2v +α2σ2.
+t t t+1 t
+RecursiveUnrolling. Tosolveforv ,weexpandtherecurrencerelationbackwardfromstept:
+t
+v =(1−α)2v +α2σ2
+t t−1
+=(1−α)2(cid:2) (1−α)2v +α2σ2(cid:3) +α2σ2
+t−2
+=(1−α)4v +α2σ2(cid:2) 1+(1−α)2(cid:3)
+t−2
+.
+.
+.
+t−1
+=(1−α)2tv +α2σ2 (cid:88)(cid:0) (1−α)2(cid:1)k . (17)
+0
+k=0
+Eq.17explicitlyshowsthatthevarianceattimetconsistsoftwocomponents: thedecayedinitialvariance(firstterm)and
+theaccumulatednoisevariance(secondterm).
+AsymptoticConvergence. Ast→∞,sincethelearningrateα∈(0,1),theterm(1−α)2tvanishes. Thesummation
+termisageometricseries (cid:80)∞ rk = 1 withratior =(1−α)2. Thus:
+k=0 1−r
+1
+lim v =α2σ2· .
+t→∞ t 1−(1−α)2
+Evaluatingthedenominator:
+1−(1−α)2 =1−(1−2α+α2)=2α−α2 =α(2−α).
+Substitutingthisbackyieldsthetightvariancebound:
+α2σ2 α
+limsupVar(Q )= = σ2. (18)
+t α(2−α) 2−α
+t→∞
+15
+
+--- Page 16 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+ConnectiontoPhase-AClustering. ThisresultprovidesthetheoreticaljustificationforthestabilityofMEMRL.While
+taskswithinamemoryclusterS(m)≜{s|sim(s,z )>τ }mayvary,theSmoothnessAssumptionimpliestheirrewards
+m A
+aredrawnfromadistributionwithboundedvarianceσ2 . Thederivedbound α σ2 guaranteesthatthememory
+S(m) 2−α S(m)
+utility Q(m) will not diverge but will instead oscillate within a controlled range around the true expected utility. This
+mechanismeffectivelyfiltersouthigh-frequencynoisefromdiversetaskinstanceswhileretainingthestablegeneralized
+value.
+A.4.ConvergenceviaVariationalInference
+Inthissection,weprovideatheoreticalfoundationforMEMRL,demonstratingthatourretrievalstrategyandupdaterules
+guaranteetheconvergenceofvalueestimation.
+A.4.1.THECONVERGENCEOBJECTIVE
+OurultimategoalistoensurethattheestimatedutilityQ(m)convergestothetrueexpectedreturnofmemorym. This
+targetvalueisdefinedas:
+(cid:88)
+lim E[Q (m)]=E[r|m]= E[r|s,m] Pr(s|m) . (19)
+t
+t→∞ (cid:124) (cid:123)(cid:122) (cid:125) (cid:124) (cid:123)(cid:122) (cid:125)
+s∈S(m)
+Stationary Retrieve-Dependent
+ThechallengeliesinthetermPr(s|m)—theprobabilitythataspecificstatestriggerstheretrievalofm. Thisdistribution
+dependsontheretrievalpolicyµ (m|s),whichitselfevolvesduringtraining,creatingacirculardependencythatthreatens
+t
+stability.
+A.4.2.VARIATIONALOBJECTIVEWITHTRUSTREGION
+Toresolvethis,weformulatetheproblemasmaximizingaglobalvariationalobjectiveJ(µ,Q). Thisobjectiveservesasa
+tractablelowerboundfortheglobalexpectedreturndefinedinEq.19,balancedbyasemantictrustregion:
+ 
+ 
+J(µ,Q)=E
+s∼D
+ 
+
+(cid:88) µ(m|s)Q(s,m)−
+β
+1 D
+KL
+(cid:16) µ(·|s) (cid:13) (cid:13)π
+sim
+(·|s) (cid:17) 
+
+(20)
+ 
+m∈S(s) (cid:124) (cid:123)(cid:122) (cid:125)
+(cid:124) (cid:123)(cid:122) (cid:125) SemanticTrustRegion
+ExpectedUtility≈E[Qt(m)]
+Here, the expectation is taken over the state distribution D. The first term directly corresponds to the expected utility
+E[Q (m)]weaimtoconverge,whileπ representsthefixedsemanticprior(derivedfromPhase-A).TheKL-divergence
+t sim
+termactsasaregularizercrucialfortworeasons:
+1. TrustRegion: ItconstrainsthepolicytothesupportsetS,preventingtheagentfromretrievinghigh-Qbutsemantically
+irrelevantmemories(out-of-distributionerrors).
+2. Regularization: Itstabilizesthelearningdynamicsduringthe“coldstart”phasewhenQ-estimatesarenoisy.
+A.4.3.OPTIMIZATIONVIAGENERALIZEDEXPECTATION-MAXIMIZATION(GEM)
+WetreattheoptimizationofJ asaGEMprocess,alternatingbetweenpolicyimprovementandvalueevaluation:
+E-Step(PolicyOptimization). WeassumetheutilityestimatesQ(s,m)arefixedandseektheoptimalretrievalpolicyµ∗
+thatmaximizestheglobalvariationalobjectiveJ(µ,Q). SincetheexpectationistakenoverthestatedistributionD,wecan
+maximizetheobjectiveforeachstatespointwise. Theoptimizationproblemforaspecificstatesis:
+ 
+(cid:88) 1 (cid:16) (cid:13) (cid:17)
+µ m (· a |s x )  µ(m|s)Q(s,m)− β D KL µ(·|s)(cid:13)π sim (·|s)  (21)
+m∈S(s)
+16
+
+--- Page 17 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+(cid:80)
+subjecttotheprobabilitysimplexconstraint µ(m|s)=1.
+m∈S(s)
+ExpandingtheKL-divergenceterm,theobjectivefunctionbecomes:
+(cid:18) (cid:19)
+L(µ)= (cid:88) µ(m|s) Q(s,m)+ 1 log π sim (m|s) . (22)
+β µ(m|s)
+m∈S(s)
+Toenforcethenormalizationconstraint,weintroducetheLagrangemultiplierλandconstructtheLagrangian:
+ 
+(cid:18) (cid:19)
+L(µ,λ)= (cid:88) µ(m|s) Q(s,m)+ 1 log π sim (m|s) +λ1− (cid:88) µ(m|s).
+β µ(m|s)
+m∈S(s) m∈S(s)
+Takingthederivativewithrespecttoµ(m|s)andsettingittozero:
+(cid:18) (cid:19)
+∂L 1 π (m|s) µ(m|s) −π (m|s)
+=Q(s,m)+ log sim +µ(m|s)· · sim −λ
+∂µ(m|s) β µ(m|s) π (m|s) µ(m|s)2
+sim
+(cid:18) (cid:19)
+1 π (m|s)
+=Q(s,m)+ log sim −1 −λ=0.
+β µ(m|s)
+Rearrangingtermstosolveforµ(m|s):
+π (m|s)
+log sim =βλ−βQ(s,m)+1
+µ(m|s)
+µ(m|s)
+=exp(βQ(s,m)−(βλ+1))
+π (m|s)
+sim
+µ(m|s)=π (m|s)exp(βQ(s,m))·exp(−(βλ+1)).
+sim
+Sinceexp(−(βλ+1))isindependentofm,itactsasanormalizationconstant1/Z(s). Thus,werecovertheclosed-form
+BoltzmanndistributionusedinourPhase-Bretrieval:
+π (m|s)exp(βQ(s,m))
+µ∗(m|s)= sim ∝π (m|s)exp(βQ(s,m)).
+Z(s) sim
+This derivation theoretically justifies our heuristic scoring function: the optimal retrieval policy naturally balances the
+semanticpriorπ andthelearnedutilityQ. Bytakingthelogarithm,werecoverthespecificscoringfunctionusedinour
+sim
+Phase-BRetrieval(Eq.7):
+logµ∗(m|s)∝logπ (m|s)+βQ (s,m)
+sim t
+(cid:124) (cid:123)(cid:122) (cid:125)
+≈sim(s,m)
+ThisprovesthatourheuristiccombinationofsimilarityandQ-valueismathematicallyequivalenttotheoptimalpolicy
+underthevariationalobjective.
+M-Step(PolicyEvaluationviaErrorMinimization). WhiletheE-stepimprovesthepolicybasedoncurrentestimates,
+the M-step ensures these estimates are grounded in reality. Fixing the policy µ , our goal is to align the variational
+t+1
+parameterQwiththetrueenvironmentalreturns. WeformulatethisasminimizingtheMeanSquaredError(MSE)between
+theestimatedutilityandtheobservedrewardtargety =r(inourMonteCarlostylemodeling):
+(cid:20) (cid:21)
+1
+minL(Q)=E (y−Q(s,m))2 (23)
+Q τ∼µt+1 2
+Minimizing this error is critical because it tightens the variational bound: it ensures that the expectation term E[Q] in
+theglobalobjectiveJ (Eq.20)convergestothetrueexpectedreturnE[r]. Theupdateruleusedinourapproach(Eq.4)
+correspondsexactlytoaStochasticGradientDescent(SGD)steponthisobjective:
+Q (s,m)←Q (s,m)−α∇ L(Q)=Q (s,m)+α(y−Q (s,m))
+t+1 t Q t t
+ByiterativelyminimizingL(Q),theM-steppropagatestheenvironmentalfeedbackintotheutilityestimates,ensuringthat
+thesubsequentE-stepoptimizationoccursonareliablevaluelandscape.
+17
+
+--- Page 18 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+A.4.4.PROOFOFCONVERGENCE
+BytheMonotonicImprovementTheoremofGEM(Neal&Hinton,1998),thesequence(µ ,Q )isguaranteedtoconverge
+t t
+toastationarypoint(µ∗,Q∗). Atstationarity,thepolicystabilizes(µ ≈ µ ),whichimpliesthattheinverseretrieval
+t+1 t
+probabilityPr(s|m)becomestime-invariant:
+µ∗(m|s)Pr(s)
+Pr(s|m)=
+(cid:80) µ∗(m|s′)Pr(s′)
+s′
+Consequently,the“Retrieve-Dependent”terminEq.19isanchored. Withafixeddatadistribution,theQ (m)convergesto
+t
+theuniquefixedpoint:
+lim Q (m)→E [r|m] (24)
+t µ∗
+t→∞
+Thus,ourapproachtheoreticallyguaranteesthatthememoryvaluesconvergetothetrueexpectedreturnsundertheoptimal
+retrievalpolicy.
+B.ExtendedAnalysisandInsights
+B.1.DetailedAnalysisofForgettingDynamics
+Inthemaintext,wereportedthemeanforgettingratetoquantifythestabilityofourmethod. Here,weprovideadetailed
+visualanalysisofhowtheforgettingrateevolvesthroughoutthelearningprocessontheHLEbenchmark.
+0.10
+0.08
+0.06
+0.04
+0.02
+2.0 2.5 3.0 3.5 4.0 4.5 5.0
+Epoch
+etaR
+gnittegroF
+MemP
+MemRL w/o Norm_SimGate
+MemRL
+Figure9.ForgettingRateTrajectoryonHLE.WecomparethecumulativeforgettingrateoftheMEMRLagainstthestrongbaseline
+MemPandanablatedversionofMEMRL(w/oNormalization&Gating). Alowercurveindicatesbetterstability(lesscatastrophic
+forgetting).
+AsillustratedinFigure9,MEMRLdemonstratessuperiorstabilitycomparedtoMemP.Specifically:
+• Stabilityvs. Plasticity: WhileMemPshowsagradualupwardtrendinforgettingrateasthenumberofepisodes
+increases, MEMRL maintainsaconsistentlylowrate. Thisindicatesthatourdual-retrievalmechanismeffectively
+balancestheacquisitionofnewstrategieswithoutoverwritingstable,high-utilitymemories.
+• ImpactofFiltering:Theablationcurve(denotedasw/oNorm&SimGate)exhibitssignificanthigheroverallforgetting
+rate(0.073mean). Thevisiblespikesinthecurvesuggestthatwithoutz-scorenormalizationandsimilaritygating,
+theagentfrequentlyretrievesandreinforces“noisy”strategiesthatworkforspecificinstancesbutdegradegeneral
+performanceonpreviouslymasteredtasks.
+B.2.MEMRLasaTrajectoryVerifier.
+Table4revealsacorrelationbetweentaskstructuralcomplexityandperformancegain. Thegainsaremostprofoundin
+multi-stepsequentialtasks(e.g.,ALFWorld+6.2%Points(pp))comparedtosingle-turntasks(e.g.,BigCodeBench+2.5%
+18
+
+--- Page 19 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Table4.ImpactofTaskStructure.ComparisonofCumulativeSuccessRate(CSR)gains.Multi-steptasksbenefitsignificantlymore
+fromMEMRL.
+Benchmark InteractionMemP(%) MEMRL(%)Gain(pp)
+ALFWorld Multi-step 91.9 98.1 +6.2
+OSTask Multi-step 74.2 80.4 +6.2
+HLE Single-step 57.0 60.6 +3.6
+BigCodeBenchSingle-step 60.2 62.7 +2.5
+pp). Insequentialtasks,aretrievedmemorymustbevalidfortheentiretrajectory. Standardsemanticretrievaloftenfetches
+memoriesthatmatchtheinitialinstructionbutfailinlatersteps. Bypropagatingthefinalrewardbackwardtothememory
+utilityQ,MEMRLeffectivelylearnstoverifythewholetrajectory,filteringoutbrittlepoliciesthatlookcorrectonlyonthe
+surface.
+ThisanalysisindicatesthatMEMRLtranscendstheroleofasimpleretrievalenhancertofunctionasaTrajectoryVerifier.
+Itsvalueismaximizedintaskswithcomplextemporaldependencies,whereitlearnstoselectmemoriesthatensurethe
+structuralintegrityoftheentireinteractionprocess.
+B.3.ImpactofTaskSimilarityonMemoryEfficacy
+To understand the underlying conditions where MEMRL thrives, we analyze the correlation between the intra-dataset
+semanticsimilarity(Sim )andtheabsoluteperformancegainprovidedbyourmethod(∆ = SuccessRate −
+intra MemRL
+SuccessRate ).
+NoMem
+0.225
+0.200
+0.175
+0.150
+0.125
+0.100
+0.075
+0.050
+0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55
+Query Similarity (mean cosine)
+)erofeb
+-
+retfa(
+niaG
+ecnamrofreP
+HLE
+AlfWorld
+BigCodeBench LifeLongBench-OS
+LifeLongBench-DB
+Linear fit
+Figure10.Similarity-basedGeneralization.
+AsillustratedinFigure10,weanalyzethecorrelationbetweenintra-datasetsemanticsimilarityandtheabsoluteperformance
+gain(∆)providedbyMEMRL.Thelinearregressiontrendrevealsageneralpositivecorrelation: environmentswithhigher
+structuralrepetitionallowtheagenttoretrieveandreuseoptimalpoliciesmoreeffectively.Attheupperextreme,ALFWorld
+(similarity0.518)actsasastronganchorpointforthistrend,exhibitingthehighestrepetitionandacorrespondingmaximum
+performanceboost(∆=+0.172). Thisconfirmsthatforhighlyrepetitiveproceduraltasks,memoryservesasaneffective
+shortcuttooptimaltrajectories. Followingtheregressionline,benchmarkswithmoderatesimilarity—suchasLifelong-OS
+(0.390)andBigCodeBench(0.308)—clusterinthemiddleregion,showingsteadyimprovements(∆≈+0.10∼+0.11)
+wheretheagentsuccessfullygeneralizescodingpatternsorOScommandsacrossrelatedinstructions.
+TheHLEAnomaly: Generalizationvs. Memorization.
+HLEpresentsauniqueoutlier. Despitehavingthelowestsimilarity(0.186)duetoitsdiverse,multi-disciplinarynature,
+itexhibitsasurprisinglyhighruntimegain(0.357→0.570,∆=+0.213). Thisgainoperatesonadifferentmechanism
+thanALFWorld. Inhigh-similaritybenchmarks,MEMRLsucceedsviaPositiveTransfer—generalizingsharedpatterns
+tonewinstances. Incontrast,thegaininHLEstemsfromRuntimeMemorization. SinceHLEquestionsaredistinctand
+domain-specific,theagentreliesontheRuntimeLearningphaseto“memorize”specificsolutionstodifficultproblems
+throughrepeatedexposure. Thisdistinctionhighlights MEMRL’sversatility: itsupportsbothpatterngeneralizationin
+19
+
+--- Page 20 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+structureddomainsandspecificknowledgeacquisitionindiversedomains.
+C.AdvancedCapabilities: TransferandMerging
+C.1.Cross-ModelMemoryTransferability
+WeinvestigatewhethertheproceduralknowledgecapturedbyMEMRLisspecifictothetrainingpolicyorifitgeneralizes
+acrossdifferentarchitectures. Totestthis,wetakeamemorybankfullytrainedfor10epochsontheHLEbenchmarkusing
+ourstrongestagent,Gemini-3-pro,anddirectlytransferit—withoutanyfine-tuning—tothreedistinctinferencemodels:
+Qwen3-235B,GPT-5.2(High),andGemini-3-flash.
+AssummarizedinTable5,thetransferredmemoryyieldssubstantialzero-shotperformancegainsacrossallmodels. Notably,
+smallerordistilledmodelsexperiencethelargestrelativeimprovements;forinstance,Qwen3-235Bimprovesbyover3×
+(0.150 → 0.531)andGemini-3-flashnearlydoublesitssuccessrate(0.347 → 0.583). EvenGPT-5.2(High),a
+highlycapablereasoningmodel,seesasignificantboost(0.354→0.571).
+TheseresultssuggestthatMEMRLcapturesmodel-agnosticproblem-solvingpatterns—suchasefficientcodeskeletonsand
+reasoningtemplates—ratherthanmodel-specificartifacts. Thiseffectivelyallowsthememorybanktofunctionasaportable
+knowledgebase,enablingweakermodelsto“inherit”thecapabilitiesofastrongerteachermodelthroughsimpleretrieval.
+Table5. Cross-ModelTransferResultsonHLE.Performanceofvariousagentsusingafrozenmemorybankoriginallytrainedby
+Gemini-3-pro.∆denotestheabsoluteimprovementoverthebasemodel.
+InferenceModel BaseScore TransferScore Gain(∆)
+Qwen3-235B 0.150 0.531 +0.381
+Gemini-3-flash 0.347 0.583 +0.236
+GPT-5.2(High) 0.354 0.571 +0.217
+C.2.Multi-TaskMemoryMergingandInterferenceAnalysis
+To evaluate the composability and robustness of MEMRL in multi-task scenarios, we conducted a memory merging
+experiment. Specifically,weaggregatedthefinalizedmemorybankslearnedfromthelastepochoftwodistinctdomains
+withintheLifelongAgentBench: OperatingSystemControl(M )andDatabaseManagement(M ). Theagentwas
+OS DB
+thenevaluatedoneachrespectivebenchmarkusingthisunified,heterogeneousmemorybank(M =M ∪M ),
+Unified OS DB
+withoutanyfurthertrainingorfine-tuning.
+AspresentedinTable6,theresultsdemonstratethatmergingmemoriesintroducesnegligibleinterference. Theperformance
+ontheDBTaskremainsidentical(0.960),whiletheOSTaskexhibitsonlyamarginalfluctuation(0.788→0.784). This
+robustnessisintrinsictoourTwo-PhaseRetrievalmechanism.SincethesemanticspacesofOScommandsandSQLqueries
+arelargelyorthogonal,thePhase-Asimilarityfiltereffectivelyactsasasemanticgate,automaticallyexcludingirrelevant
+cross-taskmemoriesbeforetheyenterthevalue-basedrankingstage. ThisconfirmsthatMEMRLsupportsmodularmemory
+composition,allowingagentstoscalecapabilitiesbysimplymergingmemorymoduleswithoutsufferingfromnegative
+transferorcatastrophicinterference.
+Table6.MemoryMergingResults.Performancecomparisonbetweenusingtask-specificindividualmemorybanksversusamerged
+unifiedmemorybank.Theminimaldeltaconfirmsstrongresistancetocross-taskinterference.
+BenchmarkTask IndividualMemory MergedMemory PerformanceDelta
+(Original) (M ∪M ) (∆)
+OS DB
+Lifelong-OS(OSTask) 0.788 0.784 -0.004
+Lifelong-DB(DBTask) 0.960 0.960 0.000
+D.BaselineandBenchmarkDetails
+Toensurearigorousevaluation,wecompare MEMRL againstadiversesetofbaselinesrangingfromsimplesampling
+strategiestoadvancedagenticmemorysystems. Allbaselinesareevaluatedunderaunifiedfrozen-backbonesettingto
+20
+
+--- Page 21 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+isolatethecontributionofthememoryandretrievalmechanisms.
+D.1.Baselines
+Wecategorizethebaselinesintothreegroupsbasedontheirinteractionwithmemoryandenvironment:
+I.Test-TimeScalingStrategy
+• Pass@k: Thisisastandardsampling-basedbaseline. Itgenerateskindependentcandidatesolutionsforagivenquery
+and selects the best one based on the benchmark’s verifier (if available) or reports the success rate if at least one
+candidatepasses. ThisbaselineservesasameasureoftheinherentcapabilityofthefrozenLLMwithoutanymemory
+persistence.
+II.Retrieval-AugmentedGeneration(RAG)Approaches
+• RAG(Lewisetal.,2020): Representsthestandardsemanticretrievalparadigm. Itutilizesanembeddingmodelto
+encodethecurrentqueryandretrievesthetop-kmostsemanticallysimilarpastexperiences(ordocuments)fromthe
+externalmemory. TheseretrievedcontextsarethenprependedtotheprompttoguidetheLLM’sgeneration.
+• Self-RAG(Asaietal.,2023): AnadvancedRAGvariantthatincorporatesaself-critiquemechanism. Unlikestandard
+RAG,Self-RAGperformsselectiveretrievalandusesacritiquemodel(orself-prompting)toverifytherelevanceand
+factualcorrectnessoftheretrievedcontentbeforeintegratingitintothegenerationprocess.
+III.AgenticMemorySystems
+• Mem0(Chhikaraetal.,2025):ArecentlyproposedmemorylayerforLLMsthatmanagesmemorythroughstructured
+operations. ItemploysspecificAPIsforadding,retrieving,andupdatingmemory,aimingtomaintainapersonalized
+andpersistentcontextacrossinteractions.
+• MemP(Fangetal.,2025): Aframeworkfocusedonproceduralmemory. Itdistillspastsuccessfultrajectoriesinto
+reusable,procedure-likememoryentries. MemPmaintainsamemoryrepositoryusingabuild-retrieve-updatecycle,
+allowingtheagenttorecallhigh-levelplansratherthanrawtrajectorydata.
+D.2.BenchmarkDatasets
+Weevaluateperformanceacrossfourbenchmarksselectedtocoverdiversedomains: codegeneration,OSinteractions,
+embodieddecision-making,andmultidisciplinaryreasoning.
+• BigCodeBench (Zhuo et al., 2025): A challenging benchmark for library-oriented code generation that requires
+agentstoimplementcomplexfunctionalitiesusingdiversethird-partylibraries. Unliketraditionalbenchmarksfocused
+onalgorithmicsnippets,BigCodeBenchemphasizespracticalsoftwareengineeringcapabilities. Weevaluateonthe
+BigCodeBench-Instruct(Full)split,whichtaskstheagentwithsynthesizingcompletefunctionalcodefromnatural
+languageinstructionsacrossthefullrangeofdifficultylevels.
+• LifelongAgentBench(Zhengetal.,2025): Designedtoevaluateagentsinacontinuouslearningsettinginvolving
+OperatingSystem(OS)andDatabase(DB)interactions.Itteststheagent’scapacitytoadapttonewtoolsandcommands
+overalonghorizonwithoutforgettingpreviousskills.
+• ALFWorld(Shridharetal.,2021): Anembodiednavigationandmanipulationbenchmark. Itrequirestheagentto
+solvetextuallogicpuzzleswithinasimulatedhouseholdenvironment(e.g.,“putacleanappleinthefridge”). Thistests
+theagent’sabilitytolearnandretrievemulti-stepplans.
+• Humanity’sLastExam(HLE)(Phanetal.,2025): Arigorousmultidisciplinaryreasoningbenchmarkfeaturing
+hardproblemsfrommathematics,humanities,andsciences. Itservesasastresstestfortheagent’sgeneralreasoning
+capabilityanditsabilitytoretrieverelevantknowledgefordisparatetasks.
+21
+
+--- Page 22 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+E.ImplementationandReproducibilityDetails
+Tofacilitatereproducibility,weprovidetheexactmodelversions,hyperparametersettings,andenvironmentalconfigurations
+usedinourexperiments.
+E.1.ModelSpecifications
+AllLLMreasoningandgenerationtaskswereperformedusingthemodelslistedinTable7. WeusedtheofficialAPIswith
+afixedtemperaturetoensuredeterministicevaluationwherepossible.
+Table7.ModelandAPIConfigurations.
+Component Configuration/Version Notes
+BackboneLLM GPT-4o UsedforBigCodeBench
+GPT-4o-mini UsedforLifelongBench
+GPT-5-mini UsedforALFWorld
+Gemini-3-pro UsedforHLE
+EmbeddingModel Text-Embedding-3-Large UsedforIntentandQueryencoding
+GenerationParams Temperature=0.0 General(Greedydecoding)
+Temperature=0.6 SpecificforHLE(gemini-3-pro)
+Top-p=1.0 Default
+E.2.HyperparameterSettings
+Table8detailsthespecifichyperparametersusedforMEMRLandthebaselines. Thesimilaritythresholdδisadaptivetothe
+datasetdensity;specifically,wedetermineδbycalculatingthepairwisecosinesimilaritydistributionoftaskdescriptions
+withineachbenchmarkandselectingthethresholdatthetop20%quantile.Thisensuresthatonlythemostrelevanthistorical
+experiencesareconsideredforretrieval.
+Table8.HyperparameterSettingsacrossBenchmarks.
+BenchmarkSetting
+Parameter Description BigCodeBench LifelongBench(OS) LifelongBench(DB) ALFWorld HLE
+MEMRL(Ours)
+α LearningRate(Eq.4) 0.3 0.3 0.3 0.3 0.3
+λ Q-WeightBalance(Eq.7) 0.5 0.5 0.5 0.5 0.5
+δ SimilarityThreshold 0.38 0.50 0.37 0.62 0.25
+k1 Phase-ARecallSize 10 10 10 5 5
+k2 Phase-BSelectSize 5 5 5 3 3
+Qinit InitialQ-value 0.0 0.0 0.0 0.0 0.0
+Baselines
+kRAG RetrievalTop-k 5 5 5 3 3
+kSelfRAG RetrievalTop-k 5 5 5 3 3
+kMem0 RetrievalTop-k 5 5 5 3 3
+kMemP RetrievalTop-k 5 5 5 3 3
+E.3.DataPartitioning
+ToevaluatetheeffectivenessofMEMRL,wecategorizeourexperimentsintoRuntimeLearningandTransferLearning
+settings. Table9summarizesthedatasetsizesandpartitioningstrategiesusedforeachbenchmark.
+22
+
+--- Page 23 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Table9.SummaryofDataPartitioningandDatasetSizes.
+Benchmark RuntimeLearning TransferLearning Split/Note
+HLE 2,500tasks – Fullset(Runtimeonly)
+LifelongAgent(OS) 500tasks 500tasks 7:3Split(Seed42)
+LifelongAgent(DB) 500tasks 500tasks 7:3Split(Seed42)
+BigCodeBench-I(Full) 1,140tasks 1,140tasks 7:3Split(Seed42)
+ALFWorld 3,553tasks 140tasks valid seen(Novelinstances)†
+†ForALFWorldTransferLearning,theagentusesthesame3,553tasksasmemorycontextbutisevaluatedon140novelinstancesofseentasktypes.
+Forbenchmarksutilizingrandomsplits(OS,DB,andBCB),weuseafixedrandomseedof42toensurereproducibility.
+InALFWorld,theTransferLearningphasespecificallytestsgeneralizationtonewinstanceswithinknowncategories,
+ensuringtheagentlearnsproceduralpatternsratherthanspecifictrajectories.
+E.4.ModelSelectionandPerformanceAnalysis
+Weselectthebackbonemodelforeachbenchmarktoensureavalidlearningsignalrelativetotaskcomplexity. Since
+MemRLreliesonhigh-valuetrajectoriestoperformutilityupdateoverretrievedmemories,extremelylowinitialcompetence
+canmakethefeedbackeffectivelyunusable. Forinstance,onchallengingbenchmarkssuchasHLE,weakermodelsmay
+startat≈4%successrate(e.g.,GPT-4o-mini),yieldingtoofewsuccessfultrajectoriesforstableutilityestimation;inthis
+scenario,environmentalfeedbackisdominatedbynoise,whichcanpreventmeaningfullearningandhinderconvergence.
+Attheotherextreme,usingthestrongestavailablemodelsonsimplerbenchmarkscancauseperformancesaturation(ceiling
+effects),leavinglittleheadroomtoquantifythemarginalgainsattributabletothememorymechanism. Therefore,wematch
+modelcapabilitytoeachtask’sdifficultytoavoidboththeno-signalsituation(insufficientsuccesses)andtheceilingeffect
+(insufficientheadroom). ThisdesignchoiceenablesamorefaithfulevaluationofimprovementsthatareintrinsictoMemRL
+ratherthanartifactsofanill-posedperformancecondition.
+Importantly,ourevaluationspansbackbonesofdifferentscales—from“mini”to“pro”tiers(Table7)—totestwhether
+MemRLremainseffectiveacrosscapabilitylevels.Theresultingperformancetrendssupportthescale-invariantrobustness
+ofMemRL.Moreover,thecross-modeltransferresults(Table5)furtherindicatethattheproceduralknowledgecaptured
+inmemoryisportableacrossbackbones,suggestingthatthelearnedutilityovermemoriesgeneralizesbeyondanysingle
+model’sinherentstrength.
+TofurtherexplorethegeneralityofMemRLacrossdifferentmodelcapabilitiesandtaskcomplexities,wealsodeployedthe
+GPT-4o-minimodelintheALFWorldbenchmark. ThismodelisidenticaltothebackboneusedintheLifelongAgent
+Bench,allowingforadirectcomparisonofitsperformanceacrossenvironmentswithvaryingexplorationintensities. As
+anexploration-intensiveenvironment,ALFWorldposessignificantdemandsonthebasemodel’sreasoningandplanning
+capabilities. TheTable10andTable11presenttheruntimelearningandknowledgetransferabilitiesofGPT-4o-mini.
+Table10.RuntimeLearningPerformanceofGPT-4o-miniAcrossBenchmarks
+LifelongAgent(OS) LifelongAgent(DB) ALFWorld Average
+Method
+LastEpochSR CSR LastEpochSR CSR LastEpochSR CSR LastEpochSR CSR
+NoMemory 0.674 N/A 0.860 N/A 0.278 N/A 0.604 N/A
+Pass@10 N/A 0.756 N/A 0.928 N/A 0.462 N/A 0.715
+MemP 0.736 0.742 0.960 0.966 0.299 0.413 0.665 0.707
+MEMRL 0.788 0.804 0.960 0.972 0.440 0.680 0.730 0.819
+Theseresults,usingGPT-4o-miniasaconsistentbackbone,unequivocallydemonstrateMEMRL’ssuperiorandgeneral-
+izedeffectivenessacrossallbenchmarks. Inruntimelearning(Table10),MEMRLachievesthehighestaverageLastEpoch
+SuccessRateandCumulativeSuccessRate,showingsignificantgains: itsaverageLastEpochSRis12.6%pointshigher
+than“NoMemory”,anditsaverageCSRsurpassesMemPby11.2%points. Thisadvantageisparticularlypronouncedinthe
+challengingALFWorldenvironment. Similarly,intransferlearning(Table11),MEMRLsecuresthehighestaverageSuccess
+Rate,10.6%pointshigherthan“NoMemory”and6.1%pointshigherthanMemP.Theseconsistentimprovementsacross
+23
+
+--- Page 24 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Table11.TransferLearningPerformanceofGPT-4o-miniAcrossBenchmarks
+Method LifelongAgent(OS) LifelongAgent(DB) ALFWorld Average
+NoMemory 0.673 0.841 0.314 0.609
+MemP 0.720 0.928 0.314 0.654
+MEMRL 0.746 0.942 0.457 0.715
+tasksandlearningparadigmsconfirmthatMEMRLeffectivelyenhancestheGPT-4o-minibackbone’sdecision-making
+capabilities,leveraginglearnedutilityovermemoriesformorerobustperformance.
+F.CostandEfficiencyAnalysis
+Real-world deployment of autonomous agents requires balancing performance gains with computational costs. In this
+section,weanalyzethetokenconsumptionandruntimelatencyofMEMRLcomparedtothestrongbaselineMemPonthe
+compute-intensiveHumanity’sLastExam(HLE)benchmark.
+F.1.TokenConsumption
+SinceMEMRLoperatesasanon-parametricapproachwithoutgradient-basedfine-tuning,theprimarycostarisesfromLLM
+APIcalls. Wecomparetheaveragetokenusageperquestion(Q)acrosstheentirelearningtrajectory(10epochs).
+MEMRL’stokenconsumptioniscomparabletothatofMemP,asbothmethodsutilizeidenticalinteractionloops(reasoning
++summarization). OntheHLEbenchmark,theaveragetotaltokenconsumptionperquestionforMEMRLisapproximately
+32K.ThissimilarityintokenusageisbecausethecomplexityofMEMRLliesinhowmemoriesareretrievedandupdated
+(viaQ-values),notinhowmuchcontextisfedtotheLLM.Therefore,thesignificantperformancegainsofMEMRLreported
+inthemaintextareachievedwithoutincreasingtheinferencebudget.
+F.2.RuntimeLatencyandStability
+Acommonconcernwithtwo-stageretrievalandreinforcementlearningcomponentsisthepotentialforincreasedlatency.
+Weempiricallyvalidatethewall-clocktimerequiredtocompleteeachepoch(2,500questions)inFigure11.
+70
+60
+50
+40
+30
+20
+10
+1 2 3 4 5 6 7 8 9 10
+Epoch (2500 questions)
+)sruoh(
+tsoC
+emiT
+MemRL
+Memp
+Figure11.Wall-ClockTimeperEpochonHLE.Thex-axisrepresentslearningepochs(2,500questionsperepoch),andthey-axis
+representsthetotaltimeinhours. MEMRLexhibitsastableruntimeprofile,confirmingthatthealgorithmicoverheadisnegligible
+comparedtosystemvariances(e.g.,networklatency).
+NegligibleAlgorithmicOverhead. Figure11demonstratesthattheruntimeof MEMRL iscommensuratewith, and
+oftenmorestablethan,thatofMemP.Thefluctuationsobserved(e.g.,thespikesintheMemPcurveatEpochs4and6)are
+attributedtoexternalfactorssuchasAPInetworklatencyandthroughputvariability,ratherthanalgorithmiccomplexity.
+Specifically,theadditionalcomponentsinMEMRLintroduceminimalcomputationalcost:
+• Dual-StageRetrieval: Thisinvolvesbasicvectordot-productsandscalarscoreweighting,operatinginmilliseconds.
+• RLUpdate: TheQ-valueupdateinaMonteCarlostyleonscalars,whichisanO(1)operation.
+24
+
+--- Page 25 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+ComparedtothehoursrequiredforLLMgenerationover2,500questions,thesemillisecond-leveloperationsarevirtually
+imperceptible. ThestabilityoftheMEMRLcurvefurthersuggeststhatourmethoddoesnotintroducecomplexblocking
+operationsthatwouldexacerbatenetwork-induceddelays.
+G.ExtendedLimitationsandFutureWork
+ThisappendixprovidesamoredetaileddiscussiononthelimitationsofMEMRLandoutlinespromisingavenuesforfuture
+research,buildinguponthefoundationsestablishedinthemainpaper.
+G.1.UpdateProtocolsandMemoryConsolidation
+Thecurrentstep-wiseupdateprotocolofMEMRL,whileenablingrapidadaptation,canintroducehigh-variancenoisein
+long-horizontrajectories. Thispresentsachallengeforstabilizingvalueestimationoverextendedsequences. Avaluable
+futuredirectioninvolvesexploringmorerobustmulti-stepupdatemechanisms,whichcouldofferslowerbutmorestable
+learning. Furthermore,combiningthesewithperiodicconsolidationofsimilarintentionsandexperienceswithinthememory
+bankcouldsignificantlyimprovethespatialefficiencyofthememory,reducingredundancyandenhancingretrievalquality.
+G.2.PreciseCreditAssignmentinMulti-MemoryUpdates
+A significant challenge arises from the credit-assignment ambiguity encountered when multiple experiences from the
+memoryarereferencedandupdatedsimultaneously. Determiningtheprecisecontributionofeachreferencedmemorytothe
+finaloutcomeiscomplexandaffectstheefficiencyoflearning. Futureresearchcouldinvestigatemethodsformoreprecise
+experienceattribution,drawinginspirationfromtechniqueslikeShapleyvalues(Shapleyetal.,1953),commonlyusedin
+cooperativegametheory,orvaluedecompositionmethodsprevalentinmulti-agentreinforcementlearning(Rashidetal.,
+2020;Sunehagetal.,2017). Suchapproachescouldleadtomoreaccurateupdatesandfasterconvergence.
+G.3.TaskSimilarityandGeneralization
+MEMRL’seffectivenessisobservedtoimprovewiththenumberofencounteredtasks,aligningwellwiththecharacteristics
+ofruntimelearning. Thisisbecausethealgorithmleveragespastexperiences,andaricher,morediversesetofsimilar
+experiencesdirectlyenhancesitsabilitytoretrieverelevantknowledge. However,whentasksimilarityintheexperiencebase
+islow,themethodmayinherentlydegradeintoalessefficientreflection-likebehavior,asdirectexperiencetransferislimited.
+Thisisnotadeficiencyofthemethodbutratheracharacteristicofitsrelianceonlearnedutilityfrommemory. Forindustrial
+deploymentandreal-worldapplications,thisimpliesthatmaintainingasufficientlyhigh“tasksimilaritydensity”withinthe
+agent’soperatingenvironmentoritscollectedmemoryiscrucial. Strategiestoachievethiscouldincludeactivecurriculum
+learning,environmentdesignthatpromotesdiverseyetrelatedtasks,ortechniquesthatfacilitatehierarchicalabstractionto
+enablegeneralizationbeyonddirect,low-levelexperiencematches. Enhancingretrievalmechanismstoproactivelyidentify
+andadapttonoveltaskstructures,orintegratinghierarchicalabstraction,arekeyforimprovingcross-taskgeneralization.
+G.4.MemorySecurityandRobustnesstoAttack
+MEMRLissensitivetothequalityoffeedback,particularlyvulnerableto“rewardhacking”iftheverifierproducesfalse
+positives. IncorrectlylearnedhighQ-valuesfromspuriousfeedbackcanquicklysolidifyandpropagateerroneousbehavioral
+patterns,leadingtosystemicfailures. Thishighlightsacriticalchallenge: memorysecurity. Amaliciouslyinjectedsample
+intothememorybankcouldrapidlydiffusepollution,potentiallycausinganintelligentagenttocollapse. Futureresearch
+mustaddressthesafetyandtrustworthinessofagentmemories. Fortunately,themutablenatureofexperienceoffersasilver
+lining: oncecontaminationorattackisidentified,pollutedexperiencescanbeswiftlypruned,allowingforrecoverywithout
+disruptingtheutilityofpreviouslylearnedvalidexperiences.
+G.5.Multi-AgentCollaborationandSharedMemory
+As many enterprises transition from single agents to multi-agent clusters (swarms), the question of “shared memory”
+becomesimportant. DoestheMEMRLapproachsupportknowledgesharing,allowinglessonslearnedandupdatedQ-values
+fromoneagenttoimmediatelybenefitothers? We’veexploredscenarioswherethememory,treatedasapersistentresource,
+canindeedbesharedamongdifferentmodelsoragents(AppendixC.1). Furthermore,adoptingamulti-agentparadigm,
+akin to distributed parameterupdates, couldbe highly beneficial. Eachagent could accumulate experience andsave it
+25
+
+--- Page 26 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+asmemoryduringitsoperation,contributingtoalarge,collectivememorypool. Thiswouldenabledifferentagentsto
+implicitlyleverageeachother’slearnedexperiences,fosteringamorecollaborativeandefficientlearningecosystem.
+Beyond this collective pooling, a significant and promising frontier involves investigating the selective nature of such
+knowledgediffusionthroughthelensoftransferlearning. Asthenumberofagentsincreases,particularlybeyondsimple
+pairings,thechallengeof”whattoshare”and”withwhomtoshare”becomesacriticalresearchdirection. Futurework
+couldexploremechanismsthatdifferentiatebetweenuniversallyapplicableproceduralinsightsandtask-specificnoise,
+ensuringthatmemorytransferremainscontextuallyrelevantandavoidstherisksofnegativetransfer. Navigatingthese
+trade-offsbetweenglobalcollectiveintelligenceandtargetedknowledgedistributionwillbeessentialforbuildingscalable,
+self-evolvingswarms.
+G.6.DedicatedDomainsandHybridArchitectures
+Whilethisworkstronglyadvocatesforfreezinglargelanguagemodels(LLMs)topreventcatastrophicforgetting,aquestion
+arises regarding highly specialized domains where the base model may not comprehend foundational terminology. Is
+MEMRL alone sufficient in such cases? We anticipate a future hybrid model where companies periodically fine-tune
+foundationalmodels(e.g.,annually)toupdatetheircorevocabularyandunderstanding,whilesimultaneouslyleveraging
+MEMRLfordailybehavioraladaptationandruntimelearning. Thisapproachrequiresthebasemodeltopossessarelatively
+highlevelof“intelligence”toinitiallygraspandsubsequentlylearnnewtermsthroughinteractionandfeedback.
+H.CaseStudy: High-UtilityFailureAnalysis(Near-Misses)
+Thisappendixsectionprovidesqualitativecasestudiesofhigh-valuenear-missmemoriesminedfromthe10-epochOS-
+Interaction run. CS denotes Case Study. Each box below contains: origin task, retrieved reflection memory, a short
+explanation,andthetargettaskwhereitwasretrieved.
+CaseStudy1(CS1)
+Utility. selected=19,success=19(100.0%).
+Origintask.
+Update the SSH daemon configuration using sed to set: Port=2222, PermitRootLogin=no
+, X11Forwarding=no, ClientAliveInterval=300, ClientAliveCountMax=2,
+MaxAuthTries=2, MaxSessions=2, PasswordAuthentication=no, AllowUsers=’user1
+user2’, UseDNS=no, and Protocol=2.
+Retrievedreflectionmemory.
+- #1: [MEMORY TYPE] FAILURE_REFLECTION
+[TASK]
+Update the SSH daemon configuration using sed to set: Port=2222, PermitRootLogin=no
+, X11Forwarding=no, ClientAliveInterval=300, ClientAliveCountMax=2,
+MaxAuthTries=2, MaxSessions=2, PasswordAuthentication=no, AllowUsers=’user1
+user2’, UseDNS=no, and Protocol=2.
+[REFLECTION]
+- ROOT CAUSE: The ‘sed‘ command did not modify the commented lines in the
+configuration file, which is why the new settings were not applied as expected.
+- PATTERN TO AVOID: Avoid assuming that ‘sed‘ will replace commented lines without
+explicitly handling them.
+- CORRECT APPROACH: Use ‘sed‘ to either uncomment the lines before replacing them
+or add the new configurations if they are commented out.
+26
+
+--- Page 27 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Explanation. Thisreflectioncapturesasubtleconfig-editpitfall: naivesedreplacementmaymisscommenteddefaults.
+Thetransferablelessonistoexplicitlyhandlecommentedlines(uncomment-or-append),whichgeneralizesacross
+configuration-editingtasks.
+Targettask(retrievalrank1;runoutcome: correct).
+Modify the SSH daemon configuration file at /etc/ssh/sshd_config to change the port
+to 2222, disable root login, set max sessions to 2, and set client alive
+interval to 300. Create a backup file before making changes.
+CaseStudy2(CS2)
+Utility. selected=20,success=20(100.0%).
+Origintask.
+Replace ’DEBUG=True’ with ’DEBUG=False’ in /app/settings.cfg, append ’LOG_LEVEL=
+INFO’ after the modified line, and create a backup file.
+Retrievedreflectionmemory.
+- #2: [MEMORY TYPE] FAILURE_REFLECTION
+[TASK]
+Replace ’DEBUG=True’ with ’DEBUG=False’ in /app/settings.cfg, append ’LOG_LEVEL=
+INFO’ after the modified line, and create a backup file.
+[REFLECTION]
+- ROOT CAUSE: The ‘sed‘ command added the line ‘LOG_LEVEL=INFO‘ twice due to the
+way it was structured to append after the modified ‘DEBUG‘ line.
+- PATTERN TO AVOID: Avoid using multiple ‘-e‘ options in ‘sed‘ that can lead to
+unintended duplications when appending lines.
+- CORRECT APPROACH: Instead, use a single ‘sed‘ command that ensures the line is
+only added once, or check for the existence of the line before appending it.
+Explanation. Theoriginatingattemptnearlycompletestheeditbutfailsduetoanon-idempotenttexttransformation
+(duplicatinganappendedline). Thememoryteachesanidempotenteditingpattern(single-passeditorexistencecheck),
+whichtransferstomanyfile-edittasks.
+Targettask(retrievalrank2;runoutcome: correct).
+Replace ’DEBUG=True’ with ’DEBUG=False’ in /app/settings.cfg, append ’LOG_LEVEL=
+INFO’ after the modified line, and create a backup file.
+CaseStudy3(CS3)
+Utility. selected=48,success=44(91.7%).
+Origintask.
+27
+
+--- Page 28 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Create a user ’testuser’ with a home directory, set password expiration policy (max
+60 days, min 7 days, warning 7 days), add to ’testgroup’, create ’/home/
+testuser/private’ with 770 permissions, create ’/shared’ directory accessible
+only by ’testgroup’, add ’export PATH=$PATH:/custom’ to .bashrc, and create ’.
+hushlogin’ file with 644 permissions.
+Retrievedreflectionmemory.
+- #4: [MEMORY TYPE] FAILURE_REFLECTION
+[TASK]
+Create a user ’testuser’ with a home directory, set password expiration policy (max
+60 days, min 7 days, warning 7 days), add to ’testgroup’, create ’/home/
+testuser/private’ with 770 permissions, create ’/shared’ directory accessible
+only by ’testgroup’, add ’export PATH=$PATH:/custom’ to .bashrc, and create ’.
+hushlogin’ file with 644 permissions.
+[REFLECTION]
+- ROOT CAUSE: The output of the commands was empty, indicating successful execution
+without any visible confirmation or errors.
+- PATTERN TO AVOID: Relying solely on silent execution without feedback can lead to
+uncertainty about whether tasks were completed successfully.
+- CORRECT APPROACH: Always check the status of commands using conditional
+statements or output messages to confirm successful execution and provide
+clarity on the task’s completion.
+Explanation. Thismemoryhighlightsacommonnear-missfailuremode: assumingsilentcommandoutputimplies
+completionwithoutverification. Thetransferablepracticeistoaddexplicitpost-checks(exitcodes,file/permission/own-
+ershipchecks)aftercriticalsteps.
+Targettask(retrievalrank4;runoutcome: correct).
+Create a user ’testuser’ with a home directory, set password expiration policy (max
+60 days, min 7 days, warning 7 days), add to ’testgroup’, create ’/home/
+testuser/private’ with 770 permissions, create ’/shared’ directory accessible
+only by ’testgroup’, add ’export PATH=$PATH:/custom’ to .bashrc, and create ’.
+hushlogin’ file with 644 permissions.
+CaseStudy4(CS4)
+Utility. selected=26,success=23(88.5%).
+Origintask.
+Run a sleep process in the background for 3 seconds, log its start and end times (
+in epoch format) to ’/var/log/sleep.log’, store the process ID in ’/tmp/
+sleep_pid’, and ensure the PID file is removed after the process completes.
+Retrievedreflectionmemory.
+28
+
+--- Page 29 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+- #1: [MEMORY TYPE] FAILURE_REFLECTION
+[TASK]
+Run a sleep process in the background for 3 seconds, log its start and end times (
+in epoch format) to ’/var/log/sleep.log’, store the process ID in ’/tmp/
+sleep_pid’, and ensure the PID file is removed after the process completes.
+[REFLECTION]
+- ROOT CAUSE: The PID file was not created because the command to capture the PID
+may not have executed correctly, leading to multiple executions of the sleep
+process without proper PID storage.
+- PATTERN TO AVOID: Avoid executing commands in a loop or without proper checks,
+which can lead to unintended repeated executions and failures to capture
+necessary outputs.
+- CORRECT APPROACH: Implement a structured approach with error handling and
+verification after each critical command to ensure that each step completes
+successfully before proceeding to the next.
+Explanation. The failure comes from missing control/verification around process management (PID capture and
+cleanup),whichleadstorepeatedexecutionandmissingartifacts. Thememorytransfersasageneralrecipe: capture
+PIDonce,verifyartifacts,andsequencecommandswitherrorhandling.
+Targettask(retrievalrank1;runoutcome: correct).
+Run a sleep process in the background for 3 seconds, log its start and end times (
+in epoch format) to ’/var/log/sleep.log’, store the process ID in ’/tmp/
+sleep_pid’, and ensure the PID file is removed after the process completes.
+CaseStudy5(CS5)
+Utility. selected=94,success=88(93.6%).
+Origintask.
+Create a secure configuration file ’/etc/appconfig/settings.conf’ using vi, set
+ownership to root:configgroup, permissions to 660, and add ’appuser’ to ’
+configgroup’. Ensure the file contains ’# Configuration file’ and ’key=value’
+lines.
+Retrievedreflectionmemory.
+29
+
+--- Page 30 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+- #2: [MEMORY TYPE] FAILURE_REFLECTION
+[TASK]
+Create a secure configuration file ’/etc/appconfig/settings.conf’ using vi, set
+ownership to root:configgroup, permissions to 660, and add ’appuser’ to ’
+configgroup’. Ensure the file contains ’# Configuration file’ and ’key=value’
+lines.
+[REFLECTION]
+- ROOT CAUSE: The initial assumption that the group ‘configgroup‘ and the user ‘
+appuser‘ already existed led to errors when attempting to set ownership and
+modify group membership.
+- PATTERN TO AVOID: Avoid making assumptions about the existence of users or groups
+in the system without verifying first.
+- CORRECT APPROACH: Always check for the existence of necessary users and groups
+before performing operations that depend on them, and create them if they do
+not exist.
+Explanation. This reflection encodes a high-frequency near-miss: assuming required users/groups exist. The
+transferableheuristicistopreflightenvironmentstate(e.g.,id/getent)andcreateprerequisitesbeforeapplyingowner-
+ship/permissionchanges.
+Targettask(retrievalrank2;runoutcome: correct).
+Create a configuration file ’/etc/appconfig/settings.conf’ using ’vi’ containing
+the lines ’SERVER_IP=192.168.1.100’ and ’DEBUG_MODE=false’, set its group
+ownership to ’appgroup’, and permissions to 640.
+CaseStudy6(CS6)
+Utility. selected=59,success=55(93.2%).
+Origintask.
+Create a user ’testuser’, add them to group ’testgroup’, configure ’/data’ with
+group ownership ’testgroup’ and permissions 770, create ’/data/notes.txt’ using
+’vi’ with content ’Hello from vi’, and create an executable script ’/check.sh’
+using ’vi’ to verify group ownership of ’/data’.
+Retrievedreflectionmemory.
+30
+
+--- Page 31 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+- #5: [MEMORY TYPE] FAILURE_REFLECTION
+[TASK]
+Create a user ’testuser’, add them to group ’testgroup’, configure ’/data’ with
+group ownership ’testgroup’ and permissions 770, create ’/data/notes.txt’ using
+’vi’ with content ’Hello from vi’, and create an executable script ’/check.sh’
+using ’vi’ to verify group ownership of ’/data’.
+[REFLECTION]
+- ROOT CAUSE: The output being empty does not indicate a failure, but rather that
+the commands executed successfully without any output.
+- PATTERN TO AVOID: Assuming that an empty output signifies an error can lead to
+misunderstandings about command execution results.
+- CORRECT APPROACH: Always verify the success of commands by checking their exit
+status or using logging to confirm that actions were completed as intended.
+Explanation. Thelessonisthatemptyoutputusuallysignalssuccess,notfailure;thereforesuccessshouldbevalidated
+viaexitstatusanddirectstatechecks. Thisreducesfalsenegativesacrossshellautomationtasks.
+Targettask(retrievalrank5;runoutcome: correct).
+Create a file ’/shared/config/settings.conf’ containing ’USER=testuser’ and ’GROUP=
+testgroup’, then programmatically create a user and group using the values from
+the file. Finally, ensure ’/shared/data’ is owned by the group with 770
+permissions.
+I.Prompts
+WeprovidetheexactpromptstringsandmessagetemplatesusedbyourMEMRLimplementationacrossallbenchmarks. To
+minimizeambiguity,weseparatepromptsusedtosummarizeexperiencesintomemoriesfrompromptsusedattasktimefor
+generation/inference.
+I.1.ExperienceSummarizationPrompts
+HLE:ExperienceSummarizationPrompts
+Trajectoryserialization(storedastheepisodetrajectory).
+QUESTION
+{question}
+SOLUTION
+{model_output_stripped}
+High-levelscriptgenerationprompt.
+31
+
+--- Page 32 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Analyze the following detailed task trajectory and create a concise,
+high-level script that captures the essential steps and decision points.
+The script should be:
+1. Generic enough to apply to similar tasks
+2. Specific enough to provide useful guidance
+3. 3-5 high-level steps maximum
+4. Focus on the strategy and key decisions, not detailed actions
+Trajectory:
+{trajectory}
+High-level script:
+Failurereflectionprompt.
+Task: {task_description}
+Failed trajectory:
+{failed_trajectory}
+This task failed. Analyze what went wrong and suggest improvements for future
+similar tasks.
+Focus on:
+1. Incorrect assumptions
+2. Steps to improve
+3. What to avoid next time
+Provide a brief reflection:
+Storedmemorycontenttemplates.
+# Successful memory
+Task: {task_description}
+SCRIPT:
+{script}
+TRAJECTORY:
+{trajectory}
+# Failure memory
+TASK REFLECTION:
+Task: {task_description}
+What went wrong:
+{reflection}
+Failed approach:
+{failed_trajectory}
+32
+
+--- Page 33 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+ALFWorld: ExperienceSummarizationPrompts
+Trajectoryserialization(storedastheepisodetrajectory).
+The full ALFWorld dialogue history is stored as the trajectory:
+List[{"role": ..., "content": ...}, ...]
+When interpolated into the summarization prompts, it is treated as a string
+representation.
+High-levelscriptgenerationprompt.
+Analyze the following detailed task trajectory and create a concise,
+high-level script that captures the essential steps and decision points.
+The script should be:
+1. Generic enough to apply to similar tasks
+2. Specific enough to provide useful guidance
+3. 3-5 high-level steps maximum
+4. Focus on the strategy and key decisions, not detailed actions
+Trajectory:
+{trajectory}
+High-level script:
+Failurereflectionprompt.
+Task: {task_description}
+Failed trajectory:
+{failed_trajectory}
+This task failed. Analyze what went wrong and suggest improvements for future
+similar tasks.
+Focus on:
+1. Incorrect assumptions
+2. Steps to improve
+3. What to avoid next time
+Provide a brief reflection:
+Storedmemorycontenttemplates.
+33
+
+--- Page 34 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+# Successful memory
+Task: {task_description}
+SCRIPT:
+{script}
+TRAJECTORY:
+{trajectory}
+# Failure memory
+TASK REFLECTION:
+Task: {task_description}
+What went wrong:
+{reflection}
+Failed approach:
+{failed_trajectory}
+BCB(BigCodeBench): ExperienceSummarizationPrompts
+Trajectoryserialization(storedastheepisodetrajectory).
+[BCB] epoch={epoch} phase={phase} task_id={task_id}
+[PROMPT]
+{bcb_task_prompt}
+[GENERATED CODE]
+‘‘‘python
+{model_code}
+‘‘‘
+[EVAL]
+{"status": "...", "error": "..."}
+High-levelscriptgenerationprompt.
+Analyze the following detailed task trajectory and create a concise,
+high-level script that captures the essential steps and decision points.
+The script should be:
+1. Generic enough to apply to similar tasks
+2. Specific enough to provide useful guidance
+3. 3-5 high-level steps maximum
+4. Focus on the strategy and key decisions, not detailed actions
+Trajectory:
+{trajectory}
+High-level script:
+Failurereflectionprompt.
+34
+
+--- Page 35 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Task: {task_description}
+Failed trajectory:
+{failed_trajectory}
+This task failed. Analyze what went wrong and suggest improvements for future
+similar tasks.
+Focus on:
+1. Incorrect assumptions
+2. Steps to improve
+3. What to avoid next time
+Provide a brief reflection:
+Storedmemorycontenttemplates.
+# Successful memory
+Task: {task_description}
+SCRIPT:
+{script}
+TRAJECTORY:
+{trajectory}
+# Failure memory
+TASK REFLECTION:
+Task: {task_description}
+What went wrong:
+{reflection}
+Failed approach:
+{failed_trajectory}
+LLB(LifelongAgentBench): ExperienceSummarizationPrompts
+Trajectoryserialization(storedastheepisodetrajectory).
+{role_1}: {content_1}
+{role_2}: {content_2}
+...
+High-levelscriptgenerationprompt.
+35
+
+--- Page 36 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Analyze the following detailed task trajectory and create a concise,
+high-level script that captures the essential steps and decision points.
+The script should be:
+1. Generic enough to apply to similar tasks
+2. Specific enough to provide useful guidance
+3. 3-5 high-level steps maximum
+4. Focus on the strategy and key decisions, not detailed actions
+Trajectory:
+{trajectory}
+High-level script:
+Failurereflectionprompt.
+Task: {task_description}
+Failed trajectory:
+{failed_trajectory}
+This task failed. Analyze what went wrong and suggest improvements for future
+similar tasks.
+Focus on:
+1. Incorrect assumptions
+2. Steps to improve
+3. What to avoid next time
+Provide a brief reflection:
+Storedmemorycontenttemplates.
+# Successful memory
+Task: {task_description}
+SCRIPT:
+{script}
+TRAJECTORY:
+{trajectory}
+# Failure memory
+TASK REFLECTION:
+Task: {task_description}
+What went wrong:
+{reflection}
+Failed approach:
+{failed_trajectory}
+36
+
+--- Page 37 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+I.2.GenerationandInferencePrompts
+HLE:GenerationandInferencePrompts
+Systemprompt(exact-match).
+Your response should be in the following format:
+Explanation: {your explanation for your final answer}
+Exact Answer: {your succinct, final answer}
+Confidence: {your confidence score between 0% and 100% for your answer}
+Systemprompt(multiple-choice).
+Your response should be in the following format:
+Explanation: {your explanation for your answer choice}
+Answer: {your chosen answer}
+Confidence: {your confidence score between 0% and 100% for your answer}
+Retrievedmemoryinjection(systemmessage).
+=== Successful Memories ===
+{memory_full_content_1}
+{memory_full_content_2}
+=== Failed Memories (for caution) ===
+{memory_full_content_3}
+...
+Optionalrepeat-attemptreflectionnote(systemmessage).
+You attempted this question before.
+Result: {CORRECT|INCORRECT}
+Question: {question}
+Previous attempt (solution only):
+{solution_only}
+Reflect on mistakes or gaps, then solve the problem again with a better solution.
+Usermessagetextblock(whenimagesexist).
+Now solve the following question:
+[Image IDs: {question_image_ids}]
+{question}
+Attached images:
+1. [{img_id_1}] ({source_1})
+2. [{img_id_2}] ({source_2})
+...
+Messageordering.
+37
+
+--- Page 38 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+1) system: exact-match OR multiple-choice format prompt
+2) system: optional reflection note (if enabled)
+3) system: optional retrieved memory context
+4) user: question content (text + optional images)
+ALFWorld: GenerationandInferencePrompts
+Basesystemprompt(ReActformat+actionspace).
+Interact with a household to solve a task. Imagine you are an intelligent agent in
+a household environment and your target is to perform actions to complete the
+task goal. At the beginning of your interactions, you will be given the
+detailed description of the current environment and your goal to accomplish.
+For each of your turn, you will be given the observation of the last turn. You
+should first think about the current condition and plan for your future actions,
+and then output your action in this turn. Your output must strictly follow
+this format:"Thought: your thoughts.\nAction: your next action".
+The available actions are:
+1. go to {recep}
+2. take {obj} from {recep}
+3. move {obj} to {recep}
+4. open {recep}
+5. close {recep}
+6. use {obj}
+7. clean {obj} with {recep}
+8. heat {obj} with {recep}
+9. cool {obj} with {recep}
+where {obj} and {recep} correspond to objects and receptacles.
+After your each turn, the environment will give you immediate feedback based on
+which you plan your next few steps. if the envrionment output "Nothing happened
+", that means the previous action is invalid and you should try more options.
+Your response should use the following format:
+Thought: <your thoughts>
+Action: <your next action>
+Retrievedmemoryinjection(systemmessage).
+In addition to the example, you have the following memories from your own past
+experiences. Use them to help you if they are relevant:
+--- SUCCESSFUL MEMORIES (Examples to follow) ---
+{formatted_success_memories_joined}
+--- FAILED MEMORIES (Examples to avoid or learn from) ---
+{formatted_failed_memories_joined}
+Currenttaskprompt(usermessage).
+38
+
+--- Page 39 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+Now, it’s your turn to solve a new task.
+{task_description}
+Per-stepobservationprompt(usermessage).
+Observation: {observation}
+Messageordering(highlevel).
+1) system: base ALFWorld system prompt
+2) user/assistant: selected few-shot example dialogue (sequence of messages)
+3) system: optional retrieved memory context
+4) user: new task prompt
+5) loop: append user Observation: ..., model replies with Thought/Action
+BCB(BigCodeBench): GenerationandInferencePrompts
+Retrievedmemoryinjection(systemmessage).
+[Retrieved Memory Context]
+### Memory 1 (id={mem_id_1}, sim={similarity_1})
+{memory_content_1}
+### Memory 2 (id={mem_id_2}, sim={similarity_2})
+{memory_content_2}
+...
+Dataset-providedtaskpromptselection(usermessage).
+if split == "instruct":
+return task["instruct_prompt"]
+if split == "complete":
+return task["complete_prompt"]
+Messageordering.
+1) system: optional [Retrieved Memory Context] ...
+2) user: {bcb_task_prompt}
+LLB(LifelongAgentBench): GenerationandInferencePrompts
+Basesystemprompt.
+39
+
+--- Page 40 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+You are an execution-focused AI agent solving database and operating-system tasks.
+You may receive a [Retrieved Memory Context] block with past experiences from
+similar problems.
+These are **references for learning**, not guaranteed solutions:
+- [MEMORY TYPE] SUCCESS_PROCEDURE: A successful approach from a similar task learn
+the pattern.
+- [MEMORY TYPE] FAILURE_REFLECTION: A failed attempt with lessons avoid similar
+mistakes.
+Use the memories as inspiration, but always analyze your current task independently
+and
+adapt your approach based on its specific requirements.
+Strictoutputconstraint(DBtasks).
+STRICT OUTPUT FORMAT (LLB:DB, do not violate):
+1) After your reasoning, include exactly ONE action line:
+- Action: Operation
+- Action: Answer
+2) If Action: Operation, put exactly ONE SQL statement in the FIRST fenced code
+block using ‘‘‘sql, on a single line. Do not add any extra text after that
+block.
+3) If Action: Answer, include ‘Final Answer: ...‘ on the next line and do not add
+extra text after that.
+Strictoutputconstraint(OStasks).
+STRICT OUTPUT FORMAT (LLB:OS, do not violate):
+1) After your reasoning, include exactly ONE action line:
+- Act: bash
+- Act: finish
+2) If Act: bash, the next lines MUST be a ‘‘‘bash fenced code block with your Bash
+commands. Do not include any other code blocks.
+3) If Act: finish, it must be the last line (no code blocks, no extra text).
+4) Do NOT use ‘Action:‘ in OS tasks (use ‘Act:‘ only).
+Retrievedmemoryinjectionblock.
+[Retrieved Memory Context]
+=== SUCCESSFUL EXPERIENCES (Learn from these) ===
+[SUCCESS 1] [TYPE: {mem_type}]
+{content}
+=== FAILED EXPERIENCES (Avoid these mistakes) ===
+[FAILURE 1] [TYPE: {mem_type}]
+{content}
+Promptassemblyordering(systemprompt).
+40
+
+--- Page 41 ---
+MemRL:Self-EvolvingAgentsviaRuntimeReinforcementLearningonEpisodicMemory
+1) base system prompt
+2) optional [Retrieved Memory Context] ...
+3) strict output format block appended at the end (task-aligned)
+41

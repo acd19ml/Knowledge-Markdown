@@ -6,7 +6,7 @@
 - **Venue**: ICML 2026 | arXiv:2602.17003
 - **Links**: [PDF](../source_todo/Persona2Web.pdf) | Code: placeholder mentioned in PDF | Project: not listed in PDF
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-06
-- **Priority**: P1 | **Reading progress**: Pass 1
+- **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
 Persona2Web 提出首个 real open web 上的 personalized web agent benchmark，通过 clarify-to-personalize 查询、用户历史和 reasoning-aware rubric 评估个性化能力，并揭示现有 agent 在没有用户历史时对模糊查询的成功率会直接掉到 0%（Abstract / Section 5.3, p.1, p.7）。

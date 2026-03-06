@@ -1,0 +1,1072 @@
+--- Page 1 ---
+IntentCUA: Learning Intent-level Representations for Skill
+Abstraction and Multi-Agent Planning in Computer-Use Agents
+SeoyoungLee∗ SeobinYoon∗ SeongbeenLee†
+SookmyungWomen’sUniversity SookmyungWomen’sUniversity SookmyungWomen’sUniversity
+Seoul,RepublicofKorea Seoul,RepublicofKorea Seoul,RepublicofKorea
+leesy3891@gmail.com binsong2@sookmyung.ac.kr seongbeen@sookmyung.ac.kr
+YoojungChun DayoungPark DoyeonKim
+SookmyungWomen’sUniversity SookmyungWomen’sUniversity SookmyungWomen’sUniversity
+Seoul,RepublicofKorea Seoul,RepublicofKorea Seoul,RepublicofKorea
+yj.chun@sookmyung.ac.kr pdysicist@sookmyung.ac.kr ehdus@sookmyung.ac.kr
+JooYongSim†
+SookmyungWomen’sUniversity
+Seoul,RepublicofKorea
+jysim@sookmyung.ac.kr
+ABSTRACT ACMReferenceFormat:
+Computer-useagentsoperateoverlonghorizonsundernoisyper- SeoyoungLee,SeobinYoon,SeongbeenLee,YoojungChun,DayoungPark,
+DoyeonKim,andJooYongSim.2026.IntentCUA:LearningIntent-levelRep-
+ception,multi-windowcontexts,evolvingenvironmentstates.Ex-
+resentationsforSkillAbstractionandMulti-AgentPlanninginComputer-
+istingapproaches,fromRL-basedplannerstotrajectoryretrieval,
+UseAgents.InProc.ofthe25thInternationalConferenceonAutonomous
+oftendriftfromuserintentandrepeatedlysolveroutinesubprob-
+AgentsandMultiagentSystems(AAMAS2026),Paphos,Cyprus,May25–29,
+lems,leadingtoerroraccumulationandinefficiency.
+2026,IFAAMAS,12pages.https://doi.org/10.65109/BRAG3288
+WepresentIntentCUA,amulti-agentcomputer-useframework
+designedtostabilizelong-horizonexecutionthroughintent-aligned 1 INTRODUCTION
+planmemory.APlanner,Plan-Optimizer,andCriticcoordinateover
+Rule-basedmacrosandRPAsystemsenabledearlyformsofcomputer-
+sharedmemorythatabstractsrawinteractiontracesintomulti-
+use automation. However, they lack adaptability [11, 33] when
+viewintentrepresentationsandreusableskills.Atruntime,intent
+comparedtorecentGUIagentspoweredbylargelanguagemodels
+prototypesretrievesubgroup-alignedskillsandinjecttheminto
+(LLMs)thatcaninterpretscreensandgenerateactionsdynamically.
+partialplans,reducingredundantre-planningandmitigatingerror
+ResearchonGUIagentshasrapidlyexpanded,spanningweb,
+propagationacrossdesktopapplications.
+mobile,andincreasinglydesktopenvironments[26,40].Ashigh-
+Inend-to-endevaluations,IntentCUAachieveda74.83%task
+lighted by Tang et al. [32], automation across all desktop envi-
+successratewithaStepEfficiencyRatioof0.91,outperformingRL-
+ronmentsremainsparticularlychallengingduetomulti-window
+basedandtrajectory-centricbaselines.Ablationsshowthatmulti-
+operations,OS-levelshortcutsandAPIs,andtheneedtoadaptto
+viewintentabstractionandsharedplanmemoryjointlyimprove
+frequentupdatesandcomplexsoftwareecosystems.Withinsuch
+executionstability,withthecooperativemulti-agentloopproviding
+environments,achievingrobustlong-horizonplanningandman-
+thelargestgainsonlong-horizontasks.Theseresultshighlightthat
+agingmulti-contextworkflowsemergeascentralchallengesthat
+system-levelintentabstractionandmemory-groundedcoordina-
+currentsystemshaveyettoovercome.
+tionarekeytoreliableandefficientdesktopautomationinlarge,
+Recentmulti-modalagentsattempttoaddressthesechallenges
+dynamicenvironments.
+byperceivingscreensandgeneratingactionswithlargemodels[1,
+38]. However, robust long-horizon automation across heteroge-
+KEYWORDS
+neousdesktopapplicationsremainsunresolved[25,32].Weidentify
+Computer-useagents,Long-horizonautomation,Noisyperception, tworecurringfailuremodes:(i)plansspanningmultiplesubsteps
+Multi-windowcontext,MultiAgentPlanning oftendriftfromtheoriginalintentandredundantlyre-solvealready
+completedroutines[23,24],(ii)localperceptionerrorsaccumulate
+∗Bothauthorscontributedequallytothisresearch. andleadtocascadingretries[8,15,19,44].Thesefactorscollec-
+†Correspondingauthor.
+tivelyhinderrobustlong-horizonplanning,asagentsfrequently
+fallintoinefficientandrepetitivere-planningcycles.Actionsare
+ThisworkislicensedunderaCreativeCommonsAttributionInter-
+oftenretriedornullifiedwhencontextdrifts,leadingtoprolonged
+national4.0License.
+latencyandunstablecompletionrates.
+Proc.ofthe25thInternationalConferenceonAutonomousAgentsandMultiagentSystems To address these limitations, we bridge user interaction and
+(AAMAS2026),C.Amato,L.Dennis,V.Mascardi,J.Thangarajah(eds.),May25–29, multi-agentplanning.Ratherthansimplyreplayingtrajectoriesor
+2026,Paphos,Cyprus.©2026InternationalFoundationforAutonomousAgentsand
+MultiagentSystems(www.ifaamas.org).https://doi.org/10.65109/BRAG3288 storingtextualreflections[28],wetransforminteractiontracesinto
+6202
+beF
+72
+]IA.sc[
+2v94071.2062:viXra
+
+--- Page 2 ---
+Figure1:OverviewofIntentCUA.Offline:rawusertracesaremulti-viewlabeled,embeddedintoasharedintentspace,and
+clusteredintointentgroups(IG)andsubgroups(SG);SGactionpatternsareconvertedintoparameterizedskillschemas(“skill
+hints”)andstoredwiththeirSGintheIG/SGindex,whileplanmemorystoresonlyuser-approvedglobalplans(G).Online:the
+Planner/Plan-Optimizer/Criticqueryandreuseskills;cache-firstreuseandtemplate-basedgapfillingreducere-planningon
+long-horizondesktoptasks.
+labeledunits,inducegeneralizedskillsfromsub-intentclusters, (1) WeproposeIntentCUA,amulti-agentcomputer-useframe-
+andlearnmulti-viewrepresentationsacrossenvironment,action, workthatstabilizeslong-horizonexecutionthroughintent-
+keyword,anddescription. alignedplanmemoryandcoordinatedplanning.
+Theseskillsareorganizedhierarchicallyinaplanmemoryand (2) Weintroduceatrace-to-skillabstractionpipelinethatlearns
+retrieved via semantic search during planning, which supports multi-viewintentrepresentationsandinduceshierarchical,
+cross-applicationtransferandhelpsstabilizelongroll-outs.Atrun- reusableskillsfromrawuserinteractiontraces.
+time,intentprototypesareprojectedintoasharedembeddingspace, (3) We design a planning-time memory mechanism that re-
+wherecentroid-basedretrievalaugmentspartialplanswithrelevant trievessubgroup-alignedskillstoaugmentpartialplans,re-
+skills. ducingintentdriftandredundantre-planningindynamic
+Inend-to-endevaluations,IntentCUAachievesa74.83%tasksuc- desktopenvironments.
+cessratewithaStepEfficiencyRatio(SER)of0.91,outperforming (4) Wedemonstratethroughextensiveablationsandend-to-end
+bothRL-based(UI-TARS-1.5[27])andtrajectory-centric(UFO2[41]) evaluationsthatintentabstractionandmemory-grounded
+baselinesinsuccessrate,efficiency,andlatency.Ablationstudies coordinationsignificantlyimproveexecutionstability,ef-
+confirmthatmulti-viewintentabstractionandsharedplanmem- ficiency(SER0.91),andtasksuccess(74.83%)oncomplex
+oryjointlyimproveexecutionstability,withthecooperativemulti- desktopworkflows.
+agentloopprovidingthelargestgainsonlong-horizontasks.These
+resultsindicatethatsystem-levelintentabstractionandmemory-
+groundedcoordinationarecentraltoreliabledesktopautomation. Insummary,IntentCUAshowsthatintent-levelabstractionand
+Ourcontributionsaresummarizedasfollows: memory-groundedmulti-agentcoordinationarekeytostabilizing
+long-horizondesktopautomationinlarge,dynamicenvironments.
+Thisautomationismadepossiblebyarobustplanningpolicythat
+maintainscoherenceandefficiencyacrossextendedsequences.
+
+--- Page 3 ---
+2 RELATEDWORK
+2.1 DesktopandGUIAutomationAgents
+GUIautomationspansweb,mobile,anddesktopdomains.Web
+agentssuchasWebArenaandWebVoyageroperateunderstruc-
+turedDOMfeedback[7,45],butrealdesktopenvironmentslack
+suchschema-levelconstraintsandrequirecross-applicationcoordi-
+nation.
+DesktopbenchmarkslikeOSWorld[36]tasksaretypicallylong-
+horizon,requiringstableexecution10–20sequentialsteps.This
+makesexecutionlatency-sensitiveanderror-prone.Asstepcount
+increases,localperceptionerrorscompoundandagentsoftenenter
+loopsofrepeatedorfailedactions.
+RecentdesktopagentssuchasUI-TARS[22],UFO[42],ScreenA-
+gent[20]extendvision-languagemodelswithplanner–criticloops.
+However,surveyshighlightapersistentchallenge:determining
+actionsthatalignwithspecificusercontextsandpreferencesin
+dynamic,interruption-proneinterfaces[32].Evenwithimproved
+GUIgrounding[8,10,19],intentdriftandredundantre-planning
+remaincommoninlong-horizonworkflows.
+Thesefindingsindicatethatstablelong-horizonplanning,rather
+thanperceptionalone,remainsthekeybottleneckforreliabledesk-
+topautomation.
+2.2 AgentsLeveragingInteractionTraces
+Figure2:Multi-viewintentrepresentation.Controltracesuse
+Oneapproach toaddressing long-horizoninstabilityisto learn [E,A,D],browsingtraces[E,K,D].Amulti-viewencoderaligns
+directlyfromlarge-scaleinteractiontraces. viewsintoasharedspace,inducingenvironment-centricIG
+Macro-miningandprocess-miningtechniquesclusterdemonstra- andfinerSG.SGcentroidsenableretrieval,andSGactionpat-
+tionsintorecurrentproceduresorlabeledschemas[4,5,9].Large- ternsareconvertedintoparameterizedskillschemas(“skill
+scalecorporasuchasOS-ATLASsupportperceptionpretraining hints”)withverb–argumentstructureforplanning.
+acrossmillionsofGUIelements[35].Offlinereinforcementlearning
+hasalsobeenexploredfordeviceagents[29],whilesystemssuchas
+AppAgentv2[14],AgentBank[31],andUI-TARS-1.5[27]leverage
+hierarchicalfeedbackorlarge-scaletrajectorytuningtoimprove ParallelworkinvestigatesintentrecognitionfromUIlogs[13,
+controlrobustness. 23]andrepresentationlearningofscreens(e.g.,Screen2Vec[12],
+Theseworksdemonstratethatinteractiontracesimprovepolicy Aria-UI [37]), while GUI grounding methods reduce perceptual
+generalizationandlow-levelstability.However,mostapproaches ambiguity[15,19].Morerecentsystemsexploreadaptiveplanning
+operate at the trajectory or action level, emphasizing replay or anddependencymodelingfromdemonstrations[39,43].
+large-scaletuningratherthanstructuredintentabstraction.Asa Despitetheseadvances,structuredandhierarchicalskillabstrac-
+result,redundancyanderroraccumulationoftenpersistinlong- tionsthatremaintransferableacrossheterogeneousdesktopwork-
+horizonexecution[24],andrelianceoncontrolledenvironmentsor flowsarestillrelativelyunderexplored.Asaresult,maintaining
+explicitrewardsignalslimitsapplicabilitytoopen-endeddesktop stablelong-horizonexecutionunderdynamicusercontextscontin-
+workflows[26]. uestobeanactiveareaofresearch.Ourapproachcomplements
+thesedirectionsbylearningmulti-viewintentrepresentationsthat
+integrateenvironment,action,anddescriptionsignals.Skillsare
+2.3 PlanMemory,IntentIdentification,and storedashierarchicalintentprototypesinplanmemoryandre-
+SkillAbstraction trievedtoaugmentpartialplans,supportingstablelong-horizon
+Acomplementarydirectionenhancesrobustnessthroughmemory execution[6,30].
+retrievalandskillabstraction.
+Memory-basedmethodssuchasReflexion[28],Conversational 3 INTENT-LEVELREPRESENTATION
+Memory[34],andContextualExperienceReplay[18]retrieveprior
+LEARNING&SKILLABSTRACTION
+trajectories,manuals,orreflectionstoguidefuturedecisions[2].
+Skill-levelpromptingapproachessuchasSkillAct[17]showthat 3.1 Intent-levelRepresentationLearning
+abstractedroutinescanimproveinteractiveperformance,while Inthissection,wedescribehowrawusertracesaretransformed
+UFO2[41]managesapp-specificdemonstrationsasreusablerefer- intounifiedintent-levelrepresentationsthatcanbeclusteredand
+ences. laterabstractedintoreusableskills.
+
+--- Page 4 ---
+AsshowninFigure2,eachusertraceisfirstlabeledacrossfour Wethenorganize{𝑢 𝑖}hierarchicallyby𝑧
+𝑖
+:firstintohigher-level
+views:environment(𝐸withinstances𝑒 ),action(𝐴withinstances intentgroups(𝐼𝐺)drivenbyenvironmentcontext,andtheninto
+𝑖
+𝑎 ), keyword (𝐾 with instances𝑘 ), and description (𝐷 with in- subgroups(𝑆𝐺)basedonaction/keywordanddescription.These
+𝑖 𝑖
+stances𝑑 ),where𝑖indexesthesequentialintentunitsthattogether 𝑆𝐺representationsprovidethefoundationforextractingrecurrent
+𝑖
+composeauser’sinteractiontrace.Eachview𝑣 ∈{𝐸,𝐴,𝐾,𝐷}isrep- action patterns and constructing abstract skills, as described in
+resentedasanembeddedtextualvector,capturingitssemanticcon- Section3.2.DetailsoftheencoderareinAppendixA.
+tent.Controltracesproduceintentunits,𝑢
+𝑖
+,oftheform[𝑒
+𝑖
+,𝑎
+𝑖
+,𝑑 𝑖],
+whilebrowsingtracesyield[𝑒
+𝑖
+,𝑘
+𝑖
+,𝑑 𝑖].Formally,let𝑥
+𝑖
+(𝑣) denotethe
+3.2 SkillabstractionbasedonIntentSubgroups
+featurerepresentationofintentunit𝑢
+𝑖
+inview𝑣 ∈{𝐸,𝐴,𝐾,𝐷}.A
+Giventheper-unitembeddings𝑧(𝑢) fromSection3.1,weorganize
+multi-viewencoder𝜙(𝑥(𝑣))mapstheseview-specificfeaturesinto
+intents into a two-level index for planning. First, we run HDB-
+asinglesharedrepresentation𝑧 :
+𝑖 SCAN [3] over {𝑧(𝑢)} to obtain higher-level intent groups (𝐼𝐺)
+𝑧
+𝑖
+=𝜙 (cid:16) (𝑥
+𝑖
+(𝑣))𝑣∈𝑉 (cid:17) ∈R𝑑, 𝑉 ⊆{𝐸,𝐴,𝐾,𝐷}. (1) drivenprimarilybyenvironment/context.Withineach𝐼𝐺,asec-
+ondHDBSCANpartitionsunitsintofinersubgroups (𝑆𝐺)using
+Buildingonpriormulti-viewclusteringobjectives[16],wetrain action/keywordanddescriptionsignals.Forevery𝑆𝐺,wecompute
+themodeltoensurethatrepresentationsfromheterogeneousviews andstoreitscentroid𝑐 inthesameembeddingspace.Atretrieval
+𝑆𝐺
+are(i)contradistinctivelyaligned,(ii)cross-viewpredictive,and time,weranksubgroupsbythecosinesimilaritybetween𝑐 and
+𝑆𝐺
+(iii)reconstructible.Theoveralllossisdefinedastheweightedsum aqueryintentprototype.Retrievalindex:foreach𝑆𝐺 westore(i)
+ofthesethreecomponents,asshowninEquation2: thecentroid𝑐
+𝑆𝐺
+(forcosine-basedranking);(ii)top-𝑘representative
+L=Lcon+𝜆 predLpred+𝜆 recLrec (2) tracespreselectedbyproximityto𝑐 𝑆𝐺 andrerankedatquerytime
+bysimilaritytotheintentprototype;and(iii)asupportcountfor
+whereLcon ,Lpred ,Lrec arecross-viewcontrastiveloss,dualpre-
+𝑆𝐺(definedbelow)usedtopreferstablepatternsduringplanning.
+dictionloss,andwithin-viewreconstructionloss,respectively.
+Adetailedablationontherepresentationlossand𝐼𝐺/𝑆𝐺 Gating
+Lcon ,enforcesconsistencybetweenembeddingsfromdifferent
+arereportedinAppendixC.
+viewsofthesameintentunitwhileseparatingembeddingsfrom
+Wethenconsolidatethelow-levelactiontracesinsideeach𝑆𝐺
+differentinstances:
+intoareusableskill.Eachintentunit𝑢 inasubgroupislinked
+Lcon=
+|𝑃(
+1
+𝑉)| (𝑝,𝑞
+∑︁
+)∈𝑃(𝑉)
+(cid:34) −
+𝑁
+1 ∑︁
+𝑖
+𝑁
+=1
+log
+(cid:205) 𝑗
+e
+≠
+x
+𝑖
+p
+e
+(cid:16)
+x
+⟨
+p
+𝑧
+(cid:16)
+𝑖 (
+⟨
+𝑝
+𝑧
+)
+𝑖 (
+,
+𝑝
+𝑧
+)
+𝑖
+,
+(𝑞
+𝑧
+)
+𝑗 (
+⟩
+𝑞
+/
+)
+𝜏
+⟩
+(cid:17)
+/𝜏 (cid:17)
+(cid:35) (3) t
+t p r
+o
+r a e
+a
+c d e i
+l
+c s
+o
+a c
+w
+t o e
+-
+m ,
+le
+ty p
+v
+p a
+e
+r e
+l
+a d
+a
+b
+c
+a l
+t
+e r
+i
+g ,
+o
+w u
+n
+m e
+s
+e
+e
+m n
+q
+a t
+u
+p fi
+en
+e e l
+c
+v d
+e
+e s
+:
+r ] y
+𝑀
+b a y
+𝑖
+to a
+=
+p m p
+(
+i
+𝑎
+l
+𝑖
+c y
+1
+a i
+,
+n c
+𝑎
+g t
+2
+i
+,
+o a
+.
+n n
+..
+𝑎 a
+,
+𝑡
+𝑎
+li
+𝑚
+t a o s
+)𝑖
+a m
+..
+p a
+T
+a p
+o
+ir Φ
+m
+[v t
+a
+h e
+k
+r a b
+e
+t
+where,𝑃(𝑉)denotesthesetofallorderedpositiveviewpairs collapsessurfacevariantstoafixedpredicateandafixedsetof
+(𝑝,𝑞)withintheselectedviewset𝑉.Thetemperatureparameter𝜏 typed fields. For example, "focus URL bar" and "open web site"
+controlsthesharpnessofthecontrastivedistribution,whereas𝑁 →verb=press,arg=address_bar,verb=text_input,arg=address_bar,
+denotesthenumberofintentunitssampledinaminibatch. text:"https://example.com".Here,averbsignatureistheordered
+Lpred introducestwoprojectionheads𝐺 𝑝→𝑞 and𝐺 𝑞→𝑝 thatlearn listofcanonicalpredicatesinatrace,andantypedargumentfield
+topredicttheembeddingofoneviewfromanother.Theiraver- isaplaceholder(e.g.,<url>,<query>,<file_path>)thatwillbe
+agedmapping𝐺 =(𝐺 𝑝→𝑞+𝐺 𝑞→𝑝)/2actsasasymmetricpredictor boundatruntime.
+encouragingcross-viewconsistency—ensuringthatoneviewcan Wecollectcandidatessg
+skills,𝑘
+={𝑀
+𝑖
+|𝑢
+𝑖
+∈𝑆𝐺 𝑘}andinducea
+reconstructanotherwithinthelatentspace.Thescalarcoefficient skillprototypeasthemedoidunderasignature-leveldissimilarity
+𝜆 pred balancesthistermwiththeothersinEquation2. 𝑑sigoververb-predicatesequences.Thefunction𝑑 sig iscomputed
+onthecanonicalizedverb-predicatesequences(afterapplyingΦ),
+Lpred= |𝑃( 1 𝑉)| ∑︁ 2 1 𝑁 ∑︁ 𝑁 (cid:104) ∥𝐺 𝑝→𝑞(𝑧 𝑖 (𝑝))−𝑧 𝑖 (𝑞)∥2 2 c li o te m ra p l a - r a i r n g g um ac e t n io t n h p a a n t d t l e i r n n g s t a o t t t h h e ep p r a e r d am ica e t t e er l i e z v a e ti l o w n h s i t l a e g d e e . f L er e r t in A g
+(𝑝,𝑞)∈𝑃(𝑉) 𝑖=1 denotetheverb-predicatealphabet.Thusthesubgroup’sskillpro-
++∥𝐺 𝑞→𝑝(𝑧
+𝑖
+(𝑝))−𝑧
+𝑖
+(𝑞)∥2
+2
+(cid:105) (4) totypeisdefinedas:
+spe
+F
+c
+i
+i
+n
+fi
+a
+c
+lly
+s
+,
+e
+L
+m
+r
+a
+e
+n
+c
+t
+e
+i
+n
+cs
+su
+b
+r
+y
+es
+r
+t
+e
+h
+c
+a
+o
+t
+n
+t
+s
+h
+t
+e
+ru
+s
+c
+h
+t
+a
+i
+r
+n
+e
+g
+d
+e
+e
+a
+m
+c
+b
+h
+ed
+o
+d
+ri
+i
+g
+n
+i
+g
+n
+𝑧
+a
+𝑖
+l
+r
+f
+e
+e
+t
+a
+a
+t
+i
+u
+n
+r
+s
+e
+v
+𝑥
+ie
+𝑣 (
+w
+𝑢)
+- S𝑆𝐺 =arg
+𝑎
+m
+∈
+i
+𝐴
+n
+∗ 𝑠∈𝑠
+∑︁
+𝑔𝑠𝑘𝑖𝑙𝑙𝑠
+d sig(𝑎,𝑠) (6)
+throughadecoder𝑔 𝑣(·).Theweight𝜆
+rec
+determinestherelative
+strengthofthisreconstructionconstraintwithinthetotallossin
+NextweconvertS𝑆𝐺 intoareusable,parameterizedschema,skill
+Equation2.
+hint:averb-predicatesequencetogetherwithatypedargument
+Lrec=
+|𝑉
+1
+|𝑁
+∑︁∑︁ 𝑁 ∥𝑔 𝑣(𝑧
+𝑖
+(𝑣))−𝑥
+𝑖
+(𝑣)∥2
+2
+(5) s p t a r r u a c m tu e r t e e . rs Th (t i h s e co ru n n v t e i r m si e o - n fil ( l i e ) d re fi p e l l a d c s e ), s ( l i i i t ) e r r e a m l v o a v l e u s es in w ci i d t e h n t t y a p l e o d r
+𝑣∈𝑉 𝑖=1 recovery-specificstepsthatdonotaffectgoalattainment,and(iii)
+Together,thesethreeobjectivesjointlyalign,predict,andrecon- enforcescanonicalpredicateandfieldnamesviaΦ.Werefertothis
+structheterogeneousviews,yieldingacoherentembeddingspace parameterizedschemaasaskillhint.Boththeskillhints{S𝑆𝐺}and
+whereintent-levelsemanticsarepreserved.Theresultingrepresen- therepresentativetracesarestoredinplanmemoryandretrieved
+tation𝑧 compactlycapturesuserintentacrossmultiplemodalities. atplanningtime.
+𝑖
+
+--- Page 5 ---
+If multiple predicate sequences are well supported, we keep Planmemorystorespreviouslysynthesizedglobalplans𝐺 that
+severalschemasrankedbytheirsupport,wheresupportcountssub- receivedbinaryuserapproval.Plansnotapprovedarediscarded.
+groupmemberswhosesimilaritytoS𝑆𝐺 exceedsafixedthreshold Foreachplan-unitslotintheintentprototype,itselectsthenearest
+𝜏.Representativetracesarethetop-𝑘membersminimizing𝑑sigto 𝑆𝐺, retrieves the top-2 intent units (𝑢
+𝑖
+) from that𝑆𝐺, and uses
+S𝑆𝐺 andserveasconcreteexemplars.Atplanningtime,whena the GPT-4o model [21] to generate the slot’s steps conditioned
+retrievedplanisonlyapartialmatch,weperformgapfilling:we ontheretrieved𝑀
+𝑖
+sequences.Aplanunitisacontiguousblock
+instantiatetheselectedskillhintS𝑆𝐺 withcurrent-contextbind- oflow-levelstepsintheglobalplan𝐺 thatachievesonesubgoal.
+ingsandinserttheresultingstepstocompletethemissingplan Aplan-unitslot istheplaceholderforsuchablockintheintent
+units/steps(Section4.1). prototypethatthePlannermustpopulatewithexecutablesteps.
+Concatenatingallslotsyieldsahigh-levelplan𝐺 ={𝑔
+1
+,...,𝑔 𝑛},
+4 INTENT-AWAREPLANNING&FEEDBACK whereeach𝑔 𝑗 expandstoacontiguous,execution-orderedlistof
+low-levelactions.Aftertheuserreviewsthegeneratedplanand
+MEMORY
+providesoptionalfeedback,weincorporatetheeditsandthenstore
+Buildingontheintent-levelDBintroducedinSection3,wenow
+𝐺 inplanmemoryforfuturereuse.Concretely,𝐺 ismaterialized
+focusonhowtheseabstractionsareleveragedduringplanningand
+asplanunits—intent-prototype–levelchunksofthe𝐺derivedfrom
+execution.Thissectiondetailstheend-to-endworkflowinwhich
+theinitialusercommand:Plan Unit 1: [step_1, step_2, ...]
+the Planner, Plan-Optimizer, and Critic cooperate through plan
+Plan Unit 2: [step_𝑘, ..., step_ℓ] ...
+memorytocompose,refine,andverifylong-horizonautomation.
+Whenahigh-similarityplanisfoundinactive𝐼𝐺(Figure3,Case
+ThePlanning-Automationpartinfigure1representstheoverall
+2),thestored𝐺 isretrievedanditsslotsareboundtothecurrent
+automationprocessaftertheuserrequest.
+context;becausenogapsremain,theplannerskipsthesynthesis
+andexecutestheplanas-is.
+4.1 PlanningwithPlanMemoryandSkillHints
+Whenonlyapartialmatchisfound(Figure3,Case3),theclosest
+ThissectionexplainshowthePlanneragentcomposesahigh-level storedplan𝐺 isalignedwiththeintentprototype.Insertmissing
+plan𝐺 foragivencommand;Figure3summarizesthreepathways: planunitsorstepsbyinjectingthematchedsubgroup’s𝑆 with
+𝑆𝐺
+cachemisssynthesis(Case1),directreuseonexacthit(Case2),and current-context bindings (gap filling), after which the finalized
+reuse-with-injectiononpartialhit(Case3).Atahighlevel,Planner 𝐺 isexecuted.Thiscache-firstpipelinereducesre-planningand
+consults𝐼𝐺/𝑆𝐺 centroids in the shared embedding space, plan- stabilizeslong-horizonexecutionbycombiningcentroidgating,
+memoryentries,and𝑀(𝑢)sequences;missingspansarecompleted planreuse,andhint-basedgapfilling.
+withnormalized𝑆 templates.
+𝑆𝐺
+Whennosuitableplanexistsinplanmemory(Figure3,Case1),
+the Planner embeds the command into the shared space, gates 4.2 Optimizingstepsbymemory&feedback
+bytheactive𝐼𝐺,andrankscandidate𝑆𝐺 bycentroidsimilarity. loop
+Givenafinalizedplan𝐺,executionshiftsintoacooperativeloop
+betweenthePlan-OptimizerandtheCriticAgent,utilizingthePlan
+Memory.ThePlan-Optimizerrefineseachplanunitbyreferenc-
+ingsimilartracesstoredinthememory,dynamicallyadaptingits
+substepstocurrentscreencontexts.TheCritic,inturn,monitors
+theexecutionandprovidesimmediatefeedbacksignals—success,
+retryable,orblocked—tocorrectlocaldeviationsortriggerpartial
+replanningwhennecessary.
+Foreachplanunit𝑝𝑢,wecomputeitsrepresentation𝑧(𝑝𝑢) ∈R𝑑
+(Section3.1)andcompareitwithsubgroupcentroids{𝑐 𝑆𝐺}from
+planmemory(Section3.2).Ifasubgroupisrelevant,itstracesare
+injectedashintsintothePlan-Optimizertoguidestepexecution.
+Aftereachunit,theCriticevaluatesthepost-executionstateand
+returns𝑞 ∈ {success,retryable,blocked} with an observation𝑜.
+If q is retryable, the Plan-Optimizer is re-invoked on the latest
+state𝑠afterwithobservationobservationofthecurrentGUIcontext
+(𝑜)toproduceanadjustedsubplan𝑔′ ,whichupdates𝐺 before
+new
+re-execution.
+AsshowninAlgorithm1,thePlannerhandsovertheplanunits
+Figure3:Cache-firstplanningwithplanmemory.Aquery tothePlan-Optimizer,whichintegrateshintsfrompriortracesto
+intentisgatedbyIGandrankedoverSG.Case1(miss):syn- refinestepexecution.TheCriticthendecideswhethertoproceed,
+thesizeaplanfromretrievedskilltemplates.Case2(hit): requestanadjustment,orterminate.Throughthismemory-guided
+reusethestoredplan.Case3(partial):aligntothenearest collaboration, specialized agents coordinate to minimize redun-
+planandfillgapswithSG-derivedskillhints,reducingre- dantre-planningandimproverobustnessbyreusingtracesthat
+tries. previouslyledtosuccess.
+
+--- Page 6 ---
+Table1:Component-wiseablationonplanning.Wereport (70sessions).Tasksspanlocalapplications,webplatforms,produc-
+tasksuccess(%)andaveragedplancompletion(%). tivitytools,andcross-applicationworkflows.
+Fortaskmining,wecollect30activehoursofinteractiontraces
+Method Success(%)↑ Completion(%)↑ across18sessions,yielding113tracefiles.Theminedcorpusisinten-
+tionallydistribution-shiftedfromthetestsuite:tracesskewtoward
+𝐵 22.73 33.78
+Local/App,whiletheevaluationsetcontainsmoreWeb/Crossover
+𝐵+𝑇
+𝑔
+46.43 57.41
+tasks. The traces cover 36 domains, whereas the 286-task suite
+𝐵+𝑇
+𝑆𝐺
++𝑍 54.64 77.56
+spans 63 domains; only 22 overlap (34.92%), leaving 41 unseen
+𝐵+𝑇
+𝑆𝐺
++𝑆
+𝑆𝐺
++𝑃𝑀 53.85 81.23
+testdomains(65.07%).Thissetupstressesgeneralizationofmining
+𝐵+𝑇
+𝑆𝐺
++𝑍 +𝑃𝑀 62.51 85.00
+andretrievalratherthanmemorization.Domaindistributionsare
+𝐵+𝑇 𝑆𝐺 +𝑍 +𝑆 𝑆𝐺 +𝑃𝑀 74.83 91.14 detailedinAppendixD.
+AllagentsusethesameatomicGUIactioninterfaceandiden-
+Algorithm1ExecutionofthePlanutilizingMemoryandFeedback tical timeout policies. We report task success (74.83%), average
+Loop completionratio(91.14%),StepEfficiencyRatio(successfulsteps/
+actualexecutionsteps;higherisbetter).Differencesarereportedin
+Require: Finalglobalplan𝐺withplanunits𝑃𝑈 ={𝑝𝑢 1 ,...,𝑝𝑢 𝑀},
+percentagepoints(pp).
+whereeach𝑝𝑢isanorderedlistofsteps;subgroupcollection𝑆𝐺
+withcentroids𝑐
+𝑆𝐺
+∈R𝑑(representationspacefromSection3.1);
+5.2 End-to-EndExecutionofAblatedModels
+forevery𝑝𝑢 ∈𝑃𝑈,itsrepresentation𝑧(𝑝𝑢) ∈R𝑑 (precomputed
+viatheencoderinSection3.1);actionspace𝐴. Weablateeachcomponenttoanalyzeitsimpactonlong-horizon
+Ensure: Executionoutcome planningstabilityandexecutiondepth.
+1: foreachplanunit𝑝𝑢in𝑃𝑈 do ForTable1,Completiondenotesaveragedplancompletion(exe-
+2: hint←InjectHint(pu,𝑆𝐺,𝑧(𝑝𝑢)) cutedsteps/synthesizedplansteps),measuringexecutionprogress
+3: foreachstep𝑔in𝑝𝑢do beyondbinarysuccess.
+4: 𝑠 ←GUIGroundingofthecurrentscreen Wedenotecomponentsas:𝐵 (baselineplanner–executor),𝑇 𝑔,
+5: (𝑎,𝑔′,𝑜)←Plan-Optimizer(𝑠,𝑔,𝐺,𝑝𝑢,𝑜,hint) 𝑇 𝑆𝐺 (greedyvs.𝐼𝐺/𝑆𝐺-gatedtraceretrieval),𝑍 (intent-levelrepre-
+6: Executeaction𝑎inthecurrentGUIcontext sentation),𝑆 𝑆𝐺 (subgroupskillhints),𝑃𝑀(planmemoryreuse)
+7: 𝑠after←GUIGroundingofthescreenafterfinishing𝑝𝑢 Startingfrom𝐵(22.73%success),addinggreedytraceretrieval
+8: (𝑞,𝑜)←Critic(𝑝𝑢,𝐺,𝑠after) (𝐵+𝑇 𝑔 ) improves success by +23.7, pp showing that user traces
+9: if𝑞==successthen substantiallyreducecold-starterrorsbutstillinducedriftinlong
+10: continuetonext𝑝𝑢 horizons.Replacinggreedyretrievalwith𝐼𝐺/𝑆𝐺 gating+𝑍 brings
+11: elseif𝑞==retryablethen afurther+8.21,ppsuccessgainand+20.15,ppcompletiongain,
+12: (𝑎,𝑔 n ′ ew ,𝑜)←Plan-Optimizer(𝑠after,𝑔,𝐺,𝑝𝑢,𝑜,hint) showingthatorganizingtracesintorepresentation-learnedintent
+13: Apply𝑔 n ′ ew toadjusttheprior𝑔′ subgroups significantly stabilizes long-horizon execution. Even
+14: else
+without𝑍,combining𝑆
+𝑆𝐺
++𝑃𝑀achievesahightaskcompletion
+15: return(𝐺,BLOCKED) rate(81.23%),indicatingthatskillhintsandplanmemoryalone
+substantiallyimproveexecutiondepth.
+16: return(𝐺,SUCCESS)
+Thefullsystem(𝐵+𝑇 𝑆𝐺+𝑍+𝑆 𝑆𝐺+𝑃𝑀)achievesthebestsuccess
+andcompletionoverall,demonstratingthatrepresentationlearning,
+GUIGroundingreferstotheprocessofenumeratingallaction- intent-levelgating,skillabstraction,andplanreuseactcomplemen-
+ableGUIcomponentsonthecurrentscreen,similartothescreen tarily. Evaluation on step-wise planning consistency of the full
+parsingmethodusedinUFO[42].Theresultingstate𝑠 includes systemisinAppendixE.
+suchcomponentdatatogetherwithsummarymetadata,composed
+ofwindowtitle,panelnamesandcomponentcountscapturedfrom 5.3 CaseStudy
+theenvironment.Eachstep𝑔denotesanindividualoperationinthe
+Toillustratetheframework,weconsiderataskwheretheuser
+globalplan𝐺,composedofanaction𝑎(e.g.,click,textinput,open)
+asksthesystemtosummarizeapreviouslyviewedlightweight-ML
+anditscorrespondingobjecttargets;thus𝑎specifiestheinteraction
+videoandrecordtheresultinapersonalworkspace.Thisrequires
+primitive,whereas𝑔representsthefullexecutabletuple(𝑎,object).
+retrieval,reasoning,andcoordinationacrossmultipleapplications.
+TheInjectHintfunctionsearchestheplanmemoryforprevious
+Figure4showstheexecutionprocess.ThePlannerretrievesrel-
+plan units whose representations 𝑧(𝑝𝑢) are most similar to the
+evanttracesfromplanmemory,includingpriorinteractionswith
+currentone,andusestheirtracesascontextualhintsguidingthe
+thevideoplatform,AIchatbot,andworkspaceapplication,andre-
+nextexecutionsteps.ExampleofPlanner-Plan-Optimizer-Critic
+constructsthevideosourcefromtheuser’shistory.Itdecomposes
+interactionsisinAppendixB.
+therequestintostructuredintent-levelplanunits,eachgrounded
+intoexecutableGUIactionsbythePlan-Optimizer,whiletheCritic
+5 ABLATION&CASESTUDIES
+monitorsprogressandhandleslocalinconsistencies.Throughhier-
+5.1 EvaluationSetup archicalreasoningandmemory-guidedskillretrieval,thesystem
+Weevaluateourdesignon286real-worldGUItasks:100in-house,
+116fromWebVoyager[7](643total),and70fromScreenAgent[20]
+
+--- Page 7 ---
+Figure4:IntentCUAinaction:thesystemrecallsintentunitsfrommemoryanddecomposesamulti-applicationcommand
+intointent-levelplanunits,eachexecutedthroughlearnedskillsandrecomposedintoanend-to-endautomationplan.
+completesthemulti-applicationtaskwhilemaintainingintentco- timepertask,reflectingnotonlythenumberofstepsbutalsothe
+herence. overheadofperceptionandplanning.
+Afailurecaseoccurswhenanunexpectedpop-upappearsduring
+execution.Becauseunderlyingcomponentsbecomeoccluded,the 6.1 RobustLong-HorizonPlanningEfficiency
+groundingmodulefailstodetectthem,leadingtoincorrectretries. Weevaluatehoweachagentsustainstaskcompletionassequence
+Thishighlightsalimitationofscript-basedGUIgroundingunder lengthincreases,focusingontherobustnessoflong-horizonplan-
+transientinterfacechanges. ning.Table2andFigure5summarizeoverallandstep-wisesuccess
+trendsacross286evaluationtasks.IntentCUAachievesthehighest
+6 EXPERIMENTS overallsuccessrateof74.8%,comparedto51.2%forUFO2and38.8%
+WecompareIntentCUAagainsttworepresentativedesktopGUI forUI-TARS-1.5,yieldingrelativeimprovementsofabout+23.6and
+agentschosenformethodologicaldiversity:UI-TARS-1.5[27],an +36percentagepoints,respectively.
+RL-basedvisualplanner–executorwithself-evolvingpoliciesand Notably,IntentCUAperformsconsistentlywellacrossalldatasets,
+screengrounding,andUFO2 [41],atrajectory-centricWindows achieving71.6%ontheweb-basedWebVoyager,77.1%onthecross-
+automationagentthatorganizesdemonstrationsasexecutablese- applicationScreenAgent,and78.0%onourin-houselocalsuite,
+quences.Togetherthesebaselinesspanreinforcementlearning–driven
+automationversusdemonstration-drivenplanning,andbothop-
+Table2:End-to-endsuccessratecomparisonacrossdatasets
+erateatthelevelofatomicGUIactions,ensuringcomparability
+(%).ColumnsshowWebVoyager,ScreenAgent,ourin-house
+with our interface. We evaluate 286 tasks (the same evaluation
+suite,andoverallaverage.
+suitedescribedinSection5.1)andreporttasksuccessrate,Step
+EfficiencyRatio(SER),andLatency,furtheranalyzingrobustnessby
+Method WebVoyager ScreenAgent Ours Total(%)
+step-lengthbins,eachstepdefinedasaatomicactionperformed
+bytheagent.SERisdefinedastheratioofsuccessfulstepstototal UI-TARS-1.5[27] 35.9 42.9 46.0 38.8
+steps,rangingfrom0to1.Latencyismeasuredastheexecution UFO2[41] 69.0 41.4 38.0 51.2
+IntentCUA(ours) 71.6 77.1 78.0 74.8
+
+--- Page 8 ---
+asshowninFigure6.IntentCUAachievesthehighestSERof0.91,
+exceedingUI-TARS(0.85)andUFO2(0.82).WhileSERinIntentCUA
+decreasesmoderatelyfrom0.93at10–15stepsto0.88at20–25,it
+remainsconsistentlyabove0.85evenforthelongesttasks,indicat-
+ingthatmostactionscontinuetocontributeeffectivelytoprogress.
+Incontrast,bothbaselinesshowsharperdeclinesacrosssimilar
+ranges,suggestingincreasedredundancyorre-planning.
+Latencypatternsfurtherhighlightscalability.IntentCUA’sav-
+erageexecutiontimeis1.46minutes,approximately4.5×lower
+thanthebaselines(UFO2:6.63min,UI-TARS:9.82min).Itslatency
+increasessmoothlywithtasklength—forinstance,from0.95minat
+10–15stepsto2.01minat20–25—showingnear-lineargrowth.By
+comparison,UI-TARSexhibitsirregulardelaysthatexpandsharply
+withstepcount,andUFO2showsunstablespikesonshortertasks
+Figure5:Successratebysteplength(binsize=5steps).Thex-
+duetoloopedretries.
+axisshowsstep-lengthbinsandthey-axisshowstasksuccess
+TheseresultsdemonstratethatIntentCUAsustainshighplanning
+rate(%).
+efficiencyandlow,predictablelatencyastaskcomplexityincreases.
+Itsmemory-guidedretrievalandfeedbackdesignminimizeredun-
+demonstratingthatitsadvantageisnotconfinedtoaspecificbench-
+dantcomputation,yieldingascalableandrobustplanningpolicy
+mark.WhileagentslikeUFO2specializeinnarrowdomainssuch
+suitableforrealdesktopautomation.
+aswebnavigation,IntentCUAgeneralizeseffectivelytoheteroge-
+neousdesktopenvironmentsthatincludebothonlineandoffline
+7 CONCLUSION
+contexts,confirmingitsversatilityanddomainrobustness.
+AsshowninFigure5,IntentCUAmaintainsstableperformance WepresentedIntentCUA,aframeworkthattransformsrawinter-
+evenastasklengthgrows:85.9%at10–15steps,72.5%at15–20, actiontracesintomulti-viewintentrepresentations,abstractsthem
+and 65.0% at 20–25, while still retaining 42.9% beyond 30 steps. intoreusableskills,andintegratesthesewithplanmemorytosup-
+Bothbaselines,incontrast,declinesharplyafter20steps,dropping portstablelong-horizondesktopautomation.Thesystemcombines
+below20%.ThisgradualdegradationindicatesthatIntentCUA’s representationlearning,hierarchicalskillinduction,andmemory-
+planningremainsconsistentandresistanttodrifteveninextended guidedplanningtoreducere-planningandimprovestabilityacross
+workflowsspanningmultiplewindowsandapplications. complexworkflows.
+Thestabilityacrosslongerhorizonscanbeattributedtoitsintent- Inexperiments,IntentCUAachieveda74.8%tasksuccessrate
+awareretrievalandplanmemoryreuse,whichenabletheplanner withastepefficiencyratioof0.91,outperformingbothUI-TARS-1.5
+torecallpreviouslysuccessfulsubplansalignedwiththecurrent (RL-based)andUFO2 (trajectory-centric)by4.5×timesreduced
+intentembeddingratherthanregeneratingthemfromscratch.To- latency.Italsomaintainedover40%successonlong-horizontasks
+gether,theseresultsconfirmthatIntentCUAachievesrobustand exceeding30steps.Ablationstudiesshowthateachcomponentcon-
+generalizablelong-horizonplanningefficiency,effectivelypreserv- tributestorobustnessandefficiency,withthefulldesignproviding
+inggoalcoherenceandminimizingredundantre-planningunder thegreatestimprovementsonlongertasks.WhileIntentCUAshows
+complex,real-worlddesktopenvironments. consistentreasoningandcross-applicationgeneralization,several
+aspectsremainopenforrefinement.Retrievalefficiencymayfluc-
+tuateastheplanmemorygrows,thoughthismainlyaffectslatency
+ratherthanaccuracy.Graph-basedretrievalandlightweightvision
+cuescouldfurtherenhancerobustness,allowingthesystemtoadapt
+moresmoothlytodynamicandvisuallychanginginterfaces.
+ACKNOWLEDGMENTS
+ThisworkwassupportedbytheNationalResearchFoundationof
+Korea(NRF)grant(No.RS-2022-NR066631,No.RS-2025-02216282)
+andInstituteofInformation&communicationsTechnologyPlan-
+ning&Evaluation(IITP)grant(No.RS-2022-II220025)fundedby
+theKoreagovernment(MSIT)andMinistryofTrade,Industryand
+EnergyofKorea(MOTIERS202300258591).
+Figure6:Performancebytasklength(binsize=5steps).Left:
+StepEfficiencyRatio(SER).Right:Averagelatencypertask
+REFERENCES
+(minutes)
+[1] Anthropic.2024.Introducingcomputeruse,anewClaude3.5Sonnet,andClaude
+3.5Haiku. https://www.anthropic.com/news/3-5-models-and-computer-use.
+6.2 Stable&ScalablePlanningEfficiencyand PublishedOct22,2024.
+Latency
+Weexamineefficiencyusingtwocomplementarymetrics:theStep
+EfficiencyRatio(SER;Left)andtheaveragelatencypertask(Right),
+
+--- Page 9 ---
+[2] YuzheCai,ShaoguangMao,WenshanWu,ZehuaWang,YaoboLiang,TaoGe, computercontrolagent.arXivpreprintarXiv:2402.07945(2024).
+ChenfeiWu,WangYouWangYou,TingSong,YanXia,NanDuan,andFuruWei. [21] OpenAI.2024.HelloGPT-4o.https://openai.com/index/hello-gpt-4o/.
+2024.Low-codeLLM:GraphicalUserInterfaceoverLargeLanguageModels.In [22] YujiaQin,YiningYe,JunjieFang,HaomingWang,ShihaoLiang,ShizuoTian,
+Proceedingsofthe2024ConferenceoftheNorthAmericanChapteroftheAssociation JundaZhang,JiahaoLi,YunxinLi,ShijueHuang,etal.2025.UI-TARS:Pioneering
+forComputationalLinguistics:HumanLanguageTechnologies(Volume3:System AutomatedGUIInteractionwithNativeAgents.arXivpreprintarXiv:2501.12326
+Demonstrations).AssociationforComputationalLinguistics,MexicoCity,Mexico, (2025).
+12–25. https://doi.org/10.18653/v1/2024.naacl-demo.2 [23] AdrianRebmannandHanvanderAa.2024.Recognizingtask-leveleventsfrom
+[3] RicardoJ.G.B.Campello,DavoudMoulavi,ArthurZimek,andJörgSander. userinteractiondata.InformationSystems124(2024),102404.
+2015.Hierarchicaldensityestimatesfordataclustering,visualization,andoutlier [24] AndreiCosminRedis,MohammadrezaFaniSani,BahramZarrin,andAndrea
+detection. ACMTransactionsonKnowledgeDiscoveryfromData(TKDD)10,1 Burattin.2024.SkillLearningUsingProcessMiningforLargeLanguageModel
+(2015),5. PlanGeneration.InInternationalConferenceonProcessMining.Springer,650–662.
+[4] DaehyounChoi,HindR’bigui,andChiwoonCho.2022.Enablingthegabbetween [25] PascalJ.Sager,BenjaminMeyer,PengYan,RebekkavonWartburg-Kottler,
+RPAandprocessmining:Userinterfaceinteractionsrecorder. IEEEAccess10 LayanEtaiwi,ArefEnayati,GabrielNobel,AhmedAbdulkadir,BenjaminF.
+(2022),39604–39612. Grewe,andThiloStadelmann.2025.AIAgentsforComputerUse:AReviewof
+[5] MohammadrezaFaniSani,MichalSroka,andAndreaBurattin.2023.LLMsand Instruction-basedComputerControl,GUIAutomation,andOperatorAssistants.
+ProcessMining:ChallengesinRPA:TaskGrouping,LabellingandConnector arXiv:2501.16150[cs.AI] https://arxiv.org/abs/2501.16150
+Recommendation.InInternationalConferenceonProcessMining.Springer,379– [26] PascalJ.Sager,BenjaminMeyer,PengYan,RebekkavonWartburg-Kottler,Layan
+391. Etaiwi,ArefEnayati,GabrielNobel,AhmedAbdulkadir,BenjaminF.Grewe,
+[6] DifeiGao,LeiJi,ZechenBai,MingyuOuyang,PeiranLi,DonzxingMao,Qinchen andThiloStadelmann.2025.AComprehensiveSurveyofAgentsforComputer
+Wu,WeichenZhang,PeiyiWang,XiangwuGuo,HengxuWang,LuoweiZhou, Use:Foundations,Challenges,andFutureDirections. arXiv:2501.16150[cs.AI]
+andMikeZhengShou.2024.AssistGUI:Task-OrientedPCGraphicalUserInter- https://arxiv.org/abs/2501.16150
+faceAutomation.In2024IEEE/CVFConferenceonComputerVisionandPattern [27] ByteDanceSeed.2025.UI-TARS-1.5.https://seed-tars.com/1.5.
+Recognition(CVPR).IEEEComputerSociety,LosAlamitos,CA,USA,13289–13298. [28] NoahShinn,FedericoCassano,AshwinGopinath,KarthikNarasimhan,and
+https://doi.org/10.1109/CVPR52733.2024.01262 ShunyuYao.2023.Reflexion:languageagentswithverbalreinforcementlearning.
+[7] HongliangHe,WenlinYao,KaixinMa,WenhaoYu,YongDai,HongmingZhang, InProceedingsofthe37thInternationalConferenceonNeuralInformationProcessing
+ZhenzhongLan,andDongYu.2024. WebVoyager:BuildinganEnd-to-End Systems.CurranAssociatesInc.,NewOrleans,LA,USA,Article377.
+WebAgentwithLargeMultimodalModels.InProceedingsofthe62ndAnnual [29] YunpengSong,YihengBian,YongtaoTang,andZhongminCai.2023.Navigating
+MeetingoftheAssociationforComputationalLinguistics(Volume1:LongPapers). interfaceswithAIforenhanceduserinteraction.arXivpreprintarXiv:2312.11190
+AssociationforComputationalLinguistics,Bangkok,Thailand. https://doi.org/ (2023).
+10.18653/v1/2024.acl-long.371 [30] YunpengSong,YihengBian,YongtaoTang,GuiyuMa,andZhongminCai.2024.
+[8] WenyiHong,WeihanWang,QingsongLv,JiazhengXu,WenmengYu,Junhui Visiontasker:Mobiletaskautomationusingvisionbaseduiunderstandingand
+Ji,YanWang,ZihanWang,YuxiaoDong,MingDing,etal.2024.Cogagent:A llmtaskplanning.InProceedingsofthe37thAnnualACMSymposiumonUser
+visuallanguagemodelforGUIagents.InProceedingsoftheIEEE/CVFConference InterfaceSoftwareandTechnology.1–17.
+onComputerVisionandPatternRecognition(CVPR).14281–14290. [31] YifanSong,WeiminXiong,XiutianZhao,DaweiZhu,WenhaoWu,KeWang,
+[9] ForrestHuang,GangLi,TaoLi,andYangLi.2024.Automaticmacrominingfrom ChengLi,WeiPeng,andSujianLi.2024. AgentBank:TowardsGeneralized
+interactiontracesatscale.InProceedingsofthe2024CHIConferenceonHuman LLMAgentsviaFine-Tuningon50000+InteractionTrajectories.arXivpreprint
+FactorsinComputingSystems.1–16. arXiv:2410.07706(2024).
+[10] YueJiang,EldonSchoop,AmandaSwearngin,andJeffreyNichols.2025.Iluvui: [32] FeiTang,HaoleiXu,HangZhang,SiqiChen,XingyuWu,YongliangShen,Wenqi
+Instruction-tunedlanguage-visionmodelingofUIsfrommachineconversations. Zhang,GuiyangHou,ZeqiTan,YuchenYan,KaitaoSong,JianShao,Weiming
+InProceedingsofthe30thInternationalConferenceonIntelligentUserInterfaces. Lu,JunXiao,andYuetingZhuang.2025.ASurveyon(M)LLM-BasedGUIAgents.
+861–877. arXiv:2504.13865[cs.HC] https://arxiv.org/abs/2504.13865
+[11] RebeccaKrosnickandSteveOney.2022.ParamMacros:CreatingUIAutomation [33] AlokManiTripathi.2018.LearningRoboticProcessAutomation:CreateSoftware
+LeveragingEnd-UserNaturalLanguageParameterization.In2022IEEESympo- robotsandautomatebusinessprocesseswiththeleadingRPAtool–UiPath.Packt
+siumonVisualLanguagesandHuman-CentricComputing(VL/HCC).IEEE,Liver- PublishingLtd.
+pool,UnitedKingdom,1–10. https://doi.org/10.1109/VL/HCC53370.2022.9833005 [34] BryanWangandYangLi.2023.EnablingConversationalInteractiononMobile
+[12] TobyJia-JunLi,LindsayPopowski,TomMitchell,andBradAMyers.2021. withLLMs.https://research.google/blog/enabling-conversational-interaction-
+Screen2vec:Semanticembeddingofguiscreensandguicomponents.InPro- on-mobile-with-llms/. GoogleResearchBlog.
+ceedingsofthe2021CHIConferenceonHumanFactorsinComputingSystems. [35] ZhiyongWu,ZhenyuWu,FangzhiXu,YianWang,QiushiSun,ChengyouJia,
+1–15. KanzhiCheng,ZichenDing,LihengChen,PaulPuLiang,andYuQiao.2025.OS-
+[13] YangLi,JiacongHe,XinZhou,YuanZhang,andJasonBaldridge.2020. Map- ATLAS:FoundationActionModelforGeneralistGUIAgents.InTheThirteenth
+pingNaturalLanguageInstructionstoMobileUIActionSequences.InPro- InternationalConferenceonLearningRepresentations. https://openreview.net/
+ceedingsofthe58thAnnualMeetingoftheAssociationforComputationalLin- forum?id=n9PDaFNi8t
+guistics.AssociationforComputationalLinguistics,Online,8198–8210. https: [36] TianbaoXie,DanyangZhang,JixuanChen,XiaochuanLi,SihengZhao,Ruisheng
+//doi.org/10.18653/v1/2020.acl-main.729 Cao,TohJingHua,ZhoujunCheng,DongchanShin,FangyuLei,YitaoLiu,Yiheng
+[14] YandaLi,ChiZhang,WenjiaJiang,WanqiYang,BinFu,PeiCheng,XinChen, Xu,ShuyanZhou,SilvioSavarese,CaimingXiong,VictorZhong,andTaoYu.
+LingChen,andYunchaoWei.2025.AppAgentv2:AdvancedAgentforFlexible 2024. OSWorld:BenchmarkingMultimodalAgentsforOpen-EndedTasksin
+MobileInteractions. arXiv:2408.11824[cs.HC] https://arxiv.org/abs/2408.11824 RealComputerEnvironments. arXiv:2404.07972[cs.AI] https://arxiv.org/abs/
+[15] ZhanghengLi,KeenYou,HaotianZhang,DiFeng,HarshAgrawal,XiujunLi, 2404.07972
+MohanaPrasadSathyaMoorthy,JeffNichols,YinfeiYang,andZheGan.2024. [37] YuhaoYang,YueWang,DongxuLi,ZiyangLuo,BeiChen,ChaoHuang,and
+Ferret-UI2:Masteringuniversaluserinterfaceunderstandingacrossplatforms. JunnanLi.2024.Aria-ui:Visualgroundingforguiinstructions.arXivpreprint
+arXivpreprintarXiv:2410.18967(2024). arXiv:2412.16256(2024).
+[16] YijieLin,YuanbiaoGou,ZitaoLiu,BoyunLi,JianchengLv,andXiPeng.2021. [38] Zhengyuan Yang, Linjie Li, Jianfeng Wang, Kevin Lin, Ehsan Azarnasab,
+COMPLETER:IncompleteMulti-viewClusteringviaContrastivePrediction.In FaisalAhmed,ZichengLiu,CeLiu,MichaelZeng,andLijuanWang.2023.
+2021IEEE/CVFConferenceonComputerVisionandPatternRecognition(CVPR). MM-REACT: Prompting ChatGPT for Multimodal Reasoning and Action.
+11169–11178. https://doi.org/10.1109/CVPR46437.2021.01102 arXiv:2303.11381[cs.CV] https://arxiv.org/abs/2303.11381
+[17] AnthonyZ.Liu,JongwookChoi,SungryullSohn,YaoFu,JaekyeomKim,Dong-ki [39] YiwenYinetal.2025.AutomaticModelingCognitiveDependenciesfromUser
+Kim,XinheWang,JaewonYoo,andHonglakLee.2024. SkillAct:UsingSkill DemonstrationsforGUITaskAutomation.InProceedingsofACM/SIGCHI(or
+AbstractionsImprovesLLMAgents.InProceedingsofthe41stInternationalCon- appropriatevenue).
+ferenceonMachineLearning. [40] ChaoyunZhang,ShilinHe,JiaxuQian,BowenLi,LiqunLi,SiQin,YuKang,
+[18] YitaoLiu,ChengleiSi,KarthikRNarasimhan,andShunyuYao.2025.Contextual MinghuaMa,GuyueLiu,QingweiLin,SaravanRajmohan,DongmeiZhang,
+ExperienceReplayforSelf-ImprovementofLanguageAgents.InProceedingsof andQiZhang.2025. LargeLanguageModel-BrainedGUIAgents:ASurvey.
+the63rdAnnualMeetingoftheAssociationforComputationalLinguistics(Volume arXiv:2411.18279[cs.AI] https://arxiv.org/abs/2411.18279
+1:LongPapers),WanxiangChe,JoyceNabende,EkaterinaShutova,andMoham- [41] ChaoyunZhang,HeHuang,ChimingNi,JianMu,SiQin,ShilinHe,LuWang,
+madTaherPilehvar(Eds.).AssociationforComputationalLinguistics,Vienna, FangkaiYang,PuZhao,ChaoDu,etal.2025.Ufo2:Thedesktopagentos.arXiv
+Austria,14179–14198. https://doi.org/10.18653/v1/2025.acl-long.694 preprintarXiv:2504.14603(2025).
+[19] YadongLu,JianweiYang,YelongShen,andAhmedAwadallah.2024.Omniparser [42] ChaoyunZhang,LiqunLi,ShilinHe,XuZhang,BoQiao,SiQin,MinghuaMa,
+forpurevisionbasedguiagent.arXivpreprintarXiv:2408.00203(2024). YuKang,QingweiLin,SaravanRajmohan,DongmeiZhang,andQiZhang.2024.
+[20] RunliangNiu,JindongLi,ShiqiWang,YaliFu,XiyuHu,XueyuanLeng,HeKong,
+YiChang,andQiWang.2024. Screenagent:Avisionlanguagemodel-driven
+
+--- Page 10 ---
+Table3:Representationlossablationonintentembedding B FRAMEWORKDETAILS
+quality. We report size-weighted density separation (in- (PLANNER-PLAN-OPTIMIZER-CRITIC)
+ter/intra)overallHDBSCANsubgroups.
+Planner. Atinferencetime,thePlannermapsanatural-language
+command𝑐 into the same structured format used for log label-
+LossVariant Separation↑ ingbypromptingtheLLMtoproducetaskunitsoftheformTask
+BaselineEmbedding 5.60 Unit: ENV[...] ACT[...], Task k: ENV[...] ACT[...] with short de-
+InfoNCEonly 5.64 scriptions(e.g.,“searchdogatabrowser”→ENV[local/Windows,
+InfoNCE+Prediction 6.92 web/searchingbrowser],ACT[openbrowser,search]).
+InfoNCE+Reconstruction 23.17 Fromtheseviews,itbuildsanintentprototypeandretrieves
+candidateplansfrommemory.Acachedplanisreusedonlyifits
+Full(Con+Pred+Rec) 7.74 action coverage with respect to the current breakdown is high:
+inpractice,werequirethattheplanalreadycontainsmostofthe
+requiredACTs(allowingatmost2missingACTspercommand).
+UFO:AUI-FocusedAgentforWindowsOSInteraction.arXiv:2402.07939[cs.HC]
+https://arxiv.org/abs/2402.07939 ForeachsuchmissingACT,weretrievethecorrespondingintent
+[43] S.Zhangetal.2024.DynamicPlanningforLLM-basedGraphicalUserInterface subgroup, select the skill template most frequently observed in
+Automation.InFindingsofEMNLP(2024).
+thelogs,instantiateitsplaceholdersfrom𝑐 (e.g.,query="dog"),
+[44] ShaoqingZhang,ZhuoshengZhang,KehaiChen,XinbeiMa,MuyunYang,Tiejun
+Zhao,andMinZhang.2024. Dynamicplanningforllm-basedgraphicaluser andsplicetheresultingstepsintothecachedplan.Ifnocached
+interfaceautomation.arXivpreprintarXiv:2410.00467(2024). plansatisfiesthiscondition,thePlannerfallsbacktoRAGusing
+[45] ShuyanZhou,FrankFXu,HaoZhu,XuhuiZhou,RobertLo,AbishekSridhar,
+XianyiCheng,TianyueOu,YonatanBisk,DanielFried,etal.2023.Webarena: representativelogsasexamples.ThefinaloutputisaglobalplanG
+Arealisticwebenvironmentforbuildingautonomousagents. arXivpreprint =𝑔 𝑖 ,whereeachstep𝑔 𝑖 =(action,object)usesoneofafixedsetof
+arXiv:2307.13854(2023).
+17low-levelGUIactions(e.g.,textinput,click,doubleclick,press,
+switchfocus,save,copy...).
+A ENCODERDETAILS
+Thisappendixsummarizestheimplementationdetailsofthemulti- Execution(Plan-Optimizer→Criticinteraction). Executioncon-
+viewencoderdescribedinSection3.1.
+sistsofaPlan-Optimizerthatgroundseach𝑔intoconcreteGUI
+actions,andaCriticthatvalidatesthepost-stateandtriggerslo-
+EncoderArchitecture. Eachview(ENV,ACT/KEY,DES)isembed- calrecovery.Eachstep𝑔 fromtheglobalplanisexpandedinto
+dedusingOpenAItext-embedding-3-large,producinga3072- anactionablesequence𝑔′ usingafixedlibraryofdefaultaction
+dimensionalvector.Eachembeddingismappedtoasharedlatent templates(e.g.,open:doubleclickiconorclicktaskbar→type
+spaceviaaview-specific2-layerMLPprojectionhead: target→pressenter),ensuringgroundingintoatomicGUIactions.
+3072→256→256, ThePlan-Optimizerconditionson(1)task-unitcontext,(2)the
+parsedscreenstate𝑠,and(3)aretrievedplanhintbymatching
+withGeLUactivation,dropout(𝑝 =0.05),andLayerNorm,yielding
+𝑧(𝑝𝑢) to the nearest subgroup centroid. Hints contain historical
+𝑧(𝑣) ∈R256. ENV/ACT/DEStuplesandaction-objecttraces,biasingexecution
+𝑖
+towardstablepatternsratherthanfree-formgeneration.
+Cross-viewconsistencyisenforcedusingsixsymmetricdual
+predictors, one for each ordered view pair. Each predictor is a
+After each plan unit, the Critic inspects the post-state 𝑠after
+via a structured prompt that checks window focus, component
+lightweightMLP(256 → 128 → 256)usedonlyduringtraining.
+availability, and compatibility with the next expected step and
+Additionally,alineardecoder(256→3072)isappliedperviewto
+returnsretryable=success,retryable,blockedwhichtriggersalo-
+reconstructtheoriginalembeddingforreconstructionregulariza-
+tion.
+calized re-optimization from 𝑠after, avoiding global re-planning,
+while ‘blocked’ indicates that neither template-based execution
+SharedRepresentationandFusionWeights. Thefinalsharedintent norexemplar-guidedadjustmentprovidesasafecontinuation.A
+representationiscomputedasaweightedfusion: step-by-stepexampleofthisinteractionisillustratedinFigure7.
+𝑧
+𝑖
+=0.4𝑧
+𝑖
+(𝐸) +0.3𝑧
+𝑖
+(𝐴) +0.3𝑧
+𝑖
+(𝐷).
+C ABLATIONONTHEREPRESENTATION
+Theenvironmentviewisassignedthelargestweightbecauseexe-
+LOSS
+cutionenvironmentprovidesthemoststablecontextualsignalin
+desktopautomationandservesastheprimarydriverforupper- Weanalyzedensityseparationandclusterpuritywithrespectto
+levelintentgroup(IG)formation.Thisenvironment-centricfusion ENVandACTtagsforfurtherablation.
+improvesthestabilityofhierarchicalclusteringwhilestillpreserv- Toaddressconcernsabouttherepresentationobjective,wecom-
+ingaction-anddescription-levelvariabilityforfinersubgroups parefourvariants:InfoNCE-only,InfoNCE+cross-viewprediction,
+(SG). InfoNCE+reconstruction,andthefullloss.
+Formodeltraining,weusedalearningrateof1×10−3,with
+𝜆 pred=0.1,𝜆 rec=0.05,andacontrastivetemperature𝜏 =0.1.
+Sep = 𝐼
+(cid:205)
+𝐺𝑆𝐺
+(cid:205)
+∈𝐼𝐺
+|𝑆𝐺|
+I
+I
+n
+n
+t
+t
+r
+e
+a
+r(
+(
+𝑆
+𝑆
+𝐺
+𝐺
+)
+)
+(7)
+TensorShapes. Foraminibatchofsize𝑁,theencoderoperates w (cid:205) (cid:205) |𝑆𝐺|
+on: 𝐼𝐺𝑆𝐺∈𝐼𝐺
+𝑥(𝑣) ∈R𝑁×3072, 𝑧(𝑣) ∈R𝑁×256, 𝑧 ∈R𝑁×256.
+
+--- Page 11 ---
+Figure7:Planner–Plan-Optimizer–Criticinteraction.ThePlannerdecomposesacommandintostructuredPlanUnitsand
+retrievesorsynthesizesaglobalplan.ThePlan-OptimizergroundseachunitintoexecutableGUIactionsconditionedonthe
+currentstate,whiletheCriticvalidatesthepost-state𝑆afterandtriggerslocalre-optimizationifneeded.
+Table4:ENV/ACTpurityunderdifferentrepresentationloss purity(Eq9)measuredasmajorityENV/ACTratios(Eq10)within
+variants.Wereportmeanpuritywithstandarddeviationin eachsubgroupinTable4.
+parentheses. Thefulllossimprovestheseparationratiofrom5.64(InfoNCE-
+only)to7.74,whileInfoNCE+reconstructionproducesaninflated
+LossVariant ENVpurity ACTpurity separationscoreof23.17duetoextrememicro-clusters(size=2),
+indicatingover-fragmentationratherthanrobustintentabstraction.
+BaselineEmbedding 0.83(0.19) 0.48(0.25)
+Intermsofsemanticconsistency,ENVpurityincreasesfrom0.82
+InfoNCEonly 0.82(0.22) 0.37(0.22)
+(InfoNCE-only)to0.84(Full),andACTpurityimprovesfrom0.37to
+InfoNCE+Prediction 0.83(0.21) 0.42(0.26)
+0.42.ReconstructionyieldsthehighestENVpurity(0.86)butwith
+InfoNCE+Reconstruction 0.86(0.19) 0.42(0.26)
+higherfragmentation,whilePredictionconsistentlyimprovesACT
+Full(Con+Pred+Rec) 0.84(0.20) 0.42(0.23) purity(0.42vs.0.37inInfoNCE-only).Thefullobjectivemaintains
+balancedENV/ACTpurity(0.84/0.42)withreducedvariance(ENV
+std0.20,ACTstd0.23),suggestingmorestableandsemantically
+coherentintentembeddings.
+1 ∑︁
+Intra(𝑆𝐺)=
+|𝑆𝐺|
+𝑑(𝑥,c𝑆𝐺)
+𝑥∈𝑆𝐺 (8) D DOMAINLEVELDISTRIBUTIONSOF
+Inter(𝑆𝐺)= min 𝑑(c𝑆𝐺 ,c𝑆𝐺′)
+DATASET/TESTCASES
+𝑆𝐺′≠𝑆𝐺
+𝜇𝑋 = |S 1 G| ∑︁ ∑︁ Purity𝑋(𝑆𝐺) F p i u g s u . r T e h 8 e s t h ra o c w e s d t a h t e a d a o re m s a k in ew d e is d tr t i o b w ut a io rd n L o o f c t a h l e /A co p l p le e c n te v d ir t o r n a m ce e c n o t r s - ,
+𝐼𝐺 𝑆𝐺∈𝐼𝐺 (9) withseverallong-taildomainshavingonlyafewinteractionses-
+𝜎𝑋 = √︄ 1 ∑︁ ∑︁ (cid:0)Purity𝑋(𝑆𝐺)−𝜇𝑋(cid:1)2 sions.Incontrast,theevaluationsuite(Figure9)containsabroader
+|SG| Web/Crossovershareandsubstantiallymoredomainsoverall.This
+𝐼𝐺 𝑆𝐺∈𝐼𝐺
+asymmetryreflectstheintentionaldistributionshiftdescribedin
+Purity𝑋(𝑆𝐺)=
+max
+𝑐
+(cid:12) (cid:12){𝑡 ∈𝑆𝐺 :tag𝑋(𝑡)=𝑐} (cid:12)
+(cid:12) (10) themaintext.
+|𝑆𝐺| Importantly,domain-levelsuccessratesinFigure9indicatethat
+Wereport(1)size-weighteddensityseparation(inter/intra:Eq8) performancedoesnotstrictlycorrelatewithtracefrequency.Sev-
+inEq7overallHDBSCANsubgroupsinTable3and(2)semantic eraldomainswithverylimitedornotracesstillachievenon-trivial
+
+--- Page 12 ---
+Table5:Stepconsistency(%)acrossfiverepeatedplanning
+runspertestcase(cosinethreshold=0.93).
+WebVoyager ScreenAgent Ours Total
+Mean(%) 70.3 81.1 86.2 78.5
+STD(%) 8.2 5.3 7.9 7.8
+successrates,suggestingthattheplannergeneralizesbeyondmem-
+orizedtrajectories.Whiletracesparsityandbiasremainlimitations,
+thesestatisticsprovideadditionaltransparencyregardingdomain
+coverageandgeneralizationbehavior.
+E PLANNINGCONSISTENCY
+Tofurtherassessstabilityundersystemcomplexity,weintroduce
+stepconsistencyasaquantitativemeasureofplanrepeatability.For
+eachofthe286testcases,weexecuteplanningfivetimesandcom- Figure9:Domaindistributionofthe286evaluationtestcases.
+paretheresultingplans.Foreachplanunit𝑝𝑢,weexaminewhether Each slice shows a domain category and the success rate
+thegeneratedstepsequenceisconsistentlyreproducedacrossall achievedwithinthatdomain(%).
+fiveruns.A𝑝𝑢iscountedasconsistentifthepairwisecosinesimi-
+laritybetweencorrespondingstepembeddingsexceedsathreshold
+of0.93inallcomparisons.Stepconsistencyisdefinedasthepro-
+portionofsuchconsistent𝑝𝑢 instanceswithineachbenchmark
+split.
+Table5reportsthemeanandstandarddeviationacrossdomains.
+Theresultsindicatestableplanningbehavioracrossdatasets,includ-
+ingunseendomains.Despitedistributionshiftandsparsetraces,
+thePlanner–Plan-Optimizerloopmaintainshighrepeatability,sug-
+gestingthatstructuralconstraints(e.g.,ENVderivedfromwindow
+structureandACTfromUIsemantics)effectivelyreduceLLMdrift
+andlabelingvariance.
+Figure8:Domaindistributionofcollectedtracedata.Each
+sliceindicatesadomaincategoryanditsproportionwithin
+thetracecorpus(%).

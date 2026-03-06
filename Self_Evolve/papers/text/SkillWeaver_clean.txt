@@ -1,0 +1,1903 @@
+--- Page 1 ---
+SkillWeaver: Web Agents can Self-Improve by Discovering
+and Honing Skills
+BoyuanZheng1∗,MichaelY.Fatemi2∗,XiaolongJin3∗,
+ZoraZhiruoWang4,ApurvaGandhi4,YueqiSong,4,YuGu1,JayanthSrinivasa5,GaowenLiu5,
+GrahamNeubig4,YuSu1
+1TheOhioStateUniversity 2UniversityofVirginia 3PurdueUniversity
+4CarnegieMellonUniversity 5CiscoResearch
+{zheng.2372,su.809}@osu.edu
+Abstract
+To survive and thrive in complex environments, humans have evolved
+sophisticatedself-improvementmechanismsthroughenvironmentexplo-
+ration,hierarchicalabstractionofexperiencesintoreuseableskills,andcol-
+laborativeconstructionofanever-growingskillrepertoire. Despiterecent
+advancements,autonomouswebagentsstilllackcrucialself-improvement
+capabilities, struggling with procedural knowledge abstraction, skill re-
+finement, and skill composition. In this work, we introduce SKILL-
+WEAVER, a skill-centric framework that enables agents to self-improve
+byautonomouslysynthesizingreusableskillsasAPIs. Givenanewweb-
+site,theagentautonomouslydiscoversskills,executesthemforpractice,
+and distills practice experiences into robust APIs. Iterative exploration
+continuouslyexpandsalibraryoflightweight,plug-and-playAPIs,signifi-
+cantlyenhancingtheagent’scapabilities. ExperimentsonWebArenaand
+real-worldwebsitesdemonstratetheefficacyofSKILLWEAVER,achieving
+relativesuccessrateimprovementsof31.8%and39.8%,respectively. Addi-
+tionally,APIssynthesizedbystrongagentssubstantiallyenhanceweaker
+agentsthroughtransferableskills,yieldingimprovementsofupto54.3%on
+WebArena. Theseresultsdemonstratetheeffectivenessofhoningdiverse
+website interactions into APIs, which can be seamlessly shared among
+variouswebagents.1
+1 Introduction
+AIagentsbasedonlargelanguagemodels(LLMs)thatcanbrowsetheweb(Dengetal.,
+2023;Zhouetal.,2024a;Zhengetal.,2024)orusecomputers(Xieetal.,2024)likehumans
+arerapidlyrisingasanewfrontierofAIresearchandapplication. Despitethesepromising
+opportunities, digital environments present substantialchallenges due totheir inherent
+complexityanddiversity.Websiteenvironmentsarehighlyintricate,consistingofnumerous
+interactive elements that create large action spaces. An even greater challenge lies in
+developinggeneralistwebagentscapableofgeneralizingtoout-of-distributiontasktypes
+andadaptingtonovelwebsites. Existingeffortshaveattemptedtotrainwebagentsusing
+large-scaletrajectorydatasetscollectedacrossdiversewebsitesandtasktypes(Lietal.,2024;
+Pahujaetal.,2025). However,theseagentsoftenstrugglewithoverfittingtospecificwebsite
+structuresandtaskdistributions(Lietal.,2024;Zhengetal.,2024),reducingtheirabilityto
+handlepreviouslyunseenenvironmentseffectively.
+Asanintegralfeatofhumanintelligence,self-improvementpresentsapromisingsolution
+tothesechallenges. Imagineauservisiting‘yelp.com’forthefirsttime. Inthebeginning,
+shemaynotbefamiliarwiththelayoutandfunctionalitiesprovidedbythewebsite,soshe
+∗EqualContribution.WorkdoneduringMichaelandXiaolong’sinternshipatOSUNLPGroup.
+1Allresourcesareavailableathttps://github.com/OSU-NLP-Group/SkillWeaver.
+1
+5202
+rpA
+9
+]IA.sc[
+1v97070.4052:viXra
+
+--- Page 2 ---
+Stage I: Skill Proposal Stage II: Skill Synthesis Stage III: Skill Honing
+Practice Skill Reward Model API Synthesis Test Case Generation
+Identify Pill Using Pill Identifier
+Task: Please identify the white pills with imprints M366
+Check Side Effects for a Drug asy # n c A u d t e o f m at i e d s e n t t h i e f y p _ r p o i c l e l s ( s p a o g f e , id i e m n p t r i i f n y t i , n g c o a l o p r i ) l : l on Drugs.com. Test Case: identify_pill(page,M366, White)
+awaitpage.goto("/pill_identification.html")
+Search a Condition’s Treatment a a s w w e a a a i i r t t ch_ p p b a a u g g t e e t . . o g g n e e t t _ _ = b b y y p _ _ a r r g o o e l l . e e ge ( ( t " " _ l t b i e y n x _ k t r " b o o , l x e " na , ( m " e f n o a = r m " m e A " g = r " , e P e i n l a a l m n e d I = m " C p P o r i n i l t n l i t n " I u d ) e e . " n f t i ) i l . f l c i l ( e i i r c m " k pr ( ) i ) . n g t e ) t_by_role("button", name="Search") Execution
+BrowseDrugs by Letter + + i " f c o c m o b l o o b r o : x " a , w a n i a t m e= p " a C g o e l . o g r e t ( _ o b p y t _ i r o o n l a e l ( ) " " g ) r . ou s p e " l , e c n t a _ m o e p = t " i C o o n l ( o c r o l a o n r d ) shape (optional)").get_by_role( Warning: Unused parameter ‘color’-> identify_pill(page, imprint, color). The
+awaitsearch_button.click() parameter ‘color’ is defined but never used in the function body.
+Error: Search results validation failed. API returned pills matching imprint '5510'
+but the wrong color (expected: yellow).
+Skill Library Environment
+Debugging
+check_drug_interaction(drug_name) Diagnosis:Addedcolorselectionusingthedropdownmenumadecolor
+subscribe_to_newsletters(email) filteringoptional.Uses'ifcolor':tomakecolorfilteringoptionalproperly
+implementedcolorparameterinthesearchfunction,locatingthe"Colorand
+search_FDA_alert() shape"groupelement.Pleaseaddthefollowingcode:
+ifcolor:
+check_side_effects(drug_name) awaitpage.get_by_role(”group", name=”Color and shape
+(optional)").get_by_role(”combobox", name=”Color (optional)").select_option(color)
+Figure1: AnoverviewoftheSKILLWEAVERframework. TheSkillProposalmodule(StageI)
+identifiesnovelskillstopracticebasedonobservationsoftheenvironmentandavailable
+APIsintheskilllibrary. Foreachproposedskill,theagentexecutesittogeneratetrajectories,
+whicharelaterevaluatedbytherewardmodel. Ifsuccessful,thetrajectoryisutilizedto
+synthesizeanAPI(StageII).Toensurerobustness,thesynthesizedAPIundergoestesting
+withautomaticallygeneratedtestcasesanddebuggingwithintheSkillHoningmodule
+(StageIII).
+wouldexplorethewebsiteandthinkaboutwhattaskscanbedone. Asshedoesmoretasks
+onthewebsite(e.g.,searchingforrestaurantswithvariousfilters),commonroutinesbecome
+memorizedproceduralknowledge(e.g.,searchingforhigh-endKoreanrestaurantsentailsthree
+steps: type‘Korean’inthetopsearchbar,clickthe‘Search’buttonshapedlikeamagnifier,
+and click the ‘$$$$’ button on the search result page). Such routines abstracted from
+experiencesessentiallybecomehigh-levelactionsorskillsthatcanbeeffortlesslysummoned
+andcarriedoutinsteadofre-learningthingsonthefly;theycanevenbecomposedinto
+more complex routines, e.g., making a reservation at a restaurant involves first finding
+it. Similarly,throughself-improvement,agentscanbuildconceptualmapsofthewebsite
+environment,accumulateproceduralknowledgeasskills,composesimpleskillsintomore
+complexones,andleveragetheselearnedskillstoenhancetheirdecision-makingprocesses.
+Afewrecentstudieshavetriedtocapturesomefacetsofhumans’self-improvementca-
+pability. Traditional methods typically store skills implicitly through action trajectories,
+primarilyleveragingthemasdemonstrationsforin-contextlearning(Murtyetal.,2024b)
+or fine-tuning (Murty et al., 2024a; Su et al., 2025; Pahuja et al., 2025). Although these
+trajectory-basedapproachescanbeeffective,theystruggletoexplicitlyabstractreusable
+proceduralknowledge,resultinginheavytrainingdemandsandlimitedgeneralizationto
+newwebsitesandtasks. Furthermore,continuouslyupdatingmodelswithnewtrajectories
+introducessignificantconcernssuchascatastrophicforgettingandsensitivitytowebsite
+changes. Additionally, storing and sharing extensive memory-intensive trajectory data
+alsoposespracticalchallengesforknowledgetransferamongagents.2 EffortslikeAgent
+WorkflowMemory(Wangetal.,2024e)andICAL(Sarchetal.,2024)takethisastepfurther
+bygeneratingabstract,reusableroutines. However,itsnaturallanguage-basedroutines
+posechallengesforformalverificationandprecisecompositionintonewworkflows. Both
+methodsalsofocusononlinelearningwithaccesstotestqueriesorofflinelearningrequiring
+high-qualityannotateddemonstrations. Instead,wefocusonmorechallengingautonomous
+explorationwhereagentsproposenoveltaskswithoutexternalsupervision.
+Tothisend,weproposeSKILLWEAVER,askill-centricframeworkthatenableswebagentsto
+autonomouslyself-improvebyexploringwebsiteenvironmentsandsynthesizingreusable,
+structuredskills(§2).OurframeworkleveragestheabilityofLLMstoiterativelycurateAPIs
+basedonfeedbackfromtheinteractiveenvironment(Wangetal.,2023a;2024d). Specifically,
+SKILLWEAVER comprisesathree-stagepipeline(Figure1): (1)systematicexplorationof
+websiteenvironmentstoidentifypotentialskills,(2)practicingandconvertingtheseskills
+2Forexample,screenshotandHTMLfilesconsumeapproximately0.3GBpertrajectorywithan
+averageof7.3actionsinMind2Web(Dengetal.,2023),makingthemhardtotransferonthefly.
+2
+
+--- Page 3 ---
+intorobust,reusableAPIs,and(3)testinganddebuggingtoensureAPIreliabilityduring
+inference.
+ResultsonWebArena(Zhouetal.,2024a)demonstratesubstantialperformanceimprove-
+mentsafterequippingwebagentswithAPIssynthesizedbySKILLWEAVER. Weobserverel-
+ativegainsinsuccessratefrom25%to38%withjust160iterationsofthethree-stagepipeline.
+Furtherexperimentswithweakeragentsrevealedevenmoredramaticimprovements,rang-
+ing from 40% to 130%. These results underscore two insights: (1) synthesized APIs can
+substantiallyenhanceagentperformance,and(2)weakeragentsparticularlybenefitfrom
+APIsgeneratedbymorepowerfulcounterparts,effectivelydistillingadvancedknowledge
+intoplug-and-playmodules. Tofurthervalidatethepracticalityofourmethod,weconduct
+experimentsonreal-worldwebsitesusingtaskssampledfromOnline-Mind2Web(Xueetal.,
+2025;Dengetal.,2023). SKILLWEAVERachieveda39.8%relativeimprovementinsuccess
+rate,demonstratingitseffectivenessincomplex,dynamicwebenvironments.
+2 SkillWeaver
+Ourobjectiveistodevelopaframeworkthatenableswebagentstoautonomouslydiscover
+skillsandconstructacontinuouslyexpandingskilllibraryintheformofAPIs. Inourwork,
+“API”referstoaPythonfunctioncontainingPlaywrightcodeforabrowserautomation,
+ratherthana(forexample)RESTAPIthathandlesHTTPrequests. AsillustratedinFigure1,
+theexplorationpipelineconsistsofthreekeymodules: (1)SkillProposal: Identifyingnew
+skills (e.g., a short description such as “Identify pill using pill identifier”) for the agent to
+practice,facilitatingthecontinuousdiscoveryofrelevantfunctionalities;(2)SkillSynthesis:
+PracticingtheproposedskillsandconvertingpracticedtrajectoriesintoreusablePython
+functions,encapsulatinglearnedbehaviorsintostructuredAPIs;(3)SkillHoning: Testing
+anddebuggingthesynthesizedAPIsusingfeedbackfromtheenvironmentandthereward
+modeltoensurereliability.
+2.1 StageI:SkillProposal
+Websiteenvironmentsencompassnumerousunderlyingfunctionalitiesthatrequiresystem-
+aticexploration. LLMshavebeenemployedasautomaticcurriculum(Tajwaretal.,2025)
+forexploringopen-endedenvironments,likeMinecraft(Wangetal.,2023a;Duetal.,2023),
+TextWorld(Songetal.,2024a),andhouseholdsettings(Duetal.,2023). Similarly,welever-
+ageLLMsasanautomaticcurriculumfordiscoveringwebsitefunctionalities,leveraging
+theirinternet-scaleknowledgeandHTMLinterpretationcapabilities. Tofacilitatetheunder-
+standingofwebsiteenvironments,weprovideLLMswithdetailedwebpageobservations,
+includingscreenshots,websitenames,URLs,andaccessibilitytrees. Accessibilitytreesare
+particularly useful for understanding less familiar websites, such as CMS in WebArena,
+becausetheyprovidecomprehensivestructuralandfunctionalinformation.
+In contrast to existing approaches (Zhou et al., 2024b; Murty et al., 2024b;a; Song et al.,
+2024a),weemphasizeskilldiversitybyexplicitlypromptingLLMstoproposenoveland
+reusableskillsbeyondthecurrentskillrepertoire. Toensureefficientexplorationandhigh
+successratesinsubsequentskillpracticeandAPIsynthesisstages,wespecificallytarget
+short-horizon,reusableskillsthatcanbecompletedwithinasingleAPIcall. Ourapproach
+followsacurriculumprogressionfromsimpletocomplexskillcompositions. TheLLMis
+instructedtoproposethefollowingthreetypesoftasks(PromptsinAppendix§A.1):
+ProceduralTasks. Proceduraltasksrequireasequenceofatomicactionstoachievehigher-
+level process automation objectives. Each procedural task corresponds to a workflow
+comprisingactionsthatcanbegeneralizedtocompletesimilartasks. Forexample,thetask
+identifyingpillsbasedonimprintandcolorinvolvesaworkflowwherevaluesareenteredinto
+textboxes,followedbyclickingasubmitbuttontofinalizethesearchoperation.
+NavigationalTasks. Navigationaltasksinvolvesystematicallyexploringvarioussections
+or pages within a website. Through these tasks, agents can construct conceptual maps
+thatcapturethefunctionalityofvariouswebpageswithinthewebsite. Examplesinclude
+3
+
+--- Page 4 ---
+navigatingtothe”customerreviews”sectiononaproductmanagementwebsiteandaccessing
+individualuserprofiles.
+Information-SeekingTasks. Information-seekingtasksinvolvescrapingdetaileddatafrom
+webpages(e.g.,extractingallcommitsfromaGitHubrepository). Enumeratingallavailable
+itemsonwebpages,suchascomprehensivelistsofreviewsorfacultymembers,istypically
+challengingandrequiresextensive,repetitiveactions. Toaddressthischallenge,generating
+specializedscrapingAPIsenablesagentstoefficientlyretrieveallrelevantinformation.
+2.2 StageII:SkillSynthesis
+ThismoduleaimsatautomaticallygeneratingrobustandreusableAPIs,consistingofthe
+followingthreecomponents: SkillPractice,RewardModel,andAPISynthesis. Acritical
+challengeinthisprocessisensuringtherobustnessofthegeneratedAPIs,aseachindividual
+modulemayintroduceerrors. Weaddressthischallengethroughcurriculumprogression—
+advancing from simple to complex skill compositions—which improves accuracy since
+modulesperformbetteronsimplertasksrequiringfewersteps.Additionally,thesubsequent
+SkillHoningmodule(StageIII)validatesAPIsthroughunittestinganddebuggingtoensure
+reliability.
+SkillPractice. GivenataskproposedinStageI,theagenttakesactionstocompleteit. For
+proceduralandnavigationaltasks,weleverageabaseagenttogenerateactionstorepeatedly
+attempttocompletetasks. Theagentrepeatedlyattemptstocompletethetasksproposed
+intheprevioussection,usingtherewardmodeltodeterminesuccessfulcompletion. For
+information-seekingtasks,wesynthesizedataextractioncodetogathertargetinformation
+fromwebpages,incorporatinganynecessarynavigationsteps,suchasretrievinghistorical
+ordersorcustomerinformation.
+RewardModel. LLMshavedemonstratedeffectivenessasevaluatorsofcorrectness,both
+for answer accuracy (Zheng et al., 2023) and for determining whether action sequences
+successfullycompletetaskinstructions(Panetal.,2024;Zhugeetal.,2024). Weprompt
+anLLMtoproviderewardsignalsindicatingtaskcompletionsuccesswiththefollowing
+observationsinthecontext:(1)Taskdescription,(2)Actiontrajectorycomprisingasequence
+ofactionswithscreenshotsandcorrespondingdescriptions,(3)Environmentalfeedback,
+includingcodeexecutionoutcomesandobservablewebsitechanges. Furtherdetailscanbe
+foundinAppendix§A.5.
+API Synthesis. This module async def identify_pill(page, imprint, color=None, shape=None):
+"""
+encapsulates the agent’s actions Automates the process of identifying a pill using the Pill Identifier
+feature on Drugs.com.
+from successful trajectories into
+Parameters:
+a reusable and generalized API. - page: The Playwright page object.
+- imprint: The imprint on the pill to be identified.
+This is performed by creating a - color: (Optional) The color of the pill.
+- shape: (Optional) The shape of the pill.
+string representation of each of This function navigates to the Pill Identifier page, agrees to the terms,
+inputs the pill's characteristics,
+thestate-actionpairsinthetrajec- and submits the information for identification.
+toryandpromptingthelanguage Usage Log:
+- Successfully navigated to the Pill Identifier page and submitted pill
+modeltogenerateaPythonimple- information for identification.
+- Inputted imprint '93 5510', color 'White', and shape 'Oval' and
+mentation. We statically analyze successfully submitted for identification.
+- Encountered issues with strict mode violations when attempting to click
+the function for common genera- - the Upd ' a S t e e a d rch to ' u b s u e tto a n mo d r u e e t s o pec m i u f l i t c ipl s e ele m c a t t o c r hes f . or the 'Search' button to avoid
+strict mode violations.
+tionmistakes,asdescribedinAp- """
+import re
+pendix § A.6, and if any are de-
+await page.goto("https://www.drugs.com/pill_identification.html")
+tected, we prompt the model to await page.get_by_role("link", name="Agree and Continue").click()
+await page.get_by_role("textbox", name="Pill Imprint").fill(imprint)
+generate the function again. As if color:
+await page.get_by_role("group", name="Color and shape (optional)").
+illustratedinFigure2,eachAPIin- get_by_ ( r o o p l t e i ( o " n c a o l m ) b " o ) b . o s x e " l , ec n t a _ m o e p = t " i C o o n l ( o c r olor)
+if shape:
+cludes a Python implementation await page.get_by_role("group", name="Color and shape (optional)").
+get_by_role("combobox", name="Shape
+(including a function signature, (optional)").select_option(shape)
+docstring,andcodebody),where search_button =
+page.locator("button.ddc-btn.ddc-btn-block[data-submit-loading]")
+thedocstringparticularlycontains await search_button.click()
+ausagelogrecordingpreviousex-
+ecutionsofthefunctionandade-
+Figure 2: An example of a synthesized API from
+scriptionoftheprerequisitestate
+Drugs.comusedtoidentifypillsbasedontheircharac-
+teristics.
+4
+
+--- Page 5 ---
+ofthewebsiteforthefunctionto
+executewithouterrors.
+2.3 StageIII:SkillHoning
+Despitesignificanteffortswithintheabovemodulestoensuretherobustnessofthesynthe-
+sizedAPI,itisnotalwaysguaranteed. Toaddressthislimitation,weintegrateastagetotest
+anddebugsynthesizedAPIs. ForAPIsrequiringnoextraparametersexceptthebydefault
+Playwrightpageinstance,weexecutetheAPIdirectlyasastandaloneunittest. ForAPIs
+requiringadditionalparameters,weleveragetheLLMtogenerateappropriateparameter
+valuesthatserveascomprehensivetestcases.
+3 Experiments
+We conducted experiments on both WebArena (Zhou et al., 2024a) and real-world live
+websitestoevaluateouragent. WebArenaisawidelyusedbenchmarkforwebagentevalu-
+ation,providingadiversesetofwebsitesdesignedtosimulatereal-worldwebinteractions.
+Real-worldwebsitesfurtherdemonstratetheperformanceofourmethodinmorediverse,
+dynamic, andcomplexwebsiteenvironments. Weperformexplorationoneachwebsite
+environmentseparatelytoderivetheAPIlibrary,asdescribedinSection§3.4.
+3.1 WebArena
+WebArenaisaself-hostable, sandboxedwebenvironmentdesignedfordevelopingand
+evaluatingwebagents. Itsimulatesreal-worldwebsitesacrossfivecommonapplicationdo-
+mains: e-commerce(Shopping),socialforums(Reddit),collaborativesoftwaredevelopment
+(Gitlab),contentmanagement(CMS),andnavigation(Map). Thisbenchmarkincludesa
+totalof812tasks,eachwithautomatedevaluationmetricsbasedonfunctionalcorrectness.
+WebArenaprovidesastabletestingenvironmentwithreliableautomaticevaluation,making
+itagoodplatformfordemonstratingtheefficacyofouragentandanalyzingvariousaspects
+ofourapproach. FurtherdetailsontheWebArenabenchmarkusedinourevaluationcanbe
+foundinAppendix§B.
+Human-CraftedAPIs. Theself-hostedWebArenasandboxenvironmentgrantsaccesstoits
+sourcecodeandadministrativeaccessforthesimulatedwebsites. Thisenablesustoextract
+APIs that adhere to standardized protocols (e.g., REST) from the official documentation
+within the source code as well as from external sources (Song et al., 2024a). We further
+leveragethesehuman-craftedofficialAPIstocomparethemagainsttheAPIssynthesized
+bySKILLWEAVER,demonstratingthequalityofthegeneratedAPIs.
+3.2 Real-WorldWebsites
+Real-worldwebsitespresentgreatercomplexityandrichnessthansimulatedenvironments.
+Todemonstratethepracticalityandefficacyofourapproachinreal-worldenvironments,
+weconductevaluationsonlivewebsites. Specifically,weuseOnline-Mind2Web(Xueetal.,
+2025;Dengetal.,2023),abenchmarkspecificallydesignedforevaluatingwebagentson
+livewebsites. Thisbenchmarkencompasses300tasksacross136popularwebsitesspanning
+diversedomains. Thetasksrepresentrealisticscenarioscommonlyencounteredindaily
+webinteractions,asproposedbyhumanannotators. Consideringthecostofexploration
+onallthewebsites,weonlyconsiderwebsiteswithasufficientnumberoftasksthatcanbe
+accessedbyPlaywright. Weendupwith4websitesthathaveatleast8taskstorunonline
+evaluations(Zhengetal.,2024;Yoranetal.,2024;Heetal.,2024)andinclude57tasks,listed
+inAppendix§C.Toensurethevalidityofevaluation,wemanuallyevaluatethesuccessof
+agenttrajectories. Specifically,weverifywhethertheactionsfulfillallrequirementsposed
+bythetaskandwhetherretrievedinformationmatchesthetargetforinformation-seeking
+tasks.
+5
+
+--- Page 6 ---
+3.3 AgentImplementation
+Bydefault,weuseGPT-4o3 withatemperatureof0.3. FollowingthedefaultWebArena
+evaluationsettings,wesetthemaximumnumberofstepsperiterationto10.
+BaselineAgent. WeimplementawebagentwithonlybrowsingactionsbasedonCode-
+Act (Wang et al., 2024b), which leverages an LLM to generate Python code using the
+Playwrightbrowserautomationlibrarytointeractwithwebenvironmentsthroughsimple
+atomicactionssuchasclick,type,andscroll. Theobservationspaceconsistsofwebpage
+screenshots,anaccessibilitytree,andtheexecutionresultsfrompreviousactions,suchas
+exceptions.
+AgentwithSkills. TodemonstratetheperformanceimprovementsgainedfromAPIs,we
+extendtheactionspaceofthebaselineagentbyincorporatingsynthesizedskills,enablingthe
+agenttoexecuteAPIcalls.Weleveragethisagenttoevaluatetheperformanceimprovements
+frombothAPIssynthesizedbySKILLWEAVERandhuman-craftedAPIs(Songetal.,2024b)
+fromWebArena’sofficialdocumentation. GiventheextensivenumberofsynthesizedAPIs,
+weintroduceanAPIselectionmodulethatfiltersonlyrelevantAPIsfromtheAPIlibrary.
+ThismodulealsoremovesAPIsthatdonotsatisfypre-conditions. Thepromptandskill
+serializationformatcanbefoundinAppendix§A.8.
+WeakerAgent. ToevaluatewhetherthesynthesizedAPIscanplugandplayinweaker
+agents, we implement a weaker variant by replacing GPT-4o with GPT-4o-mini4 while
+maintainingthesameagentdesign.
+3.4 Exploration
+Duringtheexplorationstage,weemploytheagentdescribedabovetopracticeskills. Each
+websiteundergoesanexplorationprocessconsistingof160iterationswithGPT-4o,where
+an iteration is defined as either attempting a proposed skill or testing an existing skill.
+Withineachiteration, theagentproposeseitheraproceduralornavigationaltaskatthe
+startingwebpage. Itcanalsoproposeaninformation-seekingtaskattheendingwebpage
+after completing the procedural or navigational task in the previous iteration. During
+exploration,theagentcanaccessAPIssynthesizedinthepreviousexplorationstepsafter
+skillselectiontocomposemorecomplexAPIs.
+4 ResultsandAnalysis
+4.1 ExperimentalResults
+WebArenaResults. OurexperimentsonWebArenademonstrateconsistentperformance
+improvements with the integration of synthesized APIs. As illustrated in Table 1, we
+observe a substantial relative improvement in success rate, 39.8% on average, for the
+baselineagentwithGPT-4oandanevenlargerimprovementof54.3%withGPT-4o-mini
+acrosstheevaluatedwebsites.
+When compared to AutoEval (Pan et al., 2024), which leverages an LLM-based reward
+modeltoguideinference-timeexploration,SKILLWEAVERachieveshigheraveragesuccess
+ratesandexhibitsbetterorcomparableperformanceacrossalldomains,withtheexception
+oftheShoppingenvironment. Thereasonbehindthisexceptionistheinherentrequirements
+for more extensive interaction with such websites for partially observable information,
+likedynamicproductsearchresultsandproductdetails. IncomparisonwithSteP(Sodhi
+etal.,2024),whichincorporatestheexternalmemoryofdomain-specifichuman-written
+workflows,SKILLWEAVERachievesbetterperformanceonCMSandMapenvironments,
+showingthepromisingqualityofagentsynthesizedAPIsevencomparingwithmanually
+craftedworkflowsdesignedbyhumanexperts.
+3AzureEndpoint:gpt-4o-2024-08-06
+4AzureEndpoint:gpt-4o-mini-2024-07-18
+6
+
+--- Page 7 ---
+Method Gitlab Map Shopping CMS Reddit AVG.
+WebArena 15.0 15.6 13.9 10.4 6.6 12.3
+AutoEval 25.0 27.5 39.6 20.9 20.8 26.9
+*SteP 32.0 30.0 37.0 24.0 59.0 33.0
+SKILLWEAVER
+GPT-4o 17.8 27.5 19.8 18.7 37.7 22.6
++Skills 22.2 33.9 27.2 25.8 50.0 29.8
+∆ ↑25% ↑23% ↑38% ↑38% ↑33% ↑32%
+GPT-4o-mini 6.1 10.3 11.8 3.3 18.9 9.2
++Skills 8.9 16.7 17.1 7.7 26.4 14.1
+∆ ↑46% ↑62% ↑46% ↑133% ↑40% ↑45%
+Table 1: Task success rate on WebArena. The numbers in green represent the relative
+improvementpercentage.
+Method Drug Flight Cooking Car AVG.
+Baseline 65.0 11.7 62.5 11.1 40.2
++Skills 87.0 29.4 75.0 11.1 56.2
+∆ ↑34% ↑151% ↑20% ↑0% ↑40%
+Table2: Successrateinreal-worldwebsiteevaluationbasedonOnline-Mind2Web.
+LiveWebsiteResults.AsshowninTable2,integratingsynthesizedAPIsleadstoanaverage
+relativeimprovementof39.8%insuccessrateacrossfourwebsites. FortheCarwebsite,
+while the final success rate remained unchanged after incorporating synthesized APIs,
+weobservedthatinfouroutofninetasks,thesynthesizedAPIssuccessfullyguidedthe
+agenttothefinalstaterequiredfortaskcompletion. However,theagentstillencountered
+failuresduringthefinalstepsthatdemandedstrongenvironmentunderstandingandvisual
+reasoning.
+4.2 Analysis
+GeneralizationacrossWebsite. Generalizationacrossdiversewebsites,particularlyless
+commonwebsites,remainsasignificantchallenge. SKILLWEAVER presentsanewangle
+to this challenge by integrating website-specific skills and knowledge through external
+memoryinsynthesizedskillfiles. SKILLWEAVERisabletoencapsulateskillsandknowledge
+onwebsiteenvironmentsintocodefilescontainingaccumulatedskills.
+Todemonstratetheviabilityofsuchgeneralization,wedon’tincludeanywebsitespecific
+intheagentandadapttheagenttodifferentwebsitesbypurelyintegratingsynthesized
+APIlibrariesgeneratedduringpre-hocwebsiteexplorations. AsshowninbothTable1and
+Table2,ouragentisnotonlyabletoachievestableperformanceimprovementsacrossall5
+WebArenawebsitesbutalsointhe4real-worldlivewebsitesthataremorecomplexand
+noisy.
+Generalization across Agents. A critical feature of the skill repertoire is its ability to
+generalize across different web agents. Once the exploration process is completed, the
+synthesized API library can be reused to expand and enhance the action space of other
+agents capable of API calling. We conduct a comparative experiment by replacing the
+backbonelanguagemodelwithGPT-4o-miniwithoutanyothermodificationtotheagent.
+According to the results in Table 1, after switching the language model to GPT-4o-mini,
+theperformanceofthebaselineagentissubstantiallyweakerthanotheragentsbasedon
+GPT-4o. However,uponintegrationwithoursynthesizedAPIs,theagentbasedonGPT-
+4o-minidemonstratesremarkablerelativesuccessrateimprovementsrangingfrom40%to
+133%acrossfivewebsites. Notably,thisagentevenachievesabetteraveragesuccessrate
+comparedtotheWebArenaagentbasedonGPT-4o,particularlyintheMap,Shopping,and
+7
+
+--- Page 8 ---
+Redditwebsites. TheseresultshighlightthetransferabilityofoursynthesizedAPIsasa
+plug-and-playmoduletoenhanceagents.
+As the base agents become stronger, particularly those capable of more sophisticated
+inference-time search (e.g., Operator), the potential of SKILLWEAVER can be further
+unleashed. While current agents can accomplish challenging tasks through trial-and-
+error (Song et al., 2024a) and search over webpages Koh et al. (2024), certain complex
+skills remain beyond their capabilities. For example, as illustrated in Appendix D.2.3,
+the task request quote for multiple listings requires repeated, sequential, successful
+searchesforspecificvehicles,followedbyseparatequoterequests. Thisprocessdemands
+bothlong-rangeplanningandback-tracingcapabilities,whichpresentsignificantchallenges
+forexistingagents. Asagentsgrowstronger, SKILLWEAVER willenablethesynthesisof
+increasinglysophisticatedandcomplexskills.
+ComparisonwithHuman-CraftedAPIs. Wefurtherconductedacomparisonoftheper-
+formanceofagentwithsynthesizedskillswiththehuman-craftedAPIsextractedfromthe
+officialdocumentationandoutsourcingwebsites(Songetal.,2024a). Basedonthelevelof
+APIsupport,websitesareclassifiedintothreecategories: low,medium,andhigh.
+  
+  
+  
+  
+  
+ 
+ 5 H G G L W  6 K R S S L Q J  & 0 6  * L W O D E  0 D S
+     H W D 5  V V H F F X 6
+As shown in Figure 3, the
+performance of the synthe-  % D V H O L Q H  6 \ Q W K H V L ] H G  6 N L O O V  + X P D Q  $ 3 , V
+sizedAPIsiscomparablewith     
+    
+human-crafted APIs on web-     
+    
+sites with low API support,
+    
+suchasReddit,andthosewith     
+medium API support, like     
+Shopping. This result sug-
+         
+geststhatourexplorationpro-          
+cess is capable of generating     
+APIswithqualitythatiscom-               
+parabletoorevensuperiorto
+manually crafted APIs found
+inofficialdocumentation. On
+websites with high API sup-
+port,suchasGitLabandMaps,
+theperformanceofthesynthe- Figure3: Successratewithsynthesizedvs.human-crafted
+sizedAPIsisnotasgood. APIs.
+4.3 CaseStudies
+EmergenceofCompositionalAPIs. Afteracertainnumberofexplorationiterations,we
+observethatthepipelinebeginstogeneratecompositionalAPIsthatcallmultiplesimpler
+APIs. Anexampleisshownin§D.3. ThisAPIisresponsibleforapplyingmultiplefilters
+tosearchresultsthatinvolvessequentiallycallinganotherAPItocloseawebpageoverlay,
+followedbytwoadditionalAPIstorefinethesearch. Thisemergentbehaviorindicatesan
+increasinglevelofabstractionandefficiencyinSKILLWEAVER’sabilitytosynthesizeand
+integratediscoveredskills.
+LimitationinSkillUse. LLMslikeGPT-4oarestillnotrobustenoughatAPIcalling,and
+thathurtsAPI-augmentedagentslikeours,evenwithhuman-craftedAPIs.Thischallengeis
+evengreaterforweakerLLMssuchasGPT-4o-mini,asillustratedinTable1.Weidentifytwo
+primarycategoriesoffailures: (1)failuretoidentifytheappropriateAPIand(2)generating
+wrongparameters. Forexample, SKILLWEAVER synthesizedAPIstoaugmentagentsto
+search recipes in Cookpad.com. As demonstrated in Appendix D.2.4, the LLM is not
+abletoidentifythesearch recipes by cuisine type(’hamburger’)APItofinishthetask
+”Saveahamburgerrecipe”. InAppendixD.2.5,theLLMsuccessfullyidentifiestheright
+APIsearch recipes by ingredients(page, ’ingredients’)tocompletethetask”Browse
+recipesforgluten-freechocolatechipcookiesthatcanbemadewithoutnuts”. However,
+itgeneratesthewrongkeyword’chocolatechip,-nuts’insteadof’chocolatechipwithout
+nuts’,leadingtoemptysearchresults.
+8
+
+--- Page 9 ---
+5 RelatedWork
+WebAgents. Automatedwebagentshaverecentlyemergedasacriticalresearchdirection
+withthevisionofautomatingworkflowsintheinternet. Substantialprogressinwebagents
+hasbeenachievedbyleveragingpowerfulLLMsalongsidediversepromptingstrategiesto
+automatethepredictionofwebpageactions(Zhengetal.,2024;Furutaetal.,2024;Zhou
+et al., 2024a; Yao et al., 2022). Given inputs like HTML content, accessibility trees, and
+screenshots,LLM-basedapproachesusein-contextexamples,skillusage,andtheReAct
+framework (Yao et al., 2023) to improve action prediction. These models can be further
+enhancedwithaction–coordinatepairdataforbettergrounding(Chengetal.,2024;Gou
+et al., 2024; You et al., 2024), learning from multiple web agent trajectories to improve
+multi-stepreasoningandplanning(Laietal.,2024;Shawetal.,2023;Dengetal.,2023),or
+trainingtheagenttodirectlyoutputpixelcoordinates(Hongetal.,2024). Anotherlineof
+workusesplanning. Treesearchagent(Kohetal.,2024)performsabest-firsttreesearch
+usinganLLMasaheuristic,andAgentQ(Puttaetal.,2024)andWebPilot(Zhangetal.,2024)
+employ Monte Carlo Tree Search. The World-model-augmented web agent (Chae et al.,
+2024)andWebDreamer(Guetal.,2024b)integrateLLM-basedworldmodelstoanticipate
+theoutcomesofitsactions.
+ToolUseandSynthesis. Withthegreatpotentialsexhibitedbytool-augmentedLMs(Schick
+etal.,2023;Wangetal.,2024c),manyworksexploreusingLLMstomaketoolsacrossmath
+reasoning(Caietal.,2024;Qianetal.,2023;Yuanetal.,2024a), theoremproving(Wang
+etal.,2024a),structureddataanalysis(Luetal.,2023;Wangetal.,2024d),anddigitalagent
+automation (Wang et al., 2023a; Gu et al., 2024a; Song et al., 2024b). However, existing
+methods rely on a set of existing training examples to determine tool correctness (Yuan
+etal.,2024a),oruserinputqueriestobootstrapthetool-makingsystem(Wangetal.,2024d).
+Ourworkdoesnotnecessitateannotateddataandenablesagentstogatherexperiencesby
+self-exploringtheenvironmentwhilesynthesizingmoreskills.
+Self-Improvement. Manyworksexplorecollectingtrajectoriesthroughexperience,rating
+thesuccesswitharewardmodel,andusingtheresultsforpolicytraining(Pateletal.,2024;
+Huangetal.,2023;Madaanetal.,2023;Wangetal.,2023b;Singhetal.,2024;Chenetal.,
+2024; Yuan et al., 2024b). These approaches can be broadly categorized into parametric
+andnon-parametricapproaches. Parametrictrainingwithexplorationtrajectorieshasbeen
+investigatedusingvariousstrategies,suchassupervisedfine-tuning(e.g.,WebGUM(Furuta
+et al., 2024), Patel et al. (2024), and ScribeAgent (Shen et al., 2024)) and reinforcement
+learning–styleoptimization(e.g., ETO(Songetal.,2024a)andPAE(Zhouetal.,2024b)).
+Non-parametricmethodstypicallytransformexplorationtrajectoriesintoreusableAPIsor
+workflowsthatcanbecomposedintomorecomplexskills,likeVoyager(Wangetal.,2023a)
+anLLM-basedlifelonglearningagentthatcontinuallyexplorestheMinecraftenvironment.
+Friday(Wuetal.,2024)alsoinvestigatesself-improvementonoperatingsystemsthrough
+explorationwithpre-definedlearningobjectives. Forwebagents,thecollectedtrajectories
+canbeusedasexamplesforin-contextlearning(Murtyetal.,2024b),providetargetsfor
+fine-tuning(Furutaetal.,2024;Pateletal.,2024;Songetal.,2024a),andbedistilledinto
+textinstructionstoreproducethedesiredbehavior(workflows)(Wangetal.,2024e). Our
+work focuses on enabling web agents to continuously expand their skill repertoire by
+autonomouslyexploringwebsiteenvironmentsanddistillingsuccessfultrajectoriesinto
+reusableskillsrepresentedasPythonAPIs. TheseAPIsarecreatedtoenabletheagentto
+operatemoreefficientlyduringsubsequentexplorationandtaskexecution.
+6 Conclusion
+Webagentsaimtoautomatebrowsingtaskstoenhancehumanproductivityacrossdiverse
+digitalenvironments. Akeychallengeliesinadaptingtoreal-worldwebsitescharacter-
+izedbyhighdiversityandcomplexity. Inspiredbytheself-improvementmechanismof
+humans,weproposeSKILLWEAVER,askill-centricframeworkthatenableswebagentsto
+autonomouslyself-improvethroughexplorationandAPIsynthesis. Experimentalresults
+demonstrate substantial performance improvements, with relative success rate gains of
+31.8%onWebArenabenchmarkand39.8%onreal-worldwebsites. Notably,weakeragents
+9
+
+--- Page 10 ---
+equipped with skills from more powerful counterparts showed improvements of up to
+54.3%, demonstratingeffectiveknowledgedistillationthroughlightweight, transferable
+modules. Ourfindingspointtoapromisingfuturewherewebagentscanlearntoimprove
+themselveswithoutparametertuningbyevolvingacollectiveskillbase.
+Acknowledgments
+WewouldliketoextendourappreciationtocolleaguesfromtheOSUNLPgroupandAnqi
+Fengfortheirinsightfulcomments. ThisworkissupportedbyagiftfromCisco.
+EthicsStatement
+Generalist web agents hold the potential to automate routine web tasks, enhance user
+experiences, and promote web accessibility, safety concerns related to their real-world
+deploymentarealsocritical. Theseconcernsspanprivacyissues,suchasaccesstousers’
+personal profiles, and sensitive operations, such as financial transactions or application
+formsubmissions. Duringonlineevaluation,wenoticedthepossibilityofthesewebagents
+generating harmfulactions on the web, and we manuallyvalidated the safety ofall the
+actionsbeforeexecution. Explorationonlivewebsitemayleadtopotentialsafetyconcerns
+abouttriggerharmfulactions.Incasetheagentisbeingusedonalivewebsite,weaddsafety
+instructionswhichguardrailtheagentawayfromactionsthatcouldpotentiallyhaveside
+effectsorthatwouldotherwisebedisadvantageoustoexplore,suchascreatingaccounts
+orinteractingwithhumanusers. Itiscriticalforfurtherresearchtothoroughlyassessand
+mitigatethesafetyrisksassociatedwithwebagents,ensuringtheyaresafeguardedagainst
+producingandexecutingharmfulactions. Thecodewillalsobereleasedsolelyforresearch
+purposes,withthegoalofmakingthewebmoreaccessiblevialanguagetechnologiesunder
+anOPEN-RAILlicense. Wearestronglyagainstanypotentiallyharmfuluseofthedataor
+technologybyanyparty.
+References
+Tianle Cai, Xuezhi Wang, Tengyu Ma, Xinyun Chen, and Denny Zhou. Large lan-
+guage models as tool makers. In The Twelfth International Conference on Learning Rep-
+resentations, ICLR 2024, Vienna, Austria, May 7-11, 2024. OpenReview.net, 2024. URL
+https://openreview.net/forum?id=qV83K9d5WB.
+Hyungjoo Chae, Namyoung Kim, Kai Tzu iunn Ong, Minju Gwak, Gwanwoo Song, Ji-
+hoon Kim, Sunghwan Kim, Dongha Lee, and Jinyoung Yeo. Web agents with world
+models: Learning and leveraging environment dynamics in web navigation. ArXiv,
+abs/2410.13232,2024. URLhttps://api.semanticscholar.org/CorpusID:273404026.
+ZixiangChen,YiheDeng,HuizhuoYuan,KaixuanJi,andQuanquanGu. Self-playfine-
+tuning converts weak language models to strong language models. In Forty-first In-
+ternationalConferenceonMachineLearning,ICML2024,Vienna,Austria,July21-27,2024.
+OpenReview.net,2024. URLhttps://openreview.net/forum?id=O4cHTxW9BS.
+Kanzhi Cheng, Qiushi Sun, Yougang Chu, Fangzhi Xu, Yantao Li, Jianbing Zhang, and
+ZhiyongWu. Seeclick: HarnessingGUIgroundingforadvancedvisualGUIagents. In
+Lun-WeiKu,AndreMartins,andVivekSrikumar(eds.),Proceedingsofthe62ndAnnual
+MeetingoftheAssociationforComputationalLinguistics(Volume1: LongPapers),ACL2024,
+Bangkok, Thailand, August 11-16, 2024, pp. 9313–9332. Association for Computational
+Linguistics, 2024. doi: 10.18653/V1/2024.ACL-LONG.505. URLhttps://doi.org/10.
+18653/v1/2024.acl-long.505.
+Xiang Deng, Yu Gu, Boyuan Zheng, Shijie Chen, Samual Stevens, Boshi Wang, Huan
+Sun, and Yu Su. Mind2web: Towards a generalist agent for the web. In Alice Oh,
+Tristan Naumann, Amir Globerson, Kate Saenko, Moritz Hardt, and Sergey Levine
+10
+
+--- Page 11 ---
+(eds.), Advances in Neural Information Processing Systems 36: Annual Conference on Neu-
+ral Information Processing Systems 2023, NeurIPS 2023, New Orleans, LA, USA, Decem-
+ber 10 - 16, 2023, 2023. URL http://papers.nips.cc/paper files/paper/2023/hash/
+5950bf290a1570ea401bf98882128160-Abstract-Datasets and Benchmarks.html.
+Yuqing Du, Olivia Watkins, Zihan Wang, Ce´dric Colas, Trevor Darrell, Pieter Abbeel,
+Abhishek Gupta, and Jacob Andreas. Guiding pretraining in reinforcement learning
+with large language models. In Andreas Krause, Emma Brunskill, Kyunghyun Cho,
+BarbaraEngelhardt,SivanSabato,andJonathanScarlett(eds.),InternationalConference
+on Machine Learning, ICML 2023, 23-29 July 2023, Honolulu, Hawaii, USA, volume 202
+of Proceedings of Machine Learning Research, pp. 8657–8677. PMLR, 2023. URL https:
+//proceedings.mlr.press/v202/du23f.html.
+Hiroki Furuta, Kuang-Huei Lee, Ofir Nachum, Yutaka Matsuo, Aleksandra Faust, Shix-
+iang Shane Gu, and Izzeddin Gur. Multimodal web navigation with instruction-
+finetuned foundation models. In The Twelfth International Conference on Learning Rep-
+resentations, ICLR 2024, Vienna, Austria, May 7-11, 2024. OpenReview.net, 2024. URL
+https://openreview.net/forum?id=efFmBWioSc.
+BoyuGou,RuohanWang,BoyuanZheng,YananXie,ChengChang,YihengShu,HuanSun,
+andYuSu. Navigatingthedigitalworldashumansdo: Universalvisualgroundingfor
+guiagents. arXivpreprintarXiv:2410.05243,2024.
+Yu Gu, Yiheng Shu, Hao Yu, Xiao Liu, Yuxiao Dong, Jie Tang, Jayanth Srinivasa, Hugo
+Latapie, andYuSu. Middlewareforllms: Toolsareinstrumentalforlanguageagents
+in complex environments. In Yaser Al-Onaizan, Mohit Bansal, and Yun-Nung Chen
+(eds.),Proceedingsofthe2024ConferenceonEmpiricalMethodsinNaturalLanguageProcessing,
+EMNLP 2024, Miami, FL, USA, November 12-16, 2024, pp. 7646–7663. Association for
+Computational Linguistics, 2024a. URL https://aclanthology.org/2024.emnlp-main.
+436.
+Yu Gu, Kai Zhang, Yuting Ning, Boyuan Zheng, Boyu Gou, Tianci Xue, Cheng Chang,
+Sanjari Srivastava, Yanan Xie, Peng Qi, Huan Sun, and Yu Su. Is your llm secretly
+a world model of the internet? model-based planning for web agents, 2024b. URL
+https://arxiv.org/abs/2411.06559.
+HongliangHe,WenlinYao,KaixinMa,WenhaoYu,YongDai,HongmingZhang,Zhenzhong
+Lan,andDongYu.Webvoyager:Buildinganend-to-endwebagentwithlargemultimodal
+models. InLun-WeiKu,AndreMartins,andVivekSrikumar(eds.),Proceedingsofthe62nd
+AnnualMeetingoftheAssociationforComputationalLinguistics(Volume1: LongPapers),ACL
+2024,Bangkok,Thailand,August11-16,2024,pp.6864–6890.AssociationforComputational
+Linguistics, 2024. doi: 10.18653/V1/2024.ACL-LONG.371. URLhttps://doi.org/10.
+18653/v1/2024.acl-long.371.
+WenyiHong,WeihanWang,QingsongLv,JiazhengXu,WenmengYu,JunhuiJi,YanWang,
+ZihanWang,YuxiaoDong,MingDing,andJieTang. Cogagent: Avisuallanguagemodel
+forguiagents. InProceedingsoftheIEEE/CVFConferenceonComputerVisionandPattern
+Recognition,pp.14281–14290,2024.
+JiaxinHuang,ShixiangGu,LeHou,YuexinWu,XuezhiWang,HongkunYu,andJiawei
+Han. Largelanguagemodelscanself-improve. InHoudaBouamor,JuanPino,andKalika
+Bali (eds.), Proceedings of the 2023 Conference on Empirical Methods in Natural Language
+Processing,EMNLP2023,Singapore,December6-10,2023,pp.1051–1068.Associationfor
+ComputationalLinguistics,2023. doi: 10.18653/V1/2023.EMNLP-MAIN.67. URLhttps:
+//doi.org/10.18653/v1/2023.emnlp-main.67.
+JingYuKoh,StephenMcAleer,DanielFried,andRuslanSalakhutdinov. Treesearchfor
+languagemodelagents. CoRR,abs/2407.01476,2024. doi: 10.48550/ARXIV.2407.01476.
+URLhttps://doi.org/10.48550/arXiv.2407.01476.
+HanyuLai,XiaoLiu,IatLongIong,ShuntianYao,YuxuanChen,PengboShen,HaoYu,
+HanchenZhang,XiaohanZhang,YuxiaoDong,etal. Autowebglm: Alargelanguage
+11
+
+--- Page 12 ---
+model-basedwebnavigatingagent. InProceedingsofthe30thACMSIGKDDConferenceon
+KnowledgeDiscoveryandDataMining,pp.5295–5306,2024.
+Wei Li, William E. Bishop, Alice Li, Christopher Rawles, Folawiyo Campbell-Ajala,
+Divya Tyamagundlu, and Oriana Riva. On the effects of data scale on UI
+control agents. In Amir Globersons, Lester Mackey, Danielle Belgrave, An-
+gela Fan, Ulrich Paquet, Jakub M. Tomczak, and Cheng Zhang (eds.), Advances
+in Neural Information Processing Systems 38: Annual Conference on Neural Infor-
+mation Processing Systems 2024, NeurIPS 2024, Vancouver, BC, Canada, December
+10 - 15, 2024, 2024. URL http://papers.nips.cc/paper files/paper/2024/hash/
+a79f3ef3b445fd4659f44648f7ea8ffd-Abstract-Datasets and Benchmarks Track.html.
+PanLu,BaolinPeng,HaoCheng,MichelGalley,Kai-WeiChang,YingNianWu,Song-Chun
+Zhu,andJianfengGao. Chameleon: Plug-and-playcompositionalreasoningwithlarge
+languagemodels. InAliceOh,TristanNaumann,AmirGloberson,KateSaenko,Moritz
+Hardt, and Sergey Levine (eds.), Advances in Neural Information Processing Systems 36:
+AnnualConferenceonNeuralInformationProcessingSystems2023,NeurIPS2023,NewOrleans,
+LA,USA,December10-16,2023,2023. URLhttp://papers.nips.cc/paper files/paper/
+2023/hash/871ed095b734818cfba48db6aeb25a62-Abstract-Conference.html.
+AmanMadaan,NiketTandon,PrakharGupta,SkylerHallinan,LuyuGao,SarahWiegr-
+effe,UriAlon,NouhaDziri,ShrimaiPrabhumoye,YimingYang,ShashankGupta,Bod-
+hisattwa Prasad Majumder, Katherine Hermann, Sean Welleck, Amir Yazdanbakhsh,
+and Peter Clark. Self-refine: Iterative refinement with self-feedback. In Alice Oh,
+Tristan Naumann, Amir Globerson, Kate Saenko, Moritz Hardt, and Sergey Levine
+(eds.), Advances in Neural Information Processing Systems 36: Annual Conference on Neu-
+ral Information Processing Systems 2023, NeurIPS 2023, New Orleans, LA, USA, Decem-
+ber 10 - 16, 2023, 2023. URL http://papers.nips.cc/paper files/paper/2023/hash/
+91edff07232fb1b55a505a9e9f6c0ff3-Abstract-Conference.html.
+ShikharMurty,DzmitryBahdanau,andChristopherD.Manning. Nnetscapenavigator:
+Complexdemonstrationsforwebagentswithoutademonstrator. CoRR,abs/2410.02907,
+2024a. doi: 10.48550/ARXIV.2410.02907. URLhttps://doi.org/10.48550/arXiv.2410.
+02907.
+ShikharMurty,ChristopherD.Manning,PeterShaw,MandarJoshi,andKentonLee.BAGEL:
+bootstrappingagentsbyguidingexplorationwithlanguage.InForty-firstInternationalCon-
+ferenceonMachineLearning,ICML2024,Vienna,Austria,July21-27,2024.OpenReview.net,
+2024b. URLhttps://openreview.net/forum?id=VsvfSMI5bs.
+VardaanPahuja,YadongLu,CorbyRosset,BoyuGou,ArindamMitra,SpencerWhitehead,
+Yu Su, and Ahmed Awadallah. Explorer: Scaling exploration-driven web trajectory
+synthesis for multimodal web agents. 2025. URL https://api.semanticscholar.org/
+CorpusID:276408442.
+JiayiPan,YichiZhang,NicholasTomlin,YifeiZhou,SergeyLevine,andAlaneSuhr. Au-
+tonomousevaluationandrefinementofdigitalagents. CoRR,abs/2404.06474,2024. doi:
+10.48550/ARXIV.2404.06474. URLhttps://doi.org/10.48550/arXiv.2404.06474.
+Ajay Patel, Markus Hofmarcher, Claudiu Leoveanu-Condrei, Marius-Constantin Dinu,
+ChrisCallison-Burch,andSeppHochreiter. Largelanguagemodelscanself-improveat
+webagenttasks. CoRR,abs/2405.20309,2024. doi: 10.48550/ARXIV.2405.20309. URL
+https://doi.org/10.48550/arXiv.2405.20309.
+Pranav Putta, Edmund Mills, Naman Garg, Sumeet Motwani, Chelsea Finn, Divyansh
+Garg,andRafaelRafailov. AgentQ:advancedreasoningandlearningforautonomous
+AIagents. CoRR,abs/2408.07199,2024. doi: 10.48550/ARXIV.2408.07199. URLhttps:
+//doi.org/10.48550/arXiv.2408.07199.
+Cheng Qian, Chi Han, Yi Fung, Yujia Qin, Zhiyuan Liu, and Heng Ji. CREATOR: Tool
+creation for disentangling abstract and concrete reasoning of large language models.
+In The 2023 Conference on Empirical Methods in Natural Language Processing, 2023. URL
+https://openreview.net/forum?id=aCHq10rQiH.
+12
+
+--- Page 13 ---
+Gabriel Sarch, Lawrence Jang, Michael J. Tarr, William W. Cohen, Kenneth Marino, and
+KaterinaFragkiadaki. Ical: Continuallearningofmultimodalagentsbytransforming
+trajectories into actionable insights. ArXiv, abs/2406.14596, 2024. URL https://api.
+semanticscholar.org/CorpusID:274466462.
+Timo Schick, Jane Dwivedi-Yu, Roberto Dess`ı, Roberta Raileanu, Maria Lomeli, Eric
+Hambro, Luke Zettlemoyer, Nicola Cancedda, and Thomas Scialom. Toolformer:
+Language models can teach themselves to use tools. In Alice Oh, Tristan Nau-
+mann, Amir Globerson, Kate Saenko, Moritz Hardt, and Sergey Levine (eds.), Ad-
+vances in Neural Information Processing Systems 36: Annual Conference on Neural In-
+formation Processing Systems 2023, NeurIPS 2023, New Orleans, LA, USA, Decem-
+ber 10 - 16, 2023, 2023. URL http://papers.nips.cc/paper files/paper/2023/hash/
+d842425e4bf79ba039352da0f658a906-Abstract-Conference.html.
+Peter Shaw, Mandar Joshi, James Cohan, Jonathan Berant, Panupong Pasupat, Hexiang
+Hu, Urvashi Khandelwal, Kenton Lee, and Kristina Toutanova. From pixels to UI
+actions: Learning to follow instructions via graphical user interfaces. In Alice Oh,
+Tristan Naumann, Amir Globerson, Kate Saenko, Moritz Hardt, and Sergey Levine
+(eds.), Advances in Neural Information Processing Systems 36: Annual Conference on Neu-
+ral Information Processing Systems 2023, NeurIPS 2023, New Orleans, LA, USA, Decem-
+ber 10 - 16, 2023, 2023. URL http://papers.nips.cc/paper files/paper/2023/hash/
+6c52a8a4fadc9129c6e1d1745f2dfd0f-Abstract-Conference.html.
+JunhongShen,AtishayJain,ZedianXiao,IshanAmlekar,MouadHadji,AaronPodolny,and
+AmeetTalwalkar. Scribeagent: Towardsspecializedwebagentsusingproduction-scale
+workflowdata. ArXiv,abs/2411.15004,2024. URLhttps://api.semanticscholar.org/
+CorpusID:274192657.
+AviSingh,JohnD.Co-Reyes,RishabhAgarwal,AnkeshAnand,PiyushPatil,XavierGar-
+cia, Peter J. Liu, James Harrison, Jaehoon Lee, Kelvin Xu, Aaron T. Parisi, Abhishek
+Kumar,AlexanderA.Alemi,AlexRizkowsky,AzadeNova,BenAdlam,BerndBohnet,
+Gamaleldin Fathy Elsayed, Hanie Sedghi, Igor Mordatch, Isabelle Simpson, Izzeddin
+Gur,JasperSnoek,JeffreyPennington,JiriHron,KathleenKenealy,KevinSwersky,Kshi-
+teej Mahajan, Laura Culp, Lechao Xiao, Maxwell L. Bileschi, Noah Constant, Roman
+Novak,RosanneLiu,TrisWarkentin,YundiQian,YaminiBansal,EthanDyer,Behnam
+Neyshabur,JaschaSohl-Dickstein,andNoahFiedel. Beyondhumandata: Scalingself-
+trainingforproblem-solvingwithlanguagemodels. Trans.Mach.Learn.Res.,2024,2024.
+URLhttps://openreview.net/forum?id=lNAyUngGFK.
+PalomaSodhi,S.R.K.Branavan,YoavArtzi,andRyanMcDonald.Step:Stackedllmpolicies
+forwebactions,2024. URLhttps://arxiv.org/abs/2310.03720.
+YifanSong,DaYin,XiangYue,JieHuang,SujianLi,andBillYuchenLin. Trialanderror:
+Exploration-basedtrajectoryoptimizationforLLMagents. CoRR,abs/2403.02502,2024a.
+doi: 10.48550/ARXIV.2403.02502. URLhttps://doi.org/10.48550/arXiv.2403.02502.
+YueqiSong,FrankF.Xu,ShuyanZhou,andGrahamNeubig. Beyondbrowsing: Api-based
+web agents. ArXiv, abs/2410.16464, 2024b. URL https://api.semanticscholar.org/
+CorpusID:273507298.
+HongjinSu,RuoxiSun,JinsungYoon,PengchengYin,TaoYu,andSercanO¨.Arik. Learn-
+by-interact: Adata-centricframeworkforself-adaptiveagentsinrealisticenvironments.
+CoRR,abs/2501.10893,2025. doi: 10.48550/ARXIV.2501.10893. URLhttps://doi.org/10.
+48550/arXiv.2501.10893.
+Fahim Tajwar, Yiding Jiang, Abitha Thankaraj, Sumaita Sadia Rahman, J. Zico Kolter,
+Jeff Schneider, and Ruslan Salakhutdinov. Training a generally curious agent. CoRR,
+abs/2502.17543, 2025. doi: 10.48550/ARXIV.2502.17543. URL https://doi.org/10.
+48550/arXiv.2502.17543.
+Guanzhi Wang, Yuqi Xie, Yunfan Jiang, Ajay Mandlekar, Chaowei Xiao, Yuke Zhu,
+Linxi(Jim)Fan, andAnimaAnandkumar. Voyager: Anopen-endedembodiedagent
+13
+
+--- Page 14 ---
+with large language models. Trans. Mach. Learn. Res., 2024, 2023a. URL https://api.
+semanticscholar.org/CorpusID:258887849.
+Haiming Wang, Huajian Xin, Chuanyang Zheng, Zhengying Liu, Qingxing Cao, Yinya
+Huang,JingXiong,HanShi,EnzeXie,JianYin,ZhenguoLi,andXiaodanLiang. LEGO-
+prover: Neural theorem proving with growing libraries. In The Twelfth International
+ConferenceonLearningRepresentations,2024a. URLhttps://openreview.net/forum?id=
+3f5PALef5B.
+XingyaoWang,YangyiChen,LifanYuan,YizheZhang,YunzhuLi,HaoPeng,andHengJi.
+ExecutablecodeactionselicitbetterLLMagents. InForty-firstInternationalConferenceon
+MachineLearning,ICML2024,Vienna,Austria,July21-27,2024.OpenReview.net,2024b.
+URLhttps://openreview.net/forum?id=jJ9BoXAfFa.
+YizhongWang,YeganehKordi,SwaroopMishra,AlisaLiu,NoahA.Smith,DanielKhashabi,
+andHannanehHajishirzi. Self-instruct: Aligninglanguagemodelswithself-generated
+instructions. InAnnaRogers,JordanL.Boyd-Graber,andNaoakiOkazaki(eds.),Pro-
+ceedingsofthe61stAnnualMeetingoftheAssociationforComputationalLinguistics(Volume
+1: LongPapers),ACL2023,Toronto,Canada,July9-14,2023,pp.13484–13508.Association
+for Computational Linguistics, 2023b. doi: 10.18653/V1/2023.ACL-LONG.754. URL
+https://doi.org/10.18653/v1/2023.acl-long.754.
+ZhiruoWang,ZhoujunCheng,HaoZhu,DanielFried,andGrahamNeubig. Whataretools
+anyway? asurveyfromthelanguagemodelperspective. InFirstConferenceonLanguage
+Modeling,2024c. URLhttps://openreview.net/forum?id=Xh1B90iBSR.
+ZhiruoWang,GrahamNeubig,andDanielFried. TroVE:Inducingverifiableandefficient
+toolboxesforsolvingprogrammatictasks. InForty-firstInternationalConferenceonMachine
+Learning,2024d. URLhttps://openreview.net/forum?id=DCNCwaMJjI.
+Zora Zhiruo Wang, Jiayuan Mao, Daniel Fried, and Graham Neubig. Agent workflow
+memory. arXivpreprintarXiv:2409.07429,2024e.
+ZhiyongWu,ChengchengHan,ZichenDing,ZhenminWeng,ZhoumianzeLiu,Shunyu
+Yao,TaoYu,andLingpengKong. Os-copilot: Towardsgeneralistcomputeragentswith
+self-improvement. CoRR,abs/2402.07456,2024. doi: 10.48550/ARXIV.2402.07456. URL
+https://doi.org/10.48550/arXiv.2402.07456.
+Tianbao Xie, Danyang Zhang, Jixuan Chen, Xiaochuan Li, Siheng Zhao, Ruisheng Cao,
+Toh Jing Hua, Zhoujun Cheng, Dongchan Shin, Fangyu Lei, Yitao Liu, Yiheng Xu,
+Shuyan Zhou, Silvio Savarese, Caiming Xiong, Victor Zhong, and Tao Yu. Osworld:
+Benchmarking multimodal agents for open-ended tasks in real computer environ-
+ments. CoRR, abs/2404.07972, 2024. doi: 10.48550/ARXIV.2404.07972. URL https:
+//doi.org/10.48550/arXiv.2404.07972.
+TianciXue,WeijianQi,TiannengShi,ChanHeeSong,BoyuGou,DawnSong,HuanSun,
+andYuSu. Anillusionofprogress? assessingthecurrentstateofwebagents. OSUNLP
+Blog,Mar2025. URLhttps://tinyurl.com/online-mind2web-blog.
+Shunyu Yao, Howard Chen, John Yang, and Karthik Narasimhan. Webshop: To-
+wards scalable real-world web interaction with grounded language agents. In Sanmi
+Koyejo, S. Mohamed, A. Agarwal, Danielle Belgrave, K. Cho, and A. Oh (eds.), Ad-
+vances in Neural Information Processing Systems 35: Annual Conference on Neural Infor-
+mation Processing Systems 2022, NeurIPS 2022, New Orleans, LA, USA, November 28 -
+December 9, 2022, 2022. URL http://papers.nips.cc/paper files/paper/2022/hash/
+82ad13ec01f9fe44c01cb91814fd7b8c-Abstract-Conference.html.
+ShunyuYao,JeffreyZhao,DianYu,NanDu,IzhakShafran,KarthikR.Narasimhan,and
+YuanCao. React: Synergizingreasoningandactinginlanguagemodels. InTheEleventh
+InternationalConferenceonLearningRepresentations,ICLR2023,Kigali,Rwanda,May1-5,
+2023.OpenReview.net,2023. URLhttps://openreview.net/forum?id=WE vluYUL-X.
+14
+
+--- Page 15 ---
+Ori Yoran, Samuel Joseph Amouyal, Chaitanya Malaviya, Ben Bogin, Ofir Press, and
+JonathanBerant. Assistantbench: Canwebagentssolverealisticandtime-consuming
+tasks? In Conference on Empirical Methods in Natural Language Processing, 2024. URL
+https://api.semanticscholar.org/CorpusID:271328691.
+KeenYou,HaotianZhang,EldonSchoop,FlorisWeers,AmandaSwearngin,JeffreyNichols,
+YinfeiYang,andZheGan.Ferret-ui:GroundedmobileUIunderstandingwithmultimodal
+llms. InAlesLeonardis,ElisaRicci,StefanRoth,OlgaRussakovsky,TorstenSattler,and
+Gu¨l Varol (eds.), Computer Vision - ECCV 2024 - 18th European Conference, Milan, Italy,
+September 29-October 4, 2024, Proceedings, Part LXIV, volume 15122 of Lecture Notes in
+ComputerScience,pp.240–255.Springer,2024. doi: 10.1007/978-3-031-73039-9\ 14. URL
+https://doi.org/10.1007/978-3-031-73039-9 14.
+Lifan Yuan, Yangyi Chen, Xingyao Wang, Yi Fung, Hao Peng, and Heng Ji. CRAFT:
+CustomizingLLMsbycreatingandretrievingfromspecializedtoolsets. InTheTwelfth
+InternationalConferenceonLearningRepresentations,2024a. URLhttps://openreview.net/
+forum?id=G0vdDSt9XM.
+WeizheYuan,RichardYuanzhePang,KyunghyunCho,XianLi,SainbayarSukhbaatar,Jing
+Xu,andJasonWeston. Self-rewardinglanguagemodels. InForty-firstInternationalConfer-
+enceonMachineLearning,ICML2024,Vienna,Austria,July21-27,2024.OpenReview.net,
+2024b. URLhttps://openreview.net/forum?id=0NphYCmgua.
+Yao Zhang, Zijian Ma, Yunpu Ma, Zhen Han, Yu Wu, and Volker Tresp. Webpilot: A
+versatile and autonomous multi-agent system for web task execution with strategic
+exploration. CoRR,abs/2408.15978,2024. doi: 10.48550/ARXIV.2408.15978. URLhttps:
+//doi.org/10.48550/arXiv.2408.15978.
+BoyuanZheng,BoyuGou,JihyungKil,HuanSun,andYuSu. Gpt-4v(ision)isageneralist
+webagent,ifgrounded. InForty-firstInternationalConferenceonMachineLearning,2024.
+URLhttps://openreview.net/forum?id=piecKJ2DlB.
+Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao
+Zhuang,ZiLin,ZhuohanLi,DachengLi,EricXing,etal. Judgingllm-as-a-judgewith
+mt-benchandchatbotarena. AdvancesinNeuralInformationProcessingSystems,36:46595–
+46623,2023.
+Shuyan Zhou, Frank F. Xu, Hao Zhu, Xuhui Zhou, Robert Lo, Abishek Sridhar, Xianyi
+Cheng, Tianyue Ou, Yonatan Bisk, Daniel Fried, Uri Alon, and Graham Neubig. We-
+barena: A realistic web environment for building autonomous agents. In The Twelfth
+InternationalConferenceonLearningRepresentations,ICLR2024,Vienna,Austria,May7-11,
+2024.OpenReview.net,2024a. URLhttps://openreview.net/forum?id=oKn9c6ytLx.
+Yifei Zhou, Qianlan Yang, Kaixiang Lin, Min Bai, Xiong Zhou, Yu-Xiong Wang, Sergey
+Levine,andLiErranLi. Proposer-agent-evaluator(pae): Autonomousskilldiscoveryfor
+foundationmodelinternetagents. CoRR,abs/2412.13194,2024b. doi: 10.48550/ARXIV.
+2412.13194. URLhttps://doi.org/10.48550/arXiv.2412.13194.
+Mingchen Zhuge, Changsheng Zhao, Dylan Ashley, Wenyi Wang, Dmitrii Khizbullin,
+YunyangXiong,ZechunLiu,ErnieChang,RaghuramanKrishnamoorthi,YuandongTian,
+et al. Agent-as-a-judge: Evaluate agents with agents. arXiv preprint arXiv:2410.10934,
+2024.
+15
+
+--- Page 16 ---
+TableofContent:
+• AppendixA:Prompts
+– AppendixA.1: SkillProposal
+– AppendixA.2: CodeGenerationAgentContextRepresentation
+– AppendixA.3: CodeGenerationAgentErrorDetection
+– AppendixA.4: ActionSynthesis
+– AppendixA.5: SuccessChecking
+– AppendixA.6: PersistingAttempttoKnowledgeBase
+– AppendixA.7: ScrapingPrompts
+• AppendixB:WebArenaBenchmark
+• AppendixC:RealWorldWebsiteTasks
+• AppendixD:ExampleAPIs
+– AppendixD.1: SuccessCases
+– AppendixD.2: FailureCases
+– AppendixD.3: CompositionAPI.
+16
+
+--- Page 17 ---
+A Prompts
+A.1 SkillProposal
+Incasetheagentisbeingusedonalivewebsite,weaddsafetyinstructionswhichbiasthe
+agentawayfromactionsthatcouldpotentiallyhavesideeffectsorthatwouldotherwisebe
+disadvantageoustoexplore,suchascreatingaccountsorinteractingwithhumanusers.
+ProposingTaskstoExplore
+System:Youproposetasksthatwouldmakegood’tools’forexternalusersofawebsite.User:
+You are a 'web agent ' who is learning how to use a website. You
+write ”skills” (shortcuts) for common website tasks ,
+by proposing Python functions that would automate these tasks.
+You have already proposed the following skills :
+<proposed>
+{procedural knowledge}
+</proposed>
+You have built up the following knowledge about the website (in
+addition to the current screenshot):
+<semantic knowledge>
+{semantic knowledge}
+</semantic knowledge>
+Now please come up with something new to learn how to do on this
+website. The website is structured according to the following
+accessibility
+tree hierarchy:
+<ax tree>
+{ax tree}
+</ax tree>
+Do not interact with the Advanced Reporting tab if you are using
+Magento.
+Do not interact with login/logout/user accounts on any site .
+If you're on OpenStreetMap, don't interact with community features.
+Write a list of useful skills/shortcuts that you would want to have
+built into a website as Python functions. Write the name
+in natural language format. Do not use ”* id” as a parameter in
+your skill . Again, your goal is to generate functions
+that would be useful ”shortcuts” for users of the website , so you
+should prioritize generating skills that compress
+a couple interactions into a single function call . Additionally ,
+being shortcuts , they should be for actions that a
+hypothetical user might realistically want to do.
+Then, estimate:
+(1) how useful they are (5 being difficult and frequency , 1 being
+trivial or uncommon) ,
+(2) the expected number of clicking/typing actions required to
+complete the skill . (calculate this by writing the list of steps
+and counting AFTERWARDS)
+Prefer to generate skills that are creating , modifying, or
+filtering/querying data on the website , as these tend to be more
+useful.
+Do not generate skills simply to perform single clicks .
+{safety instructions}
+17
+
+--- Page 18 ---
+Then, calculate the sum of these ratings for each skill . Finally ,
+select the skill with the highest rating.
+Write your ratings in `step by step reasoning `. Then, write your
+skill choice in `proposed skill `.
+A.2 CodeGenerationAgentContextRepresentation
+A.2.1 StatesasAccessibilityTrees
+Werepresentthestateasatuplecontaininganscreenshotofthepage,atitle,aURL,andan
+accessibilitytreehierarchy.Theseareserializedbyconcatenatingcleanstringrepresentations
+ofeachoftheseproperties. Werepresenteachnodeintheaccessibilityhierarchyasaline
+containing(1)indentationrepresentingthedepthinthetree,(2)theaccessiblerole,(3)the
+accessiblenameoftheelement,inquotationmarks,andfinally(4)anyotheraccessibility
+treeinformation(representedasaria-attributesintheDOM.)
+A.2.2 Prompts
+Substringsinsquarebrackets([])areomittedifnotapplicable.
+CodeAgentContextRepresentation
+<state0>
+URL:{relative url}
+{ state accessibility tree string }
+</state>
+<reasoning>
+{step by step reasoning}
+</reasoning>
+<code>
+{action source}
+</code>
+[<stdout>
+{stdout}
+</stdout>]
+[<result>
+{return value}
+</result>]
+[<warnings>
+{warnings}
+</warnings>]
+[<recovery>
+{recovered exception}
+</recovery>,...]
+[<exception>
+{unrecoverable exception}
+</exception>]
+<state1>
+URL:{relative url}
+18
+
+--- Page 19 ---
+{ state accessibility tree string }
+</state>
+...
+<stateN>
+URL:{relative url}
+{ state accessibility tree string }
+</state>
+<terminate with result>
+{result}
+</terminate with result>
+A.3 CodeGenerationAgentErrorDetection
+Thisistheprompttemplateusedifwedetectanyerrorsintheagent’scode. Weusethe
+followingerrormessages:
+1. Afunctionnamedactnotprovided: Function name must be ’act’
+2. Thefunctionactdoesnotcontainasingleargument, page: Function must take
+exactly one argument: ‘page‘.
+3. Thefunctionfunctionisdisabled: Function ‘fnname‘ is disabled. Please use
+another function.
+4. IncorrectorbuggyPlaywrightfunctions:Please use the ‘page.get by ...().f()‘
+functions instead of the ‘page.f(selector)‘ functions. where f ∈
+{click, fill,type}.
+5. Use of CSS selectors instead of accessibility tree selectors: Please use
+Accessibility Tree-centric selectors, like ‘page.get by role()‘,
+‘.nth()‘, instead of the CSS-style selectors like ‘.locator()‘ or
+‘.query selector()‘.
+6. Blankresponse: You did not provide any Python code, but you also did not
+provide a result for ‘terminate with result‘. Please provide one or the
+other.
+7. Typeerrors: Type Error: {error}
+A.4 ActionSynthesis
+CodeAgentActionGeneration
+YougeneratePlaywrightcodetointeractwithwebsites.Wordsofwisdom:
+• If you want to click a generic button (e.g., that belongs to an element), use the
+full .get by role() path to the element (e.g., .get by role("group", name="Test
+Item").get by role("button", name="Go") instead of .get by role("button",
+name="Go"),asthisisambiguous).
+• WriteexceptionallycorrectPythoncode.
+• Youlovetotakeadvantageoffunctionsintheknowledge basewheneverpossible.
+YouusethemviaPythonfunctioncalls. Itisrequiredtousetheknowledgebase
+functioncorrespondingtoanactionifitexists.
+• Userelativegotowhenyoucan.
+Youarecurrentlyonawebpagetitled{title repr},withtheURL{url repr}.
+ConsiderthefollowingAccessibilityTree.Theaccessibilitytreeisformattedlikethis:
+19
+
+--- Page 20 ---
+[role] ["name"] [properties] {{
+[child1]
+}};
+[role] ["name"] [properties]; // no children
+Hereisanexample:
+<example>
+article "Willy Wonka's Chocolate Factory Opens Its Gates" {{
+link "Share";
+}};
+article "Hogwarts Begins Accepting Applicants for Class of 2029" {{
+link "Share";
+}};
+</example>
+Toselectthefirstlink,youcando(becausename=case-insensitivesubstringmatchunless
+exact=Trueissupplied):
+first link =page.get by role(”article”, name=”WillyWonka”).get by role(”link”,name=”
+Share”)
+Hereisanotherexample:
+<example>
+article {{
+header "How can I install CUDA on Ubuntu 22?";
+link "Share";
+}};
+article {{
+header "How do I install Docker?";
+link "Share";
+}};
+</example>
+Toselectthefirstlink,youcando:
+page.get by role(”article”). filter (has=page.get by role(”header”,”HowcanIinstall
+CUDA”)).get by role(”link”,name=”Share”)
+Here,the.filter()isnecessarytoensurethatweselectthecorrectarticle.Thisisespecially
+importantincaseswheretheparentelementdoesn’tincluderelevantcriteriaforidentifyinga
+childelement.
+Tipsaboutthistree:
+• Ifyouseeanodeasachildofaniframe,youmustusepage.frame(name=...),and
+thenaccessthenode(via.get by role()orsimilar).
+• Someelementswillrequireinteractionvia.select option().Theywillbelabeled
+as such. This is because they are HTML <select> elements, and thus cannot be
+interactedwithviaclicks.
+YoualsohavethislibraryofPythonfunctionsavailabletoyou.Thinkcarefullyaboutwhether
+youthinkthesecanbeusedinyourcode.Ifyouconcludethatyoucanuseafunction,then
+simplycallit.Thesefunctionsareallavailableasglobalvariables.
+<functions>
+{functions}
+</functions>
+Additionally,youhavecollectedthefollowingknowledgeaboutthewebsite:
+<semantic_knowledge>
+{semantic_knowledge}
+</semantic_knowledge>
+Please think step by step and determine if further action needs to be taken.
+{step specific instructions}
+Iffurtheractionneedstobetaken,provideacodesnippettointeractwiththepage. Use
+PlaywrightandcompletethefollowingPythonfunctiondeclaration:
+20
+
+--- Page 21 ---
+async def act(page):
+...
+If you have no more actions to perform, leave the python code field blank and set the
+terminate with resultfieldofyourresponsetoanon-emptystring.
+Yourpreviousactionsare:
+<previous_actions>
+{previous_actions}
+</previous_actions>
+Hereisthecurrentwebsitestate:
+<webpage_accessibility_tree>
+{ax_tree}
+</webpage_accessibility_tree>
+Yourpreviousactionshavealreadyexecuted.Soyouract()functionshouldonlyrepresent
+NEWactionsyouwanttotakefromhere.
+IMPORTANT:DONOTCHANGELANGUAGESETTINGS!KeepeverythinginEnglish,even
+ifyouareinexplorationmode.
+Additionally,ifyouclickalinkthatyouexpectwilltakeyouawayfromthecurrentpage,
+makethatthelastactioninact().Don’twriteselectorsthatfollowpagenavigationsbecause
+youcan’tpredictwhattheywillbe.
+Yourtaskis{task}.
+MakesuretocontinuefromthecurrentstateoftheUI—notnecessarilytheinitialstate.For
+example,ifadropdownisopen,youdonotneedtoopenitagain,andthingslikethat.Ifit
+appearsthatthewebsiteisinaloadingstate,youmaycallawait asyncio.sleep(5)towait
+forthepagetoload.
+{additional_instructions}
+A.5 SuccessChecking
+ResponsestothisweregeneratedusingStructuredOutputs,asadictionarywiththekeys
+step by step reasoning,astring,andsuccess,aBoolean.
+SuccessVerification
+Pleaseobservethefollowingactionlogofsomeoneusingacomputer. Theywere
+trying to do the following task: task. Given this log and the screenshot of their
+screenattheendoftheirattempt,pleaseconcludewhethertheyweresuccessful.
+Trajectory: {trajectory string}
+A.6 PersistingAttempttoKnowledgeBase
+PersistingAttempttoKnowledgeBase
+Youarelearning howtouseawebsite. In additionto maintainingasemanticbaseof
+knowledge,youarealsobuildingaproceduralknowledgebase.Youshouldupdate
+yourknowledgebasewithPythonfunctionstoautomatewhatyouareabletodo
+successfully.ThesePythonfunctionsarewrittenusingthePlaywrightAPI.Write'skills
+',whicharePythoncodesnippetsrepresentinglogicalprocedurestoperformthetask
+youjustcompleted.Tryto makethis logical procedurerepresentthegeneralcase of
+yourtask, rather thana specific case. Makesuretocarefully documentthe
+behaviorofthese skills, especially anybehaviorthatyouobservethat is unexpected
+andusefultoknowforfutureusers. Anyexamplesofwhathappenedafteryoucalled
+theskillwill beuseful. If yougotfeedbackonwhetheryourresultsweresuccessful
+orunsuccessful, makesuretodocumentthisfeedbackaswell,andanysuggestionsto
+improveperformance.
+21
+
+--- Page 22 ---
+Youmaybegiveneitherasingle task attemptandsuccessevaluation, or multipletask
+attemptsandaggregateresults. If a task attemptwassuccessful, youmaycreatea
+skill to simplify the task. If a task attemptusesa skill, but is ultimately
+unsuccessful, thenyoumaywanttoimprovethedocumentationforthatskill'sPython
+function,to ensurethat the skill canbeusedcorrectly in the future.
+If youusedanexistingfunction andthe result wasunexpected,makesuretoupdatethe
+documentationforthatfunctiontoensurethatit canbeusedcorrectly in the future.
+Unexpectedresultsshouldbedocumentediftheyoccur.Youmayalsowantto
+provideexamplesofsuccessfulusagetoo.
+**ReasoningTemplate**
+−Makesurethatyoutakeastep backandthinkaboutthegeneralprocedureyouusedto
+completethetask.
+−Makesurethatyouexplicitly describe the changesthatshouldbemadetothefunction
+documentation.
+**OverallFormat**
+−Youwill begiveneither anemptyknowledgebase,oraknowledgebasewithexisting
+functiondeclarations.
+−In yourresponse,write declarations for newfunctionsorupdateexistingfunctions.
+− If youwanttoupdateanexistingfunction, thenyoumusthavethefunctionnameofthe
+newimplementationbeanexactmatch
+−Donotwrite”test ” or ”explore ”functions, norfunctions that ”verify” that a
+previous skill wascompletedsuccessfully.
+**FunctionDeclaration**
+−Youshouldwriteadetailed docstring for the function (with triple quotes), describing
+whatit doesandhowtouseit.
+−Makesurethatanyunexpectedbehaviorisdocumented.
+−Makesurethattheobservedbehaviorandmechanicsarecarefullydocumented.
+−Makesureyourfunctionbeginswitha`page.goto(”/...”)` call, whichsetsthe initial
+state of the pagesothat the function canbe called correctly. Usea relative URL.
+−In yourdocstring, youmustincludea”usagelog”whichdescribesthedifferent times
+you'veusedthefunctionandwhathappened.
+−Use`page`asthe first argumentofyourfunction.
+−Donotuse`dict` as a typefor anyparameter.
+−Avoidusing` * id`or ` * url` parameters,becausetheseare not human−readable.For
+example:
+−`item name`ispreferredover`item id`
+−`post url` is preferred over`post url`
+−Exceptionto this rule: If oneof the input fields onthe pagerequiresyoutoinputa
+URL.
+−However,youshouldnotdothisifyouare just goingto `page.goto(item url)`in
+yourcode.
+−Wewillcheckyourcodeforsuchparameters!
+−Makesureyourcodeiscorrect, donotuseanyovercomplicatedPythonfeatures(e.g.
+nestedfunctions, andsuch).
+−Makesureyourfunctionisasyncbecauseyouuse`await`.Yourtoplevelfunction
+shouldbetheasynchronousone.Donotuseanynestedfunctions!!!
+−Donotuseaglobal try−catchstatement, if the onlything it doesis print or reraise
+the error. Onlycatchexceptionsthat youcantruly recoverfrom.
+−Donot``overfit” yourfunctionnametoa specific set of task parameters.Instead, try
+to generalize yourparameters.
+**Selectors**
+−Notethatbydefault, moststring matchinginthePlaywrightAPIiscase−insensitive
+andonlysearchesfor substring matches.
+If youwantanexactmatch,youcanpassthe`exact=True`flag.
+−Donotoverfit to selectors that includenumbersinthem(e.g.numberofnotifications,
+etc. shouldbereplacedbyaregex)
+In this case, put`importre` *inside* the methodbody.
+22
+
+--- Page 23 ---
+Forexample,`page.get by role(name=”Hello”)`willmatch<div>Hello</div>and<div
+>Helloworld</div>.
+Asanotherexample,`page.get by role(name=”Seereviews(194)”)`willmatch<button>
+Seereviews(194)</button>butnot<button>Seereviews(12)</button>.
+If youinsteaddo`page.get by role(name=re.compile(r”Seereviews(\d+)”))`,itwill
+matchbothofthem.
+**Error Handling**
+−Whenyouencounterexceptions,donotjust”print”theerror −youshouldeitherrecover
+fromtheexceptionor reraise it.
+**Misc**
+−Donotincludeactions to close cookiebanners,becausethesewill not benecessary
+duringfuturefunction calls.
+If it appearsthat the task wasnotcompletedsuccessfully,don't write a function. You
+don'twanttoassumewhatagoodfunctionwilllooklike if youwereunsuccessful.
+A.7 ScrapingPrompts
+DeterminingWhetherScrapingisNeeded
+TheprogrammeristowriteinformationseekingAPIsforwebpage.
+Please helpevaluatingwhetherweneedinformationseekingAPIsforthecurrentwebpage.
+Forthe webpage,Iwill provide:
+1. Screenshotof the webpageinterface
+2. Asummaryofthepagecontentandfunctionality
+Please analyzewhetherinformationseekingAPIsshouldbeimplementedforthispage.
+Consider:
+−Whetherthewebpageisimportantforinformationseekingandtheuser'sneeds.
+−Whetheruserneedtogetdatafromthewebpage.
+−Data retrieval needs.
+Herearesomeexamplesofinformationseekingtasks:
+−get all ordersin all pages
+−get all users
+− retrieve all products
+−obtain all reviews
+−get all repositories of user
+Thewebsitecontentsummary:{WEBSITE CONTENT SUMMARY}
+Responseformat:
+− If APIsareneeded:Return'Yes'. List eachrequiredAPIwithits purpose.
+− If APIsarenot needed:Return'No'. Brief explanationwhy
+GeneratingScrapingAPI
+Youarea professional websiteAPIprogrammer.
+I needyoutocreate runnablePlaywright−basedAPIsbasedonthefollowingrequirements
+:
+23
+
+--- Page 24 ---
+I will give youatask description, andyouwillneedto create a Playwrightscript that
+accomplishesthetask.
+Thescript shouldbewrittenin PythonThescriptshouldbeasynchronousandshouldbe
+writteninawaythatiseasytoreadandunderstand.Thescriptshouldberunnable
+andshouldnotcontainanysyntaxerrors.
+Please just providethecodein a codeblock. Donotincludeanyadditionaltext or
+comments.
+TaskDescription: {TASK DESCRIPTION}.
+Exampleofdesiredoutputformat:
+```python
+asyncdef navigate to set status(page:Page):
+awaitpage.click('[data−qa−selector=”user menu”]')
+awaitpage.click('button:has−text(”Set status”)')
+```
+1. TheinputparameterfortheAPImustinclude`page`,whichisaPlaywright`Page`
+object.
+1. Youarealreadyonthe correct page,donotneedtonavigateto anotherpage.
+2. Donotincludethe browserobject.
+3. Donotdefinethe browserinthe APIcode.
+2. Please just providethecodein a codeblock. Donotincludeanyadditionaltext or
+comments.DonotincludeUsage.JustreturntheAPIcodethatshouldbeinsidethe
+function.
+3. Code:
+−Alwaysexplicitly handleasync/awaitchaining.Whencallingasyncmethodsthat
+returnobjectswithotherasyncmethods.Ensureeachasyncoperationinthechain
+isproperlyawaited.Useparenthesestoclearly showtheawaitorderwhen
+chaining
+−Commonpatternstowatchfor:
+−WRONG:result=awaitobj.async method().another async method()
+−CORRECT:temp=awaitobj.async method()result=awaittemp.
+another async method()OR:result=await(awaitobj.async method()).
+another async method()
+−Forbrowserautomationlibraries(like Playwright/Puppeteer):
+−Elementselection methods(query selector, query selector all) are async
+−Elementproperties/methods(inner text,text content, click) are often async
+−Alwaysawaitboththeselector andthepropertyaccess
+4. If the task is aboutinformationseeking,please makesuretheinformationis as
+comprehensiveaspossible.
+5. Please reviewyourgeneratedcodespecifically checkingfor:
+−Missingawaitstatements
+−Properasyncmethodchaining
+−Correcthandlingofasyncpropertyaccess
+6. Coderequirements:
+1. Donotinclude```awaitpage.wait for selector('selector')```in the code. It
+alwaysBUG.
+2. Makesuretheelementselector is correct andprecise.
+3. If the pagealreadycontainsinformationregardingthetask, donotusepage.goto()
+to navigateto the page.
+4. If youneedtonavigateto a page,usepage.goto() withthe relative URL.
+5. Please onlyreturn fixed APIcode.Donotincludeanyothercodelike main().
+7. HTMLContent(truncatediftoolong):
+{HTML CONTENT}
+24
+
+--- Page 25 ---
+VerifyingScrapingResult
+Youarea verification systemthatchecks if the codeexecutionresult matchesthetask
+requirements.
+TaskDescription:
+{TASK DESCRIPTION}
+CodeExecutionResult:
+{RESULT}
+Please analyzewhethertheresult matchesthetaskrequirements.Thinkabout:
+1. Doestheresult containrequiredinformationbasedonthetask description?
+2. DoesthecontentmakesensegiventheHTMLcontext?
+Comparetheextracteddatawiththecontentvisible in the HTMLtoensureaccuracyand
+completeness.
+Answer”is correct” if the result meetsall requirements.
+If not, provide specific suggestionsfor improvement.
+CurrentHTMLContent(forreference):
+{HTML CONTENT}
+FixingCodeforIncorrectScrapingResult
+Youarea PythondebuggingexpertspecializinginwebautomationwithPlaywright.
+Giventhefollowingcode,error, andHTMLcontext,analyzetheissueandprovideafixed
+version.
+## Instructions
+1. AnalyzetheHTMLstructuretounderstandthepageelementsandlocatewhatthetask
+requires.
+2. Identify the causeof the error in the code
+3. ConsidercommonPlaywrightissueslike:
+− Selector timingissues
+4. Provideacompletefixedversionof the code
+5. TheHTMLcontentprovidedisatruncatedversionofthewebpagestructure,becauseof
+constraintsonthecontext windowsize.
+6. TheinputparameterfortheAPImustinclude`page`,whichisaPlaywright`Page`
+object.
+1. Donotincludethe browserobject.
+2. Donotdefinethe browserinthe APIcode.
+7. Donotneedgoto()methodbecausethepagealreadycontainsthenecessaryinformation.
+8. Donotinclude```awaitpage.wait for selector('selector')```in the code. It always
+BUG.
+Please return ONLYthefixedcodewithoutanyexplanationormarkdownformatting
+withinthecodeblock.
+Thecodeshouldbeacomplete,runnablesolutionthat includes all necessaryimports.
+Please onlyreturn fixed APIcode.Donotincludeanyothercodelike main().
+## TaskDescription
+{TASK DESCRIPTION}
+## Original Code
+25
+
+--- Page 26 ---
+```python
+{CODE}
+```
+## Error Information
+```
+{ERROR INFO}
+```
+## CurrentWebpageHTMLStructure
+```html
+{HTML CONTENT}
+```
+A.8 SkillRetrieval
+RetrievingSkillsfromKnowledgeBase
+Youareprovideda list of Pythonfunctionsrepresentingactionshortcuts that canbe
+takenona website
+(in additionto the basic actions like click, type, hover, select option, etc.)
+Youidentify whichfunctionscouldbeusefulfor completingagiventask.
+Youdothis bybreakingthetask downintostepsandseeingif anyfunctionsmaybe
+useful.
+Youaregiventhe following list of functions/shortcuts:
+<functions>
+{function space}
+</functions>
+Yourtask is {repr task}.
+Foreachof the listed functions, please determine(explicitly) whethertheyareuseful
+for the task.
+Then,providea list of the function namesthatmaybeusefultothe agent.
+The agent is then prompted to generate a Structured Outputs dictionary with the keys
+step by step reasoning(string)andfunction names(listofstrings). Thesefunctionsare
+theninjectedintotheprompt,formattedasthefollowing:
+FormatforFunctionsPlacedinPrompt
+# Skill: {signature}
+{docstring}
+Where signature is the Python code signature of the function (extracted by taking the
+substringofthefunction’ssourceupuntilthefirstclose-parentheses),anddocstringisthe
+(un-indented)docstringfromthefunction’sbody,asparsedbyPython’sastmodule.
+B WebArenaBenchmark
+WebArenabenchmarkincludethefollowingtasks:
+• Gitlab: 180tasks
+• Map: 109tasks
+26
+
+--- Page 27 ---
+• Shopping: 187tasks
+• CMS:182tasks
+• Reddit: 106tasks
+27
+
+--- Page 28 ---
+C Real-WorldWebsiteTasks
+Drugs(23tasks)
+• Showmethemosthelpfulreviewforclonazepam
+• IdentifythepillwithimprintM366
+• Findthepagewithinformationaboutibuprofeninteractions
+• ShowmethepagewithinformationaboutAdderallsideeffects
+• FindtheAlcohol/FoodInteractionsofthedrugAllegra
+• FindinformationregardingHypersomnia
+• FinddrugParacetamolanditssideeffects
+• Identifyapillwithpinkcolorandovalshapewith8945numberonit
+• PrinttheTylenolSideEffectspage
+• ShowmethelatestFDAalerts
+• FindtheriskSummaryofMetforminprescribedforaPregnantwoman
+• Findavailablemedicalapps
+• FindthealternativetotheprescriptiondrugValtrexandcomparepricesatdifferent
+pharmacies
+• Browsethenaturalproductsdatabase
+• FindtheDrugInteractionReportforviagraandalcohol
+• ShowsideeffectsofTamiflu
+• BrowseHumiradosageinformation
+• ShowthelistofMedicationsforAnxiety
+• CheckdruginteractionformelatoninandFolateForte
+• ChecktheinteractionbetweenNovolinNandNovolinR
+• FindtheinteractionsbetweenEulexinandhepaticdysfunction
+• FindthesideeffectsoftakingMontelukast
+• Displaythesearchresultsforpill123456,whiteandround
+Cookpad(8tasks)
+• Findarecipeforvegetablesoupandthenfollowtheauthoroftherecipe
+• Findarecipeforpadthaiandprintit
+• Printarecipecontainingshrimp
+• FindarecipeforFriedBombayDuckandSaveit
+• Browserecipesforgluten-freechocolatechipcookiesthatcanbemadewithoutnuts
+• Saveahamburgerrecipe
+• Showmerecipesforpancakeswithwheatandwithoutbeetroot
+• Findarecipethatincludeseggplantandmushrooms
+Flights(17tasks)
+• Checkthestatusofflight6944onApril6
+• Searchfortheflightstatusforflight12345678leavingonApril7
+• FindthecheapestonewayflightfromDallastoHoustonon24May
+• Find the lowest fare from JFK, NY to Chicago O’Hare and nearby airports for 1
+adultonApril22,one-way
+28
+
+--- Page 29 ---
+• ShowroutemapandflightcostfromLosAngelestoMiamion12April
+• CheckthestatusofflightsfromtheLosAngelesareatotheBostonareatomorrow
+• SearchforflightsfromNewYorkCitytoChicagoandfiltertheresultstoshowonly
+non-stopflights
+• FindflightsfromSeattletoNewYorkonJune5thandonlyshowthosethatcanbe
+purchasedwithmiles
+• BrowsenonstopflightsfromDenvertoPhoenixfromJun1sttoJuly15th
+• FinddealsforLasVegasfromNewYorkwiththebudgetof$1300forpremium
+economy
+• Bookafirst-classflightfromSeattletoPortlandleavingApril13andreturningon
+April14
+• Bookaone-way,fastest,andmostflexibledirectflightticketfortwofromAtlanta
+toOrlandoonMarch29evening
+• BookthecheapesteconomyflightbetweenMiamiandHoustonfortwoadultson
+May4withareturnoptiononMay8
+• FindaroundtripfromPhoenixtoMiamiwithamaximumbudgetof$2000
+• SearchforaflightfromSanFranciscotoLosAngelesfor2adultsleavingApr26
+andreturningMay2withthepromocode10000001
+• Findone-wayflightsforonepersonfromSacramentotoHoustonIAHonJune2,
+2023,thatcanbebookedusingmiles
+• checkcheapflightsfromNYCtoChicagoonthe23rdofAprilforstudentsover18
+years
+Cars(9tasks)
+• FindahighestrateddealerforCadillacwithratingabove4starwithin20milesof
+zip60606
+• ComparetheAcuraCL2003withtheILX2022
+• Findthesellerinfoandseller’snotesaboutusedcarmodel2011BMW135witha
+maxpriceof$30000
+• Findelectriccarswithamaximumpriceof$50,000within50milesof10001
+• Find a cheapest hatchback car listing in Madison which has red interiors with
+heatedseatoptionandpremiumsoundsystem
+• Findausedcheapest8cylinderbmwmadebetween2005-2015andpricedfrom
+$25,000to$50,000withmileagelessthen50,000milesorless
+• Calculatetheestimatedcarloanpaymentamountforanaveragecredit-ratedperson
+fora$15,000carwithadownpaymentof$2000andloantenureof48monthsinzip
+65215andshopforthelowestpricedcar
+• FindmethecheapestDodgeRam1500within50milesof21122
+• CompareAudiA7withAudiA6bothmadein2023andhidesimilarities
+D ExampleAPIs
+D.1 SuccessCases
+WefindthatAPIsareabletosuccessfullyautomatemultipleatomicactionsandrepresent
+themasasingleactionwithricherinputparameters. Herearesomepositiveexamples.
+D.1.1 Correctly-ImplementedSkills
+Hereisanskillthatwasimplementedontheshoppingwebsite. Itautomaticallyperforms
+thecheckoutprocesswiththeitemscurrentlyinthecart.
+29
+
+--- Page 30 ---
+express checkout
+async def express_checkout(page):
+"""
+Perform an express checkout for the items currently in the
+cart.
+Args:
+page: The Playwright page object to perform actions on.
+Usage Log:
+- Successfully completed express checkout, resulting in an
+order confirmation page with order number 000000191.
+- Initial attempts failed due to a timeout error when clicking
+'Proceed to Checkout'. Resolved by ensuring items were in the
+cart.
+Note:
+- Ensure that the cart is pre-filled with the desired items
+before calling this function.
+- The function assumes that the 'Proceed to Checkout' button
+is visible and clickable from the cart page.
+- The function navigates through the checkout process by
+clicking 'Next' on the Shipping page and 'Place Order' on the
+Review & Payments page.
+- If the 'Place Order' button is not immediately visible, a
+delay is included to allow dynamic elements to load.
+"""
+import asyncio
+await page.goto("/")
+await page.get_by_role("link", name="My Cart").click()
+await asyncio.sleep(5)
+await page.get_by_role("button", name="Proceed to Checkout").
+click()
+await asyncio.sleep(5)
+await page.get_by_role("button", name="Next").click()
+await asyncio.sleep(5)
+await page.get_by_role("button", name="Place Order").click()
+await asyncio.sleep(5)
+Hereisaskillthatwaslearnedfortheshoppingwebsitethatrepresentsapplyingadiscount
+codetotheitemsinthecart.
+express checkout
+async def apply_discount_code(page, discount_code):
+"""
+Apply a discount code during the checkout process.
+Args:
+page: The Playwright page object to perform actions on.
+discount_code (str): The discount code to apply.
+Usage Log:
+- Attempted to apply 'DISCOUNT10', but it was invalid. Ensure valid
+discount codes are used.
+Note:
+30
+
+--- Page 31 ---
+Figure4: ExpressCheckoutAPIexecution,before(left)andafter(right).
+- The function navigates to the checkout page to ensure the correct initial
+state.
+- Handles invalid discount codes by checking for error messages or lack of
+discount application.
+"""
+await page.goto("/checkout/#payment")
+await page.get_by_role("tabpanel", name="Apply Discount Code").get_by_role(
+"textbox", name="Enter discount code"
+).fill(discount_code)
+await page.get_by_role("tabpanel", name="Apply Discount Code").get_by_role(
+"button", name="Apply Discount"
+).click()
+D.1.2 DebuggingProcessFixingaSkill’sImplementation
+Here,wedemonstratethattheagentiscapableoffixingDOMresolutionerrors,bymaking
+specifictweakstoproblematicsectionsofcode. Afterthefollowingtrajectory,theagent
+makesapatchtotheknowledgebase.
+ErrorEncounteredfordelete merged branches
+<state0>
+URL:/byteblaze/accessible−html−content−patterns/−/merge requests/14
+[Omitted]
+</state0>
+<reasoning>
+1. I needto delete mergedbranchesinthespecified project 'byteblaze/accessible−html−
+content−patterns'.
+2. I can utilize the `delete merged branches`functionwhichispredefinedtohandlethis
+operationeffectively in the GitLabUI.
+31
+
+--- Page 32 ---
+Figure5: ApplyDiscountCodeAPIexecution. Before,theagentisonarandompage(left),
+andafter,theagentsuccessfullynavigatestotheshoppingcartandentersadiscountcode,
+WELCOME10(right).
+3. Since the pageindicates that I amalreadywithinthecorrect project context, I can
+proceeddirectly withinvokingthefunctionusingthe providedprojectpath.
+</reasoning>
+<code>
+async def act(page):
+# Call the function to delete merged branches
+await delete_merged_branches(page, "byteblaze/accessible-html-
+content-patterns")
+</code>
+WefoundabuginoneoftheAPIs,andwereableto makethefollowingrecoveries. For
+eachRECOVERYcomment,followtheinstructions.
+<exception>
+'Error': Locator.fill : Error: strict modeviolation:get by role(”textbox”) resolvedto 2
+elements:
+1) <inputid=”search”type=”text”name=”search”autocomplete=”off”placeholder=”
+SearchGitLab”data−qa−selector=”search box”class=”form−controlgl−form−
+inputgl−search−box−by−type−input”/>akaget by placeholder(”SearchGitLab”)
+2) <inputtype=”text”id=” BVID 158”autocomplete=”off”aria−labelledby=”input−
+label”data−qa−selector=”delete merged branches input”class=”gl−form−input
+gl−mt−2form−controlgl−form−input−sm”/>akalocator(”[id=\” BVID 158
+\”]”)
+Call log:
+</exception>
+−−−
+<state1>
+32
+
+--- Page 33 ---
+URL:/byteblaze/accessible−html−content−patterns/−/branches
+[Omitted]
+</state1>
+<reasoning>
+Thepagecurrentlydisplaysa dialog that asks for confirmationto delete all merged
+branches.Itrequires typing 'delete' into aninputbox. After typingthe
+confirmationtext, the ”Deletemergedbranches”buttoncanbeclickedtoproceed.I
+will fill the textbox with 'delete' andthenclick the confirmationbuttonto
+completethetask.
+</reasoning>
+<code>
+async def act(page):
+# Fill the confirmation textbox with 'delete'
+await page.get_by_role("dialog", name="Delete all merged
+branches?").get_by_role("textbox").fill("delete")
+# Click the "Delete merged branches" button to confirm
+deletion
+await page.get_by_role("dialog", name="Delete all merged
+branches?").get_by_role("button", name="Delete merged branches
+").click()
+</code>
+−−−
+<state2>
+URL:/byteblaze/accessible−html−content−patterns/−/branches
+[Omitted]
+</state2>
+<terminate with result>
+Themergedbrancheshavebeensuccessfullydeletedinthe'byteblaze/accessible−html−
+content−patterns'project.
+</terminate with result>
+−−−
+<state3>
+URL:/byteblaze/accessible−html−content−patterns/−/branches
+[Omitted]
+</state3>
+Hereisthefixtheagentmade: removingtheambiguousDOMselectorfor“textbox”,and
+replacingitwithonethatfirstselectsthedialogwindowthatcontainsthetextbox,andthen
+thetextboxelementwithinit.
+33
+
+--- Page 34 ---
+delete merged branches
+async def delete_merged_branches(page, project_path):
+"""
+Automates the deletion of merged branches in a specified GitLab project.
+This function navigates to the branches page of the specified project and
+deletes all merged branches
+by interacting with the confirmation dialog that appears.
+Args:
+page: The Playwright page object.
+project_path: The path of the project in GitLab (e.g., 'byteblaze/
+accessible-html-content-patterns').
+Usage log:
+- Successfully used to delete merged branches in the 'a11y-syntax-
+highlighting' project by navigating to the branches page,
+clicking the 'Delete merged branches' button, and confirming the action
+by typing 'delete'.
+- Ensure the project path is correctly specified to match the URL structure
+in GitLab.
+- The function assumes the user is logged in and has access to the
+specified project.
+- Resolved an issue with strict mode violation by specifying the correct
+textbox within the dialog.
+"""
+await page.goto(f"/{project_path}/-/branches")
+await page.get_by_role("button", name="Delete merged branches").click()
+++ await page.get_by_role("textbox")
+-- await page.get_by_role("dialog", name="Delete all merged branches?").
+get_by_role(
+-- "textbox"
+-- ).fill("delete")
+await page.get_by_role("dialog", name="Delete all merged branches?").
+get_by_role(
+"button", name="Delete merged branches"
+).click()
+await asyncio.sleep(2)
+D.2 FailureCasesandLimitations
+Weobservesomefailurecases,whichseemtobecausedbygapsinLLMreasoningcapabili-
+tiesforcertainsituations.
+D.2.1 CriteriaforVerifyingSuccess
+Becauseourcriteriaforafunctiontobe“verified”wastohaveitbecalledwithoutproducing
+anexception,wefoundthatoccasionally,malfunctioningAPIscouldbemarkedasverified
+simplybecausetheysilencedallexceptionsthatcouldhaveoccurred. Thisrepresentsa
+measureforevaluationhavingunintendedconsequences.
+Inthefollowingexample,afunctionwasmisused,anditwasunabletoresolvethenecessary
+DOMelementsgiventhepagestate.However,insteadofimprovingthefunction’ssignature
+oraddingachecktoensurethefunctionwascalledcorrectly,theLLMadds“if”statements
+tosimplyavoidanyoftheatomicactionsfromproducinganerror. Whilethisdoesreduce
+thenumberofexceptions,itdoesnotimprovetherobustnessoftheAPI.
+34
+
+--- Page 35 ---
+update product quantity
+async def update_product_quantity(page, product_name, new_quantity):
+"""
+Update the quantity of a specified product in the Magento Admin Panel's
+Advanced Inventory settings.
+This function navigates to the product's edit page, opens the Advanced
+Inventory dialog,
+and updates the quantity to the specified value. It includes proactive
+checks for element availability.
+Initial UI State:
+- The user must be logged into the Magento Admin Panel.
+- The function assumes the product edit page is accessible via the '/admin/
+catalog/product/edit/name/{product_name}/' URL.
+Args:
+page (Page): The Playwright page object representing the browser page.
+product_name (str): The name of the product to update.
+new_quantity (int): The new quantity to set for the product.
+Usage Log:
+- Successfully updated the quantity for 'Arcadio Gym Short' to 50.
+- Adjusted the quantity for 'Yoga Mat' to 100 without issues.
+- Encountered a timeout error when trying to update 'Sprite Yoga Mat'.
+Consider checking the availability of the 'Advanced Inventory' button.
+"""
+import re
+import asyncio
+await page.goto(f"/admin/catalog/product/edit/name/{product_name}/")
+advanced_inventory_button = page.get_by_role("button", name="Advanced
+Inventory")
+if await advanced_inventory_button.count() > 0:
+await advanced_inventory_button.click()
+else:
+print("Advanced Inventory button not found.")
+return
+qty_input = page.get_by_role("textbox", name="[GLOBAL] Qty")
+if await qty_input.count() > 0:
+await qty_input.fill(str(new_quantity))
+else:
+print("Quantity input not found.")
+return
+done_button = page.get_by_role("button", name="Done")
+if await done_button.count() > 0:
+await done_button.click()
+else:
+print("Done button not found.")
+return
+save_button = page.get_by_role("button", name="Save")
+if await save_button.count() > 0:
+await save_button.click()
+else:
+print("Save button not found.")
+return
+35
+
+--- Page 36 ---
+Figure6: Theagentisunabletosuccessfullyverifythatthe“addcollaboratortoproject”
+worksbecauseitdoesnothaveaccesstoalistofemailsthatcanappropriatelybeusedas
+testcases.
+D.2.2 CreatingFunctionalTestCases
+Someskillsrequireinteractingwithdatastoredonthewebsite,andtheirsuccessiscondi-
+tionednotonwhethertheUIisaccuratelyinteractedwithbutratherwhetherthefunction
+inputs are realistic. In the following example, the agent attempts to learn how to add
+collaboratorstoaGitlabrepository,butisunabletobecauseitdoesnothaveasourceofreal
+testinputdata. Futureworkcouldexploreautomaticallygeneratingtestcasesforagentsfor
+successfulevaluationindynamicwebsites.
+D.2.3 CeilingofAgentCapabilities
+request quote for multiple listings
+async def request_quote_for_multiple_listings(page, make, model, first_name,
+last_name, email):
+"""
+Request a quote for multiple car listings on Cars.com by navigating through
+listings and submitting the quote request form.
+This function navigates to the 'Cars for Sale' section, applies filters for
+the specified make and model,
+and iterates through the listings to request quotes. It manually navigates
+between listings using their URLs.
+Args:
+page (Page): The Playwright page object.
+make (str): The car make to filter by.
+model (str): The car model to filter by.
+first_name (str): The first name to fill in the contact form.
+last_name (str): The last name to fill in the contact form.
+email (str): The email to fill in the contact form.
+Usage log:
+36
+
+--- Page 37 ---
+- Successfully navigated to the 'Cars for Sale' section, applied filters,
+and requested quotes for multiple listings.
+- Encountered issues with automatic navigation using 'Next car' link,
+resolved by manual URL navigation.
+"""
+import asyncio
+await page.goto("https://www.cars.com/shopping/")
+await page.wait_for_load_state("networkidle")
+await close_overlays(page)
+await page.get_by_role("combobox", name="Make").select_option(make)
+await page.get_by_role("combobox", name="Model").select_option(model)
+show_matches_button = page.get_by_role("button", name="Show matches")
+if await show_matches_button.count() > 0:
+await show_matches_button.click()
+else:
+print("Show matches button not found.")
+return
+await page.wait_for_load_state("networkidle")
+for _ in range(5):
+await page.get_by_role("textbox", name="First name").fill(first_name)
+await page.get_by_role("textbox", name="Last name").fill(last_name)
+await page.get_by_role("textbox", name="Email").fill(email)
+await page.get_by_role("combobox", name="Subject").select_option(
+"Get a price quote"
+)
+submit_button = page.get_by_role("button", name="Email")
+if await submit_button.count() > 0:
+await submit_button.click()
+else:
+print("Submit button not found.")
+return
+await asyncio.sleep(2)
+next_car_link = page.get_by_role("link", name="Next car")
+if await next_car_link.count() > 0:
+await next_car_link.click()
+await page.wait_for_load_state("networkidle")
+else:
+print("Next car link not found. Navigation stopped.")
+break
+D.2.4 FailtocallAPI
+TheagentdoesnotcallavailableAPIsevenwhentheyaregeneratedduringexploration.
+AsshowninFigure7,forthetask”Saveahamburgerrecipe,”theagentshouldfirstcall
+search recipes by cuisine type(’hamburger’)toobtainrecipedetailsandthenselectthe
+printoptiontosavetherecipes. However,theagentfailstocallthisAPIduringthetask
+execution,indicatingagapbetweenexplorationandexecutionphases,suggestingtheneed
+forimprovingtheagent’spolicytobetterutilizegeneratedAPIs.
+search recipes by cuisine type
+async def search_recipes_by_cuisine_type(page, cuisine_type):
+"""
+Searches for recipes based on a specified cuisine type on Cookpad.
+This function automates the process of searching for recipes by entering a
+cuisine type
+into the search functionality on the Cookpad homepage.
+37
+
+--- Page 38 ---
+Figure 7: Screenshot of cookpad.com. The agent fails to call
+search recipes by cuisine type(’hamburger’)toobtainrecipedetails.
+Args:
+page: The Playwright page object to interact with.
+cuisine_type (str): The cuisine type to search for, e.g., 'Italian', '
+Mexican', 'Korean', 'Chinese', 'American'.
+Usage log:
+- Successfully used to search for 'Italian' cuisine recipes, displaying the
+correct results.
+"""
+import re
+await page.get_by_role("textbox", name="Search by recipe or ingredients").
+fill(
+cuisine_type
+)
+search_button = page.get_by_role("button", name=re.compile("Search", re.
+IGNORECASE))
+if await search_button.is_visible():
+await search_button.click()
+else:
+await page.keyboard.press("Enter")
+D.2.5 WrongParameter
+Insomecases,theagentcorrectlyidentifiestheappropriateAPIbutselectsincorrectpa-
+rameters. ForexampleinFigure8, inthetask”Browserecipesforgluten-freechocolate
+chip cookies that can be made without nuts,” the agent incorrectly uses the parameter
+search recipes by ingredients(page, ’chocolate chip, -nuts’), whereas the correct
+parameter should be search recipes by ingredients(page, ’chocolate chip without
+nuts’). This indicates that the agent needs better parameter selection logic to enhance
+performance.
+search recipes by ingredients
+async def search_recipes_by_ingredients(page, ingredients):
+"""
+38
+
+--- Page 39 ---
+Figure 8: Screenshot of cookpad.com. The agent incorrectly uses the parameter
+search recipes by ingredients(page, ’chocolate chip, -nuts’) instead of thecorrect
+parametersearch recipes by ingredients(page, ’chocolate chip without nuts’)
+Searches for recipes using specified ingredients on Cookpad.
+This function automates the process of searching for recipes based on a
+list of ingredients
+by interacting with the search functionality on the Cookpad homepage.
+Args:
+page: The Playwright page object to interact with.
+ingredients (str): A comma-separated string of ingredients to search
+for, e.g., 'chicken, rice, broccoli'.
+Usage log:
+- Successfully used to search for recipes with 'chicken, rice, broccoli',
+displaying the correct results.
+- Successfully used to filter recipes by seasonal ingredients 'pumpkin,
+apple, squash', displaying the correct results.
+"""
+import re
+await page.get_by_role("textbox", name="Search by recipe or ingredients").
+fill(
+ingredients
+)
+search_button = page.get_by_role("button", name=re.compile("Search", re.
+IGNORECASE))
+if await search_button.is_visible():
+await search_button.click()
+else:
+await page.keyboard.press("Enter")
+39
+
+--- Page 40 ---
+async def apply_multiple_filters(page, make, model, distance, zip_code, max_price):
+# Apply multiple filters on the Cars.com website including make, model, distance, ZIP code,
+and price range.
+await page.goto("https://www.cars.com/shopping/")
+await close_overlays(page)
+await filter_cars_by_make_and_model(page, make, model)
+await refine_search_by_distance_and_zip(page, distance=distance, zip_code=zip_code)
+if max_price and max_price.strip(): price_select = page.locator('#make-model-max-price’)
+if await price_select.count() > 0: await price_select.select_option(value=str(max_price))
+else: print("Price selector not found")
+search_button = page.get_by_role("tabpanel", name="Make").locator("spark-button[data-
+searchtype='make']")
+if await search_button.count() > 0: await search_button.click()
+else: print("Search button not found in make panel")
+Figure9: AnexampleofcompositionalAPIthatcallsmultipleotherAPIs.
+D.3 CompositionalAPI
+D.4 WebsiteRoadmapAPI
+async def navigate_to_cars_for_sale(page):
+# Navigate to the 'Cars for Sale' section on the Cars.com website, which contains car
+sales information.
+import asyncio
+await page.goto("https://www.cars.com/")
+cars_for_sale_link = page.get_by_role("navigation", name="main menu").get_by_role(
+"link", name="Cars for Sale")
+if await cars_for_sale_link.count() > 0:
+await cars_for_sale_link.click()
+await asyncio.sleep(5)
+else: print("Cars for Sale link is not visible.")
+Figure10: AnexampleofroadmapinformationcontainedinthesynthesizedAPIs. The
+docstringofthisAPIcontainsthecorrespondingfunctionalityofthisAPI.Iftheagentis
+newtothiswebsite,thisfunctionmightrequiressomeexplorationtoget.
+40

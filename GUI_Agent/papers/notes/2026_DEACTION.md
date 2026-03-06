@@ -6,7 +6,7 @@
 - **Venue**: Preprint, 2026 | arXiv:2602.08995
 - **Links**: [PDF](../source_todo/When-Actions-Go-Off-Task.pdf) | Project: https://osu-nlp-group.github.io/Misaligned-Action-Detection | Code: not listed in PDF
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-06
-- **Priority**: P1 | **Reading progress**: Pass 1
+- **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
 这篇论文首次系统定义 CUA 中的 misaligned action detection，构建含 2,264 条 action-level 标注的 MISACTBENCH，并提出可插拔 guardrail DEACTION，在离线检测上把 F1 提升 15%+，在线红队设置下把 attack success rate 降低 90% 以上，同时保持 benign utility（Abstract / Section 5, p.1-2, p.6-7）。

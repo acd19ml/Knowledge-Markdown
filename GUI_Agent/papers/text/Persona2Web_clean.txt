@@ -1,0 +1,1505 @@
+--- Page 1 ---
+Persona2Web: Benchmarking Personalized Web Agents for
+Contextual Reasoning with User History
+SerinKim1 SangamLee1 DonghaLee1
+Abstract
+Large language models have advanced web
+agents, yet current agents lack personalization
+capabilities. Sinceusersrarelyspecifyeveryde-
+tail of their intent, practical web agents must
+be able to interpret ambiguous queries by in-
+ferring user preferences and contexts. To ad-
+dressthischallenge,wepresentPERSONA2WEB,
+the first benchmark for evaluating personalized
+webagentsontherealopenweb,builtuponthe
+clarify-to-personalize principle, which requires
+agentstoresolveambiguitybasedonuserhistory
+ratherthanrelyingonexplicitinstructions. PER-
+SONA2WEB consists of: (1) user histories that
+revealpreferencesimplicitlyoverlongtimespans,
+(2)ambiguousqueriesthatrequireagentstoinfer
+implicit user preferences, and (3) a reasoning-
+aware evaluation framework that enables fine-
+grainedassessmentofpersonalization. Wecon-
+ductextensiveexperimentsacrossvariousagent
+architectures, backbone models, history access
+schemes,andquerieswithvaryingambiguitylev-
+els,revealingkeychallengesinpersonalizedweb Figure 1. A personalized web agent generates user-specific re-
+sponsesbyleveraginguserhistory,whereasageneralwebagent
+agentbehavior. Forreproducibility,ourcodesand
+oftenproducesgenericorrandomoutputsthatfailtoalignwith
+datasetsarepubliclyavailableat[CODE].
+userpreference.
+therobustnessofwebagents.
+1.Introduction
+However,theseadvancesremaininsufficientforfullyprac-
+LargeLanguagemodels(LLMs)haveprogressedbeyond tical use in real-world scenarios. In real-world scenarios,
+imitating human reasoning and are beginning to act au- users rarely specifyevery detailof theirintent, assuming
+tonomously on behalf of humans in complex, real-world thatsystemsunderstandtheirimplicitcontext(Kelly&Tee-
+tasks(Xietal.,2023). Arepresentativeparadigmofsuch van,2003;Huetal.,2008;Shokouhietal.,2015;Radlinski
+advancementisthewebagent,anautonomoussystemde- & Craswell, 2017; Zamfirescu-Pereira et al., 2023; Deng
+signedtoexecutemulti-stepworkflowsonwebenvironment etal.,2024). Tobegenuinelypractical, webagentsmust
+thatrequirehumanintervention(Wangetal.,2024). Atthe beabletoaccuratelyinterpretevensuchambiguousqueries
+coreofthesecapabilities,LLMsenabletheagenttointerpret by inferring the user context and preferences. Yet, they
+webcontents(Guretal.,2022;2024)andunderstandtask- often provide generic and sometimes arbitrary responses
+specificinstructions(Ouyangetal.,2022),whichenhances toambiguousqueries(Songetal.,2007;Quetal.,2018).
+InFigure1,whengiventheambiguousquery,thegeneral
+1DepartmentofArtificialIntelligence,YonseiUniversity–DLI
+web agent (Left) fails to clarify the query and selects a
+Lab,Seoul,RepublicofKorea.Correspondenceto:DonghaLee
+randomhigh-sugarsnackthathasnorelationtotheuser’s
+<donalee@yonsei.ac.kr>.
+preferences. Suchbehavioryieldsunsatisfactoryoutcomes
+Preprint.February20,2026. fortheuserwithstrongpreferenceforhealth-consciousop-
+1
+6202
+beF
+91
+]LC.sc[
+1v30071.2062:viXra
+
+--- Page 2 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+tions. Personalizationcandirectlyaddressthislimitationby Table1.ComparisonbetweenPERSONA2WEBandexistingweb
+enablingagentstoleverageuserhistorywhenresolvingam-
+agentbenchmarks. PERSONA2WEBoffersextensivedomainand
+websitecoverage,enablesevaluationontheopenweb,andsup-
+biguity. Whengiventhesamequery,thepersonalizedweb
+portspersonalizationassessment.Parenthesizednumbersnextto
+agent(Right)leveragestheuserhistoryandselectssnacks theenvironmentindicatethenumberofwebsitesused;simulated,
+thatalignwiththeuser’shealth-consciouspreferences. function-call,anddialogueagentthereforeomitwebsitecounts.
+Domaincountsarerecalculatedbasedonourowncriteria.
+Despite the importance of personalization in web agents,
+existingbenchmarksfailtoprovideapertinentevaluation Benchmark Domains Environment Personalization
+frameworkforthesecapabilities. Specifically,theysuffer WebLINX – Cached(155) ✗
+from two fundamental limitations. First, the majority of Mind2Web 31 Cached(137) ✗
+existing web agent benchmarks do not provide the user WebShop 1 Simulated ✗
+contextthatrevealsuser’spreferenceorbehavioralpatterns WebArena 6 Simulated ✗
+whichareessentialforagentstopersonalizetheirresponses. WebVoyager 5 Openweb(15) ✗
+AssistantBench 15+ Openweb(258) ✗
+Evenwhensomeformofcontextisprovided(Zhouetal.,
+WebCanvas 19 Openweb(69) ✗
+2023; Yao et al., 2024), it does not reflect realistic user
+PersonalWAB 1 Function-call ✓
+behaviorthatagentswouldencounterinpractice. Second, Apollonion 6 Dialogueagent ✓
+current benchmarks (Deng et al., 2023; He et al., 2024)
+relyonfullyspecifiedqueriesthatoverlooktheambiguity
+PERSONA2WEB 21 Openweb(105) ✓
+inherent in real user-agent interactions. This eliminates
+the need for agents to clarify implicit queries based on
+provided,performanceimprovesonlymarginally,reaching
+usercontext,whichisthecorechallengeofpersonalization.
+justa13%successrateatbest. Theseobservationsindicate
+Consequently,thesebenchmarkscannotdistinguishbetween
+thatsimplysupplyinguserhistoryisinsufficientandhigh-
+agentsthatgenuinelyunderstandandapplyuserpreferences
+lighttheneedformethodsthatenableagentstoeffectively
+andthosethatsimplyfollowtheinstructions.
+leverageusercontextforpersonalization. Furthermore,task
+Motivatedbytheselimitations,weintroducethefirstperson- completionalonecannotcapturepersonalizationcapability,
+alizedwebagentbenchmark,PERSONA2WEB,specifically asagentswithsimilarsuccessratesexcelatpersonalization
+designed for evaluating personalization capability of the butfailatnavigation,orthereverse. Thisunderscoresthe
+webagentontherealopenweb. Centraltothisbenchmark necessityofourreasoning-awareevaluationframeworkfor
+is the principle of clarify-to-personalize. This elicits per- personalizedwebagents.
+sonalizationbychallengingagentstointerpretambiguous
+Ourkeycontributionsareasfollows:
+queries and fill in missing details based on user history,
+rather than simply executing fully specified instructions. • WeproposePERSONA2WEB,thefirstbenchmarkforeval-
+Specifically,PERSONA2WEBconsistsofthreecorecompo- uating personalized web agents on the real open web,
+nents. (1)UserHistory: Ourrigorously-constructeduser comprisinguserhistories,personalizationquerysets,and
+historyextendssimplebrowsinglogsintoricherandmore evaluationframework.
+detailedcontexts. Itrevealsuserpreferencesinimplicitand • Ourqueriesfollowclarify-to-personalizeprinciplethat
+indirectwaysoverlongtimespans,ratherthanproviding deliberately embeds ambiguity, requiring the agent to
+themexplicitlyatonce. (2)AmbiguousQuery: Ourbench- inferimplicitcontextsfromuserhistorywithoutexplicit
+markintentionallyconcealsspecificpartsofthequerytolet cues.
+theagentclarifybasedonuserhistory. Thisdesignassesses
+• Weconductextensiveexperimentsacrossdiverseback-
+whethertheagentcanresolveambiguitywithoutforcingthe
+bonemodels,historyaccessschemes,andqueryambigu-
+userstoprovideexhaustivedetails. (3)Reasoning-aware
+itylevelstoidentifykeychallengesinpersonalizedweb
+Evaluation: Beyondsimpletaskcompletion, ourevalua-
+agentbehavior.
+tionframeworkcomprehensivelyexaminesreasoningtraces
+throughstructuredrubricstoproperlydistinguishperson-
+2.Relatedwork
+alization failures from navigation failures. This enables
+fine-grainedassessmentofpersonalizationinwebagents.
+Web agent benchmark. Evaluating the web agents
+Evaluating both general and personalized web agents on presentsinherentchallengesduetothedynamicnatureof
+PERSONA2WEBrevealsafundamentalgapincurrentper- the web. To mitigate this issue, prior benchmarks have
+sonalizationcapabilities. Withoutaccesstouserhistory,all primarilyreliedonsimulatedorcachedenvironments(Ta-
+agentsfailcompletelyonambiguousqueries,achievinga ble 1). MiniWOB++ (Shi et al., 2017; Liu et al., 2018)
+0%successrate,whichconfirmsthatagentscannotresolve providessimplifiedHTML-basedtaskstotestinteraction
+ambiguitywithoutusercontext. Evenwhenuserhistoryis skills. WebArena (Zhou et al., 2023) introduces a self-
+hostedsimulatedplatformwithend-to-endexecutabletasks.
+2
+
+--- Page 3 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Figure2.OverviewofPERSONA2WEBconstructionpipelineandreasoning-awareevaluationprocess.
+Mind2Web(Dengetal.,2023)cachesreal-worldwebpages sonalizationthroughembedding-basedsimilaritywithuser
+and provides realistic tasks demanding multi-step execu- profiles,andPrefEval(Zhaoetal.,2025)requiresmodelsto
+tion. Recent studies have shifted toward benchmarks on inferimplicitlyexpressedpreferences. PersonalWAB(Cai
+the real open web, introducing corresponding evaluation et al., 2024) explores personalization based on the user’s
+methods to handle its dynamic nature. WebCanvas (Pan history, but focuses on abstract function calls rather than
+et al., 2024) defines mandatory key nodes and evaluates webinterfaceinteractions.Yetnoneofthesebenchmarksad-
+performance at each node, while WebVoyager (He et al., dresswebnavigationscenarios,whereuserpreferencesare
+2024)integratesvisualinformationintoobservationspace inferredfrominteractionpatternsandapplythemintheac-
+andevaluatesthroughLLMjudge. tionplanningandexecution. Motivatedbytheselimitations,
+ourworkmovesbeyondresponsegenerationtoencompass
+Beyond the environment limitations, existing evaluation
+realisticwebnavigationtasksgroundedinusercontext.
+methodologiesfailtocapturethecomplexityofwebagent
+behavior. Current web agent benchmarks assess perfor-
+mancebasedonstep-wiseactions(Gouetal.,2025)orthe 3. PERSONA2WEB
+finaloutcomes(Zhouetal.,2023;Yaoetal.,2022;Heetal.,
+Inthissection,wepresentPERSONA2WEB,abenchmark
+2024)makingitimpossibletodiscernwhetherfailuresstem
+designedtoevaluatepersonalizedwebagentsunderrealistic,
+fromnavigationerrors,personalizationdeficiencies,orother
+open-webenvironment.Itcomprisesthreecorecomponents:
+reasoningbreakdowns. Unlikeclosedsettings,open-web
+userhistory,ambiguousquery,andreasoning-awareevalua-
+navigation often admits multiple trajectories that lead to
+tion. Figure2illustratestheoverallpipeline.
+correct outcomes, making action-wise or outcome-based
+evaluationinappropriate.
+3.1.RealisticUserHistory
+Weconstructusercontextintheformofwebbrowsinghis-
+PersonalizationinLLMs. Personalizationhasbeenex-
+tory,asthisformatmostcloselyreflectshowrealwebagents
+ploredinmemory-augmentedLLMs(Kumaretal.,2024;
+wouldaccessuserinformationinpractice. Whiledialogue-
+Wu et al., 2024; Pan et al., 2025; Huet et al., 2025) and
+based benchmarks (woo Kwak et al., 2025) incorporate
+dialogueagents(Zhaoetal.,2025;Chenetal.,2024;Xu
+usercontextthroughexplicitverbalcues,browsinghistory
+et al., 2022; Lee et al., 2023; Zhang et al., 2018), typi-
+encodes such information implicitly with web behaviors.
+callydefinedastheabilitytoretrieveandreasonoveruser-
+Thisrequiresagentstoinferuserpreferencesfromactions
+relevantinformation. LaMP(Salemietal.,2023)introduces
+ratherthanrelyingonexplicitlinguisticcues. Tothisend,
+a benchmark with user profiles across multiple domains,
+weconstructuserhistorythroughamulti-stagegeneration
+andLongLaMP(Kumaretal.,2024)extendsitwithafocus
+pipeline(seeTables7, 8, 9, and10fordetailedprompts).
+on the text generation tasks. In dialogue settings, Long-
+Thekeyprincipleisthatuserpreferencesshouldberevealed
+MemEval(Wuetal.,2024)evaluatesmemoryabilitiesbased
+implicitlyfromcontextualcuesdistributedacrossthehistory,
+onchathistory,Apollonion(Chenetal.,2024)measuresper-
+3
+
+--- Page 4 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Table2.ExamplesofaPERSONA2WEBqueryset.Eachtaskprovides3querieswithvariedambiguitylevels.Web.andPref.denote
+websiteandpreferences,respectively.Level0isaclearquerythatincludesallexplicitcues.
+Level Web. Pref. ExampleQuery
+0 ✓ ✓ Atzocdoc.com,searchfordoctorsnearSouthsideJacksonvillewhoisafemale.
+1 ✗ ✓ SearchfordoctorsnearSouthsideJacksonvillewhoisafemaleatmypreferredwebsite.
+2 ✗ ✗ Searchfordoctorsinmyusualareathatmatchmypreferredprovidergenderatmypreferredwebsite.
+ratherthanstatedexplicitly. where a denotes the j-th action derived from event E ,
+i,j i
+and L is the number of actions in the event E . Actions
+i i
+Userprofilegeneration. Thefirststageconstructsauser from each event are dispersed across different temporal
+profileconsistingofdemographicinformationDem(u)and pointsoverayear. Thispreventsrelatedactionsfrombeing
+domainpreferencesPref(u). Demographicattributesare clusteredtogetherandinsteadrequiresagentstointegrate
+evenlydistributedtoensurevariabilityacrossusers.Domain remotehistoriestorecognizerecurringpatterns.
+preferencerepresentstheuser’sdomain-specificpreferences
+andpatterns. Wedefine21domainsreflectingtypicalweb
+userexperiences.
+Given Dem(u) and the predefined domain set D = Userhistorygeneration. Westructureuserhistorywith
+{d 1 ,d 2 ,...,d 21 },theLLMMselectsK relevantdomains fourelementsasshowninFigure2: timestamp,type,ob-
+withrationales1:
+ject, and website. The type field includes five categories,
+{(d(k),ρ(k))}K =M (cid:0) Dem(u),D (cid:1) , websearch,webvisit,purchase,booking,andreviewand
+k=1
+rating, capturing a broad spectrum of actions commonly
+whered(k)denotesk-thselecteddomainandρ(k)isthera- observedinwebenvironments. Objectprovidesthedetailed
+tionaledescribingitsrelevance. Mthengeneratesdomain- informationofthetargetentityforeachactiontype.
+specificpreferencesusingdomainpromptπ(k)thatspecifies
+whatattributestoincludeindomaink’spreferences: 3.2.AmbiguousQuerySets
+(cid:110) (cid:111)K
+Pref(u)= M(d(k),π(k),ρ(k),Dem(u)) A key distinction of our work lies in intentionally mask-
+k=1 ingexplicitvalues,astheambiguityofaqueryshouldbe
+(cid:0) (cid:1)
+The user profile is Profile(u) = Dem(u),Pref(u) as a resolvedthroughtheuser’shistory. Basedonthisclarify-
+result. Intotal,weconstruct50distinctuserprofiles. to-personalizeapproach,wefirstgenerateaquerywithall
+explicit cues, then create variants by adjusting the level
+Event seeds and action decomposition. Since prefer- ofambiguity. Eachquerysetconsistsofthreelevels(Ta-
+encesarereflectedineventoccurrence,randomlygenerat- ble2): Level0(clearquery),wherebothwebsiteandpref-
+ingeventswithouteventseedordirectlyimportingexternal erenceconstraintsareexplicit;Level1,wherepreference
+data(Sapetal.,2020)failstocaptureconsistentpreference. constraintsareexplicitwhilewebsiteismasked;andLevel
+Weintroduceeventseedsthatdefinerecurringactivitypat- 2, wherebotharemasked. Level2isthetargetqueryon
+ternsbasedonuserpreferencesandroutines. Wecategorize whichpersonalizedwebagentsshouldperformwell.
+eventsintohigh-frequency(dailyactivitieslikecommuting,
+shopping) and low-frequency types (irregular events like 3.3.Reasoning-awareEvaluation
+travel,medicalcheckups).
+Accurateevaluationofpersonalizedwebagentsrequiresdis-
+Given the Dem(u) and the set of rationales within all tinguishingpersonalizationfailuresfromnavigationfailures.
+selected domains {ρ(k)}K k=1 , LLM generates two event However,sincetaskcompletiondependsonbothpersonal-
+sets: thehigh-frequencyeventsE u HFandthelow-frequency izationandnavigation,errorsineitherarecompoundedin
+eventsE u LF,asfollows. thefinaloutcome,makingthedistinctionimpossiblefrom
+(EHF, ELF)=M (cid:0) Dem(u),{ρ(k)}K (cid:1) (1) task success alone. Our evaluation framework examines
+u u k=1
+thefulltrajectoryincludingreasoningtracesbasedonthree
+Weselectivelyapplycancellationsandmodificationstoap- metrics: personalization score, intent satisfaction, and
+proximately10%oftheentirerecordtoreflectthenoiseand successrate. Foreachmetric,weemployscoringrubrics
+inconsistenciespresentinreal-worlduserhistories. Each thatassigndiscretepointlevels(0,5,or10points)basedon
+eventE i isdecomposedintoasequenceofactions: whethereachcriterionismet. Toapplytheserubrics,we
+(cid:0) useGPT-5-miniasanLLMjudgethatreceivestheagent’s
+(a ,a ,...,a ) = M E ), i=1,...,N
+i,1 i,2 i,Li i
+fulltrajectoryalongwiththerubricsandoutputsscoresfor
+1WeuseGPT-4oasMthroughoutthedatagenerationpipeline. eachmetric. DetailedrubricsinAppendixD.
+4
+
+--- Page 5 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Personalizationscores. Toevaluatepersonalization,we otherwise,itdirectlygeneratestheexecutionplanforthe
+definetwoPersonalizationScores(PS),P andP .P nextstep.
+web pref web
+determineswhethertheagentrecognizeswebsitesthatalign • Retriever: The retriever receives history queries from
+withrecurringusagepatternsbasedontheuserhistory.P pref theplannerandsearchesforrelevantentriesintheuser
+further examines whether the agent identifies items or at- history. MoredetailsinSectionB.2.
+tributes that best reflect user preferences. For websites
+• Generator:Thegeneratorreasonsoverretrievedhistories
+requiringlocation-awarenavigation(e.g.,Amazon,Resy),
+toresolvequeryambiguities. Itreceivesthehistoryquery
+weadditionallyevaluatewhethertheagentcorrectlyperson-
+fromtheplanneralongwiththeretrievedhistoriesfrom
+alizesbasedonuserlocationfromhistory,evenwithoutan
+theretrieverandanalyzesthemtoidentifypreferencesand
+explicitquerycue. Sincepersonalizationinvolvesmultiple
+extractspecificdetails. Itthenproducesapersonalized
+stepstoretrieverelevanthistoryandutilizeit,whichcanfail
+rationalethatguidessubsequentactionplanning.
+independently, eachscoreiscomputedusingtworubrics:
+retrieval accuracy, which assesses whether the agent ac- Throughouttheprocess,theagentgeneratesatrajectorythat
+cessesthecorrecthistories,andutilizationaccuracy,which capturesbothactionsandreasoningateachstep(Erdogan
+evaluateswhethertheretrievedinformationisappropriately etal.,2025). Theresultingreasoningtrajectorydocuments
+incorporatedintothenavigationprocess. Theserubricsre- theaccessedhistoryentries,querydisambiguationprocess,
+quire reasoning traces to identify whether failures occur andfinaloptionselection.
+duringretrievalorutilization.
+4.2.HistoryAccessScheme
+Intentsatisfaction. Intentsatisfactionmeasurestaskaccu-
+Toevaluatedistinctaspectsofpersonalizationcapabilities,
+racyapartfrompersonalization. Consideringtheopen-web
+we propose two history access schemes for web agents
+environment,agentsmayformulatecorrectplansbutfaildue
+that differ in when and how user history is accessed: on-
+toexternalfactors(websiteunavailability,dynamiccontent).
+demand and pre-execution. In the on-demand scheme,
+Therubricassignsfullcreditforcompletetasksuccessand
+theagentaccessesuserhistorydynamicallyduringtaskex-
+partialcreditwhentheagentattemptsthecorrectactionbut
+ecution,onlywhentheplannerdeterminesitisneededat
+isblockedbyexternalfactors.
+eachstep. Thisschemeevaluateswhethertheagentcanrec-
+ognize,inrealtime,whenandwhattypeofpersonalization
+Success rate. Success Rate (SR) counts cases with full
+isrequired,therebytestingitssituationalawareness. Inthe
+scores in both PS and IS. The task is deemed successful
+pre-executionscheme,theagentretrievesallrelevanthisto-
+onlywhentheagentpersonalizesandexecutesaccurately.
+riesbeforeexecutionbeginsbygeneratingmultiplequeries
+toresolveambiguities. Thisschemeexaminestheagent’s
+4.PersonalizedWebAgent abilitytoengageinlong-horizonplanningtoanticipatewhat
+informationwillbeneededduringexecution. RefertoAp-
+4.1.Architecture
+pendixCfordetailedanalysis. Fulltrajectoryexamplesfor
+eachschemeareprovidedinTable11andTable12.
+Toinvestigatehowwellexistingwebagentscanperformper-
+sonalizedwebnavigationthroughPERSONA2WEB,wecon-
+ductexperimentsusingtwowebagentarchitectures,Agen- 5.Experiments
+tOccam(Yangetal.,2024)andBrowser-Use2.(Formorede-
+tailsaboutthesearchitectures,seeAppendixB.1.) However, 5.1.MetaEvaluation
+thesearchitecturesaredesignedforgenericwebnavigation
+Tovalidateourevaluationframework,weconductameta-
+anddonotaccountforuserhistorybydesign,makingthem
+evaluationon50newlygeneratedqueriesbycomparingits
+unsuitableforevaluatingpersonalizedwebnavigationtasks.
+correlationwithhumanjudgments.
+Therefore, we transform these architectures into the end-
+to-endpersonalizedwebnavigationpipelinesbyaugment-
+Baselinesandsettings. UsingGPT-4.1asthebackbone
+ingthemwithapersonalizationmodulethatretrievesand
+model,weinstructtheagenttoperformtasksunderbothpre-
+reasonsoveruserhistory. Specifically,ourtransformedar-
+executionandon-demandschemes. GPT-5-miniservesas
+chitectureconsistofthreecomponents: planner,retriever,
+themetaevaluator,consistentwithourmainexperiment.We
+andgenerator.
+compareourmethodagainsttwoothercommonlyadopted
+methods: action-wise,whichevaluatestheactionsequence
+• Planner: Theplannerinterpretsthecurrentobservation
+acrossallsteps,andoutcome-based,whichconsidersonly
+and determines whether user history is needed. If so,
+thefinalactionanditsreasoning. Sincethesetwomethods
+it generates a history query to retrieve relevant history;
+lackaccesstointermediatehistoryretrievalsteps,theyeval-
+2https://browser-use.com/ uateonlywhetherthegroundtruthpreferencesarereflected
+5
+
+--- Page 6 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Table3. Performancecomparisonacrosstwoagentarchitectures(AgentOccam,BrowserUse)withfivebackboneLLMsunderthree
+historyaccessschemes(No-history,On-demand,Pre-execution). MetricsincludeP ,P ,P (averageofP andP ),Intent
+web pref avg web pref
+satisfaction(Intent),andSuccessRate(SR).ForNo-historyscheme,wereportonlyP forbrevity.
+avg
+No-history On-demand Pre-execution
+Model
+P Intent SR P P P Intent SR P P P Intent SR
+avg web pref avg web pref avg
+AgentOccam
+o3 0.168 0.503 0.00 0.747 0.551 0.649 0.423 0.07 0.683 0.555 0.619 0.397 0.07
+GPT-4.1 0.126 0.503 0.00 0.740 0.577 0.658 0.417 0.06 0.705 0.574 0.639 0.409 0.07
+Gemini-2.5-Flash 0.118 0.500 0.00 0.603 0.368 0.486 0.403 0.02 0.517 0.208 0.362 0.377 0.00
+Qwen3-80B-Inst. 0.122 0.463 0.00 0.620 0.480 0.550 0.453 0.07 0.703 0.646 0.675 0.347 0.05
+Llama-3.3-70B 0.130 0.242 0.00 0.683 0.491 0.587 0.140 0.01 0.693 0.552 0.622 0.217 0.00
+Browser-Use
+o3 0.034 0.277 0.00 0.743 0.568 0.655 0.530 0.13 0.733 0.608 0.671 0.450 0.10
+GPT-4.1 0.077 0.250 0.00 0.803 0.731 0.767 0.467 0.13 0.767 0.686 0.727 0.530 0.13
+Gemini-2.5-Flash 0.095 0.270 0.00 0.707 0.487 0.597 0.283 0.02 0.757 0.561 0.659 0.350 0.03
+Qwen3-80B-Inst. 0.098 0.230 0.00 0.797 0.551 0.674 0.297 0.03 0.760 0.680 0.720 0.407 0.03
+Llama-3.3-70B 0.078 0.090 0.00 0.690 0.534 0.612 0.190 0.01 0.713 0.647 0.680 0.197 0.02
+Table4.Metaevaluationresultscomparingreasoning-aware(ours), 5.2.ExperimentalSettings
+action-wise,andoutcome-basedevaluation.
+Weassesshowpersonalizationperformancevariesacross
+Method Evalmetric Pearson Spearman Accuracy agent architectures, backbone LLMs, and history access
+Website 0.8525 0.8611 0.8400 schemes. Specifically,weaugmenttwobasearchitectures
+Reasoning-aware
+(ours) Preference 0.7200 0.7248 0.8800 (AgentOccam,Browser-Use)withourpersonalizationmod-
+Intent 0.7386 0.7436 0.7400
+ule(Section4.1)underthreehistoryaccessschemes(Sec-
+Website 0.7654 0.8163 0.8400 tion4.2). Weevaluateperformanceusingfivemetrics:P ,
+web
+Action-wise Preference 0.3993 0.4026 0.5600
+P ,P ,intentsatisfaction,andsuccessrate.
+Intent 0.6409 0.6330 0.6800 pref avg
+Website 0.8038 0.8209 0.8300
+5.3.MainResults
+Outcome-based Preference 0.2253 0.2241 0.4600
+Intent 0.5909 0.5933 0.7000
+We evaluate personalized web agents with five backbone
+LLMs: o3 (OpenAI, 2025), GPT-4.1 (OpenAI, 2024),
+intheagent’sactionswhenmeasuringPS.Thiscorresponds
+Gemini-2.5-Flash (Google DeepMind, 2024) for propri-
+totheutilizationaccuracyofourfullrubric.
+etarymodels,Qwen3-80B-Instruct(QwenTeam,2025),and
+Llama-3.3-70B-Instruct(MetaAI,2024)foropen-source
+models. All experiments use level 2 queries, which are
+Evaluationprocess. Humanannotatorsevaluateeachpair
+the most ambiguous, under three history access schemes.
+of trajectory by determining which scheme performs bet-
+ResultsarepresentedinTable3.
+ter (pre-execution, on-demand, or tie) across preference,
+website,andintent,withgroundtruthvaluesprovidedfor
+reference. To compare our evaluation framework against
+Performancediffersacrossagentarchitecturesandback-
+humanjudgment,weconvertourscoresintopairwiseout-
+bonemodels. Whenhistoryaccessisenabled(on-demand
+comes indicating which scheme received a higher score
+orpre-execution),Browser-Useconsistentlyachieveshigher
+for each task. We then calculate Pearson and Spearman
+personalization scores (P , P ) than AgentOccam
+web pref
+correlationcoefficients,aswellasaccuracy,betweeneach
+acrossallbackbonemodels;thisindicatesthatBrowser-Use
+evaluationmethodandhumanannotationsacrossallthree
+more effectively applies inferred user preferences during
+metricstoquantifyalignmentwithhumanjudgment.
+execution. We attribute this gap to differences in obser-
+vationconstruction. AgentOccamprunestheaccessibility
+treetoretainonlypivotalnodesandtheirrelatedelements,
+Evaluation results. In Table 4, our reasoning-aware
+producingacondensedrepresentationthatmaydiscardrel-
+methodachievesthehighestcorrelationwithhumanjudg-
+evantcontexts. Browser-Use,incontrast,constructsafull
+mentsacrossallmetrics. Notably,oursandtheaction-wise
+enhancedDOMtreethatpreservesricherinformation(Ap-
+methodbothevaluatefulltrajectories,butoursincorporates
+pendixB.1).
+reasoning traces. This difference yields a significant per-
+formance gap, confirming that reasoning is essential for Across both agent architectures, proprietary models (o3
+accuratelyevaluatingpersonalization. and GPT-4.1) substantially outperformopen-source mod-
+6
+
+--- Page 7 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+els, achieving success rates of 6–13% under history ac-
+cess, while most open-source models remain below 5%.
+Amongopen-sourcebackbones,Qwen3-80B-Instructisthe
+onlymodelthatapproachesproprietary-levelperformance
+inspecificsettings. Theseresultssuggestthatbothagent
+architectureandbackbonemodelcapacityjointlyconstrain
+personalizationperformance.
+Webagentscannothandleambiguousquerieswithout
+user history. Under the no-history scheme, all models
+acrossbothagentsrecord0%successrate. Thisconfirms
+thatwebagentscannotresolveambiguousquerieswithout
+accesstouserhistory. Notably,thetwoagentsexhibitdis-
+tinctfailurepatterns. AgentOccamachievesapproximately
+2×higherintentsatisfactionthanBrowser-Usebysubstitut-
+ingmissingvalueswithrandomorgenericvalues,prioritiz-
+ingtaskcompletionoveraccuracy.Incontrast,Browser-Use
+requestsuserclarificationandterminatesexecution,priori-
+tizingaccuracyovercompletionbutresultingintaskaban-
+donment.Inbothcases,ambiguityremainsunresolved.This
+inabilitytohandleambiguitycannotbecapturedthrough
+existing benchmarks that provide explicit queries, which
+highlightsthenecessityofourclarify-to-personalizequeries Figure 3. Performance across query ambiguity levels for each
+anduserhistory. agentarchitectureandhistoryaccessscheme.BarsshowSuccess
+Rate(leftaxis)forlevel0,1,2(gray,medium,darkblue).Lines
+showpreference(red)andwebsite(green)scores(rightaxis).o3,
+Taskcompletionalonecannotmeasurepersonalization GPT-4.1,andQwen3-80B-Instructareusedasbackbonemodels.
+capability. Forpersonalizedwebagents,tasksuccessde-
+pendsonbothpersonalizationandnavigation,andweakness
+areforlong-horizonplanning.
+ineitherleadstofailure. Forinstance,Browser-Usewith
+Llama-3.3-70Bunderpre-executionachievesP =0.680
+avg
+5.4.AnalysisAcrossQueryAmbiguity
+but only Intent = 0.197, which results in SR = 0.02.
+Conversely,AgentOccamwithGemini-2.5-Flashunderon- This section analyzes how performance changes across
+demand achieves Intent = 0.403 but only P avg = 0.486, queryambiguitylevelsforeachcombinationofagentarchi-
+which also results in SR = 0.02. Both cases record the tecture,backbonemodels,andtwohistoryaccessschemes.
+same low success rate, yet they fail for opposite reasons. Basedonthemainresultspresentedin 5.3,weselectthe
+Llamasucceedsatpersonalizationbutstruggleswithnavi- topthreeperformingbackbonemodels–o3,GPT-4.1,and
+gation,whileGemininavigatesreasonablybutfailsatper- Qwen3-80B-Instruct–fortheanalysis. Figure3reportssuc-
+sonalization. Thatis,taskcompletionalonecannotdistin- cessrateandpersonalizationscoresacrossdifferentambi-
+guishwhetherfailuresarisefromincorrectpersonalization guitylevels(level0–2).
+orineffectivenavigation. Ourreasoning-awareevaluation
+frameworkresolvesthisbyevaluatingpersonalizationand
+navigationseparately.
+Performance degrades as ambiguity level increases.
+History access schemes reveal backbone strengths. Well-personalizedwebagentsshouldmaintainperformance
+Somebackbonemodelsconsistentlyperformbetterunder evenonambiguousqueriesbyleveraginguserhistory. How-
+aspecificschemeregardlessofagentarchitecture. Forin- ever,despiteprovidingaccesstouserhistorythroughour
+stance, GPT-4.1 consistently achieves higher P under personalizationmodule,successrateconsistentlydecreases
+avg
+on-demand than pre-execution across both agents, while asqueryambiguityincreasesacrossallconfigurations.Clear
+Qwen3-80B-InstructandLlama-3.3-70Bshowtheopposite queriesachieveanaveragesuccessrateof23.8%,whilelevel
+pattern, performing relatively better under pre-execution. 1queriesdropto16.3%, andlevel2to7.8%. Sinceboth
+Thisindicatesthatthetwoschemescapturedifferentcapa- thepersonalizedarchitectureanduserhistoryareavailable,
+bilitiesofthesemodelsasmentionedinSection4.2. Based thisperformancedropsuggeststhatagentsstruggletoef-
+onthisresult,GPT-4.1appearsbettersuitedforsituational fectivelyidentify,reasonover,andutilizerelevanthistorical
+awareness,whileQwen3-80B-InstructandLlama-3.3-70B informationtodisambiguatequeriesasambiguityincreases.
+7
+
+--- Page 8 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Table5. PerformancewithexplicituserprofilesusingBrowser- 6.ErrorAnalysis
+Use. Valuesinparenthesesindicatechangesrelativetoimplicit
+userhistoryresultsinTable3. To investigate the sources of personalization failures, we
+conductananalysisbasedontheagent’strajectoriesfrom
+Backbone
+HistoryScheme Metric level2queryexperiments. Weexaminethemwithimper-
+o3 GPT-4.1 fect PS and categorize observed errors into four distinct
+Pre-execution P 0.830(+0.097) 0.887(+0.120) types: Redundanthistoryaccess,Personalizationhallucina-
+web
+P pref 0.764(+0.156) 0.892(+0.206) tion,Historyretrievalfailure,andHistoryutilizationfailure.
+Intent 0.400(+0.050) 0.640(+0.110) Beyondthequalitativeanalysis,AppendixHprovidescom-
+Success 0.17(+0.07) 0.27(+0.14)
+plementaryerrorstatisticsacrossbackbonemodels.
+On-demand P 0.890(+0.147) 0.933(+0.130)
+web
+P 0.682(+0.114) 0.887(+0.156)
+pref Redundanthistoryaccess. Redundanthistoryaccessoc-
+Intent 0.617(+0.087) 0.597(+0.130)
+Success 0.15(+0.02) 0.25(+0.12) curswhentheagentgeneratesunderspecifiedpersonaliza-
+tionqueries,leadingtounsuccessfulretrievalandrepeated
+Clearqueriesstillleadtopersonalizationfailures. To attempts. InTable13,theagentqueries“user’susualshore
+identifyfactorslimitingpersonalizationcapability,wean- excursionpreferences,”whichistoobroadtoidentifyrele-
+alyzeperformanceonclearqueries,whereallrequiredin- vanthistory.Whenthequeryisrefinedbyincludingdomain-
+formationisexplicitlyprovidedandnoretrievalisneeded. awareattributes“activitytype,activitylevel,pricerange”,
+Yet,preferencescoresaverageonly0.92andwebsitescores theagentretrievesrelevanthistory. Withoutsuchspecificity,
+0.97onclearqueries,neitherreachingaperfect1.0. This theagentrepeatedlyaccessesuserhistoryassumingnorele-
+indicates that even when complete information is given, vanthistoryexists,causingredundantretrievalattempts.
+agentsoftenfailatutilization. Wetracethesefailurestotwo
+primary causes. First, agents struggle to handle multiple
+Personalizationhallucination. Personalizationhallucina-
+constraints, applying only a subset. For example, given
+tionreferstoerrorsinwhichthemodelfabricatesuserin-
+“myusualexternalSSDcapacity,port,andbudget,”agents
+formationwithoutaccessingrelevanthistories. InTable14,
+correctlyappliedcapacity(1TB-1.9TB)andport(USBinter-
+the agent incorrectly applies a non-existent preference 4
+face)filters,butfailedtoapplythebudgetconstraint(under
+starsandupasifderivedfromtheuserhistory. Sucherrors
+$120). Second,agentsfailtodeterminewhenandwhereto
+frequently occur with rating or pricing thresholds, where
+applygiveninformation,specificallyidentifyingtheappro-
+theagentdefaultstogenericassumptions(e.g.,preferring
+priateelementorexecutionstepremainschallenging. These
+higherratingsorlowerprices)insteadofreferencinguser
+findings indicate that improving personalization requires
+history. Althoughsuchbehaviormayappearoperationally
+advancingnotonlyretrievalbutalsoutilizationcapabilities.
+sound,itcontradictsthegoalofpersonalization. Thegoalis
+nottogenerateplausibleinformation,buttoreasonfaithfully
+5.5.AnalysisOnUserContextImplicitness fromuser-groundedevidence.
+Weconstructouruserhistorytorevealpreferencesimplicitly
+throughbehavioralpatternsratherthanexplicitstatements. Historyretrievalfailure. Historyretrievalfailurerefers
+Thisiscriticalsinceexplicitstatementsfundamentallyre- tocasesinwhichtheagentretrievesirrelevantorincomplete
+ducepersonalizationtoinstructionfollowing,whereagents histories,leadingtotheomissionofessentialinformation.
+simply apply given information, not inferring user intent. InTable15,theagentfailstoidentify“BaltimoreOrioles”
+Thisunderminesthegenuineevaluationofpersonalization. astheuser’sfavoriteMLBteam. Althoughitismentioned
+Tovalidateourimplicitencodinganditsnecessityforper- inmultiplehistories,noneofthemexplicitlystate“favorite
+sonalization evaluation, we compare performance of the team”causingtheretrievertomisstheconnection.Tounder-
+agentwhengivenexplicituserprofile(Section3.1),which standwhetherretrieverdesigncontributestosuchfailures,
+explicitlyincludespreferencestatementsandimplicituser weexplorealternativeindexingdesignsinAppendixE.
+history,whichimplicitlyrevealspreferencesviabehavioral
+patterns. AsshowninTable5, allconfigurationsachieve Historyutilizationfailure. Historyutilizationfailurerep-
+substantially higher performance across all metrics with resentssituationswhereappropriatehistoryissuccessfully
+explicitprofiles. Bothcontextscontainthesameuserinfor- retrievedbutnotproperlyutilizedintheagent’saction. In
+mation,yetthereexistssignificantperformancegap. This Table16,theagentretrievestheuser’slocationLosAngeles
+confirmsthatpreferencesinouruserhistoryarenotexplic- butfailstoincorporateitintosearching,resultinginincor-
+itlyvisiblebutmustbeinferredfrombehavioralpatterns, rectresults. Thisfailurestemsfromtheagent’sinabilityto
+validating our implicit encoding design. Furthermore, it determine when the retrieved histories should be applied
+highlightsthenecessityofimplicitusercontextforgenuine withintheoverallprocess. Thelocationneedstobesetprior
+personalizationandevaluation. toinitiatingthesearchtoyieldaccurateresults.
+8
+
+--- Page 9 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+7.Conclusion Srikumar,V.(eds.),Proceedingsofthe62ndAnnualMeet-
+ingoftheAssociationforComputationalLinguistics(Vol-
+This paper establishes the first benchmark for evaluating
+ume1:LongPapers),pp.8795–8812,Bangkok,Thailand,
+personalized web agents in real open web environments.
+August 2024. Association for Computational Linguis-
+Our benchmark introduces a clarify-to-personalize query
+tics. doi: 10.18653/v1/2024.acl-long.477. URLhttps:
+designandrigorouslyconstructsuserhistories,alongwitha
+//aclanthology.org/2024.acl-long.477/.
+reasoning-awareevaluationframeworkthatassessesperson-
+alizationthroughrubric-basedscoring. Weconductexten- Erdogan, L. E., Lee, N., Kim, S., Moon, S., Fu-
+siveexperimentsacrosswebagentarchitectures,multiple ruta, H., Anumanchipalli, G. K., Keutzer, K., and
+backboneLLMs,twohistoryaccessschemes,queryambi- Gholami, A. Plan-and-act: Improving planning of
+guity,andusercontextformats,followedbyerroranalysis agents for long-horizon tasks. ArXiv, abs/2503.09572,
+toidentifykeychallengesinwebagentpersonalization. By 2025. URL https://api.semanticscholar.
+enablingtheassessmentofhowagentsinferandapplyuser org/CorpusID:276937549.
+preferences,webelievethisbenchmarkprovidesastrong
+Google DeepMind. Gemini 2.5 flash. https://
+foundationforadvancingpersonalizationinwebagents.
+deepmind.google/technologies/gemini/,
+2024. Accessed: 2026-01-28.
+ImpactStatement
+Gou, B., Huang, Z., Ning, Y., Gu, Y., Lin, M., Qi,
+Thispaperpresentsworkwhosegoalistoadvancethefield W., Kopanev, A., Yu, B., Gutie´rrez, B. J., Shu, Y.,
+ofpersonalizedwebagents. OurPERSONA2WEBusessyn- Song, C. H., Wu, J., Chen, S., Moussa, H. N., Zhang,
+thetically generated user profiles and browsing histories, T., Xie, J., Li, Y., Xue, T., Liao, Z., Zhang, K.,
+ensuringnorealuserdataiscollectedorused. However,we Zheng, B., Cai, Z., Rozgic, V., Ziyadi, M., Sun,
+acknowledgethatdeployedpersonalizedagentswouldre- H., and Su, Y. Mind2web 2: Evaluating agentic
+quireaccesstoactualuserbehaviorpatterns,raisingprivacy search with agent-as-a-judge. ArXiv, abs/2506.21506,
+considerationsregardingconsentanddataprotection. We 2025. URL https://api.semanticscholar.
+encouragefutureworktocarefullyaddresstheseconcerns. org/CorpusID:280011442.
+Additionally,asourbenchmarkoperatesontherealopen
+Gur, I., Nachum, O., Miao, Y., Safdari, M., Huang, A.,
+web,agentsmayencounterpotentiallyharmfulcontentdur-
+Chowdhery, A., Narang, S., Fiedel, N., and Faust,
+ingexecution. Wehopeourworkencouragesresearchinto
+A. Understanding html with large language mod-
+personalization approaches that incorporate both privacy
+els. ArXiv, abs/2210.03945, 2022. URL https:
+safeguardsandsafetymechanismsforwebnavigation.
+//api.semanticscholar.org/CorpusID:
+252780086.
+References
+Gur,I.,Furuta,H.,Huang,A.,Safdari,M.,Matsuo,Y.,Eck,
+Cai, H., Li, Y., Wang, W., Zhu, F., Shen, X., D.,andFaust,A. Areal-worldwebagentwithplanning,
+Li, W., and Chua, T.-S. Large language mod- longcontextunderstanding,andprogramsynthesis,2024.
+els empowered personalized web agents. Pro- URLhttps://arxiv.org/abs/2307.12856.
+ceedings of the ACM on Web Conference 2025,
+2024. URL https://api.semanticscholar. He,H.,Yao,W.,Ma,K.,Yu,W.,Dai,Y.,Zhang,H.,Lan,
+org/CorpusID:273507656. Z., and Yu, D. Webvoyager: Building an end-to-end
+web agent with large multimodal models. In Annual
+Chen, S., Zhao, Z., Zhao, Y., and Li, X. Apollonion: MeetingoftheAssociationforComputationalLinguistics,
+Profile-centric dialog agent. ArXiv, abs/2404.08692, 2024. URL https://api.semanticscholar.
+2024. URL https://api.semanticscholar. org/CorpusID:267211622.
+org/CorpusID:269148688.
+Hu,Y.,Koren,Y.,andVolinsky,C. Collaborativefiltering
+for implicit feedback datasets. 2008 Eighth IEEE In-
+Deng, X., Gu, Y., Zheng, B., Chen, S., Stevens, S.,
+ternational Conference on Data Mining, pp. 263–272,
+Wang, B., Sun, H., and Su, Y. Mind2web: Towards a
+2008. URL https://api.semanticscholar.
+generalist agent for the web. ArXiv, abs/2306.06070,
+org/CorpusID:10537313.
+2023. URL https://api.semanticscholar.
+org/CorpusID:259129428. Huet, A., Ben-Houidi, Z., and Rossi, D. Episodic
+memories generation and evaluation benchmark for
+Deng,Y.,Zhang,X.,Zhang,W.,Yuan,Y.,Ng,S.-K.,and large language models. ArXiv, abs/2501.13121,
+Chua,T.-S. Onthemulti-turninstructionfollowingfor 2025. URL https://api.semanticscholar.
+conversationalwebagents.InKu,L.-W.,Martins,A.,and org/CorpusID:275820643.
+9
+
+--- Page 10 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Kelly, D. and Teevan, J. Implicit feedback for inferring J., and Lowe, R. Training language models to follow
+user preference: a bibliography. SIGIR Forum, 37:18– instructionswithhumanfeedback,2022. URLhttps:
+28,2003.URLhttps://api.semanticscholar. //arxiv.org/abs/2203.02155.
+org/CorpusID:14181461.
+Pan, Y., Kong, D., Zhou, S., Cui, C., Leng, Y.,
+Kumar, I., Viswanathan, S., Yerra, S., Salemi, A., Jiang, B., Liu, H., Shang, Y., Zhou, S., Wu, T.,
+Rossi,R.A.,Dernoncourt,F.,Deilamsalehy,H.,Chen, and Wu, Z. Webcanvas: Benchmarking web agents
+X., Zhang, R., Agarwal, S., Lipka, N., and Za- in online environments. ArXiv, abs/2406.12373,
+mani, H. Longlamp: A benchmark for personalized 2024. URL https://api.semanticscholar.
+long-form text generation. ArXiv, abs/2407.11016, org/CorpusID:270562249.
+2024. URL https://api.semanticscholar.
+org/CorpusID:271218187. Pan, Z., Wu, Q., Jiang, H., Luo, X., Cheng, H., Li, D.,
+Yang, Y., Lin, C.-Y., Zhao, H. V., Qiu, L., and Gao,
+Lee, G., Hartmann, V., Park, J., Papailiopoulos, D., J. On memory construction and retrieval for person-
+and Lee, K. Prompted llms as chatbot modules for alized conversational agents. ArXiv, abs/2502.05589,
+long open-domain conversation. In Annual Meet- 2025. URL https://api.semanticscholar.
+ing of the Association for Computational Linguistics, org/CorpusID:276249662.
+2023. URL https://api.semanticscholar.
+org/CorpusID:258557761. Qu, C., Yang, L., Croft, W. B., Trippas, J. R.,
+Zhang, Y., and Qiu, M. Analyzing and charac-
+Liu,E.Z.,Guu,K.,Pasupat,P.,Shi,T.,andLiang,P. Re-
+terizing user intent in information-seeking conversa-
+inforcementlearningonwebinterfacesusingworkflow- tions. The 41st International ACM SIGIR Conference
+guidedexploration. CoRR,abs/1802.08802,2018. URL on Research & Development in Information Retrieval,
+http://arxiv.org/abs/1802.08802.
+2018. URL https://api.semanticscholar.
+org/CorpusID:13756414.
+Maharana,A.,Lee,D.-H.,Tulyakov,S.,Bansal,M.,Barbi-
+eri,F.,andFang,Y. Evaluatingverylong-termconversa-
+QwenTeam. Qwen3technicalreport. https://arxiv.
+tional memory of llm agents. ArXiv, abs/2402.17753,
+org/abs/2505.09388,2025. arXiv:2505.09388.
+2024. URL https://api.semanticscholar.
+org/CorpusID:268041615. Radlinski, F. and Craswell, N. A theoretical framework
+for conversational search. Proceedings of the 2017
+MetaAI. Thellama3herdofmodels. https://arxiv.
+Conference on Conference Human Information Inter-
+org/abs/2407.21783,2024. arXiv:2407.21783.
+action and Retrieval, 2017. URL https://api.
+semanticscholar.org/CorpusID:17732445.
+Muennighoff, N., Tazi, N., Magne, L., and Reimers, N.
+MTEB: Massive text embedding benchmark. In Vla-
+Salemi, A., Mysore, S., Bendersky, M., and Za-
+chos, A. and Augenstein, I. (eds.), Proceedings of the
+mani, H. Lamp: When large language mod-
+17th Conference of the European Chapter of the Asso-
+els meet personalization. ArXiv, abs/2304.11406,
+ciation for Computational Linguistics, pp. 2014–2037,
+2023. URL https://api.semanticscholar.
+Dubrovnik,Croatia,May2023.AssociationforCompu-
+org/CorpusID:258298303.
+tationalLinguistics. doi: 10.18653/v1/2023.eacl-main.
+148. URL https://aclanthology.org/2023.
+Sap,M.,Horvitz,E.,Choi,Y.,Smith,N.A.,andPennebaker,
+eacl-main.148/.
+J. Recollection versus imagination: Exploring human
+memoryandcognitionvianeurallanguagemodels. In
+OpenAI. Gpt-4.1 system card. https://openai.
+Jurafsky,D.,Chai,J.,Schluter,N.,andTetreault,J.(eds.),
+com/index/gpt-4-1-system-card/,2024. Ac-
+Proceedingsofthe58thAnnualMeetingoftheAssocia-
+cessed: 2026-01-28.
+tionforComputationalLinguistics,pp.1970–1978,On-
+OpenAI. Openai o3 and o4-mini system line,July2020.AssociationforComputationalLinguis-
+card. https://openai.com/index/ tics. doi: 10.18653/v1/2020.acl-main.178. URLhttps:
+o3-o4-mini-system-card/, April 2025. Ac- //aclanthology.org/2020.acl-main.178/.
+cessed: 2026-01-28.
+Shi, T., Karpathy, A., Fan, L. J., Herna´ndez, J. Z., and
+Ouyang, L., Wu, J., Jiang, X., Almeida, D., Wainwright, Liang, P. World of bits: An open-domain platform
+C. L., Mishkin, P., Zhang, C., Agarwal, S., Slama, K., for web-based agents. In International Conference
+Ray,A.,Schulman,J.,Hilton,J.,Kelton,F.,Miller,L., on Machine Learning, 2017. URL https://api.
+Simens,M.,Askell,A.,Welinder,P.,Christiano,P.,Leike, semanticscholar.org/CorpusID:34953552.
+10
+
+--- Page 11 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Shokouhi,M.,Sloan,M.,Bennett,P.N.,Collins-Thompson, Yao, S., Chen, H., Yang, J., and Narasimhan, K. Web-
+K., and Sarkizova, S. Query suggestion and data fu- shop: Towardsscalablereal-worldwebinteractionwith
+sion in contextual disambiguation. In Proceedings grounded language agents. ArXiv, abs/2207.01206,
+of the 24th International Conference on World Wide 2022. URL https://api.semanticscholar.
+Web, WWW ’15, pp. 971–980, Republic and Canton org/CorpusID:250264533.
+ofGeneva,CHE,2015.InternationalWorldWideWeb
+Yao, S., Shinn, N., Razavi, P., and Narasimhan, K.
+ConferencesSteeringCommittee. ISBN9781450334693.
+τ-bench: A benchmark for tool-agent-user interac-
+doi: 10.1145/2736277.2741646. URLhttps://doi.
+tion in real-world domains. ArXiv, abs/2406.12045,
+org/10.1145/2736277.2741646.
+2024. URL https://api.semanticscholar.
+Song, R., Luo, Z., Wen, J.-R., Yu, Y., and Hon, H.- org/CorpusID:270562578.
+W. Identifying ambiguous queries in web search. In
+Zamfirescu-Pereira, J., Wong, R. Y., Hartmann, B., and
+The Web Conference, 2007. URL https://api.
+Yang,Q. Whyjohnnycan’tprompt: Hownon-aiexperts
+semanticscholar.org/CorpusID:9797193.
+try(andfail)todesignllmprompts. InProceedingsofthe
+Wang, L., Ma, C., Feng, X., Zhang, Z., Yang, H., Zhang, 2023CHIConferenceonHumanFactorsinComputing
+J., Chen, Z., Tang, J., Chen, X., Lin, Y., Zhao, W. X., Systems,CHI’23,NewYork,NY,USA,2023.Associa-
+Wei,Z.,andWen,J. Asurveyonlargelanguagemodel tionforComputingMachinery. ISBN9781450394215.
+basedautonomousagents.FrontiersofComputerScience, doi: 10.1145/3544548.3581388. URLhttps://doi.
+18(6), March 2024. ISSN 2095-2236. doi: 10.1007/
+org/10.1145/3544548.3581388.
+s11704-024-40231-1. URLhttp://dx.doi.org/
+Zhang, S., Dinan, E., Urbanek, J., Szlam, A., Kiela, D.,
+10.1007/s11704-024-40231-1.
+and Weston, J. Personalizing dialogue agents: I have
+a dog, do you have pets too? ArXiv, abs/1801.07243,
+woo Kwak, B., Kim, M., Lim, D., Chae, H., Kang, D.,
+2018. URL https://api.semanticscholar.
+Kim, S., Yang, D., and Yeo, J. Toolhaystack: Stress-
+org/CorpusID:6869582.
+testingtool-augmentedlanguagemodelsinrealisticlong-
+terminteractions,2025. URLhttps://arxiv.org/
+Zhao,S.,Hong,M.,Liu,Y.,Hazarika,D.,andLin,K. Do
+abs/2505.23662.
+llmsrecognizeyourpreferences? evaluatingpersonalized
+preference following in llms. ArXiv, abs/2502.09597,
+Wu,D.,Wang,H.,Yu,W.,Zhang,Y.,Chang,K.-W.,and
+2025. URL https://api.semanticscholar.
+Yu,D. Longmemeval: Benchmarkingchatassistantson
+org/CorpusID:276317480.
+long-terminteractivememory. ArXiv,abs/2410.10813,
+2024. URL https://api.semanticscholar.
+Zhong,W.,Guo,L.,Gao,Q.,Ye,H.,andWang,Y. Memo-
+org/CorpusID:273345961.
+rybank:Enhancinglargelanguagemodelswithlong-term
+memory. InProceedingsoftheAAAIConferenceonArti-
+Xi, Z., Chen, W., Guo, X., He, W., Ding, Y., Hong, B.,
+ficialIntelligence,volume38,pp.19724–19731,2024.
+Zhang,M.,Wang,J.,Jin,S.,Zhou,E.,Zheng,R.,Fan,
+X.,Wang,X.,Xiong,L.,Zhou,Y.,Wang,W.,Jiang,C., Zhou, S., Xu, F. F., Zhu, H., Zhou, X., Lo, R., Sridhar,
+Zou, Y., Liu, X., Yin, Z., Dou, S., Weng, R., Cheng, A., Cheng, X., Bisk, Y., Fried, D., Alon, U., and Neu-
+W.,Zhang,Q.,Qin,W.,Zheng,Y.,Qiu,X.,Huang,X., big, G. Webarena: A realistic web environment for
+and Gui, T. The rise and potential of large language building autonomous agents. ArXiv, abs/2307.13854,
+model based agents: A survey, 2023. URL https: 2023. URL https://api.semanticscholar.
+//arxiv.org/abs/2309.07864. org/CorpusID:260164780.
+Xu, X., Gou, Z., Wu, W., Niu, Z.-Y., Wu, H., Wang, H.,
+and Wang, S. Long time no see! open-domain con-
+versationwithlong-termpersonamemory. InFindings,
+2022. URL https://api.semanticscholar.
+org/CorpusID:247411350.
+Yang, K., Liu, Y., Chaudhary, S., Fakoor, R.,
+Chaudhari, P., Karypis, G., and Rangwala, H.
+Agentoccam: A simple yet strong baseline for
+llm-based web agents. ArXiv, abs/2410.13825,
+2024. URL https://api.semanticscholar.
+org/CorpusID:273403385.
+11
+
+--- Page 12 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+A.DatasetDetails B.ImplementationDetails
+B.1.WebAgent
+AgentOccam AgentOccam(Yangetal.,2024)improves
+webnavigationperformancewithoutadditionaltrainingby
+simplyaligningtheobservationandactionspaceswiththe
+LLM’sinherentcapabilities. Itsimplifiesactionspaceto
+reducedistractionsandimprovingfocusonmeaningfulop-
+erations For the observation space, it removes redundant
+textualelementsthatdescribepagelayoutorfunctionality
+toproduceacondensedrepresentationofeachpage. Itthen
+refines observation history selectively by identifying piv-
+otalnodesontheaccessibilitytree,whicharewebelements
+essential for task completion, and retaining these nodes
+along with their ancestors, siblings, and descendants. It
+thenorganizestheworkflowthroughaplanningtreetokeep
+theagentfocused. Eachbranchrepresentsanewsub-goal
+andonceabranchisinitiated,pasttrajectoriesirrelevantto
+thecurrent planarepruned. Following AgentOccam, we
+useaPlaywright-basedenvironmentwithChromiumasthe
+browserengine. UnliketheoriginalAgentOccamsetup,we
+setthestartingpagetobing.comtoavoidCAPTCHAissues.
+Figure4. DetailedstatisticsofuserprofileprovidedfromPER-
+Browser-Use Browser-Use extracts web page state
+SONA2WEBbenchmark.
+throughtheChromeDevToolsProtocol(CDP).Itretrieves
+threetypesofinformationinparallel: theDOMtree,lay-
+outinformation(boundingboxesandcomputedCSSstyles),
+Weconstructauserprofileof50individualswhoseoccupa- andtheaccessibilitytreecontainingsemanticroleinforma-
+tion,age,gender,andmaritalstatusareevenlydistributed tionforeachelement. Thesethreedatasourcesaremerged
+to ensure demographic balance, as depicted in Figure 4. intoanenhancedDOMtreewhereeachnodecontainsits
+Eachattributecombinationisdesignedtobeplausibleand structural properties, screen coordinates, visibility status,
+internallyconsistent,avoidingunrealisticpairingssuchasa scrollability, andaccessibilitysemantics. Theframework
+16yearsoldprofessorora21yearsoldretiree. Toensure thenserializesthisenhancedtreeintoatextrepresentation
+this,bothhumanvalidationandprompt-basedfilteringare for LLM input, assigning numeric indices to interactive
+employedduringgeneration. Theoccupationcategoriesare elements. Browser-Use automatically switches to duck-
+definedacrosssixmajorsectors—technology, healthcare, duckgo.comwheneveritencountersCAPTCHAs.
+education, business, service, and creative industries. To
+While AgentOccam selectively retains pivotal nodes and
+define realistic web domains, we collected 144 websites
+theirrelatedelementstoproduceacondensedobservation,
+used in prior benchmarks (Mind2Web, WebArena, Web-
+Browser-Use constructs the full DOM tree and filters el-
+Voyager)andfilteredoutsiteswithCAPTCHAs,regional
+ements based on visibility and interactivity derived from
+restrictions, or outdated content, resulting in 105 acces-
+theCDPsnapshotdata. Forfaircomparison,weuseonly
+sible websites. We categorized these into 21 representa-
+text-basedobservationswithoutscreenshotimages.
+tivedomains: Groceries,Apparelandaccessories,Electron-
+ics, Home and kitchen, Books and stationary, Sports and
+B.2.Retriever
+outdoor,Transportation,Hotels,Carrental,Tours,Restau-
+rantsreservations,Weatherandmaps,Healthandmedical, Asaretriever, weuseStellaV51.5B,thedenseretriever
+Movies,Music,Concertsandexhibitions,Games,Online thathasshownhighperformanceonMTEB(Muennighoff
+learning, Search, and Communities and forums. The in- etal.,2023). Eachhistoryentryisindexedusingthecon-
+clusionofdiverseoccupationsanddomainsresultsinhet- catenationofitstypeandobjectattributesasthekey,while
+erogeneoususerprofiles,eachexhibitingdistinctinterests the complete history item is stored as the value. We em-
+andbehavioralroutines,therebyenablingthegenerationof ployFAISSwithinnerproductsimilarity(IndexFlatIP)for
+diverseandrealisticuserinteractionhistories. Weconstruct efficientnearestneighborsearch. Atretrievaltime,wecom-
+approximately 2,000 history entries spanning a one-year putecosinesimilaritybetweenthequeryembeddingandall
+periodforeachofthe50users. indexedkeys,returningupto20entriesthatexceedasim-
+12
+
+--- Page 13 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+ilaritythresholdof0.5. TheembeddingcacheandFAISS 1. Didtheagentgenerateappropriatequeriestofindwebsite
+indexareserializedandstoredondisktoenablefastloading preference/history?
+acrossmultipletaskexecutions.
+2. WastheexpectedwebsitefoundinANYofthememory
+responses?
+C.HistoryAccessSchemes
+STEP2-UtilizationEvaluation:
+Ourhistoryaccessschemesevaluatefundamentallydifferent
+1. Didtheagentsuccessfullynavigatetotheexpectedweb-
+dimensionsofpersonalizedwebagent. site?
+Intheon-demandscheme,ouranalysistargetstheagent’s Scoring:
+capacitytodetectwhenpersonalizationisrequiredandwhat
+• STEP1-Retrieval:5ptsifcriteriamet,0otherwise
+kind of user information is needed based on the current
+state,notcompensatingformissinginputswithgenericor • STEP2-Utilization:5ptsifcriteriamet,0otherwise
+randomlyimputedvalues. Thefocusisthusnotmerelyon
+end-to-endcompletion,butonwhethertheagentadheresto
+D.2.PreferenceScore
+theclarify-to-personalizegoal,whichisdemonstratedby
+requestingusercontextviapersonalizationmoduleprecisely ThepreferencescoreP pref evaluateswhethertheagentcor-
+whenthecurrentstepdemandsit. Inpractice,webagents rectlyretrievesandutilizesuserpreferences. Totalscore:10
+cannotassumeusersareavailabletoanswerqueriesatevery points(2.5perpreference×2preferences×2steps). For
+stepofexecution. Insuchenvironments,well-personalized location-awarewebsites,anadditional5pointsforlocation
+webagentsmustbeabletoproactivelyaccesstothehistory personalization. (Totalscore: 15points)Thetotalscoreis
+whenitisneeded. On-demandevaluationdirectlyprobes normalized: P web = m ra a w x s s c c o o r r e e .
+real-timesituationalawarenessandthenecessityoftimely PreferencePersonalizationRubric
+personalizationinterventionunderrealisticconstraints.
+Task Context: The agent needed to retrieve and apply user
+Pre-execution requires the agent to anticipate what user preferencesforthegivenquery.
+informationwillbeneededbasedonthegivenintentand
+TargetPreferences:
+domain, then integrate retrieved histories to construct an
+enhancedquerythatresolvesambiguities. Anticipationde- • Preference1-Category: {pref1 key},ExpectedValue:
+mandslong-horizonplanning,whileintegrationrequiresac- {pref1 value}
+curatelysynthesizinginformationacrossmultipledomains.
+• Preference2-Category: {pref2 key},ExpectedValue:
+Unliketheon-demandscheme,historyaccessisunavailable {pref2 value}
+duringnavigation. Thus,anyomissionofconstraints,inclu-
+STEP1-RetrievalEvaluation:
+sionofirrelevanthistories,orrelianceonstaleinformation
+ForEACHpreference:
+propagatesthroughouttheentiretrajectory.
+1. Checkifanymemoryqueryaskedaboutthispreference
+category
+D.EvaluationRubric
+2. Checkiftheexpectedvalueappearsinanymemoryre-
+WeemployGPT-5-minitoevaluateagentperformance. The sponse
+modelreceivestheagent’sfulltrajectory,includingreason-
+STEP2-UtilizationEvaluation:
+ingtraces,andmeasurespersonalizationandintentscores
+ForEACHpreference:
+basedontherubrics. Below,wedetailthescoringcriteria
+foreachmetric. 1. Checkiftheexpectedvaluewascorrectlyappliedinthe
+reasoning
+D.1.WebsiteScore 2. OR check if the agent at least attempted to apply the
+expectedvalue
+The website score P evaluates whether the agent cor-
+web
+rectlyidentifiesandnavigatestotheuser’spreferredwebsite Scoring:
+basedonuserhistory. Totalscore: 10points(5forretrieval ForEACHpreference:
++5forutilization).
+• STEP1-Retrieval:2.5ptsifcriteriamet,0otherwise
+WebsitePersonalizationRubric
+• STEP2-Utilization:2.5ptsifcriteriamet,0otherwise
+TaskContext:Theagentneededtoidentifyandnavigatetothe
+correctwebsitebasedonthetaskquery.
+STEP1-RetrievalEvaluation:
+13
+
+--- Page 14 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+D.2.1.LOCATIONEVALUATION(CONDITIONAL) D.4.SuccessRate
+Forwebsitesrequiringlocation-awarenavigation(Amazon, Ataskisconsideredsuccessfulifandonlyifallthreemetrics
+Instacart,Resy,OpenTable,etc),weadditionallyevaluatelo- achieveperfectscores:
+cationpersonalizationusingsimilarretrievalandutilization
+rubrics,eachworth2.5points.Thetotalscoreisnormalized:
+E.EffectofRetrieverIndexing
+P = rawscore.
+pref maxscore
+LocationPersonalizationRubric
+Table6.Ablationstudyonretrieverindexdesign.TandOdenote
+TaskContext: Theagentvisitedalocation-requiredwebsite typeandobject,respectively. Allincorporatestimestamp,type,
+andneededtoapplyuserlocation. object,andwebsite.
+ExpectedLocation:{city,state,zip code}
+STEP1-RetrievalEvaluation: Scheme Key P Intent
+pref
+1. Didtheagentqueryforlocation/addressinformationfrom On-demand T+O 0.677 0.542
+memory? All 0.480 0.307
+T+O 0.737 0.690
+2. Waslocationdata(city,state,zipcode,address,neighbor- Pre-execution
+All 0.703 0.677
+hood)retrieved?
+STEP2-UtilizationEvaluation:
+Tovalidateourindexdesignchoiceinretrievermodule,we
+1. Was the location applied during navigation? (delivery conductanablationstudycomparingalternativeindexing
+address,searchlocation,filters,etc.) schemes.Theoriginalretrieverextractsonlytypeandobject
+Scoring: attributesfromeachhistoryentrytoformsimplifiedkeys.
+Following common practice in information retrieval (Wu
+• STEP1-Retrieval:2.5ptsifcriteriamet,0otherwise
+etal.,2024;Zhongetal.,2024;Maharanaetal.,2024),an
+• STEP2-Utilization:2.5ptsifcriteriamet,0otherwise
+alternativedesignincorporatesallfourattributes(timestamp,
+type,object,andwebsite). ResultsonQwen3-80B-Instruct
+showthatthecondensedindexingschemeachieveshigher
+D.3.IntentSatisfaction
+preference and intent scores across both access schemes.
+Evaluatestaskcompletionindependentofpersonalization Addingtimestampandwebsiteattributesintroducesnoise
+accuracy,withpartialcreditforexternalfailures.Totalscore: rather than useful signal. Concatenating all attributes ob-
+10points. scures the core semantic content in the embedding, and
+IntentSatisfactionRubric semantic similarity-based retrievers cannot meaningfully
+leveragetemporalorlocationalinformation.
+10POINTS-CompleteIntentSatisfaction:
+• Therequestedfinalgoalwassuccessfullyachieved F.PromptforDataConstruction
+• Examples:itemaddedtocart,bookingcompleted,infor-
+Tables7,8,9,and10detailthepromptsusedinourdatacon-
+mationfound
+structionpipeline. Thesepromptsguidethegenerationof
+5POINTS-CriticalActionAttemptedbutBlocked: domainpreferences,dailylifeeventseeds,actiondecompo-
+• Agentreachedthecorrectwebsite/service sitions,andpersonalizeduserhistoryentries. Eachprompt
+iscarefullydesignedtoenforcerealism,internalconsistency,
+• Agentidentifiedthecorrectitem/service
+andalignmentwithuserpreferencesandbehavioralpatterns,
+• Agent attempted the final decisive action (e.g., clicked formingthefoundationofourclarify-to-personalizequery
+“AddtoCart”) design.
+• BUT was blocked by external factors: out of stock,
+CAPTCHA,websiteerror,serviceunavailable G.ExamplesforHistoryAccessSchemes
+0POINTS-IntentNotSatisfied:
+Tables11and12presentexecutionlogsillustratingthetwo
+• Failedtoreachthedecisiveaction history access schemes considered in our benchmark. In
+• Search/filteringfailed thepre-executionscheme(Table11),theagentretrievesand
+reasonsovermultipleaspectsofuserhistory(e.g.,preferred
+• Wrongitemselected
+website,typicalcategory,andformat)beforeinitiatingany
+• Processabandoned navigation actions. This enables the agent to construct a
+fully specified personalized objective prior to execution,
+• Constraintviolated(e.g.,attemptedloginwhenprohibited)
+afterwhichnavigationproceedswithoutfurtherhistoryac-
+14
+
+--- Page 15 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+cess. useofuserhistoryremainsadominantchallengeevenwhen
+agents successfully navigate the web. While the overall
+Incontrast,theon-demandscheme(Table12)interleaves
+errorcountsvarybymodel, thispatternsuggeststhatim-
+historyaccesswithnavigation. Theagentinitiallyretrieves
+provementsingeneralwebnavigationaloneareinsufficient
+onlycoarse-grainedpreferences(e.g.,preferredplatform)
+toaddresspersonalizationfailures.
+tostartexecution,andlaterqueriesuserhistoryagainwhen
+additionalconstraints(e.g.,budgetlimitsorcourseduration) Figure5(b)furtherbreaksdownpersonalization-relateder-
+becomenecessary. Thisreactiveaccesspatternallowsthe rorsforGemini2.5Flash. Amongthese,historyretrieval
+agent to refine its plan during execution but requires cor- failureisthemostprevalenterrortype,accountingfornearly
+rectlyidentifyingwhenandwhichpersonalizationsignals halfofpersonalizationerrors,followedbyhistoryutilization
+shouldberetrieved. failureandredundanthistoryaccess. Incontrast,personal-
+izationhallucinationoccurslessfrequently.Thisbreakdown
+Together,theseexampleshighlightthatpre-executionem-
+highlightsthatpersonalizationfailuresmoreoftenarisefrom
+phasizes upfront personalization and planning, while on-
+difficultiesinidentifyingandapplyingrelevanthistorical
+demandprioritizesadaptivepersonalizationduringexecu-
+information,ratherthanfabricatingnonexistentpreferences.
+tion. The differing strengths and requirements of these
+Together, these findings reinforce the need for improved
+schemeshelpexplainwhyoptimalhistoryaccessstrategies
+mechanisms that support effective history reasoning and
+varyacrossagentarchitectures.
+utilizationinpersonalizedwebagents.
+H.ErrorStatistics
+I.CaseStudiesofErrorTypes
+Wealsopresentrepresentativeexecutionlogsforeachofthe
+fourpersonalizationerrortypesidentifiedinouranalysis:
+RedundantHistoryAccess(Table13),PersonalizationHal-
+lucination(Table15),HistoryRetrievalFailure(Table14),
+andHistoryUtilizationFailure(Table16). Theseexamples
+complementthemainanalysisbyillustratinghoweacherror
+typemanifestsduringagentexecution.
+Figure5.ErrorstatisticsforAgentOccamacrossbackbonemodels
+(top)andabreakdownofpersonalization-relatederrorsforGemini
+2.5Flash(bottom).
+Toinvestigatethesourcesofagentfailures,weconductan
+erroranalysisbasedonthemainresults. Errorsarecatego-
+rizedintopersonalization-relatederrors,indicatedbyimper-
+fectpreferenceorwebsitescores,andnon-personalization-
+relatederrors,indicatedbyimperfectintentscores.
+Figure 5(a) reports the distribution of personalization-
+relatedandnon-personalization-relatederrorsforAgentOc-
+camwithvariousbackbonemodels. Acrossallbackbones,
+personalization-relatederrorsconstituteasubstantialpor-
+tionoftotalfailures,indicatingthatincorrectorincomplete
+15
+
+--- Page 16 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Table7.PromptforDomainPreferenceGeneration
+PromptforDomainPreferenceGeneration
+Travel/Accommodation/Transportation¿RestaurantReservations
+Whatthefieldsmustcapture
+Preference:include4-5concisepreferencesregardingrestaurantreservations
+-MUSTprovideusercontextinaconcisemanner.
+-Favoritecuisinetypes(e.g.,Japanese,Mexican,vegetarian-friendly)
+-PricetiersinUSDorsymbols(e.g.,”averagemeal≤$40perperson”)
+Patterns:include2–3realistic,repeatinghabitssuchas:
+-”UsesOpenTablewhenbookingbusinessdinnersduringweekdays”
+-”BrowsesExploreTockbeforespecialoccasions”
+Table8.PromptforEventSeedGeneration
+PromptforEventSeedGeneration-HighFrequency
+Generaterealisticdailylifeeventsformonthmonthofyearbasedonthefollowinguserprofileandrequirements.
+CRITICALINSTRUCTIONS
+-AlleventsMUSTalignwiththeprovideduserprofile
+-The’frequencyrelatedto’fieldintheuserprofilecontains
+frequencyinformationforeacheventcategory-strictlyfollowthesefrequencies
+-The’selectedsubdomains’fieldintheuserprofileincludes
+preferenceinformationabouttheuser’stastesandlifestyle-faithfullyincorporatethesepreferences
+-Alleventsmustberealisticandplausiblewithnaturalflowandtiming
+-Keepdescriptionsgeneralandavoidoverlyspecificdetails
+-Avoidspecificdetailsthatcannotbeinferredfromtheprofile
+(websitenames,brandnames,etc.)
+CANCELLATIONRULES
+-Approximately10%ofcancellableeventsshouldbemarkedascancelled
+-Add”(cancelled)”toeventsthatarecancelled
+-Onlycanceleventswherecancellationmakeslogicalsense
+UserProfile
+{userprofile}
+EventGenerationGuidelines
+CoreCategories:
+Food&Dining
+-Createvariety:restaurantvisits,cafevisits,brunchmeetings,dinnerwithfriends/colleagues
+Shopping
+-OnlineshoppingONLY-noofflineshoppingevents
+-Includevariousproductcategoriesbasedonuserpreferences
+-Keepdescriptionsatappropriatelevel:NOmorespecificdetails
+Work&Education
+-Firstidentifyuser’soccupationfromprofile:student,officeworker,orfreelancer
+-Thisdeterminesthebaseroutine:
+-Students:schoolattendance,studysessions,exams
+-Officeworkers:commute
+-Freelancers:clientwork,flexibleschedule,networking
+-Includerelevantspecialevents:
+-Work:clientmeetings,conferences,presentations
+-Education:exams,competitions,schoolevents,studygroups
+-Development:onlinecourses,workshops,certifications,skilltraining
+16
+
+--- Page 17 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Table9.PromptforActionDecomposition
+PromptforActionDecomposition
+Decomposethefollowingeventintoasequenceofplausibleactionswithtimestamps.
+EventDate:{event date}
+EventDescription:event description
+CRITICALCONSTRAINTS:
+Onlythese5actiontypesareallowed:
+1.websearch-searchingforinformationonline
+2.webvisit-visitingspecificwebsites
+3.purchase-buyingproductsorservices
+4.booking-makingreservationsorappointments
+5.review&rating-writingreviews
+DONOTuseanyotheractiontypes.
+DECOMPOSITIONGUIDELINES:
+Thenumberofactionsmustreflectrealistichumanbehavior.Don’tforcesimpletaskstohavemanysteps,and
+don’toversimplifynaturallycomplexprocesses.
+SimpleEvents(1-2actions):
+-Quick,single-purposetasks
+-Noresearchorcomparisonneeded
+ComplexEvents(3-8actions):
+-Multi-stageprocessesrequiringplanning
+-Involveresearch,comparison,decision-making
+-planningtrips,organizingevents,majorpurchases
+COREREQUIREMENTS:
+1.TemporalLogic
+Actionsmustoccurin**before/during/after**timeframes:
+-**Before**:preparationactions(search,reviewreading,booking)
+-**During**:executionactions(purchase,webvisitforreal-timeinfo)
+-**After**:follow-upactions(writingreviews,relatedpurchases)
+TIMESTAMPGENERATIONRULES:
+-Generatetimestampsaroundtheeventdate
+-Userealistictimes(avoid2-6AMunlessnecessary)
+-Format:YYYY-MM-DDHH:MM:SS
+-Actionsshouldbeinchronologicalorder
+2.ActionDiversityGuidelines(DONOTcopyexactly)
+-**Shoppingevents**:Notjust‘purchase’
+-Include:productsearch→reviewreading→pricecomparison→purchase→reviewwriting
+-**Travelevents**:Fulljourney
+-Include:destinationsearch→booking→travelinfolookup→reviewwriting
+-**Diningevents**:Completeexperience
+-Include: ‘websearch’(restaurant)→‘webvisit’(readreviews)→‘booking’(reservation)→‘webvisit’
+(locationmap)→‘review&rating’(writereviews)
+17
+
+--- Page 18 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Table10.PromptforUserHistoryGeneration
+PromptforUserHistoryGeneration
+Personalizethefollowingactionintoadetaileduserhistoryentrybasedontheuser’sdomainprofile.
+ActionInformation:
+-Timestamp:{timestamp}
+-Action:{action}
+-Domain:{domain}
+-Subdomain:{subdomain}
+User’sDomainProfile:
+{domain profile}
+CRITICALREQUIREMENTS:
+1.MUSTreferencethe”preferences”fieldintheprofileforspecificbrands,sizes,websites,artists,andother
+preferences
+2.MUSTconsiderthe”patterns”fieldtounderstanduser’sroutinebehaviorsandhabits
+3.Generatehighlyspecificandconcretedetailsthatalignwiththesepreferencesandpatterns
+4.Thepersonalizationshouldauthenticallyreflectthisspecificuser’stastesandbehaviors
+PERSONALIZATIONGUIDELINES:
+OUTPUTFORMAT:
+{
+”timestamp”:”YYYY-MM-DDHH:MM:SS”,
+”type”:”websearch,webvisit,purchase,booking,review&rating”,
+”object”:”detaileddescriptionwithspecificsfrompreferences”,
+”website”:”baredomainoftheplatform”
+}
+TheobjectfieldMUSTbeextremelyspecific,incorporatingdetailsfromtheprofile’spreferencesandpatterns
+fields.
+18
+
+--- Page 19 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Table11.Executionlogofpre-executionscheme
+Query:Findbooksinmyusualworkcategoryinmypreferredformat.
+Step1(HistoryAccess):
+PersonalizationQuery:Whatistheuser’spreferredwebsiteforfindingandpurchasingbooks?
+RetrievedHistoryIndex:1749,850,854,...
+PersonalizationReasoning: Basedonthehistoriesprovided,theuser’spreferredwebsiteforpurchasing
+booksisAmazon.Youhavemadefiveseparatebookpurchases,allofwhichwereonAmazon.OnNovember
+17,2024,youpurchased’ContinuousDiscoveryHabits’byTeresaTorres.OnOctober16,...Inallinstances
+wheredetailsarementioned,youleveragedAmazonPrimeforquickdelivery.
+Step2(HistoryAccess):
+PersonalizationQuery:Whatistheuser’susualwork-relatedbookcategory?
+RetrievedHistoryIndex:1893,288
+Personalization Reasoning: Based on the histories provided, no explicit record of work-related book
+categories. However,historiesshowinterestinproductmanagementthroughonlinecoursesearcheson
+coursera.org,notthroughbookpurchases.
+Step3(HistoryAccess):
+PersonalizationQuery:Whatistheuser’spreferredformatforbooks?
+RetrievedHistoryIndex:1593,854,268,...
+Personalization Reasoning: Based on the user histories provided, the user’s preferred book format is
+hardcover.Allbookpurchasesrecordedinthehistoriesareforhardcovereditions.**February18,2024:**
+Purchased’Inspired:HowToCreateProductsCustomersLove’byMartyCaganinhardcover. **May30,
+2024:**Purchasedahardcovereditionof’INSPIRED:HowtoCreateProductsCustomersLove’byMarty
+Cagan.**June11,2024:**Purchasedtwohardcoverbusinessbooks.
+Step4(NavigationAction):
+Objective:Enhancedtask:First,gotoAmazon.com.Then,searchforProductManagementbooksandfilterthe
+resultstoshowonlyHardcovereditions....
+URL:https://www.bing.com/
+Reason:ThefirststepoftheobjectiveistogotoAmazon.com.Sincethecurrentpageisasearchengine,the
+mostdirectwaytonavigatetoAmazon.comistotype”Amazon.com”intothesearchbarandexecutethesearch.
+Action:type[141][Amazon.com][1]
+Step5(NavigationAction):
+Objective:Enhancedtask:First,gotoAmazon.com.Then,searchforProductManagementbooksandfilterthe
+resultstoshowonlyHardcovereditions....
+URL:https://www.amazon.com/
+Reason:Thenextstepintheobjectiveistosearchfor”ProductManagement”books.Iwillusethesearchbar
+‘searchbox[8]‘toinputthesearchquery”ProductManagement”andthenproceedtoclickthesearchbuttonto
+executethesearch.
+Action:type[8][ProductManagement][1]
+Step6(NavigationAction):
+Objective:Enhancedtask:First,gotoAmazon.com.Then,searchforProductManagementbooksandfilterthe
+resultstoshowonlyHardcovereditions....
+URL:https://www.amazon.com/s?k=Product+Management...
+Reason: Theobjectiveistofilterthesearchresultstoshowonly”Hardcover”editions. Ihaveidentifiedthe
+”Hardcover”filterlink(ID‘16553‘)withinthe”BookFormat”sectionofthefilteringmenu.Clickingthislink
+willapplythedesiredfiltertothesearchresults.
+Action:click[16215]
+...
+Step9(NavigationAction):
+Objective:Enhancedtask:First,gotoAmazon.com.Then,searchforProductManagementbooksandfilterthe
+resultstoshowonlyHardcovereditions....
+URL:https://www.amazon.com/s?k=Product+Management...
+Reason: All these steps have been successfully completed. The current page shows the filtered results as
+requested.Therefore,thetaskisfinished.
+Action:stop[Thesearchfor”ProductManagement”booksonAmazon.comhasbeenperformed,andtheresults
+havebeensuccessfullyfilteredtoshowonly”Hardcover”editions.
+19
+
+--- Page 20 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Table12.Executionlogofon-demandscheme
+Query:Findsalesnegotiationcoursesthatmatchmytypicalbudgetandcourselengthlimits.
+Step1(HistoryAccess):
+PersonalizationQuery:user’spreferredwebsiteforfindingprofessionaldevelopmentcourses.
+RetrievedHistoryIndex:1113,611,100,...
+PersonalizationReasoning:Basedonthehistoriesprovided,yourpreferredwebsiteforfindingprofessional
+developmentcoursesiscoursera.org. Youhaveusedcoursera.orgonatleastnineseparateoccasionsfor
+variousactivitiesrelatedtoprofessionaldevelopment,specificallyfocusingonsalesstrategyandnegotiation
+techniques.
+Step2(NavigationAction):
+Objective: Query: Findsalesnegotiationcoursesthatmatchmytypicalbudgetandcourselengthlimitsfor
+sales/negotiation.
+URL:https://www.bing.com/
+Reason: Basedontheuser’smemory,thepreferredwebsiteforfindingprofessionaldevelopmentcoursesis
+coursera.org.Therefore,thefirststepistonavigatetothiswebsite.Iwilltypecoursera.orgintothesearchbar
+andpressentertogotothewebsite.
+Action:type[144][coursera.org][1]
+Step3(NavigationAction):
+Objective: Query: Findsalesnegotiationcoursesthatmatchmytypicalbudgetandcourselengthlimitsfor
+sales/negotiation.
+URL:https://www.bing.com/search?q=coursera.org...
+Reason:Ihavesuccessfullysearchedfortheuser’spreferredwebsite.Thenextlogicalstepistoclickonthe
+linkthatleadstotheCourserahomepagetobeginsearchingforthespecifiedcourses. Iwillclickonthelink
+withthetext”CourseraDegrees,Certificates,&FreeOnlineCourses”tonavigatetothewebsite.
+Action:click[15096]
+Step4(NavigationAction):
+Objective: Query: Findsalesnegotiationcoursesthatmatchmytypicalbudgetandcourselengthlimitsfor
+sales/negotiation.
+URL:https://www.coursera.org/?msockid...
+Reason:Theobjectiveistofind”salesnegotiationcourses”.Themostdirectwaytodothisistousethesearch
+barprovidedonthehomepage. Iwilltype”salesnegotiation”intothesearchbarandpressentertoseethe
+availablecourses.
+Action:type[1853][salesnegotiation][1]
+Step5(HistoryAccess):
+PersonalizationQuery:user’stypicalbudgetandcourselengthlimitsforsales/negotiationcourses.
+RetrievedHistoryIndex:1113,904,495,...
+PersonalizationReasoning:Basedontheprovidedhistories,youhavelookedforcoursespricedunder$30
+USD.Youhavealimitfortotalcourselengthofunder10hours.Youhaveapreferredweeklyworkloadof
+4-6hoursperweek.
+Step6(NavigationAction):
+Objective: Query: Findsalesnegotiationcoursesthatmatchmytypicalbudgetandcourselengthlimitsfor
+sales/negotiation.
+URL:https://www.coursera.org/search?query=sales%20negotiation...
+Reason:Ihavesuccessfullysearchedfor”salesnegotiation”courses.NowIneedtofiltertheresultstomatch
+theuser’spreferences. Accordingtotheuser’smemory, thecourselengthshouldbeunder10hours. The
+D¨uration¨filterbutton[5907]isthemostdirectwaytoapplythisconstraint.Iwillclickonittoseetheavailable
+durationoptionsandselecttheonethatbestfitstheuser’sneeds.
+Action:click[5907]
+...
+Step14(NavigationAction):
+Objective: Query: Findsalesnegotiationcoursesthatmatchmytypicalbudgetandcourselengthlimitsfor
+sales/negotiation.
+URL: https://www.coursera.org/search?query=sales%20negotiation&
+productDuration=Less...
+Reason: Ihavesuccessfullyidentifiedmultiplecoursesthatmatchtheuser’sspecifiedcriteriaforwebsite,
+duration,andbudget.Thecoursetitled”CopilotforBeginners:CreateaSalesPitchPresentation”isparticularly
+relevantasitexplicitlymentions”PriceNegotiation”.SinceIhavefoundsuitableoptions,thetaskiscomplete.I
+willnowstopandprovidetheanswer.
+Action: stop[ThefollowingsalesnegotiationcoursesonCourseramatchyourpreferences(under10hours,
+under$30):”CopilotforBeginners:CreateaSalesPitchPresentation”,”DesignapitchdeckwithCanva”,and
+”CreateaPromotionalVideousingCanva”.]”
+20
+
+--- Page 21 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Table13.RedundantHistoryAccessError
+Query:Findandcompareshoreexcursionsforourupcomingcruisethatmatchmyusualpreferencesandbudget.
+Step1(HistoryAccess):
+PersonalizationQuery:user’spreferredwebsiteforbookingorbrowsingcruiseshoreexcursions
+PersonalizationReasoning:Basedontheprovidedhistories,theevidenceofyourpreferredwebsiteforbooking
+orbrowsingcruiseshoreexcursionsisyouruseoftheCarnivalCruiseswebsite....
+Step2(NavigationAction):
+URL:https://www.bing.com/
+Reason:Followingtheuser’spreferencesandhistory,thesearchforshoreexcursionsshouldbeconductedon
+theCarnivalCruiseswebsite.ThenextstepistosearchfortheCarnivalCruiseswebsiteusingBing,soIcan
+navigatethereandbeginsearchingforshoreexcursionsthatmatchtheuser’spreferencesandbudget.
+Action:type[144][CarnivalCruisesshoreexcursions][1]
+Step3(HistoryAccess):
+PersonalizationQuery:user’susualshoreexcursionpreferences
+PersonalizationReasoning: Basedontheprovideduserhistories,thereisnodirectinformationavailable
+regardingtheuser’susualshoreexcursionpreferences....
+Step4(HistoryAccess):
+PersonalizationQuery:user’scruiseitinerary(datesandportsofcallfortheupcomingcruise)
+Personalization Reasoning: Based on the provided user histories, there is limited information available
+regardingyourcruiseitinerary.Theonlyrelevantdetailfoundisfromamemorydated2023-10-21,which
+states: youbookedasmall-group,low-activityshoreexcursionfor2adultsonCarnivalCruisesdeparting
+fromPortCanaveral....
+Step5(HistoryAccess):
+PersonalizationQuery:user’scruiseitinerary(upcomingcruise:datesandportsofcall)
+Personalization Reasoning: Based on the provided user histories, the available information about your
+upcomingcruiseisasfollows: CruiseLine: CarnivalCruises;DeparturePort: PortCanaveral;Excursion
+Details: Youhavebookedasmall-group,low-activitypanoramiccoachsightseeingshoreexcursionfor2
+adults....
+Step6(NavigationAction):
+URL:https://www.bing.com/search?q=Carnival+Cruises+shore+excursions...
+Reason: Tofulfilltheuser’sobjectiveinlinewiththeirknownpreferences,Ishouldproceedtotheofficial
+CarnivalCruisesshoreexcursionspage.Thiswillallowmetobrowseandcompareavailableexcursions,filter
+forlow-activityorsightseeingoptions,andcheckprices,allwithoutneedingtologinorprovidepersonalinfo.
+Thisstepisrequiredbeforeanyfilteringorcomparisonbasedonpreferencesorbudget.
+Action:click[17259]
+Step7(HistoryAccess):
+PersonalizationQuery:user’sspecificshoreexcursionpreferences(activitytype,activitylevel,pricerange)
+PersonalizationReasoning:Basedontheprovideduserhistories,severalhistoriesindicateapreferencefor
+mid-rangespending($30–$70perperson)andhighlyratedservices....
+Step8(HistoryAccess):
+PersonalizationQuery:user’sspecificshoreexcursionpreferences(activitytype,activitylevel,andpricerange)
+PersonalizationReasoning: Basedontheprovideduserhistories, therelevantdetailisthatyoupreviously
+searchedforfamily-friendlyactivitiesnearLockelandTableinEastNashville,focusingonactivitiessuitablefor
+allages....
+Step9(NavigationAction):
+URL:https://www.carnival.com/shore-excursions/...
+Reason:First,Imustretrievetheuser’spreferredwebsitefromtheirmemorybanktosupporttheexecutionofthis
+query,andthenperformthesearch.Ishouldnotattemptanyactionsthatrequirelogin,phonenumber,ore-mail
+address. Tomatchtheuser’sknownpreferences(low-activity,sightseeing,mid-rangebudget)andefficiently
+compareexcursions,Ishouldapplythefollowingfilters: -ActivityType: Sight-seeingandMotorcoach(as
+panoramiccoachtoursareapastpreference)-ActivityLevel: Easy(toensurelow-activityoptions)-Price:
+$50–$99.99and$100ormore(tocovermid-rangeandslightlyhigher).Applyingthesefilterswillnarrowdown
+excursionstothosemostrelevanttotheuser’spatterns,allowingforaneffectivecomparison.
+Action:click[2423]
+21
+
+--- Page 22 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Table14.PersonalizationHallucinationError
+Query: Find monitors that match my usual monitor specs, and apply my preferred condition and review
+threshold;sortbypricelowtohigh.
+Step1(HistoryAccess):
+PersonalizationQuery:user’spreferredwebsiteformonitorshopping
+PersonalizationReasoning:Basedontheprovidedhistories,theuserhasvisitedandusedbotheBayandBest
+Buywhenshoppingformonitors.eBaywasusedforpricecomparison,andBestBuywascheckedforopen-box
+availability.Noexplicitpreferenceforeithersiteisstated,butBestBuyappearsfrequentlyinrelationtoopen-box
+deals.
+Step2(NavigationAction):
+URL:https://www.bing.com/
+Reason:Therefore,BestBuyisareasonablestartingpointforthistask.Searchfor“BestBuymonitors”toreach
+themonitorcategorypage.
+Action:type[144][BestBuymonitors][1]
+Step3(HistoryAccess):
+PersonalizationQuery:user’susualmonitorspecs(size,resolution,paneltype,refreshrateetc.)
+PersonalizationReasoning:Theusertypicallysearchesfor27–32”4Kmonitorsprioritizinghighcoloraccuracy,
+highrefreshrate,andUSB-Cconnectivity.Nobrandorpanel-typeinformationisavailable.
+Step4(NavigationAction):
+URL:https://www.bing.com/search?q=Best+Buy+monitors...
+Reason:Selectthe“BestBuy”link([16375])tonavigatetoBestBuy’smonitorsectionforapplyingtheuser’s
+specificationsandfilters.
+Action:click[16375]
+Step5(HistoryAccess):
+PersonalizationQuery:user’spreferredconditionandminimumreviewthresholdformonitors
+Personalization Reasoning: Based on the provided histories, records indicate interests in 4K monitor and
+purchasingmonitorsunderopen-boxcondition.However,thereisnoexplicitmentionofanyminimumreview
+thresholdformonitorselection.
+Step6–13(NavigationActions):
+Theagentsequentiallyselected“UnitedStates”,navigatedto“4KMonitors”,appliedthe“26.5”–31.4”size
+filter”,andthenthe“Open-Box”conditionfilter.Finally,theresultsweresortedby“PriceLowtoHigh”.These
+stepsremainconsistentwiththeretrievedspecificationsandHistory-groundedreasoning.
+Step14(NavigationAction):
+URL:https://www.bestbuy.com/site/searchpage...
+Reason: “Theobjectiveistofindmonitorsthatmatchtheuser’susualspecs(4K,27–32”,open-box,high
+refreshrate,USB-C,highcoloraccuracy)andapplythepreferredconditionandreviewthreshold.Sincethe
+userlikelywantswell-reviewedproducts,Ishouldapplythe“4Stars&Up”filter.”
+Action:click[4499]
+Step15(NavigationAction):
+URL:https://www.bestbuy.com/site/searchpage...
+Reason: Theresultsnowdisplayopen-box4Kmonitors(27–32”, USB-C,well-reviewed, sortedbyprice).
+RepresentativeexamplesincludeLG27”IPSUHD4K($216.99,4.8⋆)andDell27”4K($239.99,4.7⋆).
+Action:stop
+22
+
+--- Page 23 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Table15.HistoryRetrievalFailureError
+Query:Checkthecurrentstandingsandthisweek’sscheduleformyNFLteamandmyMLBteam.
+Step1(HistoryAccess):
+PersonalizationQuery:Whatistheuser’sfavoriteorpreferredNFLteam?
+PersonalizationReasoning:Basedontheprovideduserhistories,theuser’sfavoriteorpreferredNFLteamisthe
+BaltimoreRavens.
+Step2(HistoryAccess):
+PersonalizationQuery:Whatistheuser’sfavoriteorpreferredMLBteam?
+PersonalizationReasoning:Basedontheprovideduserhistories,thereisnoexplicitmentionoftheuser’s
+favoriteorpreferredMLBteam.
+Step3(HistoryAccess):
+PersonalizationQuery:Whatistheuser’spreferredwebsiteforcheckingsportsstandingsandschedules?
+PersonalizationReasoning:Basedontheprovideduserhistories,theuser’spreferredwebsiteforcheckingsports
+standingsandschedulesisFoxSports(foxsports).Iftheuserusesanyothersportswebsites,thisisnotreflected
+inthecurrenthistories.
+Step4(NavigationAction):
+URL:https://www.bing.com/
+Reason:Toproceedaccordingtotheuser’spreferences,IneedtogototheFoxSportswebsite.Sincethereisno
+directlink,themostefficientstepistousethesearchboxtosearchfor“FoxSportsBaltimoreRavensstandings
+andschedule”todirectlyreachtherelevantsectiononFoxSports.
+Action:type[141][FoxSportsBaltimoreRavensstandingsandschedule][1]
+Step5(NavigationAction):
+URL: https://www.bing.com/search?q=Fox+Sports+Baltimore+Ravens+standings+
+and+schedule...
+Reason:Theuser’spreferredsourceisFoxSports,andthetoplinks([17517]/[17528]and[17794])aredirectly
+relevanttotheBaltimoreRavens’standingsandschedule. Tofulfilltheobjective, Ishouldproceedtothe
+Fox Sports page for the Baltimore Ravens’ schedule and standings. Link [17794] appears to be the most
+comprehensiveforboththescheduleandscores,whichlikelyincludesthisweek’sscheduleandpotentiallya
+linktostandingsorthestandingsthemselves.
+Action:click[17794]
+Step6(NavigationAction):
+URL: https://www.bing.com/search?q=Fox+Sports+Baltimore+Ravens+standings+
+and+schedule&form...
+Reason: Theobjectiveistoretrieveboththecurrentstandingsandthisweek’sschedulefortheBaltimore
+RavensfromFoxSports. ThemostdirectlinkstoFoxSportsare[17517],[17528](standings)and[17777]
+(schedule). Sincethepreviousclickon[17794]didnotnavigateawayfromBing,thenextbestactionisto
+click[17777],whichisanotherdirectFoxSportslinkfortheBaltimoreRavens’scheduleandmayprovidethe
+requiredinformation.
+Action:click[17777]
+Step7(NavigationAction):
+URL:https://www.foxsports.com/nfl/baltimore-ravens-team-schedule
+Reason:ThecurrentpageprovidesboththeRavens’currentstandingsandtheirschedule,includingthisweek’s
+game.Therecordisexplicitlystatedatthetop,andtheupcominggamestableincludesthisweek’sschedule.No
+informationaboutanMLBteamcanbeprovidedduetolackofuserpreference.Allrequiredinformationisnow
+gatheredandreadytobesummarizedfortheuser.
+Action:stop[BaltimoreRavens(NFL)onFoxSports:
+-Currentstanding:1-3,3rdinAFCNorth.
+-Thisweek’sgame:vs.HoustonTexans,Monday10/5,2:00AMatM&TBankStadium,Baltimore,MD(CBS).
+-NoMLBteamscheduleorstandingsareprovided,asnopreferredMLBteamisidentifiedinyourhistories.]
+23
+
+--- Page 24 ---
+Persona2Web:BenchmarkingPersonalizedWebAgentsforContextualReasoningwithUserHistory
+Table16.HistoryUtilizationFailureError
+Query:Checkseatavailabilityforupcomingconcertsinmypreferredgenrewithseatsinmypreferredlocation.
+Step1(HistoryAccess):
+PersonalizationQuery:Whatistheuser’spreferredwebsiteforbuyingconcerttickets?
+Personalization Reasoning: Based on the user histories provided, SeatGeek is the only website explicitly
+mentionedinthecontextofcheckingticketavailability.
+Step2(HistoryAccess):
+PersonalizationQuery:Whatistheuser’spreferredmusicgenre?
+PersonalizationReasoning:Basedontheuserhistories,thereisnoexplicitmentionofapreferredmusicgenre.
+However,HistoryindicatesaninterestinspecificartistssuchasKendrickLamarandSZA,forwhomtheuser
+previouslysearchedconcertvenues.
+Step3(HistoryAccess):
+PersonalizationQuery:Whatistheuser’spreferredseatinglocationwithinaconcertvenue?
+PersonalizationReasoning:Theuser’spreferredseatinglocationwithinaconcertvenueisinthelower-bowl
+sectionsnearthestage.
+Step4(HistoryAccess):
+PersonalizationQuery:Whatistheuser’shomecityorthecitytheyareinterestedinforfindingconcerts?
+PersonalizationReasoning: Basedontheuserhistories,thecitytheuserisinterestedinforconcertsisLos
+Angeles.
+Step5(NavigationAction):
+URL:https://www.bing.com/
+Reason:ThefirststepofthetaskistonavigatetoSeatGeek.com.Sincethecurrentpageisasearchengine,the
+mostdirectwaytodothisistotype“SeatGeek.com”intothesearchbarandpressEnter.
+Action:type[141][SeatGeek.com][1]
+Step6(NavigationAction):
+URL:https://www.bing.com/search?q=SeatGeek.com...
+Reason:IhavesuccessfullysearchedforSeatGeek.com.Thenextstepistoclickthefirstsearchresult,which
+leadstotheSeatGeekhomepage.
+Action:click[15414]
+Step7–8(NavigationActions):
+Theagentsearchedsequentiallyfor“KendrickLamar”and“SZA”concertsonSeatGeek. However,these
+searcheswereconductedatthegloballevelwithoutapplyingtheretrievedcityconstraint(LosAngeles),
+therebyoverlookingtheuser’sexplicitlocationpreferenceduringreasoningandactionselection.
+Step9(NavigationAction):
+URL:https://seatgeek.com/sza-tickets
+Reason:AccordingtoSeatGeek,therearenoupcomingconcertsinLosAngelesforeitherKendrickLamaror
+SZA.WhilethewebsitementionsthatSZAwillbeanopeningactforKendrickLamar’s2025GrandNational
+Tour,nospecificdatesorticketlistingsarecurrentlyavailable.Theagentstopsherewithoutverifyinglower-bowl
+seatavailabilityorapplyingthecityconstraint.
+Action:stop[NoupcomingconcertsfoundforKendrickLamarorSZAinLosAngeles.Seatavailabilitycould
+notbechecked.]
+24

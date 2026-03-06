@@ -1,6 +1,6 @@
 ---
 name: paper-reading-notes
-description: Generate structured reading notes from academic paper PDFs for a literature review knowledge base. Use this skill whenever the user uploads a PDF of a research paper and wants reading notes, a paper summary following their template, or asks to "read this paper", "take notes on this paper", "精读这篇论文", "生成笔记", or similar requests involving academic paper analysis. Also trigger when the user mentions paper priority (P0/P1/P2), reading passes, or knowledge base updates in the context of uploaded PDFs. This skill produces a structured markdown note with extracted evidence, design choices, limitations, and gap signals — not a generic summary.
+description: Generate or audit structured reading notes from academic paper PDFs for a literature review knowledge base. Use this skill whenever the user uploads a PDF of a research paper and wants reading notes, a paper summary following their template, or asks to "read this paper", "take notes on this paper", "精读这篇论文", "生成笔记", or similar requests involving academic paper analysis. Also trigger when the user mentions paper priority (P0/P1/P2), reading passes, asks whether an existing note truly meets Pass 2, wants to double check citations against the PDF, or wants knowledge base updates in the context of paper notes. This skill produces or audits a structured markdown note with extracted evidence, design choices, limitations, and gap signals — not a generic summary.
 ---
 
 # Paper Reading Notes Generator
@@ -17,17 +17,29 @@ The key insight: this is NOT a generic paper summary. It's an **evidence extract
 - User mentions "add this to my knowledge base" with a PDF
 - User asks to analyze a paper following their template
 - User uploads a paper and asks about its methods, gaps, or relation to their research
+- User asks to audit an existing reading note, especially one already marked `Pass 2`
+- User asks to double check citations / page numbers / quotes against the original PDF
+- User wants to know whether a note can really support survey writing or KB updates without re-reading the paper
 
 ## Workflow
 
-### Step 1: Read the PDF
+### Step 1: Identify Mode and Read the PDF / Existing Note
+
+There are two valid entry modes:
+
+- **Draft mode**: create a new reading note from a PDF
+- **Audit mode**: review an existing note, especially a note already labeled `Pass 2`
+
+In **Audit mode**, read the existing note first and treat the `Pass 2` label as untrusted until the audit confirms it.
 
 First, read the PDF skill for file handling:
 ```
 view /mnt/skills/public/pdf/SKILL.md
 ```
 
-Then extract the full text from the uploaded PDF. Use `pdfplumber` for text extraction as it preserves layout better:
+Then locate the original PDF. Prefer the repo copy under `papers/source/` when available. If the user uploaded a PDF for this turn, use that copy.
+
+Extract the full text from the PDF. Use `pdfplumber` for text extraction as it preserves layout better:
 
 ```python
 import pdfplumber
@@ -50,13 +62,30 @@ Also extract tables separately — they contain key experimental results:
             all_tables.append({"page": i+1, "table_index": j, "data": table})
 ```
 
-### Step 2: Read the Note Template
+If you are re-reading the PDF for quote verification or `Pass 2` audit, keep a **clean extracted text** file under the same topic's `papers/` tree so future quote checks do not require fresh extraction.
+
+Preferred location:
+
+```text
+<topic>/papers/text/<pdf-stem>_clean.txt
+```
+
+Rules for the clean text file:
+
+- Keep only the readable text needed for accurate quotation and page lookup
+- Preserve page markers such as `--- Page N ---`
+- Remove obvious extraction noise when safe to do so (duplicated blank lines, broken line wraps, repeated headers/footers if clearly identifiable)
+- Do NOT save multiple noisy variants like `_layout`, `_raw`, `_debug` unless the user explicitly asks
+- If `papers/text/` does not exist, create it
+
+### Step 2: Read the Note Template and Audit Checklist
 
 ```
 view /mnt/skills/paper-reading-notes/references/note-template.md
+view /mnt/skills/paper-reading-notes/references/quality-checklist.md
 ```
 
-This template defines the exact output structure. Follow it precisely.
+The template defines the output structure. The checklist defines whether the note can remain `Pass 1`, be promoted to `Pass 2`, or be downgraded from an existing `Pass 2` label after audit. Read both before writing.
 
 ### Step 3: Fill the Template
 
@@ -106,6 +135,17 @@ Search the paper for:
 
 Each gap signal MUST have a direct quote or data point with location.
 
+In **Audit mode**, do not rewrite everything blindly. First identify which claims are decision-critical for `Pass 2`:
+
+- core problem / insufficiency quotes
+- key design choices and ablation status
+- author-stated limitations
+- observed limitations
+- gap signals
+- connections to other papers / KB update readiness
+
+Only reopen and patch the sections whose evidence chain is weak, missing, or suspicious.
+
 ### Step 4: Language Convention
 
 Follow this mixed-language convention:
@@ -122,7 +162,45 @@ Example of correct style:
 > ⚠️ NEEDS YOUR INPUT: 初步观察——作者仅在 Android 平台测试，未验证跨平台泛化能力。此外，实验中的任务复杂度较低（平均步骤数 < 5），无法说明方法在长序列任务上的表现。请确认这些观察是否与你的 RQ 相关。
 ```
 
-### Step 5: Output
+### Step 5: Run the Pass 2 Audit
+
+After the draft note is filled, run the checklist in:
+
+```
+view /mnt/skills/paper-reading-notes/references/quality-checklist.md
+```
+
+Apply these rules strictly:
+
+- New notes start as `Pass 1` unless the audit proves otherwise.
+- Existing notes labeled `Pass 2` must also pass the same audit again; do not trust the old label by default.
+- Do NOT mark a note as `Pass 2` just because every section in the template is non-empty.
+- Upgrade to `Pass 2` only if every `Hard Gate` passes and the note is strong enough to support `comparison-matrix` / `gap-tracker` updates without reopening the PDF.
+- If any `Hard Gate` fails, keep or change the note to `Pass 1` and record the blocking items for the user.
+- If a claim depends on inference rather than direct evidence, keep the note at `Pass 1` unless the inference is clearly labeled and the supporting quote/data is still present.
+
+When auditing an existing `Pass 2` note, use a skeptical standard:
+
+- If a direct quote cannot be verified quickly from the note alone, re-check the PDF
+- If page numbers or section references look uncertain, re-check the PDF
+- If a gap signal is strong enough to influence `comparison-matrix` / `gap-tracker`, re-check the PDF unless the note already contains exact supporting quote/data
+- If the note cannot support a survey paragraph without reopening the PDF, it is not truly `Pass 2`
+
+Typical blockers for `Pass 2`:
+
+- missing section/page references in core evidence fields
+- gap signals that are mostly inference, not quote/data-backed
+- limitations that only restate the authors' own wording
+- research linkage too vague to place into the survey or KB
+- direct quotes that cannot be confidently traced back to the original PDF
+
+Necessary conclusion for a true `Pass 2` note:
+
+- the paper can be written into a survey paragraph directly from the note
+- `comparison-matrix` and `gap-tracker` can be updated from the note without reopening the PDF
+- core claims are fully supportable from the paper's original wording or result tables
+
+### Step 6: Output
 
 Save the completed note to: `/mnt/user-data/outputs/<short-name>-notes.md`
 
@@ -130,7 +208,7 @@ Where `<short-name>` is a lowercase-hyphenated version of the paper's short name
 
 After saving, use `present_files` to share with the user.
 
-### Step 6: Post-output Reminder
+### Step 7: Post-output Reminder
 
 After presenting the file, remind the user:
 
@@ -146,9 +224,16 @@ After presenting the file, remind the user:
 完成后，这篇笔记就可以并入你的知识库了。
 ```
 
+Also report the audit result in plain language:
+
+- If promoted: `Pass 2 audit: passed` + 2-3 reasons it passed
+- If not promoted: `Pass 2 audit: not yet` + the blocking checklist items
+- If re-auditing an old `Pass 2` note that fails: `Pass 2 audit: failed on re-check` + whether the note was downgraded to `Pass 1`
+- If the PDF was reopened: report that the original was re-checked and include the saved clean text path
+
 ## Quality Criteria
 
-A good note satisfies these checks:
+Minimum quality checks before delivery:
 - [ ] One-line summary contains: subject + method + benchmark + number
 - [ ] Problem setting has direct quotes with Section + page references
 - [ ] Design Choices table is filled; ablation verification column is marked
@@ -157,6 +242,8 @@ A good note satisfies these checks:
 - [ ] All `⚠️ NEEDS YOUR INPUT` blocks contain a preliminary AI suggestion (not left blank)
 - [ ] Key Passages section has 1-3 critical quotes with exact locations
 
+For `Pass 2` decisions, use the full audit in `references/quality-checklist.md` rather than only this short list.
+
 ## Important Notes
 
 - Do NOT hallucinate page numbers or section references. If you cannot locate the exact position, write "位置待确认" instead of guessing.
@@ -164,3 +251,5 @@ A good note satisfies these checks:
 - Do NOT leave the Design Choices table empty — even a 2-row table is better than none. If the paper doesn't clearly describe design choices, note what you can infer and mark them as "从实验设置推断".
 - If table extraction from the PDF is poor (garbled text), note this and suggest the user manually fill in the Key Results table.
 - The priority of this skill is **evidence extraction accuracy**. A shorter note with correct page references beats a longer note with vague attributions.
+- `Pass 2` is a readiness judgment, not a formatting judgment. A complete-looking note can still be only `Pass 1`.
+- For `Pass 2` re-audits, prefer false-negative over false-positive. If evidence feels shaky, re-open the PDF and verify.

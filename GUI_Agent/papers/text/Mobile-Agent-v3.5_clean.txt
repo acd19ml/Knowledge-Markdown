@@ -1,0 +1,1347 @@
+--- Page 1 ---
+February20,2026
+Mobile-Agent-v3.5: Multi-platform Fundamental GUI
+Agents
+HaiyangXu∗† XiZhang∗ HaoweiLiu∗ JunyangWang∗ ZhaoqingZhu∗ Shengjie
+Zhou XuhaoHu FeiyuGao JunjieCao ZihuaWang ZhiyuanChen JitongLiao
+QiZheng JiahuiZeng ZeXu ShuaiBai JunyangLin JingrenZhou MingYan†
+TongyiLab ,AlibabaGroup
+{shuofeng.xhy, ym11960}@alibaba-inc.com
+https://github.com/X-PLUG/MobileAgent
+Abstract
+The paper introduces GUI-Owl-1.5, the latest native GUI agent model that features in-
+struct/thinkingvariantsinmultiplesizes(2B/4B/8B/32B/235B)andsupportsarangeofplatforms
+(desktop, mobile, browser, and more) to enable cloud-edge collaboration and real-time inter-
+action. GUI-Owl-1.5 achieves state-of-the-art results on more than 20+ GUI benchmarks on
+open-source models: (1) on GUI automation tasks, it obtains 56.5 on OSWorld, 71.6 on An-
+droidWorld,and48.4onWebArena;(2)ongroundingtasks,itobtains80.3onScreenSpotPro;
+(3) on tool-calling tasks, it obtains 47.6 on OSWorld-MCP, and 46.8 on MobileWorld; (4) on
+memoryandknowledgetasks,itobtains75.5onGUI-KnowledgeBench. GUI-Owl-1.5incorpo-
+ratesseveralkeyinnovations: (1)HybirdDataFlywheel: weconstructthedatapipelineforUI
+understandingandtrajectorygenerationbasedonacombinationofsimulatedenvironmentsand
+cloud-based sandbox environments, in order to improve the efficiency and quality of data col-
+lection. (2)UnifiedEnhancementofAgentCapabilities: weuseaunifiedthought-synthesis
+pipeline to enhance the model’s reasoning capabilities, while placing particular emphasis on
+improving key agent abilities, including Tool/MCP use, memory and multi-agent adaptation;
+(3)Multi-platformEnvironmentRLScaling: WeproposeanewenvironmentRLalgorithm,
+MRPO,toaddressthechallengesofmulti-platformconflictsandthelowtrainingefficiencyof
+long-horizontasks. TheGUI-Owl-1.5modelsareopen-sourced, and anonlinecloud-sandbox
+demoisavailableathttps://github.com/X-PLUG/MobileAgent.
+OSWorld-Verified WindowsAgentArena AndroidWorld
+60 62.9 56.5 53.1 50.1 45.0 43.9 40 44.8 42.9 42.1 39.6 35.1 30.9 6 8 0 073.3 71.6 69.7 67.7 64.2 63.7
+40
+40
+20
+20 20
+Claude-4-5- G so U n I 0 - n O e w t l-1.5-32B UI-TA G R U S I- - O 2 wl-1.5 O - p 8 e B nCU C A la - u 7 d 2B e-4-sonnet GUI-O Q w w l- e 1 n .5 3 - - 0 3 V 2 L B -32B-Thin U k I-TARS-1. S 5 eedV G L U - Q 1 I- w . O 5 e w n l 3 - - 1 V .5 L - - 8 3 B 2B-Instruct UI- G T U a I 0 r - s O -2 wl-1.5 G - e 3 m 2B ini-2. G 5- E P L r a o b-Zero-8 Q U B w I-T e a n r 3 s - - V 1 L .5 -32B-Think
+VisualWebArena OSWorld-MCP MobileWorld
+54.4 52.9 47.6 46.8
+46.6 40 43.3 41.8 39.1 38.4 40 41.8 41.7
+40
+27.2
+26.4 20.9
+20 16.7 20 20
+11.2 9.0
+5.5
+Gemini-2.5-Fl 0 ash G G U P I- T O -5 wl-1.5-32 L B lam G a P - T 3 - - 4 7 o 0B-Instruct ViGoRL-8B GUI-Owl-1 C .5 la - 0 u 3 d 2 e B -4 Q -s w G o e n U n n I- 3 e O V t w L- l 2 -1 3 . 5 5 B - - 8 A B 22B-Thin S k eedV G L e -1 m .5 ini-2.5-Pro GUI-Owl-1. G 5- U 0 3 I 2 -O B w M l- A 1 I . - 5 U - I 8 - B 235B-A2 Q 2 U B w I e -T n a 3 r V s L - - 1 3 . Q 5 2 w B- e I n n 3 st V r L u - c 8 t B-Instruct
+OSWorld-G ScreenSpot-Pro GUI Knowledge Bench
+60 66.8 65.8 65.1 62.9 58.0 57.1 6 8 0 0 80.3 77.8 72.7 63.6 62.0 6 8 0 075.5 73.3 72.9 71.0 67.8 62.2
+49.7
+40
+40 40
+20 20 20
+GUI-Owl-1. G 5- U 0 3 Q I 2 - w O B e w n l 3 - - 1 V .5 L - - 8 3 B 2B-Instruc S t eed1.5- G V U L I-Owl-3 U 2 I B -TARS-72B GUI-Owl-1. G 5- U 3 I 2 -O B( w w l- / 1 c . r 5 0 o - p 8B ) (w/ cr G o e p Q m ) w in e i n -3 G 3 - T - P V A r L 1 o - - 2 N 3 e 5 w B - - 3 A 2 2 B 2B-Instru E c v t oCUA-32B GUI-Owl-1.5- 0 32B GUI o -O 3 wl-1.5-8 Q G B w P e T n -5 3 - - C V h L- a 8 t B-I C n l s a t u ru d c e t -Sonnet-4
+Figure1: PerformanceoverviewonmainstreamGUItaskautomation,groundingandknowledgebenchmarks.
+∗CoreContributors
+†Correspondingauthorandprojectleader
+1
+6202
+beF
+51
+]IA.sc[
+1v55861.2062:viXra
+
+--- Page 2 ---
+Figure2: OverviewofourMobile-Agent-v3.5. Weillustrateourmulti-platformenvironmentsupportingandour
+highlightcapability.
+1 Introduction
+With the rapid development of Vision–language models (VLMs) (Bai et al., 2025a; Anthropic, 2025a; OpenAI,
+2025c; DeepMind, 2025),multimodal agents (Wang et al., 2024b; Qin et al., 2025; Ye et al., 2025; Liu et al.,
+2024;Zhouetal.,2025;Wangetal.,2025a)haveachievedsubstantiveprogress,especiallyGraphicaluserinterface
+(GUI)agents. GUIAgentsaremainlydesignedtoperformautomatedoperationsacrossmultipledevices,suchas
+desktops, mobiles, browsers, and so on. Recently, native agent models (Ye et al., 2025; Qin et al., 2025; Seed,
+2025d)basedonend-to-endlearninghavedemonstratedgreatpotential,ratherthanonlybuildingagentframeworks
+ontopofclosed-sourcemodels(Wangetal.,2024a;2025b;Agasheetal.,2025;Zhangetal.,2025).
+However,the development of robust and practically usable GUI agents still faces several challenges. (1) The
+efficiency of real-world data collection: Collecting large-scale trajectories is costly to hamper the scalability
+of GUI datasets, as it requires complex agentic workflows, manual annotation, and engineering-level handling
+of anomalous scenarios; (2) The adaptation to multiple platforms: The native agent model needs to perform
+automated tasks reliably across a wide range of devices, including desktops, mobiles, browsers, and in-vehicle
+systems. It should also support complex agentic real-time interactions, such as edge–cloud collaboration and
+coordinationacrossmultipledevices;(3)Thecomprehensiveagenticcapabilities: TheGeneralGUIAgentshould
+becapableofcompletingtasksefficiently,notlimitedtoGUI-onlyoperations. Itshouldalsosupporttool/Model
+ContextProtocol(MCP)invocation,short-termandlong-termmemory,multi-agentadaptation,andhuman–agent
+interaction.
+Toaddressthesechallenges,weproposeGUI-Owl1.5,ourlatestnativeGUIagentmodelformulti-platformGUI
+automation across desktops, mobiles, browsers, and more. Built on Qwen3-VL and powered by a scalable data
+pipelineandamulti-stagetrainingparadigm,GUI-Owl1.5comprisesafamilyoffoundationGUImodelscovering
+a full range of sizes, including instruct/thinking variants at 2B, 4B, 8B, 32B, and 235B-A22B. Smaller instruct
+models, whichdonotproducethoughts, enablefasterinferenceandcanbedeployedonedgedevicestosupport
+high-frequency, real-time interactions while addressing security and privacy concerns. Larger thinking models,
+withstrongercapabilitiesintaskplanningandreflection,arebettersuitedforcomplextasksandcancollaborate
+withedge-deployedinstructmodelsinamulti-agentsetuptoenableedge–cloudcollaborationandmulti-platform
+coordination. Thekeytechnicalpointsarehighlightednext.
+2
+
+--- Page 3 ---
+Hybird Data Flywheel: We develop the data pipeline for UI understanding and trajectory generation by syner-
+gistically integrating simulated environments with cloud-based platform environments, thereby enhancing both
+the efficiency and quality of data collection. For Grounding: a comprehensive grounding data augmentation
+pipeline that encompasses both hard grounding data generation—including challenging app GUI synthesis and
+multi-windowhigh-resolutionscenarios—andscalablehigh-qualitydataextensionthroughtrajectorymining,tu-
+torial knowledge extraction, and infeasible query generation. For trajectory, we build a self-evolving trajectory
+synthesisworkflowbasedonadirectedacyclicgraph(DAG)(Yeetal.,2025). Meanwhile,wesynthesizevirtual
+environmentsviaVibeCodingtocreatehigh-frequency,complexatomicoperationsandappsfeaturingchallenging
+casessuchaspop-upsandCAPTCHA-styleverifications. Inaddition, forsomechallengingappsandscenarios,
+weincorporateasmallamountofmanualannotationtobetteralignsyntheticenvironmentswithreal-worldones.
+UnifiedEnhancementofAgentCapabilities: BeyondbasicGUIperceptionandactionexecution,apracticalGUI
+agentmustpossessarangeofhigher-orderskills. Weintroducethreecomplementarystrategiestocomprehensively
+enhancethenativemodel’sagentcapabilities. First,weinjectGUIknowledgethroughlarge-scaleQAdatacrawled
+from software documentation and forums, and train the model with world modeling supervision to anticipate
+interface state transitions before acting. Second, we design a unified chain-of-thought (CoT) synthesis pipeline
+thataugmentsalltrajectorydatawithstep-wiseobservation,reflection,memorymanagement,andtoolinvocation
+reasoning, enabling superior long-horizon planning and in-context information retention. Third, we incorporate
+multi-agent collaboration data collected via the Mobile-Agent-v3.5 framework, allowing the model to function
+not only as a standalone end-to-end agent but also as specialized roles (e.g., planner, executor, verifier) within
+structuredmulti-agentsystems.
+Multi-platformEnvironmentRLScaling: Toenablestablereinforcementlearningtrainingacrossmulti-platform
+environments, weproposeMRPO(Multi-platformReinforcementPolicyOptimization), alarge-scaleRLframe-
+workthataddressesfourcriticalchallengesinGUIagenttraining. First,weunifylearningacrossmobile,desktop,
+and web environments under a single device-conditioned policy. Second, we introduce an online rollout buffer
+that mitigates GRPO training instability when grouped rollouts collapse to identical outcomes by oversampling
+trajectories and strategically selectingdiverse groups while maintaining on-policy guarantees. Third, we ensure
+consistencybetweenenvironment-sideinferenceandtraining-sideoptimizationthroughtoken-IDtransport, pre-
+venting tokenization mismatches. Finally, we adopt alternating multi-platform optimization to reduce gradient
+interference, training on single device types cyclically rather than mixing trajectories. This approach enables
+stable,unifiedpolicylearningwhilepreservingcross-devicegeneralizationforlong-horizonGUIcontroltasks.
+WeevaluateGUI-Owl-1.5onaseriesofbenchmarksspanningGUItaskautomation,grounding,toolinvocation,
+memoryandknowledge. ExperimentalresultsdemonstratethatGUI-Owl-1.5exhibitsstrongGUIunderstanding,
+grounding and execution capabilities, achieving state-of-the-art performance among open-source models across
+morethan20GUIbenchmarks. Specifically,itattainstasksuccessratesof56.5%,71.6%and46.6%onOSWorld-
+Verified,AndroidWorldandVisualWebArenarespectively,whichoutperformsmodelssuchasUI-TARS-2,Claude-
+4,andGemini-2.5-Pro. OnOSWorld-MCP,whichevaluatestheintegrationofGUIoperationsandtoolinvocation,
+itachievesatasksuccessrateof47.6%. OntheScreenSpot-Progroundingbenchmark,itachievesastate-of-the-art
+accuracy of 80.3% with crop-based refinement, and notably surpasses the large-scale Gemini-3-Pro even in its
+baseconfiguration(72.9%)withoutcroptool. OnMemGUI-BenchandGUIKnowledgeBench, ourmodelalso
+surpassespreviousopen-sourcemodels.
+2 Mobile-Agent-v3.5
+GUI-Owl-1.5 is a multimodal model for GUI operations, building on the previous GUI-Owl (Ye et al., 2025).
+Comparedtoitspredecessor,itoffersthreemainimprovements: (1)abroaderactionspace;(2)improvedcontext
+retention;(3)enhanceddesigninsyntheticdatageneration,cross-platformadaptation,andagentcapabilities.
+BuildingonQwen3-VLandtrainedwithextensivepost-trainingdatasets,GUI-Owl-1.5maintainsthecorefunctions
+of the original model—perceiving, planning, decision-making, and locating elements in GUI scenarios—while
+furtheroptimizingthemfordifferentreal-worldcases. Themodelcanautonomouslyinteractwithmobile,desktop,
+andbrowserinterfacesacrossmultipleturns,andcanalsoworkcollaborativelyinmulti-agentsystems.
+2.1 Formulation
+WeformulatetheGUIagenttaskasamulti-turninteractivedecision-makingproblem,wheretheagentcontinuously
+perceivestheenvironment,executesactions,andadaptsitsstrategybasedonreal-timefeedback.
+InputSpace. Ateachinteractionstept,theagentreceives:
+• VisualobservationI ∈RH×W×3: ascreenshotcapturingthecurrentGUIstate.
+t
+• UserinstructionL : anaturallanguagecommandexpressingtheuser’sintent.
+t
+3
+
+--- Page 4 ---
+Figure 3: Illustration of the interaction flow of GUI-Owl-1.5. The system message defines the available action
+space, the user message contains the task instruction, compressed histories, and current observation, while the
+responsemessageincludestheagent’sreasoning,actionsummaries,andthefinalactionoutput.
+OutputSpace. Giventheinput,theagentgenerates:
+• ActionconclusionC : anaturallanguageexplanationsummarizingtheplannedaction.
+t
+• ToolcallA : astructuredfunctioncallthatexecutestheaction.
+t
+ThenatureofGUIagenttasksrequiresclosed-loopinteractionwiththeenvironment. Specifically,afterexecuting
+A , the environment transitions to a new state, providing updated visual feedback I for the next turn. This
+t t+1
+iterativeprocesscontinuesuntilthetaskiscompletedorterminated. Notably,comparedtothepreviousGUI-Owl,
+wesignificantlyexpandtheactionspacetosupportexternaltoolcallsandAPIinvocationsinadditiontoprimitive
+GUIoperations(e.g.,click,type,scroll). Thisextensionenablestheagenttoorchestratecomplexworkflowsacross
+heterogeneoussystems,suchasqueryingdatabasesthroughAPIs,invokingspecializedcomputationaltools,and
+integratingwiththird-partyservices.
+Context Management. To handle long-horizon tasks while maintaining computational efficiency, we adopt a
+slidingwindowmechanismwithhierarchicalcontextcompression. Thecontextatsteptisorganizedas:
+• Recent context (full retention): The most recent N complete dialogue turns, including all modalities:
+{(I ,L ,C ,A ),...,(I ,L ,C ,A )}
+t−N t−N t−N t−N t−1 t−1 t−1 t−1
+• Historical context (compressed summary): Earlier interactions beyond the N-turn window are con-
+densed into a textual summary S , formed by concatenating action conclusions: S =
+1:t−N−1 1:t−N−1
+concat(C ,C ,...,C )
+1 2 t−N−1
+This hierarchical design preserves fine-grained multi-modal information for immediate decision-making while
+maintaininghigh-levelawarenessoflong-termtaskprogression,effectivelybalancingcontextrichnesswithmem-
+oryefficiency.
+2.2 DataPreparation
+To support training of GUI-Owl-1.5 across heterogeneous platforms and task families, we develop a unified
+data preparation pipeline that targets both actionable interaction supervision and fine-grained visual grounding.
+Specifically,wecurate(i)trajectorydatathatcaptureslong-horizondecision-makingandtool-augmentedexecution
+inrealisticGUIenvironments,and(ii)groundingdatathatalignsnatural-languageintentswithon-screenelements.
+4
+
+--- Page 5 ---
+Hard Grounding Data Synthesis
+Challenging App GUI Grounding Data Synthesis Multi-window High-resolution Grounding DataSynthesis
+UI Element Candidates
+GUI Single-window Image + Grounding Elements
+Fruitloops … …
+… …
+OrganizationSettings VisualStudio
+Window Count Candidates
+Layout Candidates (e.g., random, 1 row x 2 cols)
+Resolution Candidates
+High-Quality Grounding Data Extension
+MLLM
+GeneratedGUI
+Grounding Data
+RenderUI Element
+RegenerateHTML
+Generate
+QualityCheck
+ReferenceInterface HTML · Parse HTML
+· Overlap
+· Elementposition
+· NeighborElements
+show touch keyboard
+Grounding Data Extractionfrom Trajectories Grounding-related QAs Generation Infeasible Grounding Data Generation
+Images
+Critic Model LLM
+Traje G c U to I ries Grounding Data Cl D ea a n ta ed App Vi d Tu e t o o s r ial Parsed Subtitles r G e r l o a u te n d d i Q n A g- s Grounding Data Queries
+MLLM
+UI Element Candidates
+Images & Selected Grounding Elements
+Multi-window Grounding Data Diversify
+Check Selected
+Element Non-overlap
+Random Infeasible Pairs Data
+Check
+Figure4: Overviewofourhigh-qualitygroundingdataconstructionpipeline.
+2.2.1 Grounding
+Existinggroundingdatasetsexhibitlimitedcomplexityanddiversity, creatingacriticalshortageofhigh-quality,
+challenginggroundingdataalongsidescalabledataaugmentationsolutions. AsillustratedinFigure7,weaddress
+theselimitationsthroughacomprehensivedataaugmentationframeworkthatenhancesGUIgroundingcapabilities
+viatwocomplementarystrategies.
+ForHardGroundingDataGeneration,whichtargetscomplexscenariosrequiringspecializeddomainknowledge
+andhighannotationcosts,wedeveloptwosynthesisapproaches:
+• Challenging App GUI Grounding Data Synthesis: We leverage annotated UI elements and reference
+interfaces to generate diverse, high-quality professional application screenshots using MLLMs. This
+processincorporatesiterativequalityassessmentandrefinementmechanisms,wheregeneratedinterfaces
+undergovalidationchecksandcorrectiveregenerationtoensuredatafidelityanddomainaccuracy.
+• Multi-window High-resolution Grounding Data Synthesis: Utilizing existing single-window datasets
+combinedwithcandidateorganizationpools(encompassingwindowcountvariations,layoutconfigura-
+tions, and resolution options), we generate complex multi-window scenarios while ensuring target UI
+elementsremainunoccludedthroughspatialconstraintvalidation.
+ForHigh-QualityGroundingDataExtension,whichaimstoachievecost-effectiveandscalabledataaugmentation,
+weimplementthreesynergisticenhancementpathways:
+• Trajectory-based grounding extraction: We mine grounding annotations from existing PC and mobile
+simulationenvironmenttrajectories,employingcriticmodelstofilterandvalidatedataquality,ensuring
+onlyhigh-fidelitygroundingpairsareretained.
+• Tutorial-basedknowledgemining: Applicationtutorialsareparsedtoextractgrounding-relatedquestion-
+answerknowledgebyanalyzingembeddedsubtitlesandidentifyingspatial-semanticrelationships, ulti-
+matelygeneratingcomprehensivegrounding-orientedQApairsthatcapturereal-worldusagepatterns.
+• Infeasiblequerygeneration: Toaddressthecriticalgapinhandlinginfeasiblegroundingquerieswithin
+existingdatasets,wegeneratelarge-scalenegativesamplesthroughstrategicrandompairingofqueriesand
+interfaceelements, followedbymulti-modelconsensusfilteringtoidentifyandvalidatetrulyinfeasible
+groundinginstances.
+2.2.2 TrajectoryDataCollection
+Webuildahybridtrajectorycorpusthatscalestodiverseapplicationsanddeviceswhilemaintaininghighsuper-
+visionfidelity. Thepipelineconsistsof(i)DAG-basedtasksynthesistocoverfrequentworkflows,(ii)automated
+rollouts on real devices with DAG-based validation, (iii) human demonstrations for tasks that remain unsolved
+byautomation, (iv)trajectoryproductionviavirtualenvironmentsforbasicactions(e.g., scroll, drag)andhigh-
+frequencychallengingscenarios.
+5
+
+--- Page 6 ---
+Trajectory Collection Pipeline
+Query Genera4on & Trajectory Verifica4on & Task Rewri4ng Virtual Environment
+Figure5: Overviewofourtrajectorycollectionpipeline.
+Task production via human-authored DAGs. For each application domain, annotators construct a directed
+acyclicgraph(DAG)
+G=(V,E), V ={v }|V|, E ⊆V ×V,
+i i=1
+where each node v denotes an atomic subtask and each edge (v ,v ) ∈ E denotes a feasible transition under
+i i j
+typical UI state evolution. Let S ⊆ V and T ⊆ V be the sets of valid start and terminal nodes separately, we
+synthesizeataskbysamplingapathfromS toT:
+p=(v ,...,v ), v ∈S, v ∈T, (v ,v )∈E,
+1 K 1 K k k+1
+whichrepresentsarealisticactionsequencewithmultiplesteps. Eachnodev isassociatedwithasub-instruction
+k
+templated(v )thatoptionallyhasslotsfordiverseentities. Thefinaltaskinstructioniscomposedbyconcatenating
+k
+andrewritingtheorderedsub-instructions:
+(cid:0) (cid:1)
+I(p)=Compose d(v ),d(v ),...,d(v ) .
+1 2 K
+Bysamplingdiversepathsandinstantiatingtemplates,theDAGprovidescontrollablecoverageofhigh-frequency
+operationpatternsincommonapps,minimizingtheimpactoftheLLMhallucination.
+Automated trajectory generation with checkpointing, truncation, and task repair. Given I(p), an agent
+interactswitharealdeviceenvironmentE toproduceatrajectory
+τ ={(o ,a )}T ,
+t t t=1
+where o is the observation (e.g., screenshot, UI structure, device metadata) and a is the executed action
+t t
+(touch/keyboard/toolcall). Toassesspartialcompletionalongthesubtaskpathp,wedefineacheckpointpredicate
+foreachnodev :
+k
+ϕ :O →{0,1}, ϕ (o )=1iffsubtaskv issatisfiedato .
+k k t k t
+Wecomputewhethersubtaskkisachievedsomewhereintherolloutby
+c (τ)= max ϕ (o ).
+k k t
+t∈[1,T]
+Thelongestcompletedprefixlengthis
+m(τ)=max{m∈{0,...,K} : ∀k ≤m, c (τ)=1}.
+k
+Ifm(τ)=K,weacceptτ asacorrecttrajectory. Otherwise,wetruncatetherollouttothelastverifiedcheckpoint
+ofthecompletedprefix:
+t⋆ =max{t:ϕ (o )=1}, τ′ ={(o ,a )}t⋆ ,
+m(τ) t t t t=1
+andrepairtheoriginaltaskbyremovingthecompletedsubtasks:
+prem =(v
+m(τ)+1
+,...,v
+K
+), Irem =I(prem).
+We then store (Irem,τ′) as a partially-correct instance, which provides clean supervision for the successfully
+executedsegmentwhileavoidingnoisylabelsbeyondthelastcorrectsubtask.
+6
+
+--- Page 7 ---
+Humanannotationonrealdevices. Fordifficulttasksthatremainunsolvedafterrepeatedautomatedattempts,
+we collect expert demonstrations via a cloud annotation platform. Annotators directly operate the same real
+device environments and record gold trajectories τhuman aligned with the task instruction, ensuring high-quality
+supervisionforhardcases.
+Virtualenvironment-basedtrajectoryproduction. Relyingsolelyonagentexplorationinreal-worldenviron-
+ments for trajectory generation presents two notable limitations: (i) Real-world applications and software often
+incorporate CAPTCHA verification, anti-bot mechanisms, and other protective measures that can interrupt or
+terminatetheagent’sexplorationprocess. (ii)Real-worldenvironmentscannotprovideaccuratefeedback,which
+results in low efficiency of trajectory generation via agent exploration, and often yields trajectories that contain
+erroneousorredundantsteps.
+Toaddressthesechallenges,wedevelopasuiteofweb-rendering-basedvirtualenvironmentstargetingfine-grained
+primitiveactions(e.g.,scroll,drag)andhigh-frequencydifficultscenarios(e.g.,documentandspreadsheetediting,
+popularapplications). Thesevirtualenvironmentsservetwoprimarypurposes: (i)providingprecisesub-task-level
+feedback to guide agent exploration, and (ii) enabling automated and scalable trajectory generation through the
+integrationofLLM-basedinstructiondecomposition.
+Agent rollout + critic. Given a sampled scenario ω and a DAG path p = (v ,...,v ), the agent produces a
+1 K
+simulated trajectory τ˜ = {(o˜,a˜ )}T˜ . The simulator exposes subtask-completion predicates ϕ˜ (s˜) ∈ {0,1},
+t t t=1 k t
+enablinganexactprefix-progressscore:
+c˜ (τ˜)=maxϕ˜ (s˜), m˜(τ˜)=max{m:∀k ≤m, c˜ (τ˜)=1}.
+k k t k
+t
+Weacceptτ˜ifm˜(τ˜)=K;otherwisewetruncatetothelastverifiedcheckpointandkeepacleanpartially-correct
+prefixfortraining:
+t˜⋆ =max{t:ϕ˜ (s˜)=1}, τ˜′ =τ˜ .
+m˜(τ˜) t 1:t˜⋆
+Scalable Automated Trajectory Generation. Since our virtual environments are built upon web rendering, they
+inherently support the automated execution of atomic operations. For a given virtual environment, such as a
+virtualworddocumenteditor,weleverageanLLMinconjunctionwiththedocumentcontenttodecomposeauser
+instructionintoasequenceofatomicoperationsthatthevirtualenvironmentcanexecute. Theseatomicoperations
+arethenfedintothevirtualenvironmenttoproducecorrespondingpreciseoperationtrajectories. Also,formany
+concentrated scenarios, the canonical correct operation is known and can be standardized. We encode it as a
+script/RPApolicyρanddirectlyexecute:
+τ˜ rpa =Rollout(E˜,ρ,ω,p), m˜(τ˜ rpa )=K,
+whichyieldshigh-qualitysuccessfultrajectoriesatlowcost.
+2.3 AgentCapabilityEnhancement
+BeyondgroundingandGUIunderstanding,acapableGUIagentmustplanoverlonghorizons,reasonaboutaction
+consequences,memorizekeyinformation,andinvokeexternaltools. Weintroducethreecomplementarystrategies
+to enhance these capabilities (Figure 6): (i) GUI Knowledge Injection, which enriches the model’s knowledge
+throughQAdataandworldmodeling;(ii)UnifiedCoTSynthesis,whichaugmentstrajectorydatawithstep-wise
+reasoning,reflection,andmemory;and(iii)Multi-AgentCollaboration,whichenablesthemodeltooperatewithin
+structuredmulti-agentframeworks.
+2.3.1 GUIKnowledgeInjection
+QA&VQA.Inadditiontotrajectory-formatdata, wefurtheraugmenttheagent’sGUIknowledgethroughdata
+inothermodalities. AsillustratedinFigure6,wecrawlasubstantialvolumeofdatafromdiversesourcesonthe
+InternettoconstructaknowledgebaseofGUI-relatedinformation,encompassingsoftwarefeatureconfigurations,
+operational instructions, website navigation, among others. The primary sources can be categorized into three
+types: (i) official documentation and tutorials of software applications (e.g., Microsoft Office, LibreOffice);
+(ii) software forums (e.g., WPS Academy) and Q&A platforms (e.g., Baidu Jingyan); and (iii) web navigation
+information extracted from existing open-source web datasets. After data cleaning, the crawled information is
+rewrittenbyLLMsintotask-levelQAorstep-levelVQAdata,therebyenhancingtheagent’sGUIknowledge.
+WorldModeling. AcapableGUIagentshouldnotonlyperceivethecurrentscreenstatebutalsoanticipatehow
+theinterfacewillchangeinresponsetoitsactions. Tocultivatethispredictiveunderstanding,weconstructworld
+modelingdataderivedfromtrajectoryrecordings. Specifically,givenascreenshotandtheactionexecutedatthat
+step, we prompt a proprietary model (e.g., Claude-4.5) to produce a fine-grained description of the subsequent
+screenshot,explicitlyhighlightingthestatetransitions. Forexample,newlyappeareddialogs,changedtextfields,
+shiftedfocus,orupdatedvisualelements. Theseaction-conditionedstate-transitiondescriptionsarethenusedas
+7
+
+--- Page 8 ---
+Figure6: Illustrationofouragentcapabilityenhancementpipeline.
+trainingsupervision. Throughthisprocess,themodelacquiresaninternalizedunderstandingofGUIenvironment
+dynamics,enablingittobetterreasonabouttheconsequencesofcandidateactionsbeforeexecution,whichinturn
+facilitatesmoreinformeddecision-makinginmulti-steptasks.
+2.3.2 UnifiedCoTSynthesis
+After obtaining trajectory data containing action sequences through various approaches (i.e., agent exploration,
+human annotation and virtual environments), we design a chain-of-thought (CoT) synthesis pipeline to gener-
+ate corresponding thoughts and conclusions for each step in the trajectory data, thereby enhancing the agent’s
+capabilitiesinscreenobservation,memorymanagement,progressreflection,andtoolinvocation.
+As illustrated in figure 6, given the i-th step of a trajectory, we first employ a vision-language model (VLM)
+to describe the screen content and further extract query-relevant information from it. For queries that require
+memorizing key on-screen information, such as Check the weather in Paris and London for next Monday and
+recorditinthememo,weextractinformationfromthequery-relevantcontentthatmaybeneededinsubsequent
+steps and incorporate it into the memory. Furthermore, we feed the action parameters executed at the i-th step,
+the screenshots captured before and after execution, and the user query into the VLM to determine whether the
+executionoutcomeofthisstepalignswithexpectations. Ifthechangeinscreenstateisconsistentwithexpectations,
+theprogressofthecurrenttaskisupdatedaccordinglyinthesubsequentstep;otherwise,correspondingreflections
+anderrorcorrectionsaregeneratedtoinformthenextactiondecision.
+The observation, memory, reflection and task progress information obtained above are then fed into an LLM to
+synthesizethethoughtandconclusioncorrespondingtotheactionatthisstep. Specifically,thethoughtsimulates
+the agent’s reasoning process of integrating these pieces of information for action decision-making, while the
+conclusionprovidesaconciseactiondecision. Moreover,ifthecurrenttrajectoryinvolvestoolinvocation,thetool
+definitionsfromthetoolsetarealsoprovidedasinputtotheLLM,sothatthesynthesizedthoughtincorporates
+reasoningabouttoolselectionandinvocation.
+TheCoTsynthesispipelinedesignedaboveenablesthemodelto: (i)reflectontheexecutionoutcomeoftheprevious
+actionandanalyzetheoveralltaskprogressaccordingly,therebyachievingsuperiorlong-horizondecision-making
+capability;and(ii)simultaneouslyrecordkeyon-screeninformation(e.g.,prices,weatherconditions)thatmaybe
+requiredinsubsequentstepsduringtheoperationalprocess,therebyachievingenhancedmemorycapability.
+2.3.3 Multi-agentCollaboration
+To enable the model to serve not only as an end-to-end agent but also as the components within multi-agent
+frameworks for multi-agent collaboration, we additionally employ the Mobile-Agent-v3.5 framework for agent
+exploration during the trajectory collection phase. Mobile-Agent-v3.5 agent framework largely follows Mobile-
+Agent-v3, and we only summarize the key components and interfaces here for completeness. The system in-
+stantiates a small set of role-specialized modules and executes them in a closed loop over a device environment
+(mobile/desktop/web),withaunifiedactionabstractionandsharedmodelbackbone.
+8
+
+--- Page 9 ---
+Problem setup. Given a user instruction I and the current device state S (e.g., screenshot, UI tree, device
+t
+metadata), the goal is to produce an action a ∈ A that drives the environment to S ∼ P(· | S ,a ) until
+t t+1 t t
+termination.
+Rolesandstatevariables. Wemaintainfouragentroles: aManager(planner),aWorker(executor),aReflector
+(verifier),andaNotetaker(memory). Atstept,thesystemstateissummarizedby
+X ≜(I,S ,SS ,F ,N ),
+t t t t−1 t
+whereSS isthe(ordered)subgoallist,F isthelatestfeedback,andN ispersistentnotes.
+t t−1 t
+Manager: subgoalplanningandupdate. TheManagerdecomposestheinstructionintosubgoalsanddynami-
+callyupdatesthem:
+SS
+0
+=f
+M
+(I,KRAG), SS
+t+1
+=u
+M
+(SS
+t
+,F
+t
+,S
+t+1
+),
+whereKRAG denotesoptionallyretrievedexternalknowledge.
+Worker: action generation. Given the current context, the Worker selects a subgoal and produces the next
+action(optionallyasastructuredtuplewithrationaleandanormalizedactionschema):
+a ∼π (·|I,S ,SS ,F ,N ).
+t W t t t−1 t
+Reflector: transition-level verification and feedback. After executing a on the device, the Reflector judges
+t
+thetransitionandprovidesdiagnosticfeedback:
+(j ,ϕ )=f (S ,a ,S ), j ∈{SUCCESS,FAILURE},
+t t R t t t+1 t
+andwesetF ≜(j ,ϕ ).
+t t t
+Notetaker: persistent memory update. Upon successful progress, the Notetaker extracts and stores salient
+transientinformationforfuturesteps:
+(cid:26) u (N ,S ) ifj =SUCCESS,
+N = C t t+1 t
+t+1 N otherwise.
+t
+Execution loop. The framework iterates (SS ,a ,F ,N ) updates until all subgoals are completed or a ter-
+t t t t
+mination condition is met (e.g., success, timeout, or safety stop). This design isolates planning, execution,
+verification,andmemory,whileremainingcompatiblewiththemulti-platforminterfacesusedthroughouttraining
+andevaluation.
+2.4 TrainingParadigm
+GUI-Owl-1.5isinitializedfromQwen3-VLandtrainedthroughathree-stageprocess. ComparedwithGUI-Owl,
+eachstageissubstantiallyexpandedindatadiversityandtaskcoveragetosupportmulti-platformautomation,tool
+invocation,andcomplexagenticinteractions.
+2.4.1 Pre-training
+Weconstructalarge-scalepre-trainingcorpusthatextendsbeyondbasicGUIunderstanding. InadditiontotheUI
+recognitionandtrajectorydatausedinGUI-Owl,weincorporate(i)QAandVQAknowledgedatatostrengthen
+generalvisualreasoningandknowledgecomprehension,(ii)world-modelingdatatotrainthemodeltopredicthow
+GUIstatestransitioninresponsetoactions,and(iii)toolinvocationdatatofamiliarizethemodelwithtool-calling
+andMCPsemanticsfromtheearlieststage.
+2.4.2 SupervisedFine-tuning
+Weperformsupervisedfine-tuning(SFT)toalignGUI-Owl-1.5withdiverseagentictasksacrossmultipledevices.
+The SFT data covers multi-device trajectory data with CoT annotations (Section 2.2.1), augmented grounding
+data (Section 2.2.2), structured tool invocation supervision for both conventional tool calls and MCP-based
+interactions, and dedicated browser interaction data capturing the unique characteristics of web-based GUIs.
+Thisstagetransformsthepre-trainedmodelintoacapablemulti-deviceagentsupportingGUImanipulation,tool
+invocation,andbrowserautomationwithexplicitreasoning.
+9
+
+--- Page 10 ---
+Multi-Platform Rollouter Rollout-Trainer Aligner Interleaved Trainer
+Update
+GUI-Owl-1.5 Data Center
+Ours Common Settings
+Mobile
+Mobile sandbox PC sandbox Web sandbox D R e o co ll d ou in t g Rollout Text
+Don‘tAlign
+Trainer
+Encoding
+Expanded Rollout Buffer Rollout Transfer Rollout Trainer PC
+( Rollout nx Expand N ) Tokens Tokens Tokens
+Cyclic
+… … Align Enhancement
+Randomly Selectn Replace One
+Web
+Rollout n Fine Rollout Groups
+Positive-Negative
+Mixed Increase diversity
+Train
+Individual Reduce dropping Data for Training Learned:
+Collapsed Group Preserve distribution Mobile + PC + Web
+Figure7: Overviewofourreinforcementlearningpipeline.
+2.4.3 ReinforcementLearning
+Weperformalarge-scalereinforcementlearningcalledMRPO(Multi-platformReinforcementPolicyOptimiza-
+tion)tofurtheralignGUI-Owl-1.5withlong-horizon,tool-augmentedGUIcontrolacrossheterogeneousdevices.
+Thekeychallengesare: (i)unifyinglearningacrossmobile/desktop/webenvironmentsunderonepolicy,(ii)sta-
+bilizingGRPOtrainingwhengroupedrolloutscollapsetoidenticaloutcomes. Weaddresstheseissuesasfollows,
+(iii)ensuringlog-probabilityconsistencybetweenenvironment-sideinferenceandtraining-sideoptimization,and
+(iv)mitigatingcross-deviceoptimizationinterference.
+Multi-deviceRLwithaunifiedpolicy. Weoptimizeasinglepolicyπ (a | o)overtrajectoriescollectedfrom
+θ
+multiple device families d ∈ D = {mobile,desktop,web}. Each device defines its own environment E , action
+d
+spaceA ,andobservationstream. Wemodeldeviceheterogeneityviaadevice-conditionedpolicy:
+d
+π (a|o,d), a∈A .
+θ d
+OnlinerolloutbufferforGRPOunderoutcomecollapse. WeuseGRPO-stylegroupedrollouts. Forataskx,
+wesampleagroupofntrajectories{τ }n . Inpractice,itiscommonthatallnrolloutsyieldidenticalterminal
+i i=1
+outcome (e.g., all success or all failure), making the group uninformative and often discarded. A replay buffer
+couldincreasediversitybutintroducesoff-policybias. Wethereforeproposeanonlinerolloutbufferthatincreases
+within-groupdiversitywhileremainingon-policy.
+Foreachx,wetemporarilyoversampleknrolloutson-policy:
+G (x)={τ }kn , τ ∼π (·|x),
+kn i i=1 i θ
+then uniformly subsample n trajectories to form the training group G (x). Let Z(τ) ∈ {0,1} denote a binary
+n
+outcome(success/failure). Thecrucialpropertyisthatuniformsubsamplingpreservesthemarginaldistribution
+ofanystatisticunderon-policysampling:
+ 
+1 (cid:88)
+E  n f(τ)=E τ∼πθ(·|x) [f(τ)],
+τ∈Gn(x)
+becauseG (x)isi.i.d. on-policyandG (x)isanexchangeableuniformsubset. Thusoversample-then-subsample
+kn n
+yieldsanapproximatelyunbiasedestimator.
+LetZ(τ) ∈ {0,1}betheterminaloutcome(e.g.,success). Forataskx,GRPOformsagroupG (x) = {τ }n
+n i i=1
+withτ ∼π (·|x). Theupdatebecomesuninformativewhenthegroupiscollapsed:
+i θ
+(cid:16) (cid:88) (cid:17)
+Collapse(G ) ≜ Z(τ)∈{0,n} .
+n
+τ∈Gn
+Toreducecollapsedgroupswithoutintroducingoff-policyreplay,weuseanonlineoversample-and-selectbuffer.
+First,sampleanon-policypoolofsizekn:
+G (x)={τ }kn , τ ∼π (·|x).
+kn i i=1 i θ
+Definethepool-diversityevent
+(cid:16) (cid:88) (cid:17)
+A ≜ 0< Z(τ)<kn ,
+τ∈Gkn
+10
+
+--- Page 11 ---
+withprobability
+P(A) = 1−pkn−(1−p)kn, p≜P [Z(τ)=1].
+τ∼πθ(·|x)
+ThenconstructthetraininggroupG(cid:98)n (x)by:
+
+Subsample (G (x)), ¬Collapse(Subsample (G (x))),
+ n kn n kn
+(cid:0) (cid:1)
+G(cid:98)n (x)= Swap1 Subsample
+n
+(G
+kn
+(x)), G
+kn
+(x) , Collapse(Subsample
+n
+(G
+kn
+(x))) ∧ A,
+∅,
+¬A,
+where Subsample (·) is uniform random downsampling, and Swap1(S,P) replaces one random element in S
+with a random opp n osite-outcome element from pool P (guaranteeing 0 < (cid:80) Z(τ) < n). This keeps all
+candidates strictly on-policy (sampled from current π ) while sharply increasi τ n ∈ g G(cid:98) tnhe probability of obtaining a
+θ
+non-collapsedGRPOgroup.
+Training–inference log-prob alignment via token-id transport. Our inference service is deployed on the
+environmentsideandreturnstrajectoriesastext(e.g.,toolcalls,typedstrings,serializedactions). However,ifthe
+training-side tokenizer maps the returned text to token IDs differently from the inference-side tokenizer (due to
+non-uniquesegmentation),thenthecomputedlog-probabilitiescanbeinconsistent:
+(cid:12) (cid:12)
+logπ (y |x)(cid:12) ̸= logπ (y |x)(cid:12) .
+θ (cid:12) θ (cid:12)
+train-tokenize(y) infer-tokenize(y)
+ThisbreaksKLregularizationandpolicy-gradientestimatorsthatassumethesamesampledactionrepresentation.
+OurfixistotransporttheoriginalinferencetokenIDsalongsidethetextualpayload. Concretely,foreachgenerated
+sequencey,theenvironmentreturns(y, tinfer)wheretinfer = (t ,...,t )aretheexacttokenIDsusedtosample
+1 L
+y. Thetrainingprocessthencomputes:
+L
+(cid:88)
+logπ (y |x) := logπ (t |x,t ),
+θ θ i <i
+i=1
+therebyguaranteeingthatthelog-probisevaluatedonthesamediscreteeventthatwasexecutedintheenvironment.
+Alternating multi-device optimization to reduce gradient interference. Mixing trajectories from different
+devicesinasinglebatchcaninducestronggradientconflictsbecauseA ,UIconventions,anddomainpriorsdiffer
+d
+substantially. Let g = E [∇ L(τ)] be the device-specific policy gradient. A naive mixture update uses
+g = (cid:80) λ g ,butw d hen⟨g τ∼π , θ g ,Ed ⟩< θ 0frequently,optimizationbecomesa“tug-of-war”. Weadoptanalternating
+schedul
+d
+ea
+d
+cro
+d
+ssstages:
+d1 d2
+θ(s+1) ←θ(s)−ηg , d ∈D,
+ds s
+whereeachstagestrainsonasingledevicefamily(potentiallywithmultipleenvironmentswithinthefamily),and
+devicefamiliesarevisitedcyclicallyorviaacurriculum. Thisisolatesdevice-specificadaptationwhilekeepinga
+sharedbackbone,empiricallyimprovingstabilityandpreservingcross-devicegeneralization.
+11
+
+--- Page 12 ---
+AgentModel OSWorld-Verified AndroidWorld OSWorld-MCP Mobile-World WindowsAA
+GeneralModels
+SeedVL-1.5(Seed,2025b) 34.1 62.1 38.4 - 39.6
+Claude-4-sonnet(Anthropic,2025d) 43.9 - 43.3 - -
+Claude-4-5-sonnet(Anthropic,2025e) 62.9 56.0 - -
+Gemini-2.5-pro(Deepmind,2025) - 69.7 27.2 - -
+KimiK2.5(Kimietal.,2025) 63.3 - - -
+Seed-1.8(Seed,2025a) 61.9 70.7 - -
+OpenAICUAo3(Wangetal.,2025a) 31.3 - - -
+Qwen3-VL-8B-Instruct(Yangetal.,2025a) 33.9 47.6 - 5.5 28.8
+Qwen3-VL-8B-Think(Yangetal.,2025a) 33.9 50.0 - - 24.1
+Qwen3-VL-32B-Instruct(Yangetal.,2025a) 32.6 57.3 - 9.0 30.9
+Qwen3-VL-32B-Think(Yangetal.,2025a) 41.0 63.7 - - 42.9
+Qwen3-VL-235B-A22B-Instruct(Yangetal.,2025a) 31.6 63.7 - 9.5 28.9
+Qwen3-VL-235B-A22B-Think(Yangetal.,2025a) 38.1 62.0 39.1 - 32.1
+GUIModels(Single-Platform)
+OpenCUA-7B(Wangetal.,2025a) 28.2 - - - -
+OpenCUA-32B(Wangetal.,2025a) 34.8 - - -
+OpenCUA-72B(Wangetal.,2025a) 45.0 - - -
+EvoCUA(Xueetal.,2026) 56.7 - - -
+MAI-UI-8b(Zhouetal.,2025) - 70.7 - 24.9 -
+MAI-UI-32b(Zhouetal.,2025) - 73.3 - 37.3 -
+MAI-UI-235b-A22b(Zhouetal.,2025) - 76.7 - 41.7 -
+GUIModels(Multi-Platform)
+UI-TARS-72B-DPO(Seed,2025e) 27.1 46.6 - -
+UI-TARS-1.5-7B(Seed,2025c) 27.4 - - 15.9
+UI-TARS-1.5(Seed,2025c) - 64.2 - 20.9 42.1
+UI-TARS-2(Seed,2025d) 53.1 73.3 - 50.6
+GELab-Zero-4B(Yanetal.,2025) 31.9 63.9 - 10.9 -
+GELab-Zero-8B(Yanetal.,2025) 40.2 67.7 - -
+GUI-Owl-7b(Yeetal.,2025) 34.9 66.4 - 4.5 -
+GUI-Owl-32b(Yeetal.,2025) - - - 5.5 -
+Ours(Multi-Platform)
+GUI-Owl-1.5-2B-Instruct 43.5 67.9 33.0 31.3 25.78
+GUI-Owl-1.5-4B-Instruct 48.2 69.8 31.7 32.3 29.44
+GUI-Owl-1.5-8B-Instruct 52.3 69.0 41.8 41.8 31.66
+GUI-Owl-1.5-8B-Thinking 52.9 71.6 38.8 33.3 35.07
+GUI-Owl-1.5-32B-Instruct 56.5 69.8 47.6 46.8 44.76
+GUI-Owl-1.5-32B-Thinking 56.0 69.8 43.8 42.8 44.13
+Table1: Comparisonwithstate-of-the-artmethodsononlinecomputeruseandmobileusebenchmarks.
+AgentModel WebArena VisualWebArena WebVoyager Online-Mind2Web
+ProprietaryModels
+Browser-Use(Use,2025) - - 89.1 30.0
+Claude-CUA-3.7(Anthropic,2025c) - - - 56.3
+Operator(OpenAI,2025a) - - 87.0 61.3
+Gemini-CUA(DeepMind,2025) - - - 69.0
+Navigator(Yutori,2025) - - - 78.7
+Magnitude+Claude-4-Sonnet(Magnitude,2025) - - 93.9 -
+VisualWebArena+GPT-4o(Kohetal.,2024a) - 19.8 - -
+TreeSearch+GPT-4o(Kohetal.,2024b) 19.2 26.4 - -
+WALT+GPT-5(Prabhuetal.,2025) 50.1 52.9 - -
+SGV+Gemini-2.5-Flash(Andradeetal.,2025) - 54.4 - -
+DeepSkyAgent+Claude-4-Sonnet(Tibrewal,2025) 66.9 - - -
+OAgent+Gemini-3-Pro(CodeFuse,2025) 71.6 - - -
+Open-SourceModels
+WebStar-7B(Heetal.,2026) - - 44.8 22.8
+WebStar-32B(Heetal.,2026) - - 48.6 23.8
+DynaWeb-8B(Dingetal.,2026) 31.0 - 38.7 -
+ViGoRL-7B(Sarchetal.,2025) - 11.2 - -
+Llama-3-70B-Instruct+TreeSearch(Kohetal.,2025) 10.1 16.7 - -
+AgentSymbiotic-8B(Kohetal.,2025) 43.2 - - -
+Ours
+GUI-Owl-1.5-8B-Instruct 45.7 39.4 69.9 41.7
+GUI-Owl-1.5-8B-Thinking 46.7 40.8 78.1 48.6
+GUI-Owl-1.5-32B-Instruct - - - -
+GUI-Owl-1.5-32B-Thinking 48.4 46.6 82.1 -
+Table2: Comparisonwithstate-of-the-artmethodsononlinebrowserusebenchmarks.
+12
+
+--- Page 13 ---
+3 Experiments
+3.1 ExperimentalSetup
+Inthissection,weevaluateGUI-Owl-1.5acrossawiderangeofbenchmarkstothoroughlyassessitsperformanceas
+anativeGUIagentformulti-deviceautomation. BuiltonQwen3-VL,GUI-Owl-1.5comprisesafamilyofmodels
+including instruct and thinking variants. In this report, we focus on 6 representative versions: GUI-Owl-1.5-
+2B-Instruct, GUI-Owl-1.5-4B-Instruct, GUI-Owl-1.5-8B-Instruct, GUI-Owl-1.5-8B-Think, GUI-Owl-1.5-32B-
+Instruct, and GUI-Owl-1.5-32B-Think. We conduct extensive experiments to evaluate GUI-Owl-1.5 along four
+key dimensions consistent with GUI-Owl: grounding capability, comprehensive GUI understanding, end-to-end
+agentcapability,andmulti-agentcapability.
+3.2 MainResults
+3.2.1 End2endandMulti-AgentcapabilityonOnlineenvironment
+Thebenchmarksdiscussedaboveevaluateisolated,single-stepactions,offeringonlyapartialviewofanagent’strue
+capability. Inpractice,GUIautomationrequireschainingnumerousdecisionswhereearliermistakespropagateand
+compound,andmultiplevalidexecutionpathsmayexistforthesametask,yetofflinebenchmarkstypicallyscore
+againstasinglereferencetrajectory. Toovercometheselimitations,weconductend-to-endevaluationsacrosslive
+interactiveenvironmentsspanningthreedomainsinFig.1andFig.9: MobileUse(AndroidWorld(Rawlesetal.,
+2024), MobileWorld(Kongetal.,2025), andMMGUI-Bench(Liuetal.,2026)), ComputerUse(OSWorld(Xie
+etal.,2024),WindowsAgentArena(Bonattietal.,2024),andOSWorld-MCP(Jiaetal.,2025)),andBrowserUse
+(WebArena(Zhouetal.,2023),VisualWebArena(Kohetal.,2024a),WebVoyager(Heetal.,2024),andOnline-
+Mind2Web(?)). Amongthese, MMGUI-Benchspecificallyevaluatestheagent’smemoryability. MobileWorld
+andOSWorld-MCPfurtherincorporatetoolinvocation,assessingtheagent’sabilitytocoordinateGUIoperations
+withexternaltoolandMCPcalls. Inallenvironments,successisdeterminedsolelybywhetherthefinalgoalstate
+isachieved,regardlessofthespecificpathtaken.
+Computer and Mobile Use. As shown in Table 1, GUI-Owl-1.5 achieves state-of-the-art performance among
+multi-platform GUI models across both computer and mobile use benchmarks. On OSWorld-Verified, the most
+widelyadoptedcomputerusebenchmark,GUI-Owl-1.5-8B-Thinkingachieves52.9,surpassingUI-TARS-2(53.1)
+atcomparablescaleandoutperformingallgeneral-purposemodelsincludingQwen3-VL-235B-A22B-Think(38.1).
+Evenour2Bvariantattains43.5,exceedingmodelswithover10×moreparameterssuchasUI-TARS-72B-DPO
+(27.1),showcasingstrongparameterefficiency. Similarly,onWindowsAA,the32B-Instructmodelscores44.76,
+outperformingallgeneral-purposemodelsatcomparableorlargerscale. Formobileuse, onAndroidWorld, our
+8B-Thinking variant attains 71.6, on par with UI-TARS-2 (73.3). Beyond standard GUI interaction, Mobile-
+World and OSWorld-MCP further require coordinating GUI actions with external tool and MCP calls; on these
+two benchmarks, GUI-Owl-1.5-32B-Instruct scores 46.8 and 47.6 respectively, surpassing both single-platform
+specialists(e.g.,MAI-UI-235B-A22Bat41.7)andleadingproprietarymodels(e.g., Claude-4-Sonnetat43.3on
+OSWorld-MCP),demonstratingstrongtool-usecapability.
+BrowserUse. AsshowninTable2,GUI-Owl-1.5-8B-Thinkingachieves46.7onWebArena,40.8onVisualWe-
+bArena,78.1onWebVoyager,and48.6onOnline-Mind2Web,surpassingallopen-sourcemodelsbyawidemargin
+andremainingcompetitivewithproprietarysystems. TheseresultsestablishGUI-Owl-1.5asoneofthestrongest
+open-source browser agents to date. Across almost all domains, the Thinking variants consistently outperform
+their Instruct counterparts, with pronounced gains on tasks requiring long-horizon planning (e.g., WebVoyager:
+69.9to82.1,Online-Mind2Web: 41.7to48.6),validatingtheeffectivenessofourthinking-modetraining.
+3.2.2 GroundingCapability
+The grounding capability evaluates a model’s ability to locate the corresponding UI element given a natural-
+language query. We use ScreenSpot Pro, OSWorld-G, OSWorld-G-Refine, ScreenSpot V2 and MMBench-GUI
+L2 as benchmarks. ScreenSpot V2 covers mobile, desktop, and web scenarios, while ScreenSpot-Pro primarily
+evaluatesamodel’slocalizationabilityatultra-highresolutions. OSWorld-G/OSWorld-G-Refinecontainsfinely
+annotatedqueries. MMBench-GUIL2hasthebroadestcoverageandmorefaithfullyreflectsamodel’sgrounding
+performanceinreal-worldsettings. TheperformancecomparisonsareshowninTables3to7.
+Inallgroundingbenchmarks,GUI-Owl-1.5-32B-Instructachievesstate-of-the-artperformanceamongallMulti-
+platform GUI Models. Notably, on the Screenspot-Pro benchmark, which emphasizes high-resolution and chal-
+lenging professional software grounding tasks, our GUI-Owl-1.5-32B-Instruct achieves an accuracy of 72.9,
+surpassingallexistingGUIagents(includingsingle-platform,multi-platform,andgrounding-specializedmodels)
+aswellasthelarge-scaleGemini-3-Pro. Moreover,whenaugmentedwithatwo-stagerefinementstrategywithcrop
+tool—firstlocalizingacoarseregion,thencroppingandzoominforrefinedgrounding,GUI-Owl-1.5-32B-Instruct
+attainsasubstantiallyhigherscoreof80.3,outperformingallpriormethodsbyasignificantmargin.
+13
+
+--- Page 14 ---
+Windows MacOS Linux iOS Android Web
+Model Overall
+Basic Adv. Basic Adv. Basic Adv. Basic Adv. Basic Adv. Basic Adv.
+GeneralModels
+GPT-4o(Hurstetal.,2024) 1.48 1.10 8.69 4.34 1.05 1.02 5.10 3.33 2.53 1.41 3.23 2.92 2.87
+Claude-3.7(Anthropic,2025c) 1.48 0.74 12.46 7.51 1.05 0.00 13.69 10.61 1.40 1.40 3.23 2.27 4.66
+Qwen-2.5-Max-VL(Baietal.,2025b) 43.91 36.76 58.84 56.07 53.93 30.10 77.39 59.09 79.49 70.14 74.84 58.77 58.03
+InternVL3-72B(Zhuetal.,2025) 70.11 42.64 75.65 52.31 59.16 41.33 93.63 80.61 92.70 78.59 90.65 65.91 72.20
+GUIModels(Single-Platform/GroundingSpecialized)
+UGround-V1-7B(Gouetal.,2024) 66.79 38.97 71.30 48.55 56.54 31.12 92.68 70.91 93.54 70.99 88.71 64.61 65.68
+MAI-UI-8B(Zhouetal.,2025) 92.3 74.3 90.7 86.4 81.2 67.3 97.1 90.0 97.5 92.7 95.8 86.0 88.8
+MAI-UI-32B(Zhouetal.,2025) 93.0 78.7 92.8 87.6 86.9 77.6 97.1 92.4 98.0 93.2 96.1 92.5 91.3
+GUIModels(Multi-Platform)
+Aguvis-7B-720P(Xuetal.,2024) 37.27 21.69 48.12 33.27 33.51 25.00 67.52 65.15 60.96 50.99 61.61 45.45 45.66
+OS-Atlas-Base-7B(Wuetal.,2024) 36.90 18.75 44.35 21.68 31.41 13.27 74.84 48.79 69.60 46.76 61.29 35.39 41.42
+GUI-Owl-8B(Yeetal.,2025) 86.35 61.76 81.74 64.45 74.35 61.73 94.90 83.03 95.78 83.66 93.22 72.72 80.49
+UI-TARS-1.5-7B(Qinetal.,2025) 68.27 38.97 68.99 44.51 64.40 37.76 88.54 69.39 90.45 69.29 80.97 56.49 64.32
+UI-TARS-72B-DPO(Qinetal.,2025) 78.60 51.84 80.29 62.72 68.59 51.53 90.76 81.21 92.98 80.00 88.06 68.51 74.25
+GUI-Owl-32B(Yeetal.,2025) 85.61 65.07 84.93 67.05 76.96 63.27 95.22 85.45 96.07 87.04 95.48 80.84 82.97
+Ours
+GUI-Owl-1.5-2B-Instruct 82.28 47.79 83.18 56.06 70.15 44.38 88.53 69.39 81.69 69.10 90.32 70.12 72.17
+GUI-Owl-1.5-4B-Instruct 87.82 69.11 88.40 67.63 74.86 56.12 97.13 83.33 96.05 85.11 95.48 82.46 83.24
+GUI-Owl-1.5-8B-Instruct 89.66 65.44 88.11 72.83 72.77 56.63 95.85 83.93 95.21 82.86 93.22 77.59 82.52
+GUI-Owl-1.5-8B-Thinking 84.50 63.60 85.22 71.10 71.73 53.57 92.99 81.82 89.30 78.37 95.81 77.60 80.08
+GUI-Owl-1.5-32B-Instruct 91.51 68.75 92.46 77.46 76.44 67.35 97.13 90.61 96.06 89.04 96.13 84.74 86.84
+GUI-Owl-1.5-32B-Thinking 89.67 66.18 88.12 73.41 77.49 63.78 94.59 89.09 92.96 87.64 96.13 81.49 84.47
+Table3: Comparisonwithstate-of-the-artmethodsontheMMBench-GUI-L2dataset.
+Development Creative CAD Scientific Office OS
+AgentModel Avg
+Text Icon Text Icon Text Icon Text Icon Text Icon Text Icon
+GeneralModels
+Claude3.7Sonnet(Anthropic,2025c) - - - - - - - - - - - - 27.7
+Operator(OpenAI,2025a) 50.0 19.3 51.5 23.1 16.8 14.1 58.3 24.5 60.5 28.3 34.6 30.3 36.6
+Gemini-3-Pro(DeepMind,2025) - - - - - - - - - - - - 72.7
+Seed1.8(Seed,2025a) - - - - - - - - - - - - 73.1◦
+Qwen3-VL-8B-Instruct(Baietal.,2025a) - - - - - - - - - - - - 54.6
+Qwen3-VL-8B-Thinking(Baietal.,2025a) - - - - - - - - - - - - 46.6
+Qwen3-VL-32B-Instruct(Baietal.,2025a) - - - - - - - - - - - - 57.9
+Qwen3-VL-32B-Thinking(Baietal.,2025a) - - - - - - - - - - - - 57.1
+Qwen3-VL-235B-A22B-Instruct(Baietal.,2025a) - - - - - - - - - - - - 62.0
+Qwen3-VL-235B-A22B-Thinking(Baietal.,2025a) - - - - - - - - - - - - 61.8
+GUIModels(Single-Platform/GroundingSpecialized)
+InfiGUI-R1-3B(Liuetal.,2025) 51.3 12.4 44.9 7.0 33.0 14.1 58.3 20.0 65.5 28.3 43.9 12.4 35.7
+JEDI-7B(Xieetal.,2025) 42.9 11.0 50.0 11.9 38.0 14.1 72.9 25.5 75.1 47.2 33.6 16.9 39.5
+GUI-G2-7B(Tangetal.,2025) 68.8 17.2 57.1 15.4 55.8 12.5 77.1 24.5 74.0 32.7 57.9 21.3 47.5
+OpenCUA-7B(Wangetal.,2025a) - - - - - - - - - - - - 50.0
+GTA1-New-7B(Yangetal.,2025b) - - - - - - - - - - - - 55.5
+MAI-UI-8B(Zhouetal.,2025) 83.8 52.4 76.3 33.6 72.6 35.9 79.9 37.3 88.7 60.4 76.6 49.4 65.8
+MAI-UI-8B+Zoom-in(Zhouetal.,2025) 78.6 58.6 78.8 46.9 80.7 43.8 86.1 49.1 88.1 81.1 76.6 51.7 70.9◦
+EvoCUA-8B(Xueetal.,2026) - - - - - - - - - - - - 45.4
+UI-TARS-72B(Qinetal.,2025) 63.0 17.3 57.1 15.4 18.8 12.5 64.6 20.9 63.3 26.4 42.1 15.7 38.1
+UI-Venus-72B(Guetal.,2025) 84.4 33.1 73.2 30.8 66.5 29.7 84.7 42.7 83.1 60.4 75.7 36.0 61.9
+UGround-v1-72B(Gouetal.,2025) 55.8 4.8 54.0 10.5 16.8 4.7 70.8 22.7 61.0 18.9 40.2 7.9 34.5
+GTA1-32B(Yangetal.,2025b) 82.5 28.3 69.2 14.7 43.7 23.4 79.9 31.8 80.8 43.4 70.1 32.6 53.6
+GTA1-New-32B(Yangetal.,2025b) - - - - - - - - - - - - 63.6
+GTA1-72B(Yangetal.,2025b) 79.9 33.1 73.2 20.3 56.9 28.1 81.9 38.2 85.3 49.1 73.8 37.1 58.4
+MAI-UI-32B(Zhouetal.,2025) 86.4 40.7 82.8 37.8 70.1 45.3 91.7 46.4 90.4 71.7 78.5 34.8 67.9
+MAI-UI-32B+Zoom-in(Zhouetal.,2025) 84.4 57.9 87.9 46.2 79.2 53.1 91.7 54.5 88.1 79.2 80.4 47.2 73.5◦
+EvoCUA-32B(Xueetal.,2026) - - - - - - - - - - - - 49.7
+GUIModels(Multi-Platform)
+GUI-Owl-7B(Yeetal.,2025) 76.6 31.0 59.6 27.3 64.5 21.9 79.1 37.3 77.4 39.6 59.8 33.7 54.9
+GUI-Owl-32B(Yeetal.,2025) 84.4 39.3 65.2 18.2 62.4 28.1 82.6 39.1 81.4 39.6 70.1 36.0 58.0
+UI-TARS-1.5(Seed,2025c) - - - - - - - - - - - - 61.6
+Step-GUI-8B(Yanetal.,2025) - - - - - - - - - - - - 62.6
+Ours
+GUI-Owl-1.5-2B-Instruct 74.0 43.4 66.1 32.8 53.2 26.5 78.4 39.0 79.6 45.2 66.3 50.5 57.8
++Zoom-In 77.2 62.0 71.7 56.6 75.1 51.5 84.0 49.0 88.7 77.3 73.8 53.9 70.4◦
+GUI-Owl-1.5-4B-Instruct 83.1 57.9 73.7 41.9 59.8 45.3 87.5 43.6 87.0 60.3 80.3 50.5 66.8
++Zoom-In 88.9 58.6 79.7 57.3 83.7 56.2 90.2 53.6 90.3 77.3 81.3 62.9 75.6◦
+GUI-Owl-1.5-8B-Instruct 87.0 63.4 79.2 45.4 76.1 43.7 87.5 47.2 89.2 56.6 82.2 49.4 71.1
++Zoom-In 90.2 68.9 84.8 56.6 86.8 62.5 89.5 55.4 91.5 71.6 86.9 53.9 77.8◦
+GUI-Owl-1.5-8B-Thinking 85.7 37.9 68.2 28.7 56.9 28.1 75.7 30.9 83.6 35.8 69.2 38.2 57.6
++Zoom-In 88.3 58.6 78.8 45.5 84.3 48.4 86.8 45.5 91.0 64.2 84.1 52.8 72.5◦
+GUI-Owl-1.5-32B-Instruct 88.3 64.1 78.8 44.1 80.2 48.4 90.3 54.5 91.5 56.6 86.9 44.9 72.9
++Zoom-In 92.2 73.1 82.8 67.1 89.3 65.6 91.7 57.3 93.2 75.5 86.0 57.3 80.3◦
+GUI-Owl-1.5-32B-Thinking 83.1 37.2 71.2 23.8 46.7 20.3 81.3 34.5 87.0 47.2 72.0 31.5 57.0
++Zoom-In 88.3 53.1 81.3 45.5 83.8 42.2 87.5 46.4 92.7 66.0 83.2 55.1 72.4◦
+Table 4: Comparison with state-of-the-art methods on the ScreenSpot-Pro dataset. Values marked with ◦ were
+processedwiththecroptool.
+14
+
+--- Page 15 ---
+Text Element Layout Fine-grained
+AgentModel Refusal Avg
+Matching Recognition Understanding Manipulation
+GeneralModels
+Operator(OpenAI,2025a) 51.3 42.4 46.6 31.5 0.0 40.6
+Seed1.5-VL(Seed,2025b) 73.9 66.7 69.6 47.0 18.5 62.9
+Qwen3-VL-8B-Instruct(Baietal.,2025a) 69.0 55.5 59.7 47.7 - 54.8
+Qwen3-VL-8B-Thinking(Baietal.,2025a) - - - - - 56.7
+Qwen3-VL-32B-Instruct(Baietal.,2025a) - - - - - 65.1
+Qwen3-VL-32B-Thinking(Baietal.,2025a) - - - - - 64.0
+GUIModels(Single-Platform/GroundingSpecialized)
+UGround-7B(Gouetal.,2024) 51.3 40.3 43.5 24.8 0.0 36.4
+Aguvis-7B(Xuetal.,2024) 55.9 41.2 43.9 28.2 0.0 38.7
+JEDI-7B(Xieetal.,2025) 65.9 55.5 57.7 46.9 7.4 54.1
+GTA1-7B(Yangetal.,2025b) 42.1 65.7 62.7 56.1 0.0 55.1
+UI-Venus-7B(Guetal.,2025) 74.6 60.5 61.5 45.5 - 58.8
+MAI-UI-8B(Zhouetal.,2025) 72.0 63.3 66.0 51.0 - 60.1
+OpenCUA-32B(Wangetal.,2025a) - - - - - 59.6
+GTA1-32B(Yangetal.,2025b) 63.2 78.4 73.3 65.2 0.0 65.2
+MAI-UI-32B(Zhouetal.,2025) 73.6 72.4 73.9 57.7 - 67.6
+EvoCUA-32B(Xueetal.,2026) - - - - - 63.9
+GUIModels(Multi-Platform)
+OS-Atlas-7B(Wuetal.,2024) 44.1 29.4 35.2 16.8 7.4 27.7
+UI-TARS-72B(Qinetal.,2025) 69.4 60.6 62.9 45.6 0.0 57.1
+UI-TARS-7B(Qinetal.,2025) 60.2 51.8 54.9 35.6 0.0 47.5
+UI-TARS-1.5-7B(Seed,2025c) 36.8 62.7 62.2 50.8 0.0 52.8
+GUI-Owl-7B(Yeetal.,2025) 64.8 63.6 61.3 41.0 - 55.9
+GUI-Owl-32B(Yeetal.,2025) 67.0 64.5 67.2 45.6 - 58.0
+Ours
+GUI-Owl-1.5-2B-Instruct 49.3 52.7 48.7 52.4 53.7 52.8
+GUI-Owl-1.5-4B-Instruct 66.1 66.1 64.8 64.8 35.2 63.7
+GUI-Owl-1.5-8B-Instruct 67.8 68.5 68.5 65.5 42.6 65.8
+GUI-Owl-1.5-8B-Thinking 56.9 60.0 60.7 53.8 22.2 55.0
+GUI-Owl-1.5-32B-Instruct 68.2 66.8 65.5 62.1 70.4 66.8
+GUI-Owl-1.5-32B-Thinking 63.6 63.9 67.0 55.2 5.6 57.6
+Table5: Comparisonwithstate-of-the-artmethodsontheOSWorld-Gdataset.
+Text Element Layout Fine-grained
+AgentModel Refusal Avg
+Matching Recognition Understanding Manipulation
+GeneralModels
+Operator(OpenAI,2025a) - - - - - 57.8
+Qwen3-VL-8B-Instruct(Baietal.,2025a) 73.9 68.2 73.1 54.4 - 64.4
+Qwen3-VL-32B-Instruct(Baietal.,2025a) 77.4 73.6 76.3 57.7 - 69.0
+GUIModels(Single-Platform/GroundingSpecialized)
+JEDI-7B(Xieetal.,2025) - - - - - 63.8
+GTA1-7B(Yangetal.,2025b) 63.2 82.1 74.2 70.5 0.0 67.7
+OpenCUA-32B(Wangetal.,2025a) 63.2 79.9 84.9 62.1 7.4 70.2
+GTA1-32B(Yangetal.,2025b) 63.2 83.6 84.4 70.5 0.0 72.2
+GUIModels(Multi-Platform)
+UI-TARS-1.5-7B(Seed,2025b) 52.6 75.4 72.4 66.7 0.0 64.2
+Ours
+GUI-Owl-1.5-2B-Instruct 65.1 60.3 63.3 65.9 53.7 62.6
+GUI-Owl-1.5-4B-Instruct 73.1 71.8 72.9 74.1 29.6 68.4
+GUI-Owl-1.5-8B-Instruct 73.1 69.4 71.0 74.8 42.5 69.3
+GUI-Owl-1.5-8B-Thinking 64.7 61.1 64.9 65.3 20.4 59.8
+GUI-Owl-1.5-32B-Instruct 68.5 68.5 71.0 70.1 68.5 69.7
+GUI-Owl-1.5-32B-Thinking 68.9 69.7 72.6 72.1 5.6 64.7
+Table6: Performancecomparisonofstate-of-the-artmodelsontheOSWorld-G-Refine.
+15
+
+--- Page 16 ---
+Mobile Desktop Web
+AgentModel Overall
+Text Icon Text Icon Text Icon
+GeneralModels
+OmniParser-v2(Yuetal.,2025) 95.5 74.6 92.3 60.9 88.0 59.6 80.7
+Operator(OpenAI,2025a) 47.3 41.5 90.2 80.3 92.8 84.3 70.5
+Claude3.7Sonnet(Anthropic,2025c) - - - - - - 87.6
+UI-TARS-1.5(Qinetal.,2025) - - - - - - 94.2
+Seed-1.5-VL(Seed,2025b) - - - - - - 95.2
+Qwen3-VL-8B-Instruct(Baietal.,2025a) - - - - - - 94.4
+Qwen3-VL-8B-Thinking(Baietal.,2025a) - - - - - - 93.5
+Qwen3-VL-32B-Instruct(Baietal.,2025a) - - - - - - 95.8
+Qwen3-VL-32B-Thinking(Baietal.,2025a) - - - - - - 95.7
+GUIModels(Single-Platform/GroundingSpecialized)
+JEDI-3B(Xieetal.,2025) 96.6 81.5 96.9 78.6 88.5 83.7 88.6
+JEDI-7B(Xieetal.,2025) 96.9 87.2 95.9 87.9 94.4 84.2 91.7
+GTA1-7B(Yangetal.,2025b) 99.0 88.6 94.9 89.3 92.3 86.7 92.4
+GTA1-32B(Yangetal.,2025b) 98.6 89.1 96.4 86.4 95.7 88.7 93.2
+EvoCUA-32B(Xueetal.,2026) - - - - - - 90.4
+UI-Venus-72B(Guetal.,2025) 99.7 93.8 95.9 90.0 96.2 92.6 95.3
+GUIModels(Multi-Platform)
+OS-Atlas-Base-4B(Wuetal.,2024) 95.2 75.8 90.7 63.6 90.6 77.3 85.1
+OS-Atlas-Base-7B(Wuetal.,2024) 96.2 83.4 89.7 69.3 94.0 79.8 87.1
+UI-TARS-7B(Qinetal.,2025) 96.9 89.1 95.4 85.0 93.6 85.2 91.6
+UI-TARS-72B(Qinetal.,2025) 94.8 86.3 91.2 87.9 91.5 87.7 90.3
+GUI-Owl-7B(Yeetal.,2025) 99.0 92.4 96.9 85.0 93.6 85.2 92.8
+GUI-Owl-32B(Yeetal.,2025) 98.6 90.0 97.9 87.8 94.4 86.7 93.2
+Ours
+GUI-Owl-1.5-2B-Instruct 92.9 83.1 94.8 86.4 90.1 87.6 89.7
+GUI-Owl-1.5-4B-Instruct 95.1 93.1 95.9 86.4 92.9 92.8 93.2
+GUI-Owl-1.5-8B-Instruct 97.4 90.5 96.4 90.7 94.2 89.7 93.7
+GUI-Owl-1.5-8B-Thinking 95.8 90.5 97.4 90.0 95.0 87.7 93.2
+GUI-Owl-1.5-32B-Instruct 97.1 92.6 97.9 89.3 95.5 96.4 95.3
+GUI-Owl-1.5-32B-Thinking 96.5 90.5 96.9 86.4 93.8 90.8 93.2
+Table7: Comparisonwithstate-of-the-artmethodsontheScreenSpot-V2dataset.
+Instruction
+InterfacePerception InteractionPrediction Avg
+Understanding
+AgentModel state widget layout effect type parameter goal plan
+ProprietaryModels
+O3(OpenAI,2025d) 83.03 84.12 88.39 74.83 75.98 45.75 69.45 95.47 73.30
+Gemini-2.5-Pro(Comanicietal.,2025) 81.19 84.36 87.10 71.03 73.25 46.97 67.72 92.56 71.69
+GPT-5-Chat(OpenAI,2025c) 78.90 84.12 88.39 71.55 71.55 43.85 68.98 91.26 70.97
+Claude-Sonnet-4-5(Anthropic,2025b) 74.77 81.52 82.58 49.83 70.19 43.33 70.30 91.56 66.53
+Doubao-V-Pro(Seed,2025b) 72.48 83.65 81.29 67.24 75.64 41.07 33.07 94.17 63.42
+Claude-Sonnet-4(Anthropic,2025a) 70.18 78.44 78.06 41.90 62.52 42.11 65.20 94.82 62.16
+Open-SourceModels
+Qwen3-VL-8B-Instruct(Baietal.,2025a) 76.61 89.81 83.87 58.97 70.20 51.58 67.40 77.99 67.84
+Qwen3-VL-8B-Thinking(Baietal.,2025a) 68.81 76.30 83.23 67.07 70.36 40.73 64.09 91.26 66.81
+Qwen2.5VL-72B(Baietal.,2025c) 69.27 77.49 80.00 61.72 64.91 38.99 62.20 85.44 63.88
+Qwen2.5VL-7B(Baietal.,2025c) 53.21 67.77 60.00 51.72 50.60 39.34 16.22 48.87 45.16
+UITARS-1.5-7B(Seed,2025c) 49.54 59.48 59.35 22.24 59.11 34.32 38.74 55.34 44.27
+GUI-OWL-7B(Yeetal.,2025) 60.09 64.93 63.23 21.55 55.37 36.05 21.26 39.81 40.74
+GLM-4.5(Zengetal.,2025) 49.54 48.10 53.55 27.07 17.55 35.53 28.98 91.91 38.10
+Ours
+GUI-Owl-1.5-2B-Instruct 60.09 77.73 72.26 44.48 47.04 41.95 62.99 47.57 54.12
+GUI-Owl-1.5-4B-Instruct 75.23 88.15 82.58 55.69 65.02 54.22 69.45 70.55 66.64
+GUI-Owl-1.5-8B-Instruct 77.98 88.86 84.52 66.90 71.92 61.61 73.54 80.58 72.90
+GUI-Owl-1.5-8B-Thinking 75.69 90.05 87.74 67.41 68.23 53.43 67.72 77.67 69.60
+GUI-Owl-1.5-32B-Instruct 77.06 92.65 85.81 70.69 73.89 64.12 73.39 88.67 75.45
+GUI-Owl-1.5-32B-Thinking 81.19 90.76 85.81 68.10 73.89 57.65 72.91 86.41 73.36
+Table8: Comparisonwithstate-of-the-artmethodsontheGUIKnowledgeBenchmark.
+16
+
+--- Page 17 ---
+AgentModel Type SuccessRate
+Proprietary/WorkflowModels
+Agent-S2w/Gemini-2.5-Pro Workflow 41.7
+M3Aw/Gemini-2.5-Pro Workflow 39.6
+T3Aw/Gemini-2.5-Pro Workflow 31.2
+Mobile-Agent-Ew/Gemini-2.5-Pro Workflow 12.5
+AppAgentw/Gemini-2.5-Pro Workflow 8.3
+Mobile-Agent-V2w/Gemini-2.5-Pro Workflow 8.3
+SeeActw/Gemini-2.5-Pro Workflow 6.2
+NativeAgentModels
+Qwen3-VL-8B-Instruct Model 18.8
+GUI-Owl-7B Model 14.6
+UI-Venus-7B Model 14.6
+UI-TARS-1.5-7B Model 8.3
+CogAgent Model 0.0
+GUI-Owl-1.5-8B Model 22.9
+GUI-Owl-1.5-32B Model 27.1
+Table9: EvaluationresultsonMemGUI-Bench(Easytasks).
+3.2.3 ComprehensiveGUIUnderstanding
+GUIKnowledge. TheGUIKnowledgeBenchmark(Shietal.,2025)systematicallyevaluateswhetheraGUImodel
+possesses sufficient knowledge across three dimensions: Interface Perception (state information understanding,
+widgetfunctionunderstanding,andlayoutsemanticsunderstanding),InteractionPrediction(actioneffect,action
+type prediction, and action parameter prediction), and Instruction Understanding (goal interpretation and task
+planning). On this benchmark, GUI-Owl-1.5-32B-Instruct achieves an overall accuracy of 75.45, establishing
+the highest performance among all evaluated models, including proprietary ones such as o3 (73.30) (OpenAI,
+2025b) and Gemini-2.5-Pro (71.69) (Deepmind, 2025). It attains particularly strong results on widget function
+understandingandactionparameterprediction,substantiallyoutperformingallothermodelsinthesecategories.
+GUI Memory. We further evaluate on MemGUI-Bench (Liu et al., 2026) (Table 9), which assesses an agent’s
+ability to recall and leverage interaction history over long horizons. Among native agent models, GUI-Owl-
+1.5-32B achieves 27.1, substantially outperforming all prior baselines including Qwen3-VL-8B-Instruct (18.8)
+and UI-TARS-1.5-7B (8.3). Even our 8B variant (22.9) surpasses all existing native baselines, confirming that
+our training recipe effectively instills long-horizon memory capabilities without relying on external workflow
+orchestration.
+3.3 DetailedAnalyses
+EffectofVirtual-enviromenttrajectoryProductionandUnifiedCoTSynthesis. Weconductablationexper-
+iments to validate two key components: virtual environment-based trajectory production (Table 11) and unified
+CoTsynthesis(Table10).
+AsshowninTable11,removingtrajectorydataproducedbyvirtualenvironmentsleadstodramaticperformance
+drops on both PC-Eval (75.4% to 42.0%) and Mobile-Eval (86.7% to 50.0%). Here, PC-Eval is an in-house
+benchmark focusing on atomic desktop operations such as drag and scroll, as well as office document and
+spreadsheet editing tasks; Mobile-Eval is an in-house benchmark covering popular Chinese mobile application
+scenariosincludingfooddelivery,ride-hailing,ticketbooking,amongothers. Thesubstantialdegradationonboth
+benchmarksconfirmsthatourweb-rendering-basedvirtualenvironmentseffectivelybypassreal-worldexploration
+limitations—such as CAPTCHA interruptions and the lack of accurate feedback—and provide scalable, high-
+qualitytrajectoriesthatarecriticalformasteringthesechallengingscenarios.
+As shown in Table 10, removing the unified CoT synthesis causes consistent drops on both OSWorld (52.9% to
+47.4%)andAndroidWorld(71.6%to65.0%),demonstratingthatstep-wisethoughtandconclusionaugmentation
+providesessentialreasoningsupervision. Byequippingeachtrajectorystepwithobservation,memory,reflection,
+and progress tracking, CoT synthesis enables the model to plan over long horizons and retain key information
+acrosssteps,whichisparticularlybeneficialformulti-steponlinetasksacrossdifferentplatforms.
+The two components are complementary: virtual environments improve trajectory coverage and quality, while
+CoTsynthesisenhancesreasoninganddecision-makingsupervision.
+Effect of Unstable-set Train and Interleaved Train in RL. We conduct ablation experiments to validate two
+criticaltrainingstrategiesforGUI-Owl-1.5’sreinforcementlearningoptimization,demonstratingtheeffectiveness
+17
+
+--- Page 18 ---
+UnifiedCoTSynthesis OSWorld AndroidWorld
+✗ 47.4 65.0
+✓ 52.9 71.6
+Table10: AblationstudyontheunifiedCoTsynthesispipeline. TheexperimentsareconductedwithGUI-Owl-
+1.5-8B-Thinking.
+VirtualEnvironments PC-Eval Mobile-Eval
+✗ 42.0% 50.0%
+✓ 75.4% 86.7%
+Table 11: Ablation study on the virtual environments. The experiments are conducted with GUI-Owl-1.5-8B-
+Thinking. PC-Eval is an in-house benchmark evaluating atomic operations such as drag and scroll, as well as
+officedocumentandspreadsheeteditingtasks. Mobile-Evalisanin-housebenchmarkevaluatingpopularChinese
+mobileapplicationscenarios,includingfooddelivery,ride-hailing,ticketbooking,amongothers.
+（a）All-set Train VS Unstable-set Train （b）Mix-platform Train VS Interleaved Train
+Figure 8: Ablation Study on Reinforcement Learning Training Strategies for GUI-Owl-1.5-8B-thinking: Task
+SelectionandMulti-PlatformTrainingStrategies.
+oftargetedtaskselectionandmulti-platformtrainingstrategy,asshowninFig.8. Fig.8(a)comparesPCvalidation
+performance between full dataset training and unstable-task-only training (derived from multi-round rollouts).
+Unstable-task-focused training achieves faster convergence and higher final accuracy, demonstrating the efficacy
+ofprioritizingchallengingtasksforrobustmodeloptimization. InFig.8(b),mix-platformtraining(simultaneous
+multi-platformdataoptimization)iscontrastedwithourinterleavedtraining(switchfromMobiletoPCatstep10).
+Mix-platform training exhibits performance oscillation due to cross-platform interference, whereas interleaved
+training enables focused optimization per platform while maintaining performance stability during transitions.
+Thisapproachachievessynergisticmulti-platformgrowth,validatingthesuperiorityofourpresentedinterleaved
+RLtrainingstrategy.
+3.4 CaseStudy
+We present three representative cases to illustrate the comprehensive capabilities of GUI-Owl 1.5 beyond basic
+GUInavigation.
+Mobile Use Case (Fig. 9) In this case, the user seeks to determine the total follower count of the ModelScope
+Community account across two social media platforms: Xiaohongshu and Douyin. The agent first launches the
+Xiaohongshu app, enters the account name in the search box, retrieves the follower information, and stores it in
+memory. Subsequently, the agent navigates to the Douyin app to obtain the corresponding follower count. By
+combining the retrieved information from memory with the current data, the agent calculates and reports the
+numberofoverallfolloweracrossbothplatforms.
+Computer Use Case (Fig. 10). Figure 10 illustrates a case of GUI-Owl-1.5 executing a web search and note-
+takingtaskontheWindowsplatform. Tofulfilltheuserquery,theagentisrequiredtoaccuratelyperformmultiple
+18
+
+--- Page 19 ---
+UserQuery:帮我在⼩红书、抖⾳看⼀下"魔搭ModelScope社区"账号，并告诉我这两个平台的总粉丝数
+Thought:⼩红书应⽤已成功打开，主界⾯
+显示发现⻚。现在需要搜索“魔搭 Thought:搜索界⾯已打开，搜索栏显示“装
+Thought:当前是任务的第⼀步，我需要打 ModelScope社区”账号以查看其粉丝数。 修”，虚拟键盘已激活。我需要清除当前
+开⼩红书App。 右上⻆有搜索图标，这是查找账号的⼊⼝。 内容并输⼊⽬标账号“魔搭ModelScope社
+点击搜索图标后，会进⼊搜索界⾯，输⼊ 区”以查找其粉丝数。
+账号名称即可找到⽬标账号并查看粉丝数。
+Step 1:打开⼩红书App Step 2:点击屏幕右上⻆的搜索图标。 S 区 te ” p 以 3 搜 :在 索 搜 ⽬ 索 标 栏 账 中 号 输 。 ⼊“魔搭ModelScope社
+Thought:当前⻚⾯显示的是⼩红书平台的
+T 关 议 按 h 建 中 钮 ou 议 未 进 gh ， 直 ⼊ t:搜 表 接 结 索 明 显 果 词 搜 示 ⻚ 已 索 ⽬ ， 成 功 标 查 功 能 账 看 输 正 号 详 ⼊ 常 ， 细 ， 。 需 信 系 当 点 息 统 前 击 和 显 搜 “ 粉 搜 示 索 丝 索 相 建 数 ” 。 T “ 万 注 返 魔 h （ 按 回 o 搭 u 钮 搜 1 g M 1 h ， 索 , t o 0 :搜 d 0 这 结 e 0 索 l ） S 将 果 c 已 。 o 帮 ⻚ p 成 现 e 助 ⾯ 社 功 在 我 。 区 执 需 确 ” ⾏ 账 要 认 ， 号 点 当 我 的 击 前 清 粉 右 账 楚 丝 上 号 看 数 ⻆ 状 到 为 的 态 了 1 关 并 .1 搜 账 要 为 主 索 号 切 了 屏 结 在 换 在 幕 果 ⼩ 到 抖 ， ， 红 抖 ⾳ 然 书 ⾳ 中 后 已 的 平 搜 找 看 粉 台 索 到 到 丝 查 该 并 “魔 数 看 账 打 搭 为 该 号 开 M 账 ， 抖 1 o . d 1 号 我 ⾳ e 万 lS 的 需 应 。 co 粉 要 ⽤ 现 pe 丝 先 。 在 社 数 返 需 区 。 回 ”
+S 执 te ⾏ p 对 4:点 “魔 击 搭 搜 M 索 od 栏 el 右 Sc 上 op ⻆ e社 的 区 “搜 ”的 索 搜 ”按 索 钮 。 ， Step 5:点击关注按钮确认账号状态 Step 6:点击主⻚按钮返回主屏幕
+T 看 查 标 ⽤ h 到 找 位 并 ou 所 该 于 搜 gh 有 账 主 索 t:我 应 号 屏 “魔 已 ⽤ 并 幕 搭 成 图 获 第 M 功 标 取 三 od 返 。 粉 ⾏ el 回 S 接 丝 ， co 主 下 数 点 pe 屏 来 。 击 社 幕 需 我 它 区 ， 要 看 即 ”。 现 在 到 可 在 抖 抖 打 可 ⾳ ⾳ 开 以 上 图 应 T 全 ⻆ 输 h 加 的 ⼊ ou 载 搜 账 gh ， 索 号 t:抖 导 图 名 ⾳ 航 标 称 应 元 （ ， ⽤ 素 放 找 已 可 ⼤ 到 成 ⻅ 镜 其 功 。 ） 粉 打 现 ， 丝 开 在 进 数 ， 需 ⼊ 。 主 点 搜 界 击 索 ⾯ 右 界 完 上 ⾯ T 搜 符 搜 要 h 索 ⽂ 索 完 ou 界 本 项 整 gh ⾯ 。 中 输 t:点 ， 搜 出 ⼊ 击 键 索 现 ⽬ 搜 盘 栏 了 标 索 已 已 “ 名 魔 图 弹 激 称 搭 标 出 活 以 m 成 ， ， 确 od 功 搜 键 保 el 打 s 索 盘 准 c 开 o 栏 显 确 p 了 e 显 示 性 ”， 抖 示 ， 。 但 ⾳ 占 建 需 的 位 议
+Step 7:点击主屏幕⽹格中第三⾏的抖⾳应 Step 8:点击屏幕右上⻆的搜索图标（放⼤ Step 9:使⽤显示的键盘在搜索栏中输⼊“魔
+⽤图标。 镜）。 搭ModelScope社区”。
+Thought:搜索成功，已找到抖⾳上“魔搭
+Thought:已在抖⾳搜索栏输⼊“魔搭 ModelScope社区”的账号信息，粉丝数为
+ModelScope社区”，系统显示了相关建议， 1.0万（10,000）。此前在⼩红书上该账号
+确认输⼊⽆误。搜索建议中第⼀条“魔搭 的粉丝数为1.1万（11,000）。总粉丝数为
+modelscope社区”与⽬标匹配，但需点击 11,000 + 10,000 = 21,000。屏幕中可⻅抖
+“搜索”按钮执⾏查询，以获取完整结果和 ⾳⽤户⻚显示“粉丝：1.0万”及红⾊“关注”
+粉丝数据。 按钮，内容包含“魔搭社区指南！”等官⽅
+推⽂，符合任务要求。
+Step 10:点击搜索栏右上⻆的红⾊“搜索”按 Step 11:提供答案，说明该账号在⼩红书和
+钮，执⾏对“魔搭ModelScope社区”的搜索。 抖⾳上的总粉丝数为21,000。 ✅
+Figure 9: A complete operation process on the Android platform, in which the user query requires the agent to
+searchandsummarizeinformationonsocialmediaplatforms.
+web searches and extract key information relevant to subsequent steps from the search results, which is stored
+as memory within the thought content (highlighted in green). Subsequently, the agent switches to a different
+application, creates a new spreadsheet in WPS Office, and fills in the corresponding content at the appropriate
+cells based on the memorized information. The thoughts generated by GUI-Owl-1.5 during the execution steps
+demonstrateitsunderstandingofscreencontent,precisegrounding,analysisoftaskprogress,andmemorization
+ofkeyinformation,validatingtheeffectivenessofourproposedunifiedCoTsynthesispipeline.
+Tool Use Case (Fig. 11). In this case, the agent is tasked with completing a partially implemented Python
+scriptonthedesktopandsavingitsexecutionoutput. TheagentseamlesslyinterleavesMCPtoolcallswithGUI
+operations: itfirstreadsthesourcecodeviathefilesystem_read_text_filetool,identifiesandfixestheincomplete
+insertionsortimplementationusingfilesystem_edit_file,thenopensaterminalthroughosworld_mcp_os.open_shell
+toexecutethescriptviacommand-lineinput,andfinallyverifiestheoutputbyreadingthegeneratedlogfile. This
+casedemonstratesGUI-Owl1.5’sabilitytoautonomouslydecidewhentousetoolinvocationversusdirectGUI
+manipulationwithinasingletrajectory.
+4 Conclusion
+In this work, we presented GUI-Owl-1.5, the native GUI agent model that features instruct/thinking variants
+in multiple sizes (2B/4B/8B/32B/235B) and supports a range of devices (desktop, mobile, browser, and more).
+GUI-Owl-1.5 achieves state-of-the-art performance on 20+ GUI benchmarks, comprehensively covering GUI
+automation,grounding,toolcalling,memory,andknowledgetasks. Weinnovativelyimprovethemodel’srobust
+generalizationinreal-worldapplicationscenariosthroughaHybridDataFlywheel,unifiedenhancementofagent
+capabilities,andmulti-deviceenvironmentRLscaling. Wehopethattheopen-sourcereleaseofGUI-Owl-1.5will
+advancetheadoptionofGUIagentsfordeviceautomationacrossawiderangeofplatforms.
+19
+
+--- Page 20 ---
+UserQuery: Search for the stock prices of Apple and Nvidia respectively. Then create a new spreadsheet in WPS Office. Enter the company names in column A and the retrieved
+stock prices in column B.
+. . .
+T t p s s n p t t h y h t e h a e r o p e e i a g c o c c e r e e e u c s k c s e o s t g h o s p h . a m h p a r b O e r t r i e c p a c : y n c h n u e r S o c t . . s t i t e o m n e , T o o c r t t b p i h h e n s e a s e e t p e t g n a h a f i s u y t n i e e r e r t n c s r a r t s e h t a e r h h c m s t w e f o h r t o i e e w e q e r b p s r u v s A a e i a e i r n p t s n n r h g p i y t d s o e o . l t e c p T h p B c l a h r i e r i l c o n i i n i o c k s s c g d k e t r e i o d s s a t N e e c h , c d v k a I e t i r i w c d o c a i h n i a n t s h , T n s N s T p e q g e e a h h n o r u v i a a t t i o w e i c s h d e r r e r u c c e r i s y e a g h h e t d r n . e h a i d a t b n t T n p t , h t e a g : y a d t e i r r p T h s f n d o t h r w i e n n h e e i r e s i e g s e q e l t p l e c s d u h ' q l e i e a A a n e i e u r a s r y p d i e c s e r s t p h a d r c i t r f a e l o h o r y e t e i y s . c n r e b u n k s T f t t a t l g t o o h h t p o h r i s r e e n r c r e m , i i e s e k t c s a s t a a p e a l p w e r l s t s r c i o r a i k e e i o t i w o l r c v i l a r n c v f e e e p i d h e . n ' A q r s t , g i o p p h h u n s c r m p e e i o t o r e o e l e s e e c I s t s t t e s c . o a h t a s O t o n c e s h n k n d . e c e T ' s e p t s c A o u e u x h r p i a e g r o s c r p r c g u e u e c u l e b . e g h n t s P m h t e t s r r i t t s e o i e t : o t t s h n s o T c u t s e s c h h k l i t n k s e a e p s e g r p r s q e p a i r e E u c r a i v n a c c e e g i r e h t ' s r e c e i y a , f h b t r . o n o w l T i b e r d s r h h . a A e t a i e T r h s t p u r h r c e p e w t i o e e o l m e w i n v c l n l . e t o o e e a n m s x A i c a t n t a p v p s d s n i p l g t i e t r l e a f h e t e i p e t e n ' c e s d t i q s s t w t u t o t o h o e a t c e r y h k y e T s c f s n c t i h t e u l h e r i o e s c a r e o c t r k r d u n e k c i p n g e h n t p a g h o w t r r f t o t p i o a c : q r o r n c e T u i f t N c h i a i e t e t v v e . r r h a i e y o T d e s t f h e e i n f a t o $ i a o a t s ' r 2 s r h w s c w ' 5 k e s N h . 5 t d i l s o v T . r l i e 7 i s c e h a d a p 8 k s e l i r l l u . a o p a c n T l y h w r s t e h i s t e c o b x i d m f e s t c a o , . c k s e r r s T o t h a p A o e t m o g o r p p d i a w p c p t o i i y e s l n l i e e n p ' t t . t b ' h g e o s e y i s s t i n h , t e I h e T ' s p C o q t p p A e u h r f u r e li p r o e g c r o e t m p p c h g k r u t e l e i a y e h e n g f , e s r e o h g s e t a d s r e i t t t l o i t f : l a o a n N h o o n T s r c g e v w r c s k h k i . h w s d c i e r p n e I l e i i b e a r s a g n t q i a a h e . r e c m u c r r a T e e t h i r w h b h ' r e d c i e w i u e n h i s t t m l t g o l o i s i t t b s r e e o h N t c e a c n y n n l v m r a o e p t e i ( u c s a n d e c o X . u t r d i e v o a t r i t s e h c r ' c s h s s e o t e o t a i o n s n s h m r n t c t ) y e t o l e k p e y a c b c w l x s t k e s u e t e t h t s f r p a h t e o r o e o r r e e r a w i c e c n r h e e s c t n . h a d s
+Step 1:Click on the search bar to activate it Step 2:Type "Apple stock price" into the Step 3:Press the Enter key to submit the Step 4:Click on the search bar to activate it for Step 5:Click the clear button (X icon) in the
+for text input. active search bar. search query Apple stock price. entering the Nvidia stock price search query. search bar to remove the current search query.
+. . .
+T s s r n t s u e y h e e h o s p t a a o e o w r i r r d w i n u c c e I g g h h i f v n o n h e ' f b g r N e t o d a : e A o v r r A T d i . p n N d h p T p l t i y v e p o a h l i e l a d i s e s s s , e i t e ' c a e f o s a u a o ' n c s r s r r l c s k t l c s s o u h o h o t p w r c o r b r i f , k c n s o i a w c k g p r r t e h h r p N c ' i i s e i r o c i c v n i e n n c h s i t d o e a s o ( p i i $ . m w a s r t I 2 t ' e ' h e s e v c 5 p e l n e p 5 m e a c a r . a a r 7 i y e c e c r l . 8 r t t e e s e h i ) d v , m a o b e , a d d y e n y d to T h a I o T e T c a h u x h h h a f e n a s t e i o $ s o c v 2 u b r n u c w e e 5 g e e o t t i h 5 a e e x m l r l . t l n i t 7 r t e : l p e h o l 8 v t I o l a y e a e e c g f d p d a t r s i N e y c e o n e t a v d m h a r s s l i e u r e d i e s c t n t g i t e r s h h a t e g i e o e ' e t p e s f a h v o s t p r c i e a h t r s c u r i t d e h o e N t r ‘ o v n r A N v s r e i s e e i p o p v d n a s a p u i r i t d u r e a r l s c e s e i l ' s a t h s t s ‘ s s o s n e s s b E p c o a s t t a n k o o t a r w o r c t c c g p , e h c k k e s a r r k h i r p p n w c t e p o r r d e o s h i i r w . c c u i e c e e i l n r e t ’ . e s g . . I T N s c N a t s i w n h e p o v h v v i e a a r l n t o i i l e h d d r i e d u b l c a a e i i c o a a g r h d t b o w t h i s s ( l r o o w e $ t h t e n p : t o . 1 e s s o - I c T e u 8 p e ' r v k r h r i 2 l t h g t e e . e p . t s a h t 8 o I , s r s u n t 1 n u i c e W c r e c ) o e c n . e o x s c e m B P t t r t e o d o S o o n p s s f t c t e t s O l t $ h e e o k f r h u 1 f p t A p f o e c i 8 l i n l l i r f c p y 2 i s d i g c e t p c . e r t k h 8 e t l o e t s e h e 1 o s t k t h t e r ( t a b f r c i $ e o r e a r d r r o 2 p e o e n v c a m 5 . e a w l s t n o 5 i a t d o t s s e . t i e 7 e h w t o a h r 8 e n b e ) n u f a e r t n o w to d m n T g p a a W m ic a n h r o n o i P t d o c n e h s S e u t w N e t s O g o e r V h i f W f f n o I l f f t D a e i g r : P c u c I I e A S p A n t h i p h i s c v i c a p s a p h e o v s l r 1 e e n t w e e 8 h a c a o a a 2 e d o n y n n . s 8 p m d d i h t 1 s r h p N o e o . t e l g e o V N b e r t d t t I o a d . D a e e w m T o i d I s n A h u k . e I t e : b t h d n o r A l e e e e p p t - e h i , i p c n s d e a l l f i e a n c o t s k o d r t v is o m i t c t s c h 2 h r i a k b e 5 e e t l a 5 i e o t . 7 e n 8 - T s s c N n c o e u e o u h n e p V l c l r t w o t e l I r c r i e D u c o e y e c s t I g n n s t A p i p h o t s i ’ r o i o f s t n n s e u n i : c n i a l t s s : W r l t d h c y e A 1 r s e f P e a p e o 8 h n S l n e p 2 r e e , d n O . l e c f e 8 t t . r t h f i ’ 1 e s s f I s t e i . a i o h c s s d r N t e t h a e i e e o n o v o h b n i c e g w s w a a k t e a a c s r i I p , n o r b d s n w r g m t p i e e e h c h t r e d p e e i h e i s n i d c l e c a e i h d s a d o t t t a e t o 2 i s p e e s t d h 5 m e a c d t e 5 n r . d h p e e . “ e O a e 7 l S a t d a t 8 n . h t d a t e e e i a t r h e a n e e t d c s t ”
+S e t m e p p t 6 y : s T e y a p r e ch " N ba v r id . ia stock price" into the S "N te v p id 7 ia : P st r o e c ss k t p h r e ic E e n " t s e e r a k r e ch y t q o u s e u ry bmit the S ri t g e h p t 8 co : r C n li e c r k o th f e th c e lo b s r e o w bu s t e t r o w n i ( n X d ) o in w t . he top- S to te la p u 9 n : c D h o t u h b e l e W -c P li S c k O o ff n ic t e h a e p W pl P ic S a t O io ff n ic . e icon S s te i t d e m e p p b 1 l a a 0 r t : e to C s. l a ic c k c e o s n s t s h p e r e " a S d h s e h e e ts e " t o cr p e t a io ti n o n in the left
+T s O n p r $ ' a B e w r h 2 e r f l e q i f a 5 w o i c i a t u n c 5 e u c , i e s k . h g r d w 7 p . e ' h e a 8 r T t d h d t e e t h : i a a i a m c t i n T n s h o d I h f p d s o i r i t e s l e h s r h a N t t m e i t i e r n v h d e e i i a t e e S e d t e o t h v a i f c i r p a e o o l e o f t ’ a d f n r e s r i o c o r t : e i e r e e s s n A n a c t s $ h p t r h i t e e n l 1 a p i i l c r s e o 8 s l t i t e r n h 2 c t i s . o ‘ a a g u . e s I 8 n s t c n s t k i m 1 c o h t o . o . o e n e a f w T s c i W h t n s s k o h t f e u o p c P a r c o l c r S e v l r i k y n e e c i t e s a t e t h a i n e s e t a T o e p f A t o h h m p o 1 r i o e s s p i e i s n u t c t n i e g e y a o t d h l c e n g l t t r e r t s i : i v o i u d n d T e c g b h i , t c n e o e t I e h g w c s s w e i e s p n i f o l l c r u l l s e r o A s l t k l a t m r y 1 a d u w , , r p s c a t i t h a t t n h u b h n e d e r y . e y i T I i n t t d n n h y g a e a p o e p a t m i w h p n c l e e u l s g i h s t c r d a ' . a s a A r a o S v t t p i t e i r i o n a p n i n a c s l g t e e a c p ' b l c i e o n l e e a i l t n . n l o t , T e f b c c a c c p o o o o o c h n u r r i t m n n l t o i c m u i l e t t o d e u m p i i r u n s n n i g e a n l n u u h i d a n i g n s e i t A y n i b : t t c n s h g o n a I o b t y e r c a o t l e s m . u a h m t f d T c m e n o e o a h e e m r v s t l n l e e s i l a e e s a A a B n a t e t t t n . d e i 1 a o o c t d x b , d h f a c t a l i l a c s e e n l s s o t y t l . g t o l . s m “ e S A c T h A t p i h k p n h 2 o p e a i c e w p p s t e n r o c l l n t e i y o o I o c e ” g i r e h n n n c r i h s a a c e o t , t a v a m e s n h I e s l p r t e s e n b o i b " h n s e c N e n o o u e x i e d n v t u e t l h n i l i l n d d a g i n a d ", T s e d s s o A 'N t t e h n e f f e o v t l t s o t e p e c i e h i d u c g k r r e i t i g n s t a p e A h h a t ' t d r a p , t t o i i s , c e b : f p , o w e t d I l l e y I e l . c l h p f w ‘ o T a a o s i e w h n c n i r s l h i l ' d t e s s s 2 o p t e d i 5 a w s o c r e 5 l o b k c t i i g l . h t k c y l 7 p h n e e c p 8 i r a e t o i w ' r c s t c d m i o t e c i c s o t r t e t e p h s r o o s r l e i l l e n . e c t c c B h k c T t c e t e o 1 e e h l p l l r o e t i t c r d A s h a c i o n c 2 a e s c A l e e u k t u p t f i x m i o o i r s p n t r r t n s e l n e l r e c t o u n n t e ' B r g o s c t t o l i l e l t i c y w u s B r a r 2 l e . . T ' c e A T o c s t 2 h e o e h h n f 2 5 e l l m t i o m e l 5 s t r n u B c o y p . o f 7 t . g c o 1 l e v s e 8 o T h , l e i d l t ' n h n t c o l i , : h e o n t e g w I i I a c m g n d n c s t c s u a t o e a p t i b h e t n x h n w l e e e t a e w p n s e t n l p i e r o n n i n d t o t r e g a o h g e s c p i t t v u c e t u t i h r i t a h h c e o e r s a l c e a e d p u t e s s l a s n f t t t A s d i e o o r e s r o p a e p c s f x n e t p u t k t t a i n e l l o r s e l p r . t o y e o t ' e r e O w s n o w i e r n c t n s n e c ' t r o t N a c t e y l o f i e i e f r c v n c t p d r k i e k c ' e d a N a c e r o d t i p e t v a l t a n l l r e i i ' l i d n A c r a c B t i n 2 e e n a 2 o l ' d . i l . s
+S t n e t e e m w p p e 1 la m 1 t : e p C t i y n li c s t k p h o r e e n m a t d a h s i e h n e " c B e o t l n a d t n e o k n c " u t s m a p r r e e e n a a t d t . o s h c e re e a t te a S s n e t a e l m e p c e t 1 e i 2 n d : t T c h e y e p ll e s A p " 1 r A e t p a o p d e l s e n h " t e e i e n r t t t . o h e th f e ir s c t u c r o re m n p tl a y n y S se te le p c t 1 3 it : f C o l r i c e k n o te n r i c n e g ll t A h 2 e i s n e t c h o e n d sp c r o e m ad p s a h n e y e n t a to m e. S se te le p c t 1 e 4 d : T ce yp ll e B " 1 2 t 5 o 5 e .7 n 8 te " r i n A t p o p t l h e e 's c s u to rr c e k n p tl r y ic e. S s c e o te l m e p c p t 1 a 5 i n t : y f C o n l r i a c e m k n o e te n . r i c n e g ll " A N 2 v i i n d i t a h " e a s s p t r h e e a s d e s c h o e n e d t to
+T a c c i e m c c n o o o o n h n a n n m r c d t o i r e e t f n u e p r i i r l r n t e g s l a m a N p u h A a n i o v n d e t i 2 y n : i n s y . d s g n I d A y t i f c a a h o t i s f n a h m ' t t e r s e n e g i i s e c s m r n s s t o s s p t t e o a e n h o i u e c n t l s i c i e k t s i c t k , c s , c h a p o t w t I p l a e r i l l w o r i y u i t n t c i n c m h i c t e b l e . e l s y t n o s N m l t h l r e f i o A e A u n o n ' w 1 c 2 v a t n c t 8 e e n a o i u I 2 r s d m l t n r i . u n o s e 8 e t e m e g 1 h e c o l b e ' e e n ' d f . N c o l i T l r B t t v x o h B e . i d i d 2 s i a to ' T b c n n s t o s o t p o h e a e n o r m m e e o e d c e n d u o k p a c e g e d l s t s p t e h o u l . h s r l t t h S c i i i m t c : s n c i e o e n I e i g o e s c c t s o t v t h e a b s f h e n f e n y c u 1 e a t e r c u l 8 o v l d i l o y g s 2 i l a g c n i h A . n e e a t 8 f t a 2 n g t l i 1 , l r i t o e m w . i t B e s h n T n 2 r h c e h t e t b i u r h t c e d T y o e r a h a r m h i f t i n e b o i n a s ' n t o N r p v k o s t s i e c u v l t t o y c o a y i t r d e e m n . s N t f i l e d o a l f v p i l A ' a c e i m a d h r i 2 c e n d i a o , t a n y e s v ' t s d e w , I a y T f k s i I t w i p n n r h t e c h r o e i t e i a y l c o o c m l p n o e u p n b c l i s g r a d u e s c e i h v e i i m c l t n c r l i t l e o e g o l B : n , c c a A m i T 2 o t n t t A 2 h h l . i l p p y o u e S e a t l u n m e t i o n n d c t y t w d u n p c c e a N e e r t , e o t B v s a l h w r t l i o . t d k h e e h B i r e i t i e n e 2 a r h h d t ' , c c a v s r b a c u o y a s s o o s r r l t p s u s r t n o e u o e h o e f x c c s i r r . p k r c c p t A m i o i e e s p o o f m c s i r n a t n n s t e i l d e p c f g r o r u e d e i a n f t e l a . n l o h g t y n d T y h f e t s h y m e e n 1 t T e o i r 8 a o a t n i c m a n 2 n b v k B s . e e g 8 e k 2 x d 1 s t , T h f a ( e S b o 2 i n h n a e n r 5 v d t o m c c 5 e e u e o s . r a 7 g t b e n a t o h 8 d e c t l c l e ) t l e u k i : o d a n n d I b p n w t e m c j r d h e a d i i c e e t c n N h e s t t W v . u i c s v c i o T c d i e o P n c n h i s m S e a f e c i a s r O p o ( d s r m 1 a l e f f a u 8 u f n t i f m t 2 l c a y u l h y e . n l 8 n i a . f s s i 1 t a B l p p l ) m a e . r r a l d e B o l e r a , r p o s e e d t e t i h c q h n s r o e h u l y A c r e i t o r r p a e e e l p s u t m c . k l t m e l e c y n n a t n A s
+S s n e t a e l m e p c e t 1 e i 6 n d : t T c h e y e p ll e s A p " 2 r N e t v a o i d d e s i n a h t " e e e i r n t t t . h o e t h se e c c o u n r d re c n o t m ly pany S cu te rr p e 1 n 7 tl : y P s r e e l s e s c t t e h d e c T e a l b l A ke 2 y t o to c m ell o B ve 2 . from the S se te le p c t 1 e 8 d : T ce yp ll e B " 2 1 t 8 o 2 e .8 n 1 te " r i n N t v o i d th ia e ' s c s u t r o re ck n t p ly ri ce S st t a e t p u s 1 . 9:Terminate the task with success ✅
+Figure10: AcompleteoperationprocessontheWindowsplatform,inwhichtheuserqueryrequirestheagentto
+memorizekeyon-screeninformation.
+20
+
+--- Page 21 ---
+UserQuery: PleasecompletethecodeandretrievetheoutputfromthePythonscript'calculator.py'locatedonthedesktopandsaveitas'log.txt'inthesamedirectoryasthePythonfile.
+(‘path’:‘/home/user/Desktop/calculat
+or.py’,'edits':'path':
+'/home/user/Desktop/calculator.py',
+'edits': [ { 'oldText': ( ' while j >=0 and
+key < arr[j] : \n' ' # TODO: Replace the
+value at arr[j+1] with the value at
+arr[j]\n' ' \n' ' j -= 1' ), 'newText': ( '
+while j >=0 and key < arr[j] : \n' ' #
+T c h e h n h m e o n a t s y t a n h c t e o o g u e f _ e l t d o o i w g m c p t o l l r n y e h a u u n h e . u t e t r l g e a r s i t a h t o d / s e h h d p u t t p o a t c e U o e o _ u s a w : d u x r t e t b t g . I u e e r p h r t a u t r n r n x c / h o y a e s n t e t u D d ' e p n o _ t a e e t e e f u h t f e f r x d r " s i l ' i o i l e y l s l d / k c i e o e t t t m h c a t i v o a g r o u t a o l c i e n . o s p t c o t t n i m c n d i e h o x o / n b d t t t e l c e m o i t t l e ' t e w a i e h / r s f s d r p l u y n i e f c h o l e t f a l s e t u e h u a n s s s e c s t l t t k c e n i e a r r n t e w r t / o c u h t m i o — D o t p t a i u c e t p i h r t o e t o t h . t , d u e p p m s a n s a o r e r k u t y s n a s u u e o t . s k t a e l d n t o . k i r F : m t f t e A t p n f i c y o r i r o e t e , a / e e f s e , p t c c e a w p t e f e g d t a , , x f d t d i r h e i l i p I u v a c c r i t a i r n e n n e e r i u c e e e t g c e d c h P l a h a n a t t e i y p t d . t o e w t t t o d t h o s p U i r a h n i o e y r r l t o o n s . o l g o u o p i p u a p d h n , n t a y e s t r a p e I g c a " p e s n t u l t w h c c p a h u t f h t , c r o h a d i t , e i l d u s a n e l p l a i l h t e s r n s o h t h n a e f o c t w i a i n t e t e d d t l r u v e e h i a r s i c l p f e s t s . m e d m a i o t a t y l S c h n e . n v b s r i e e n l T e t e e a e t d c d t e e h h t x r o s i t / i i ' r t r t T u o O n c t e a c i o r p h t l n o D t a i - n p t o h n s t i O u t s t h u o e . e r i g r a T t c e x f c . o h n p t h o d t o i t d y e m n u d a : a r g s n v e s T f m e e t i a d l h f a i e o v o e m f e c r g e f i n r l w o i p e i e p l t c t e d l , a s r h e w s i e e y t r n e m y h d s v i s s t t e i . o a h e n t e o T n e u n i m e u a p h m t t d i s r p p n e a _ r i _ s u t t e s e [ n t i i r j e t t d n o e + e e , r a i g n p 1 a t x t t s i , _ h ] d t o o s s l f i _ = s u p n o s i o t l t c e g e a e e m s c t r . r p x o h t t e a r o x t o r [ e t s a _ d t t j i s ] f o . m f s i f a , t i f c u n l e i l w o e c g r l r l s i . d a o h y p h e T t i r i t f i r c o d i h o y t e c h i u e h n t a a t l i a m h d n d n c i l s e u g i . p b t g r t h B f i r n e r h s i o e e a l s e e r t c n s c u o w , e e c t o n r o e d i e e p n t d r a x h p r t o r e n e e e l t n t a c o d n d c h u c t i t t e c c o i h s t n c o t e u e e o e o g m t l t d f m t e p t h a p c h m u a e p s a l e t c e k l l e s e t c t c T i T w a O r i r t D [ h j] O \ th : n e R ' ' e v j p a - l l = a u c e 1 e ' a ) t t , h a } e r ] r v , [ a j] lu \n e ' a ' t a a rr r [ r j [ + j+ 1 1 ] ] = T l e e t c n e c c , o o h r r d u r s s t m m o e l i w r a o a u s e m m t i n n p g d t o d c e h a a i s r r h . c n n t o e c p : t i d d r a n c i y T t v - s n t g h l e u l i t t o n q t e l s h o y o g i e u . e n p i c i t c T a g c r o o h . e h k c m f u e N v c l e i y t l e i p o s e o p c s l h l s w a o u u e s y e u d , , t s t s l e n t a l e t t s o e o i l c t t s l h e m h o h e l a t p o w e x h a _ s s g e e i r t t b n . c h e a t e u n e g x a s a r t e t a k v d m u e . . t n e _ s o u i t t n s c p r t h e u a o o a e e x l c l m n t , r c n s _ u l _ p e c e e f n s r s l i v x e l h i s e p e t p t f e r t e y u s a l a t l t d l a n e l g h r y n d i p w e o n d r q : n f i g e t i i u c 3 l t a h e U a i d r p c s p t b e a y r h t a s u o s l u e n c t n v n r u e d c i t e o d l m u o a e i e ' p r t t s _ d s r s o a e e i n r t d r o . d c e a a p i u t r i m d t t y e t i i _ v p n c c e a f e u s a t t i l T a n i t c D c d e u w y l o r t e e n h a e n e r p o i d . v p d o . i b s i r r t A i n k t - T u e e e y g i l ; n t c h i g v a c o n n c t 3 c i h i t a t h o o s e p a o ) e h t l e m u v c r s c : e a & t d i u a o s T r o g c p i v & t e l m h a s c n a e l e t s t e e t e g t h r m e p u i o t s t m o e t p e y l t h s r t a e n o . t , d i s e D p v n r n h , c : t m i y t e d a s o o u a h 1 o c s l u n h r i e ) w . f r k n r l t 3 a i i o e e t l a t p p i e s o l a n g n c l l t u s p s a . a t t h r t y t e e k l l u l x a y s r d c x a r t n e r t s u e i s i ; e e t r a n l c b t h e a m q a l d h u o e c e n t t u y e t h g _ o t e y i i o D . r e o e b r n s t . e e r e d x n p e c h y r m s t s r i , y e r u o t . i k t o a p n _ e > o c T m t n r t f n o c h s i l w d e e m l t i p o u e e n s s o g c o d , , e d s p t c . r u i s t f s t i h r r e k u r h o x s t e e e e s p a l t e w d c l s t c ' y g u D , t h f i t f i c e o u t o t w o e o e h t s r l l r r s p e l h l y s e y y o k m t d e c i ; d h t c ( w c n r o ~ a 2 c h i e o i r e i p ) y p o ) n e m . c c d t m e a g c d W o a i p x t w l l s i m m s s i c e r l e o t o e e i r u c t e b a n e t c n u h l b p e i n a a . t n e t e o s d t d c d T e e e o o r h y n d i s d i y r t n m s e . e i h t p d s t a o ' e t e m p c o c y i n h r d o d l r s e d f a
+S (' t p e a p t h 1 ' : : t '/ o h o o l. m fil e e / s u y s s e t r e / m D _ e r s e k a to d p _ / t c e a x l t c _ u f l i a le tor.py') Step 2: tool.filesystem_edit_file Step 3: tool.open_shell S (' t t e e p xt 4 ': : ' c ty d p D e esktop&&python3calculator.py>log.txt')
+T h x p e n p d s u ( d l e e b h e o d c e h r s c p a a s e t i e i w r c g r o a e c e u s r o n e t i h . p t t u a n p r t h a t u e t o c b i t e r x t t o e t h s s e t d g i e e e e t , i o o c ) n i t h m t " s e s d , P a o u h s n r y s t h n r d n y t y m c s u p e : e y u e . s F i t o i o d l e e s d s n o n h p p T a a r m e t u t d . o g r r o l t h s o l . s t r e c e t e T m m n e h t r e t I i c d t t h s n n a o y h a e e e h c i a s e l : p t p e r d g s a n c e o n h s t e 1 u r s o y p r u h a o c m d e e c f . f i t - r r t r v p e u o s t t t s c i e o i m t p i i w y t t p s l l a g o n o t l d l m h , r i p y o t a l a a o n u g e i c a m , f e c w s t a n t g r t v u u n a t e k t d y l p t d i e i l d e l d n w t . o e p n a f u t x c h d _ i d " d u o t e g l w t i o t e l o m c t s : d c s t m t h a t t d r r o e E o e a h . h a c i n i p t a m n n d v n D r p c e e d e l y m r e o t t t t e _ e s r a D e e t i o e g h o o [ s a i t i n r r s n j e x s . h k a s n t s + s t t d e k a s h t . e k s a x p s 1 o t o , k e c l e t , n y h b ] o o p t u t p y . o i a d o h e e t = t b u e T t p — e u & a p i e e j i n h t D n e a e s r t r p n & _ e m E o d d r g r e c c t u a r s n g i t e h s l c a [ r o i p t t h i e k u t n j d e u v i i ] u y e s e a o a c t i a e i ; c r . t o t t r o l s r n r i h t l : 2 l h e p s e p o m k s t b l o t c . o d u o h n t . e o r o u d A t h , n m t y g B a t y o k m t i , c e 3 . t t r e a t n l t a ( o h r o e ; e x p R y s t e c c u n m a c 3 h r t e ( l a r e l e n d m e t ' o s . i e d i R l t p o t d n c t g A u n t a i e i e l r c u c o h n . e i r r o t y t t o a s c l n n e e h t a t x u , a t o l m h i t ) l t e e t r n t t P n b o m . e o n w m h w x m g y e s e T e r ' e e m c a a ) . t o o x e u t a p c x , o h m s h t o n s u n e a y w e s d o e t s o p n e t c d e x e e n t > i T m S T O T T o C E S N d i r x e m l e t e u a h h h h x r r o e u c i p a e v c f o e e e n m i t x o l t s i d l e c c o h p l u a e t n P c p e u e _ d p , s c e l u t g o t s y r e s t t a w i l s a h t e o t e e e m t s t t t h a h i a t h e v f t h n e x d n n t : o u e e m s i t o d T a o s o s k d s t _ w l d n s h l o h h t a u : t y a f " a c s e t h i u o b n e s / s t l h a t n e e h t t c u e d c u / o s n e p h a r o e l o h c t s e p d i c v u e o p f c n m r . m o o x e i u t i o g o v t c m p p m r r e l m a t e d u l a c l e e t o y / t e r e a i p r t d c a s e u i i r / l r f l l t o i n c e i d o s e u e y a r e n u n e d e n t g t p s d t t e l r s r c c e t . o p h a h t / i d a t o r e h p x t r a D e a t / l o u o v t a c a t w h d s D e e r t p u v t l e . s p b i e h o t p e r l t k t a o u s e i h D g y h a t a c t k t e . o o e e l o t o s t h t . o n e u p x o s r m T a ~ s g . , t k t / p o p s c s / . a t l p w u t a / r y o D o b d x s i l l n c g p o a e p e ( t e o c i y a . s t t t g s e t e d e d t k x . e o i s n s t h s i d d t t u r r x u s o " i r r e e d f t c s a t o u p u . c t , d p c e l o r n $ l l t U e w s u l s o a t y , i s s c t g h e r r s i . i o e n r y n n e f T n [ n x u d e g j h e s e + f l i d l t i c t e c e 1 y r e h a u f m d ] p p g o t e t = i s a e e t r n t f o t n d a r h i r g h l e e e . r e r e : r q e a r T p s [ a t a d y u h a j a ] t s d i i e r ) e s n r t a e k e d t g t m h d e m c a t e r e o e f n _ t f T x p o A ✓ ✓ ✓ ✓ A l C S O C A o o l e t s c h u m m o o l l l u d t l l l p r c S O l u o t d n e t o i : t o o m p e a c p s p u t r a e h u g p b u r l c e i m t u s g c a a n t i . i e j c t n p t k p u f e h e t n s g e o i x r i t t n x u l t c c d s s a r t b m a f : e . a t v a e t a t t T i t t e c i e c l e c t i t v x e v p o s e h o o e i e o p u e r i e o r a l r s n e n n n i e m . m s t c v s f t y n p g i t s i t u h p e o s h c c e . h y p i i : t r t e o n d r o a n a n a l a e e i e c e n a t o r v : t v t c m t q o i v r t t s e a : n o a o e h e e e i u d s a o _ c n r i c n d ( i l b e k e e c c u r r o s : t o e e o e v c a t l w w s c g a y w a o e e d a m d o . c s i t i t d m d n s t t c m t u x b a p b a h h _ e o t t a s y p n l e v p o t p h m i = a c i l d e s e e t l n u i r h ' e h s s h d x s n p o s t v h u i t t e u t u e . e l u e i h e _ c i e c d o c T c s v g r o u r e f c d c c h n h e i i h r v e m s f e l e o e s e d e i v i e s ( e s a > s a d r i , , p i s r s t n s a d s m ' f a c t e l r ' . v s s u e ) s e e o f n r i e e t t i l i c r a m d n d l l n a e r m e o y d i f t t s t d r i s t i n i u i h n r t e r i o h y : r n e r f m s e a e c s o n e u a a . t l t c r i c f l i d T e n s n a t m o i t c l o o h m l e g i e n t s o o r s r e h x o _ t y t m r n t e t h e p e i s o s a s m m a a r d c h t s h e t t d o e i o p a h t a d t t i n p _ w n h n l v i h i e s t c f e d e g s e e s m i t o l h e n e t b s t s p o e o h d c t c e e s u n r o a r e c i r i l t l t o p p n d o a a t f t t t d t h f b i i l o u e o o o e e l u n n g f c c t t i a . ) l t
+Step 5: key Step 6: tool.filesystem_read_text_file Step 7: terminate
+('keys':['Return']}) ('path':'/home/user/Desktop/log.txt’}) ('status':'success'})
+Figure 11: A case of a complete operation process on a desktop platform, which combining extended tools and
+computeruseactions.
+21
+
+--- Page 22 ---
+References
+SaaketAgashe,KyleWong,VincentTu,JiachenYang,AngLi,andXinEricWang. Agents2: Acompositional
+generalist-specialist frameworkfor computeruse agents, 2025. URL https://arxiv.org/abs/2504.
+00906. 2
+MoisesAndrade,JoonhyukCha,BrandonHo,VrikshaSrihari,KarmeshYadav,andZsoltKira. Let’sthinkintwo
+steps: Mitigatingagreementbiasinmllmswithself-groundedverification. arXivpreprintarXiv:2507.11662,
+2025. 12
+Anthropic. Systemcard: Claudeopus4&claudesonnet4,2025a. URLhttps://www.anthropic.com/
+claude-4-system-card. Accessed: 2025-09-25. 2,16
+Anthropic. Claude sonnet 4.5. https://docs.claude.com/docs/about-claude/models/
+whats-new-claude-4-5,2025b. Accessed: 2025-11-22. 16
+Anthropic. Claude 3.7 sonnet and claude code. Technical report, Anthropic, 2025c. URL https://www.
+anthropic.com/news/claude-3-7-sonnet. SystemCard. 12,14,16
+Anthropic. Claude-4-sonnet. Technical report, Anthropic, 2025d. URL https://www.anthropic.com/
+news/claude-4-sonnet. 12
+Anthropic. Claude-4-5-sonnet. Technicalreport,Anthropic,2025e. URLhttps://www.anthropic.com/
+news/claude-4-5-sonnet. 12
+Shuai Bai, Yuxuan Cai, Ruizhe Chen, Keqin Chen, Xionghui Chen, Zesen Cheng, Lianghao Deng, Wei Ding,
+Chang Gao, Chunjiang Ge, Wenbin Ge, Zhifang Guo, Qidong Huang, Jie Huang, Fei Huang, Binyuan Hui,
+ShutongJiang, ZhaohaiLi, MingshengLi, MeiLi, KaixinLi, ZichengLin, JunyangLin, XuejingLiu, Jiawei
+Liu, Chenglong Liu, Yang Liu, Dayiheng Liu, Shixuan Liu, Dunjie Lu, Ruilin Luo, Chenxu Lv, Rui Men,
+LingchenMeng,XuanchengRen,XingzhangRen,SiboSong,YuchongSun,JunTang,JianhongTu,Jianqiang
+Wan,PengWang,PengfeiWang,QiuyueWang,YuxuanWang,TianbaoXie,YihengXu,HaiyangXu,JinXu,
+ZhiboYang,MingkunYang,JianxinYang,AnYang,BowenYu,FeiZhang,HangZhang,XiZhang,BoZheng,
+Humen Zhong, Jingren Zhou, Fan Zhou, Jing Zhou, Yuanzhi Zhu, and Ke Zhu. Qwen3-vl technical report.
+arXivpreprintarXiv:2511.21631,2025a. 2,14,15,16
+ShuaiBai, KeqinChen, XuejingLiu, JialinWang, WenbinGe, SiboSong, KaiDang, PengWang, ShijieWang,
+JunTang,HumenZhong,YuanzhiZhu,MingkunYang,ZhaohaiLi,JianqiangWan,PengfeiWang,WeiDing,
+ZherenFu,YihengXu,JiaboYe,XiZhang,TianbaoXie,ZesenCheng,HangZhang,ZhiboYang,HaiyangXu,
+andJunyangLin. Qwen2.5-vltechnicalreport. arXivpreprintarXiv:2502.13923,2025b. 14
+ShuaiBai, KeqinChen, XuejingLiu, JialinWang, WenbinGe, SiboSong, KaiDang, PengWang, ShijieWang,
+JunTang,etal. Qwen2.5-vltechnicalreport. arXivpreprintarXiv:2502.13923,2025c. 16
+Rogerio Bonatti, Dan Zhao, Francesco Bonacci, Dillon Dupont, Sara Abdali, Yinheng Li, Yadong Lu, Justin
+Wagle, Kazuhito Koishida, Arthur Bucker, et al. Windows agent arena: Evaluating multi-modal os agents at
+scale. arXivpreprintarXiv:2409.08264,2024. 13
+CodeFuse. Oagent. https://github.com/codefuse-ai/Oagent,2025. 12
+Gheorghe Comanici, Eric Bieber, Mike Schaekermann, Ice Pasupat, Noveen Sachdeva, Inderjit Dhillon, Marcel
+Blistein,OriRam,DanZhang,EvanRosen,etal. Gemini2.5: Pushingthefrontierwithadvancedreasoning,
+multimodality,longcontext,andnextgenerationagenticcapabilities. arXivpreprintarXiv:2507.06261,2025.
+16
+Deepmind. Gemini 2.5: Our most intelligent ai model. Technical report, Deep-
+mind, 2025. URL https://blog.google/technology/google-deepmind/
+gemini-model-thinking-updates-march-2025/. 12,17
+GoogleDeepMind. Gemini3pro,2025. URLhttps://deepmind.google/models/gemini/pro/. 2,
+12,14
+HangDing,PeidongLiu,JunqiaoWang,ZiweiJi,MengCao,RongzhaoZhang,LynnAi,EricYang,TianyuShi,
+andLeiYu. Dynaweb: Model-basedreinforcementlearningofwebagents, 2026. URLhttps://arxiv.
+org/abs/2601.22149. 12
+BoyuGou,RuohanWang,BoyuanZheng,YananXie,ChengChang,YihengShu,HuanSun,andYuSu.Navigating
+thedigitalworldashumansdo: Universalvisualgroundingforguiagents. arXivpreprintarXiv:2410.05243,
+2024. 14,15
+22
+
+--- Page 23 ---
+Boyu Gou, Ruohan Wang, Boyuan Zheng, Yanan Xie, Cheng Chang, Yiheng Shu, Huan Sun, and Yu Su.
+Navigating the digital world as humans do: Universal visual grounding for GUI agents. In The Thirteenth
+InternationalConferenceonLearningRepresentations,2025.URLhttps://openreview.net/forum?
+id=kxnoqaisCT. 14
+ZhangxuanGu,ZhengwenZeng,ZhenyuXu,XingranZhou,ShuhengShen,YunfeiLiu,BeitongZhou,Changhua
+Meng, Tianyu Xia, Weizhi Chen, et al. Ui-venus technical report: Building high-performance ui agents with
+rft. arXivpreprintarXiv:2508.10833,2025. 14,15,16
+HongliangHe,WenlinYao,KaixinMa,WenhaoYu,YongDai,HongmingZhang,ZhenzhongLan,andDongYu.
+Webvoyager: Buildinganend-to-endwebagentwithlargemultimodalmodels.arXivpreprintarXiv:2401.13919,
+2024. 13
+YifeiHe,PranitChawla,YaserSouri,SubhojitSom,andXiaSong. Webstar: Scalabledatasynthesisforcomputer
+useagentswithstep-levelfiltering,2026. URLhttps://arxiv.org/abs/2512.10962. 12
+Aaron Hurst, Adam Lerer, Adam P Goucher, Adam Perelman, Aditya Ramesh, Aidan Clark, AJ Ostrow, Akila
+Welihinda,AlanHayes,AlecRadford,etal. Gpt-4osystemcard. arXivpreprintarXiv:2410.21276,2024. 14
+Hongrui Jia, Jitong Liao, Xi Zhang, Haiyang Xu, Tianbao Xie, Chaoya Jiang, Ming Yan, Si Liu, Wei Ye,
+and Fei Huang. Osworld-mcp: Benchmarking mcp tool invocation in computer-use agents. arXiv preprint
+arXiv:2510.24563,2025. 13
+Kimi, YifanBai, YipingBao, GuanduoChen, JiahaoChen, NingxinChen, RuijueChen, YanruChen, Yuankun
+Chen,YutianChen,etal. Kimik2: Openagenticintelligence. arXivpreprintarXiv:2507.20534,2025. 12
+Jing Yu Koh, Robert Lo, Lawrence Jang, Vikram Duvvur, Ming Lim, Po-Yu Huang, Graham Neubig, Shuyan
+Zhou,RussSalakhutdinov,andDanielFried. Visualwebarena: Evaluatingmultimodalagentsonrealisticvisual
+webtasks.InProceedingsofthe62ndAnnualMeetingoftheAssociationforComputationalLinguistics(Volume
+1: LongPapers),pp.881–905,2024a. 12,13
+JingYuKoh,StephenMcAleer,DanielFried,andRuslanSalakhutdinov. Treesearchforlanguagemodelagents.
+arXivpreprintarXiv:2407.01476,2024b. 12
+JingYuKoh,StephenMcAleer,DanielFried,andRuslanSalakhutdinov. Treesearchforlanguagemodelagents,
+2025. URLhttps://arxiv.org/abs/2407.01476. 12
+QuyuKong,XuZhang,ZhenyuYang,NolanGao,ChenLiu,PanrongTong,ChenglinCai,HanzhangZhou,Jianan
+Zhang,LiangyuChen,etal. Mobileworld: Benchmarkingautonomousmobileagentsinagent-userinteractive
+andmcp-augmentedenvironments. arXivpreprintarXiv:2512.19432,2025. 13
+GuangyiLiu,PengxiangZhao,YaozhenLiang,QinyiLuo,ShunyeTang,YuxiangChai,WeifengLin,HanXiao,
+WenHao Wang, Siheng Chen, Zhengxi Lu, Gao Wu, Hao Wang, Liang Liu, and Yong Liu. Memgui-bench:
+Benchmarkingmemoryofmobileguiagentsindynamicenvironments,2026. URLhttps://arxiv.org/
+abs/2602.06075. 13,17
+XiaoLiu,BoQin,DongzhuLiang,GuangDong,HanyuLai,HanchenZhang,HanlinZhao,IatLongIong,Jiadai
+Sun, Jiaqi Wang, et al. Autoglm: Autonomous foundation agents for guis. arXiv preprint arXiv:2411.00820,
+2024. 2
+YuhangLiu,PengxiangLi,CongkaiXie,XavierHu,XiaotianHan,ShengyuZhang,HongxiaYang,andFeiWu.
+Infigui-r1: Advancing multimodal gui agents from reactive actors to deliberative reasoners. arXiv preprint
+arXiv:2504.14239,2025. 14
+Magnitude. Magnitude. https://magnitude.run,2025. 12
+OpenAI. Computer-usingagent: Introducingauniversalinterfaceforaitointeractwiththedigitalworld. 2025a.
+URLhttps://openai.com/index/computer-using-agent. 12,14,15,16
+OpenAI.Openaio3ando4-minisystemcard.Technicalreport,OpenAI,2025b.URLhttps://cdn.openai.
+com/pdf/2221c875-02dc-4789-800b-e7758f3722c1/o3-and-o4-mini-system-card.
+pdf. SystemCard. 17
+OpenAI. Gpt-5systemcard. https://cdn.openai.com/gpt-5-system-card.pdf,2025c. 2,16
+OpenAI. Openai o3 and o4-mini system card, 2025d. URL https://openai.com/index/
+o3-o4-mini-system-card/. Accessed: 2025-09-25. 16
+23
+
+--- Page 24 ---
+VirajPrabhu,YutongDai,MatthewFernandez,JingGu,KrithikaRamakrishnan,YanqiLuo,SilvioSavarese,Caim-
+ingXiong,JunnanLi,ZeyuanChen,etal. Walt: Webagentsthatlearntools. arXivpreprintarXiv:2510.01524,
+2025. 12
+YujiaQin,YiningYe,JunjieFang,HaomingWang,ShihaoLiang,ShizuoTian,JundaZhang,JiahaoLi,Yunxin
+Li, Shijue Huang, et al. Ui-tars: Pioneering automated gui interaction with native agents. arXiv preprint
+arXiv:2501.12326,2025. 2,14,15,16
+ChristopherRawles,SarahClinckemaillie,YifanChang,JonathanWaltz,GabrielleLau,MarybethFair,AliceLi,
+WilliamBishop,WeiLi,FolawiyoCampbell-Ajala,etal.Androidworld: Adynamicbenchmarkingenvironment
+forautonomousagents. arXivpreprintarXiv:2405.14573,2024. 13
+Gabriel Sarch, Snigdha Saha, Naitik Khandelwal, Ayush Jain, Michael J. Tarr, Aviral Kumar, and Katerina
+Fragkiadaki. Grounded reinforcement learning for visual reasoning, 2025. URL https://arxiv.org/
+abs/2505.23678. 12
+BytedanceSeed. Seed1.8modelcard: Towardsgeneralizedreal-worldagency. arXivpreprint,December2025a.
+TechnicalReport. 12,14
+ByteDanceSeed. Seed1.5-vltechnicalreport. arXivpreprintarXiv:2505.07062,2025b. 12,15,16
+ByteDanceSeed. Ui-tars-1.5. https://seed-tars.com/1.5,2025c. 12,14,15,16
+ByteDanceSeed. Ui-tars-2. https://seed-tars.com/showcase/ui-tars-2,2025d. 2,12
+ByteDanceSeed. Ui-tars. https://seed-tars.com/1,2025e. 12
+ChenruiShi,ZedongYu,ZhiGao,RuiningFeng,EnqiLiu,YuweiWu,YundeJia,LiuyuXiang,ZhaofengHe,and
+QingLi. Guiknowledgebench: Revealingtheknowledgegapbehindvlmfailuresinguitasks. arXivpreprint
+arXiv:2510.26098,2025. 17
+FeiTang,ZhangxuanGu,ZhengxiLu,XuyangLiu,ShuhengShen,ChanghuaMeng,WenWang,WenqiZhang,
+Yongliang Shen, Weiming Lu, et al. Gui-g2: Gaussian reward modeling for gui grounding. arXiv preprint
+arXiv:2507.15846,2025. 14
+Anshul Tibrewal. Deepsky agent. https://deepskyai.substack.com/p/
+building-a-practical-browser-agent,2025. 12
+BrowserUse. Browseruse. https://github.com/browser-use/browser-use,2025. 12
+JunyangWang,HaiyangXu,HaitaoJia,XiZhang,MingYan,WeizhouShen,JiZhang,FeiHuang,andJitaoSang.
+Mobile-agent-v2: Mobile device operation assistant with effective navigation via multi-agent collaboration.
+AdvancesinNeuralInformationProcessingSystems,37:2686–2710,2024a. 2
+JunyangWang,HaiyangXu,JiaboYe,MingYan,WeizhouShen,JiZhang,FeiHuang,andJitaoSang. Mobile-
+agent: Autonomousmulti-modalmobiledeviceagentwithvisualperception. arXivpreprintarXiv:2401.16158,
+2024b. 2
+Xinyuan Wang, Bowen Wang, Dunjie Lu, Junlin Yang, Tianbao Xie, Junli Wang, Jiaqi Deng, Xiaole Guo,
+Yiheng Xu, Chen Henry Wu, Zhennan Shen, Zhuokai Li, Ryan Li, Xiaochuan Li, Junda Chen, Boyuan
+Zheng, Peihang Li, Fangyu Lei, Ruisheng Cao, Yeqiao Fu, Dongchan Shin, Martin Shin, Jiarui Hu, Yuyan
+Wang, Jixuan Chen, Yuxiao Ye, Danyang Zhang, Dikang Du, Hao Hu, Huarong Chen, Zaida Zhou, Haotian
+Yao, Ziwei Chen, Qizheng Gu, Yipu Wang, Heng Wang, Diyi Yang, Victor Zhong, Flood Sung, Y. Charles,
+Zhilin Yang, and Tao Yu. Opencua: Open foundations for computer-use agents, 2025a. URL https:
+//arxiv.org/abs/2508.09123. 2,12,14,15
+Zhenhailong Wang, Haiyang Xu, Junyang Wang, Xi Zhang, Ming Yan, Ji Zhang, Fei Huang, and Heng Ji.
+Mobile-agent-e: Self-evolvingmobileassistantforcomplextasks. arXivpreprintarXiv:2501.11733,2025b. 2
+Zhiyong Wu, Zhenyu Wu, Fangzhi Xu, Yian Wang, Qiushi Sun, Chengyou Jia, Kanzhi Cheng, Zichen Ding,
+LihengChen,PaulPuLiang,etal. Os-atlas: Afoundationactionmodelforgeneralistguiagents. arXivpreprint
+arXiv:2410.23218,2024. 14,15,16
+Tianbao Xie, Danyang Zhang, Jixuan Chen, Xiaochuan Li, Siheng Zhao, Ruisheng Cao, Toh J Hua, Zhoujun
+Cheng,DongchanShin,FangyuLei,etal. Osworld: Benchmarkingmultimodalagentsforopen-endedtasksin
+realcomputerenvironments. AdvancesinNeuralInformationProcessingSystems,37:52040–52094,2024. 13
+24
+
+--- Page 25 ---
+Tianbao Xie, Jiaqi Deng, Xiaochuan Li, Junlin Yang, Haoyuan Wu, Jixuan Chen, Wenjing Hu, Xinyuan Wang,
+YuhuiXu,ZekunWang,YihengXu,JunliWang,DoyenSahoo,TaoYu,andCaimingXiong.Scalingcomputer-
+use grounding via user interface decomposition and synthesis, 2025. URL https://arxiv.org/abs/
+2505.13227. 14,15,16
+YihengXu,ZekunWang,JunliWang,DunjieLu,TianbaoXie,AmritaSaha,DoyenSahoo,TaoYu,andCaiming
+Xiong. Aguvis: Unifiedpurevisionagentsforautonomousguiinteraction. arXivpreprintarXiv:2412.04454,
+2024. 14,15
+TaofengXue,ChongPeng,MianqiuHuang,LinsenGuo,TianchengHan,HaozheWang,JianingWang,Xiaocheng
+Zhang, Xin Yang, Dengchang Zhao, et al. Evocua: Evolving computer use agents via learning from scalable
+syntheticexperience. arXivpreprintarXiv:2601.15876,2026. 12,14,15,16
+Haolong Yan, Jia Wang, Xin Huang, Yeqing Shen, Ziyang Meng, Zhimin Fan, Kaijun Tan, Jin Gao, Lieyu Shi,
+MiYang,etal. Step-guitechnicalreport. arXivpreprintarXiv:2512.15431,2025. 12,14
+AnYang,AnfengLi,BaosongYang,BeichenZhang,BinyuanHui,BoZheng,BowenYu,ChangGao,Chengen
+Huang,ChenxuLv,etal. Qwen3technicalreport. arXivpreprintarXiv:2505.09388,2025a. 12
+Yan Yang, Dongxu Li, Yutong Dai, Yuhao Yang, Ziyang Luo, Zirui Zhao, Zhiyuan Hu, Junzhe Huang, Amrita
+Saha,ZeyuanChen,etal. Gta1: Guitest-timescalingagent. arXivpreprintarXiv:2507.05791,2025b. 14,15,
+16
+JiaboYe,XiZhang,HaiyangXu,HaoweiLiu,JunyangWang,ZhaoqingZhu,ZiweiZheng,FeiyuGao,JunjieCao,
+ZhengxiLu,etal. Mobile-agent-v3: Fundamentalagentsforguiautomation. arXivpreprintarXiv:2508.15144,
+2025. 2,3,12,14,15,16
+Wenwen Yu, Zhibo Yang, Jianqiang Wan, Sibo Song, Jun Tang, Wenqing Cheng, Yuliang Liu, and Xiang Bai.
+Omniparser v2: Structured-points-of-thought for unified visual text parsing and its generality to multimodal
+largelanguagemodels. arXivpreprintarXiv:2502.16161,2025. 16
+Yutori. Navigator. https://yutori.com/blog/introducing-navigator,2025. 12
+Aohan Zeng, Xin Lv, Qinkai Zheng, Zhenyu Hou, Bin Chen, Chengxing Xie, Cunxiang Wang, Da Yin, Hao
+Zeng, Jiajie Zhang, et al. Glm-4.5: Agentic, reasoning, and coding (arc) foundation models. arXiv preprint
+arXiv:2508.06471,2025. 16
+Chi Zhang, Zhao Yang, Jiaxuan Liu, Yanda Li, Yucheng Han, Xin Chen, Zebiao Huang, Bin Fu, and Gang Yu.
+Appagent: Multimodal agents as smartphone users. In Proceedings of the 2025 CHI Conference on Human
+FactorsinComputingSystems,pp.1–20,2025. 2
+HanzhangZhou, XuZhang, PanrongTong, JiananZhang, LiangyuChen, QuyuKong, ChenglinCai, ChenLiu,
+YueWang,JingrenZhou,etal.Mai-uitechnicalreport: Real-worldcentricfoundationguiagents.arXivpreprint
+arXiv:2512.22047,2025. 2,12,14,15
+Shuyan Zhou, Frank F Xu, Hao Zhu, Xuhui Zhou, Robert Lo, Abishek Sridhar, Xianyi Cheng, Tianyue Ou,
+Yonatan Bisk, Daniel Fried, et al. Webarena: A realistic web environment for building autonomous agents.
+arXivpreprintarXiv:2307.13854,2023. 13
+JinguoZhu,WeiyunWang,ZheChen,ZhaoyangLiu,ShenglongYe,LixinGu,HaoTian,YuchenDuan,Weijie
+Su, Jie Shao, et al. Internvl3: Exploring advanced training and test-time recipes for open-source multimodal
+models. arXivpreprintarXiv:2504.10479,2025. 14
+25

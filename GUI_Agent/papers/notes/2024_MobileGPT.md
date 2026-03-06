@@ -69,8 +69,7 @@ The three-level **hierarchical memory** (task → sub-task → action) is organi
 ### Gap Signals (extracted from this paper)
 - Gap signal 1: "MobileGPT currently stores memory on a local basis, meaning each device has its own version of app memory." (Section 9, Page 14) → 记忆无法跨用户/跨设备共享，作者明确承认这是限制，指向 A-1 中「共享/可扩展技能库」的需求。
 - Gap signal 2: "Cross App Task execution... MobileGPT can be extended to maintain a global dataset of known tasks across apps." (Section 9, Page 14) → 跨 app 任务无法处理，作者将其列为 future work，这是 A-1 gap 中「跨 app 程序性记忆」的直接证据。
-- Gap signal 3: The HITL task repair mechanism means that learning from failures requires human intervention — no automatic failure-driven learning. Failed trajectories, unless repaired by humans, are not leveraged. This is a direct structural gap matching A-4 (offline evolution from failed trajectories).
-- Gap signal 4: The offline Explore phase is a one-time preparation step, not a continuous learning process. App updates requiring memory refresh are not addressed, pointing to the lack of online/offline experience evolution (A-4).
+- Gap signal 3: "Human-in-the-loop (HITL) task repair ... provides mechanisms for users to correct the LLM's mistakes themselves." (Section 3.4, p.5-6) → 失败后的知识修复依赖人工介入，而不是自动 failure-driven learning，这直接限制了 A-4 式离线经验进化。
 
 > ⚠️ NEEDS YOUR INPUT: MobileGPT 的 gap signal 价值在于：它已经实现了「子任务级别的程序性记忆」，但被限制在 per-app、per-device 范围内，且依赖 HITL 修复失败。这意味着研究空间是：(a) 将 sub-task 记忆从 app 级提升为 cross-app、cross-domain 的通用技能库（A-1 核心方向）；(b) 将 HITL 修复替换为自动的失败轨迹学习（A-4 方向）。此论文是迄今为止最相关的 related work，应在 proposal 中详细讨论其局限。
 

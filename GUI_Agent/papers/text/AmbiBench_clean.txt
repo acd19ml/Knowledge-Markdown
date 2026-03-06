@@ -1,0 +1,1305 @@
+--- Page 1 ---
+AmbiBench: Benchmarking Mobile GUI Agents Beyond
+One-Shot Instructions in the Wild
+JIAZHENGSUNandMINGXUANLI,FudanUniversity,China
+YINGYINGZHANG,JilinUniversity,China
+JIAYANGNIU,YACHENWU,RUIHANJIN,SHUYULEI,PENGRONGRUITAN,ZONGYU
+ZHANG,RUOYIWANG,JIACHENYANG,BOYUYANG,JIACHENGLIU,andXINPENG,Fu-
+danUniversity,China
+BenchmarksareparamountforgaugingprogressinthedomainofMobileGUIAgents.Inpracticalscenarios,
+usersfrequentlyfailtoarticulateprecisedirectivescontainingfulltaskdetailsattheonset,andtheirexpressions
+aretypicallyambiguous.Consequently,agentsarerequiredtoconvergeontheuser’strueintentviaactive
+clarificationandinteractionduringexecution.However,existingbenchmarkspredominantlyoperateunder
+theidealizedassumptionthatuser-issuedinstructionsarecompleteandunequivocal.Thisparadigmfocuses
+exclusivelyonassessingsingle-turnexecutionwhileoverlookingthealignmentcapabilityoftheagent.To
+addressthislimitation,weintroduceAmbiBench,thefirstbenchmarkincorporatingataxonomyofinstruction
+claritytoshiftevaluationfromunidirectionalinstructionfollowingtobidirectionalintentalignment.Grounded
+inCognitiveGaptheory,weproposeataxonomyoffourclaritylevels:Detailed,Standard,Incomplete,and
+Ambiguous.Weconstructarigorousdatasetof240ecologicallyvalidtasksacross25applications,subject
+tostrictreviewprotocols.Furthermore,targetingevaluationindynamicenvironments,wedevelopMUSE
+(MobileUserSatisfactionEvaluator),anautomatedframeworkutilizinganMLLM-as-a-judgemulti-agent
+architecture.MUSEperformsfine-grainedauditingacrossthreedimensions:OutcomeEffectiveness,Execution
+Quality,andInteractionQuality.EmpiricalresultsonAmbiBenchrevealtheperformanceboundariesofSoTA
+agentsacrossdifferentclaritylevels,quantifythegainsderivedfromactiveinteraction,andvalidatethe
+strongcorrelationbetweenMUSEandhumanjudgment.Thisworkredefinesevaluationstandards,layingthe
+foundationfornext-generationagentscapableoftrulyunderstandinguserintent.
+CCS Concepts: • Software and its engineering → Software testing and debugging; • Computing
+methodologies→Mobileagents;•Generalandreference→Evaluation.
+AdditionalKeyWordsandPhrases:InteractiveMobileAgentBenchmark,Agent-basedEvaluation
+1 Introduction
+Inrecentyears,drivenbythecontinuousadvancementofLargeLanguageModels(LLMs)and
+Multimodal Large Language Models (MLLMs), research on Mobile GUI Agents has witnessed
+significant breakthroughs [5, 7, 10, 12, 13, 28, 33]. Ranging from the Agentic Workflow-based
+AppAgent[30]totheAgent-as-a-ModelUI-TARS[14],theseagentsempoweruserstodelegate
+complexoperationsvianaturallanguageinstructions,exhibitingrobustcapabilitiesintaskplanning,
+screenperception,anddeviceexecutiononmobileplatforms.Consequently,reliablebenchmarks
+forevaluatingtheseagentsareparamountforgaugingprogressinthisdomain.
+However,existingresearchandbenchmarkspredominantlyoperateundertheidealizedassump-
+tionthatuser-issuedinstructionsarecompleteandunequivocal—apremisewetermInstruction
+equalsIntent.Underthisparadigm,evaluationfocusesexclusivelyonquantifyingexecutionaccu-
+racy,specificallyassessinghowfaithfullyanagentmapsnaturallanguageinstructionstosequences
+ofUIactions.Yet,thisOne-ShotInstructionmodeloverlooksthephenomenonofcognitivemisalign-
+mentprevalentinreal-worldhuman-computerinteraction.Inpracticalscenarios,usersfrequently
+failtoarticulateprecise,system-leveldirectivesattheonsetofatask;instead,theirexpressions
+aretypicallyambiguousorincomplete.Forinstance,ausermightissueavaguecommandsuchas
+Authors’ContactInformation:JiazhengSunandMingxuanLi(Co-firstauthors),FudanUniversity,Shanghai,China;Xin
+Peng(Correspondingauthor),FudanUniversity,Shanghai,China,pengxin@fudan.edu.cn.
+6202
+beF
+21
+]ES.sc[
+1v05711.2062:viXra
+
+--- Page 2 ---
+2 Sunetal.
+Why do we need to evaluate...? How do we conduct the evaluation...?
+Please buy me a McDonald's hamburger. User Intent... But User Speak...
+1. McDonald's hamburger. Please buy me a
+The user instructed me to buy a hamburger. I 2. A Filet-O-Fish combo McDonald's hamburger.
+observed that the first item on the menu is a 3. With fries and a Coke
+beef burger, and purchasing it would fulfill the 4. ... Cognitive Gap
+user's request.
+Why did you go ahead and get me a beef burger I don’t even
+like, without asking?
+Detailed Standard Incomplete Ambiguous
+Non-interactive agents User Rating: ⭐
+FAIL to satisfy user needs.
+ADB Interaction API
+Physical SandBox User Simulator
+Please buy me a McDonald's hamburger.
+The user instructed me to buy a hamburger. I Tap([...,...]) Q: What would A: A Filet-O-Fish combo.
+observed multiple hamburger options on the Input(......) you like to have? A: No Answer (Detailed/Standard)
+menu, so I should ask the user to clarify which
+one they prefer
+I saw that McDonald’s has Filet-O-Fish, Big
+Mac, and McNuggets. What would you like to Auto Eval Agent
+have? Metrics User-Requirement-Oriented Eval
+Outcome Effectiveness ✅ 1. McDonald's hamburger
+I’d like a Filet-O-Fish combo, the one that comes with fries ✅ 2. A Filet-O-Fish combo
+and a Coke. Execution Quality ❌ 3. With fries and a Coke
+User Rating: ⭐⭐⭐⭐⭐ Interaction Quality ✅ Talked to the user twice.
+Fig.1. OverviewofthemotivationandarchitectureofAmbiBench.Non-interactiveagentssufferfrom
+intentdeviationduetoprobabilisticguessing(Top-Left),whereasinteractiveagentsachieveintentalignment
+throughactiveinquiry(Bottom-Left).Tobenchmarkinteractiveagents,AmbiBenchcategorizesinstructions
+intofourclaritylevels.AUserSimulator,retainingGroundTruthinformation,engagesindynamicinteraction
+withtheagent,whiletheSandboxsynchronouslycapturesexecutiontraces.Subsequently,amulti-agent
+evaluationframeworkperformsautomatedanalysis,profilingagentcapabilitiesatafinegranularityacross
+threedimensions:OutcomeEffectiveness,ExecutionQuality,andInteractionQuality.
+orderaburgermealwithoutspecifyingtheburgertype,sides,orbeverages.Confrontedwithsuch
+instructions,existingnon-interactiveagentsareoftenrelegatedtoprobabilisticguessing,inevitably
+failingtosatisfyuserrequirements.Consequently,traditionalevaluationframeworksdrivensolely
+byinstructionadherencefailtoassesstheagent’salignmentcapability.specifically,itsaptitudefor
+leveragingactiveInteractiontoconvergeontheuser’strueintentamidstinformationdeficits.
+Whilepioneeringeffortshaveattemptedtoincorporateinteractionmechanisms,theevaluation
+of interactive agents remains constrained by significant limitations. First, reliance on scripted
+responsesseverelyrestrictsthegeneralizationcapabilityneededtohandleunanticipatedinquiries.
+Second, even state-of-the-art works incorporating dynamic simulators employ coarse-grained
+evaluation strategies. They fail to systematically disentangle the differential impact of distinct
+clarity levels on agent performance and lack a fine-grained audit of interaction quality, such
+asinformationgainandinquiryvalidity.Consequently,existingevaluationsstruggletodiscern
+whether an agent possesses genuine alignment capability or merely completes tasks through
+probabilisticguesswork.Furthermore,theabsenceofanexplicittaskclaritytaxonomyincurrent
+benchmarksblurstheboundariesbetweenexecution,planning,andinteractioncapabilities,thereby
+impedingdeepdiagnosisandaccurateerrorattributionregardingagentdeficiencies.
+Toaddresstheselimitations,wepresentAmbiBench,thefirstmobilebenchmarktoincor-
+porateaninstructionClarityLeveltaxonomy,therebybetterreflectingtheapplicationusage
+patternsofreal-worldusers.AmbiBenchaimstopreciselyevaluatetheagent’splanning,execution,
+
+--- Page 3 ---
+AmbiBench:BenchmarkingMobileGUIAgentsBeyondOne-ShotInstructionsintheWild 3
+andinteractioncapabilities,promotingitstransformationfromone-wayinstructionfollowingto
+two-wayintentalignment.Figure1illustratesthemotivationandarchitectureofit.
+OurfirstcontributionistheproposalofataskclaritytaxonomygroundedinCognitiveGap
+theory,uponwhichweconstructaninteractiveevaluationframework.Wesystematicallycategorize
+instructionsintofourclaritylevels(Detailed,Standard,Incomplete,andAmbiguous)andintroduce
+anLLM-drivenUserSimulatorthatretainscriticalinformationtoengageindynamicinteraction
+withtheMobileGUIAgent.Thisframeworkisdesignedtoquantifytheimpactofvaryingtask
+clarityonagentperformanceandtoassesstheagent’salignmentcapabilityviainteraction.Tothe
+bestofourknowledge,thisrepresentsthefirstdatasettocategorizetheclarityoftaskdescriptions.
+OursecondcontributionistheconstructionofAmbiBench,adiversedatasetcomprising240
+tasksacross25mainstreamapplications,accompaniedbyhigh-qualityhumantrajectoryannota-
+tions.Spanningbothsingle-applicationandcross-applicationscenarios,thedatasetisdistinguished
+byitsextensiveinclusionofthird-partyapplications.Distinctfrompriorbenchmarks,AmbiBench
+pioneersstrictLegitimacyreviewandEffectivenessassurancemechanisms.Byeliminatingmean-
+inglessposteriorvalue-ladentasksandmitigatingenvironmentalnoise,weensuretheEcological
+Validityandrobustnessoftheevaluation.
+Our third contribution is the development of MUSE (Mobile User Satisfaction Evaluator),
+an automated evaluation framework enabling the MLLM-as-a-judge paradigm. By utilizing a
+standardizedInteractioninterface,MUSEachievesseamlessintegrationwithagentsofdiverse
+architectures—rangingfromAgenticWorkflowtoAgent-as-a-Model.Leveragingamulti-agent
+adjudicationarchitecture,itcomputesasuiteofadvanced,fine-grainedmetricsspanningthethree
+dimensionsofOutcomeEffectiveness,ExecutionQuality,andInteractionQualitytopreciselyprofile
+thecomprehensivecapabilitiesoftheagent.
+Ourfourthcontributionisasystematicempiricalstudydesignedtodelineatetheperformance
+frontier of contemporary mobile agents. We conduct extensive evaluations across a spectrum
+ofSoTAfoundationmodels—rangingfromgeneral-purposemodels(e.g.,GPT-4o)tospecialized
+fine-tunedmodels(e.g.,UI-TARS[14],AutoGLM[11])aswellasrepresentativeAgenticWorkflows.
+Throughthisstudy,wedeeplyanalyzetheimpactofinstructionclaritylevelsonperformance,
+quantifythegainsyieldedbyactiveInteraction,andvalidatethehighconsistencybetweenour
+automatedmetricsandhumanjudgment.
+Insummary,thispaperaimstoredefinetheevaluationstandardsforMobileGUIAgents,un-
+derscoringthecriticalityofachievingintentalignmentthroughmulti-turninteraction
+withinuncertainenvironments,therebyprovidingasolidfoundationforconstructingthenext
+generationofagentsthatgenuinelycomprehenduserintent.
+2 RelatedWork
+2.1 MobileGUIAgent
+AMobileGUIAgentleveragesLLMsasitsprimaryreasoningenginetoperceiveandmanipulate
+smartphone interfaces. Since its inception with AutoDroid [23], the field has converged into
+twopredominanttechnicalparadigms:1)Agent-as-a-Model,characterizedbyspecializedfine-
+tuning or architectural customization of (M)LLMs for device-level control (e.g., UI-TARS [14],
+AutoGLM[11]);2)AgenticWorkflow,whichemploysoff-the-shelffoundationmodelswithin
+modular,pipeline-basedframeworks(e.g.,AppAgent[30],Mobile-Agent[19,20,22]).Recenthybrid
+approaches,suchasMobiAgent[29],seektointegratethestrengthsofbothparadigms.
+Whiletheseagentsexhibitproficiencyinfollowingone-shotinstructions,theypredominantly
+operateundertheidealizedassumptionthattheinitialuserintentisexhaustiveandcrystalline.
+Thisparadigmoverlookstherealityofhuman-computerinteraction,whererequirementsareoften
+
+--- Page 4 ---
+4 Sunetal.
+expressedprogressivelyduringexecution.Totranscendthislimitation,pioneeringeffortslikeFairy
+[18]andtheUncertainty-AwareGUIAgent[4]haveintegrateduserclarificationmechanismsto
+mitigatetheinherentambiguityofinitialdirectives.Nevertheless,fromanevaluativestandpoint,
+theseadvancementsarecurrentlyhamstrungbydatasilos.Theabsenceofstandardized,publicly
+availableinteractivebenchmarkscompelsresearcherstorelyonproprietaryorsmall-scaledatasets,
+thereby precluding equitable cross-comparisons and obstructing fine-grained error attribution
+withinmulti-turnInteractiontrajectories.
+Table1. ComprehensiveComparisonofMobileBenchmarks.
+Scale TaskSettings
+Comp. Construction
+Benchmark Support #Apps #Tasks #Steps Pipeline User Instruction
+Gen. Inter. Simulation Taxonomy
+AndroidArena[25] Microsoft 13 221 × 7 Auto-Gen(Function) × Single-level
+AndroidWorld[15] Google 20 116 × 8 Auto-Gen(Template) × Single-level
+MobileAgentBench[21] - 10 100 × 4 Human-Annotated × Single-level
+MobileBenchV2[26] Xiaomi 49 800* 100 ∼7 Auto-Gen(Trace) ※Presets Binary(Subset)
+SPABench[3] Huawei 68 340 × 8 Human-Annotated × Single-level
+ColorBench[16] OPPO 21 175 × 13 Human-Annotated × Single-level
+MobileWorld[8] Alibaba 20 116 45 n/a Human-Annotated ✓Agent. Binary(Subset)
+AmbiBench(Ours) - 25 132 108 9 Human-Annotated ✓Agent. 4Levels
+#Metrics Eval. AutoEval.
+Benchmark Granularity Environment
+Out. Proc. Inter. Methodology Integration
+AndroidArena[25] 1 3 × Bin/Step Traj.Match ×Ad-hoc LocalApp
+AndroidWorld[15] 1 × × Binary StateCheck ✓Sandbox(Orch.) LocalApp
+MobileAgentBench[21] 1 2** × Binary StateCheck ✓Sandbox(Orch.) LocalApp
+MobileBenchV2[26] 1 3 × Bin/Step Traj.Match ×Ad-hoc OfflineDataset
+SPABench[3] 1 2** × Bin/Step VLMAdjud. ✓Sandbox(Proxy) OnlineApp
+ColorBench[16] 2 1 × Bin/Task Traj.Match ※VLM-FriendlyFrm. OfflineDataset
+MobileWorld[8] 1 1 2 Bin/Step StateCheck ※VLM-FriendlyFrm. LocalApp
+AmbiBench(Ours) 2 3** 2 Req/Bin/Step VLMAdjud. ✓Sandbox(Proxy) OnlineApp
+*Onlythe800tasksactuallyusedfortesting(outofthetotal12,856)arecounted.
+**Homogeneousmetricsareconsolidatedtoalignwithotherworks(e.g.,multiplemetricsrelatedtoabnormaltermination
+arecountedasasingleindicator).
+2.2 MobileGUIAgentBenchmarks
+As shown in Table 1, existing evaluation methodologies are broadly categorized into Dataset-
+based Offline Static Evaluation [9, 24, 26] and Online Dynamic Evaluation [2, 3, 6, 15,
+21,25,27,31].Earlystaticevaluations,exemplifiedbyMobile3M[24]andMobileBenchV2[26],
+werepredicatedonTrajectoryChainsbutsufferedfromtheinherentlimitationofPathRigidity.
+Tocircumventthis,recentstudiessuchasColorBench[16]haveadoptedTrajectoryGraphsto
+accommodate the diversity of agent decision-making. In pursuit of higher Ecological Validity,
+dynamicbenchmarkshavebifurcatedintotwostreams:localutilityapplications(e.g.,AndroidArena
+[25], AndroidWorld [15], MobileAgentBench [21]) and web-based dynamic environments (e.g.,
+SPA-Bench[3],Mobile-Eval-E[22]).Whilethelatterapproximatereal-worldscenariosmoreclosely,
+they face severe challenges regarding state determinism: stochastic content, such as live feeds
+andadvertisements—rendersGround,truthVerificationnon-trivial,aprocessotherwisefeasible
+withincontrollablelocalapplications.Currently,thefieldconfrontsthreeconvergingthreats:task
+saturation obscures true performance disparities among SoTA models; prohibitive data scales
+combined with ad-hoc evaluation suites raise barriers to reproducibility; and suboptimal task
+designcoupledwithcoarse-grainedbinaryaccuracymetricsseverelylimitsanalyticaldepth.To
+mitigatethesedeficiencies,AmbiBenchintroducesarigorouscognitivefilteringmechanismto
+
+--- Page 5 ---
+AmbiBench:BenchmarkingMobileGUIAgentsBeyondOne-ShotInstructionsintheWild 5
+ensuredataquality,alongsideastandardizedautomatedevaluationsuiteandmulti-dimensional,
+fine-grainedmetrics.
+2.3 UserInteractionBenchmarks
+Whilemulti-turninteractionispivotalforresolvingreal-worldambiguities,mostexistingbench-
+marksremainconfinedtostaticevaluations.Forinstance,theinteractionsubsetinMobileBenchV2
+[26]reliesonrigid,scriptedresponsestiedtopredefinedtrajectorynodes,therebylackingthe
+generalizationnecessaryfordynamicscenarios.AlthoughRealEval[18]andtheconcurrentwork
+MobileWorld[8]havepioneeredtheintegrationofLLM-basedagenticusersimulatorstoenable
+dynamicresponsiveness,theirevaluativestrategiesremainrelativelycoarse-grained.Specifically,
+contemporaryframeworkssufferfromtwoprimarylimitations:first,theyfailtosystematically
+decoupletheimpactofvaryingclaritylevelsonagentperformance,whichprecludespreciseerror
+attribution;second,theylackarigorousauditofinteractionquality,makingitnearlyimpossibleto
+discernwhetheranagent’ssuccessstemsfrommeaningfulcommunicationorstochasticguessing.
+Tobridgethisevaluativechasm,AmbiBenchintroducesanovelfour-levelinstructionclaritytaxon-
+omygroundedintheGulfofEnvisioningandestablishesamulti-dimensionalinteractionauditing
+suite.LeveraginganMLLM-as-a-judgeparadigm,ourframeworkperformsaholisticsemanticaudit
+ofbothexecutionefficacyandinteractionqualityfromahuman-centriccognitiveperspective.
+3 AmbiBench
+3.1 TaskFormulation
+3.1.1 TaskModeling. Weconceptualizethemobiletaskasaprocessofinformationtransmission
+from theusercognitivespaceto thesystem parameterspace. Throughoutthis transmission,a
+reductionininformationentropyisinevitable.Accordingly,wemodelthetaskasadecoupledtuple
+comprisingtheGroundTruthIntent𝒰𝑔𝑡 andtheObservedInstructionℐ𝑜𝑏𝑠.
+(1) GroundTruthIntent𝒰𝑔𝑡:Thesetofuserrequirementswithinaspecificcontext.Itconsists
+ofaseriesofdeterminate,indivisibleatomicrequirements:𝒰𝑔𝑡 ={𝑟
+1
+,𝑟
+2
+,...,𝑟 𝑛}.Here,each
+𝑟 𝑖 denotesaspecificconstraintorexpectationregardingthetaskoutcome.Toenableamore
+granularanalysisofthenecessityforInteraction,wefurtherclassifyatomicrequirements
+into three distinct categories: a) Anchor Requirements𝑟 𝑎𝑛𝑐ℎ𝑜𝑟: The core objects that
+determinethefundamentaltypeofthetask.b)ExplicitConstraints𝑟 𝑒𝑥𝑝𝑙𝑖𝑐𝑖𝑡:Parameters
+explicitlydisplayedbythesystemthatrequireuserselection.c)ImplicitPreferences
+𝑟 𝑖𝑚𝑝𝑙𝑖𝑐𝑖𝑡:Parametersthatarecollapsedornestedwithinthesysteminterfaceandpossess
+defaultvalues,yetremainmodifiableforuserpersonalization.TakingaMcDonald’sordering
+task as an illustrative example, the user’s Ground Truth Intent 𝒰𝑔𝑡 may comprise the
+followingthreeatomicrequirements:a)𝑟 𝑎𝑛𝑐ℎ𝑜𝑟 :TheuserintendstoorderaFilet-O-Fish
+Meal.b)𝑟 𝑒𝑥𝑝𝑙𝑖𝑐𝑖𝑡 :TheuserspecifiesamediumCokeZeroasthebeverage.c)𝑟 𝑖𝑚𝑝𝑙𝑖𝑐𝑖𝑡 :The
+userpreferstheCoketobeservedwithoutice.
+(2) Observed Instruction ℐ𝑜𝑏𝑠: This represents the natural language description received
+by the agent. Due to linguistic constraints or user expressive limitations, ℐ𝑜𝑏𝑠 typically
+manifestsasanincompletesubsetoftheGroundTruthIntent𝒰𝑔𝑡.Weformallydefinethe
+CognitiveGap𝒢 asthesetofrequirementsnotexplicitlyencompassedbytheinstruction:
+𝒢 =𝒰𝑔𝑡\𝒮(ℐ𝑜𝑏𝑠),where𝒮(ℐ𝑜𝑏𝑠)denotestheatomicrequirementsexplicitlyextractedfrom
+theinstruction.
+AmbiBenchadvocatesarequirement-satisfaction-orientedparadigmtoevaluateagentproficiency,
+wheretheevaluativefocusdynamicallyshiftsbasedonthepresenceofaCognitiveGap.Insce-
+narios where 𝒢 = ∅, the Requirement Coverage Rate (RCR) serves as a proxy for execution
+
+--- Page 6 ---
+6 Sunetal.
+performance,assessingwhethertheagentcanfaithfullyfulfillallexplicitdirectives.Conversely,
+when𝒢 ≠ ∅,signalingthepresenceofuncommunicatedimplicitrequirements𝑟 ∈ 𝒢,theRCR
+furtherquantifiestheagent’sabilitytoretrievevitalincrementalinformationΔ𝐼 viainteractive
+actions𝑎 𝑎𝑠𝑘.Irrespectiveofinitialclaritylevels,theterminalobjectiveoftheAmbiBenchevaluation
+remainssteadfastlyanchoredintheultimatefulfillmentofuserintent,transcendingmeresuperficial
+instruction-following.
+3.1.2 Taxonomy:ClarityHierarchy. Topreciselydecoupletheagent’sExecution,Planning,and
+Interactioncapabilities,AmbiBenchestablishesafour-levelclaritytaxonomygroundedinthe
+GulfofEnvisioningtheory[17].Thistaxonomycategorizesscenariosbasedonthespecificitywith
+whichtheinstructionℐ𝑜𝑏𝑠 coverstheGroundTruthIntent𝒰𝑔𝑡,aswellasthepresenceofcore
+anchors.
+(1) Detailed (Over-defined): ℐ𝑜𝑏𝑠 constitutes a Procedural Instruction that not only fully
+encompasses𝒰𝑔𝑡 butalsoexplicitlyencodesthesystem-levelUIoperationpath𝜏 𝑟𝑒𝑓.Atthis
+point,𝒮(ℐ𝑜𝑏𝑠) ⊇ 𝒰𝑔𝑡 ∪𝜏 𝑟𝑒𝑓,and𝒢 =∅.Thislevelsubstantiallymitigatesthenecessityfor
+long-horizonPlanningandmemoryretrieval,effectivelyreducingtheagent’sroletothat
+ofamereinstructionexecutor.Itsprimaryobjectiveistoassesstheagent’sproficiencyin
+instructionadherenceandexecution.
+Example-Detailed
+OpentheMcDonald’sApp,navigatetothemenupage,andsearchforFilet-O-FishMeal.
+Withinthebeverageoptions,selectMediumCokeZero,thenchooseNoIceunderthe
+Customizesection.Addtheitemtothecart,proceedtocheckout,andpayfortheorder.
+(2) Standard(Well-defined):ℐ𝑜𝑏𝑠 constitutesaGoal-OrientedInstructionthatfullyencom-
+passes𝒰𝑔𝑡 yetomitsexplicitoperationalsteps.Thisrepresentstheidealparadigmforagent
+interaction.Atthispoint,𝒮(ℐ𝑜𝑏𝑠) ⊇ 𝒰𝑔𝑡,and𝒢 =∅.Atthislevel,theagentisrequiredto
+autonomouslyderivetheoptimaltrajectoryfromtheinitialstate𝑠
+0
+toastatesatisfying𝒰𝑔𝑡,
+primarilytargetingtheevaluationoftheagent’sPlanningcapabilities.
+Example-Standard
+SearchforFilet-O-FishMealintheMcDonald’sapp,selectMediumZero-CalorieCoke,
+chooseNoIce,addittoyourcart,andpayfortheorder.
+(3) Incomplete(Under-defined):Atthislevel,theobservedinstructionexhibitsanInstruction
+Gap,characterizedbythepresenceofcoreanchorrequirementsbuttheomissionofspecific
+explicit or implicit constraints. Formally, this is denoted as𝑟 𝑎𝑛𝑐ℎ𝑜𝑟 ∈ 𝒮(ℐ𝑜𝑏𝑠) and 𝒢 ∩
+{𝑟 𝑒𝑥𝑝𝑙𝑖𝑐𝑖𝑡 ,𝑟 𝑖𝑚𝑝𝑙𝑖𝑐𝑖𝑡} ≠∅.Withinthisparadigm,theagentiscompelledtodynamicallyidentify
+missingparameters(slots)duringExecutionandinitiateInteractionforslot-filling.Thislevel
+isspecificallydesignedtostress-testtheagent’sproficiencyinproactivedisambiguation
+anditsAlignmentCapability.
+Example-Incomplete
+OrderaFilet-O-FishMealintheMcDonald’sapp.
+
+--- Page 7 ---
+AmbiBench:BenchmarkingMobileGUIAgentsBeyondOne-ShotInstructionsintheWild 7
+(4) Ambiguous(Ill-defined):Atthislevel,theobservedinstructionsuffersfromanIntention-
+alityGap,characterizedbyavaguehigh-levelgoalthatlacksthecoreanchorrequirement.
+Formally,thisisexpressedas𝑟 𝑎𝑛𝑐ℎ𝑜𝑟 ∈ 𝒢.Consequently,thetaskspaceremainsuncon-
+verged,encompassingmultipledivergentanchorcandidates.Underthesecircumstances,the
+agentisprecludedfromimmediatePlanning;instead,itmustfacilitateintentclarification
+bypresentingheuristicoptionsorposingguidedinquiriestohelptheuserprunethesearch
+space.Thisscenarioservesasarigorousevaluationoftheagent’ssophisticatedInteraction
+andAlignmentCapabilityinhighlyunderspecifiedcontexts.
+Example-Ambiguous
+Orderahamburgermeal.
+3.2 DatasetConstruction
+3.2.1 TaskLegitimacyandEffectivenessAssurance. TosafeguardEcologicalValidity,AmbiBenchrig-
+orouslydelineatestaskboundariesbyleveragingatwo-dimensionaltaxonomymatrixcharacterized
+byRequirementNatureandIntentOrigin.
+Fromtheperspectiveof RequirementNature,wecategorizetasksinto:1)FunctionalRe-
+quirements:Theseentailoperationalobjectivescenteredonefficiencyandobjectiveoutcomes
+(e.g.,foodordering,navigation,andsystemconfiguration).Characterizedbyminimalsocialrisk,
+suchtasksarewell-suitedfordelegationtoautonomousagents.2)Value-LadenRequirements:
+Theseinvolveoperationsthatimplicateauser’sSocialReputationandAffectiveStance(e.g.,liking,
+commenting,reposting,ordirectmessaging).Duetotheirhighdegreeofsubjectivityandpotential
+socialramifications,theseactionsimposeastringentthresholdforauthorizeddelegation.
+Alongthedimensionof IntentOrigin,wedistinguishbetween:1)PriorIntent:Requirements
+originatingfromauser’spriorexperienceorestablishedmemory.Inthiscontext,theuserpossesses
+distinct Epistemic Certainty regarding the target entity—i.e., they know the target’s existence
+priortoInteraction(e.g.,Navigatetoaspecificstore).2)PosteriorIntent:Requirementsthatare
+dynamicallyformulatedandrefinedbasedonreal-timeinformationacquisition.Here,theuser
+operatesunderastateofinformationdeficit,wheretheprimaryobjectiveisexploration-before-
+decision(e.g.,Seewhatshopsarenearby).Consequently,theintentprogressivelyconvergesasthe
+interactionunfolds.
+Predicatedontheintersectionofthesedimensions,wehaveestablisheddifferentiatedprotocols
+forGround-Truth𝒰𝑔𝑡 constructionasshowninFigure2.
+TomitigatesystemicFalsePositivesarisingfromagentscapitalizingonsystemdefaultsandFalse
+Negativesinducedbyenvironmentalunreliability,AmbiBenchincorporatestwocoremechanisms
+designedtosafeguardevaluativeEffectivenessandrobustness:
+(1) ForcedNon-DefaultPrinciple:PresetdefaultconfigurationsinUIcontrolsoftenallow
+suboptimal agents to fulfill tasks through stochastic actions, thereby masking inherent
+deficienciesintheirreasoningcapabilities.Toeliminatethisspeculativemargin,weemploy
+anAdversarialStrategyduring𝒰𝑔𝑡 construction:allparameterssusceptibletoomissionin
+theinstructionaremandatedtonon-defaultvalues(e.g.,ifthesystemdefaultstoCoke,the
+Ground-TruthissettoCokeZero).Thismechanismcompelstheagenttoproactivelyinitiate
+Interactiontoresolverequirements,precludingrelianceonserendipityorsystemdefaults.
+(2) EnsuringAlignment:Giventhatmobiletaskexecutioniscontingentupontheinternal
+stateoftheapplication,wemitigateenvironmentalnoise—invalidevaluationsstemming
+frominadequateprovisioning—bydevelopingcompanionADBStateInjectionScriptsfor
+
+--- Page 8 ---
+8 Sunetal.
+Functional Value-Laden
+roirP
+roiretsoP
+Task: Order a burger at McDonald's. Task: Dislike the McDonald's burger shop.
+Ordering is functional, low-risk Disliking is value-laden, high-risk
+suitable for automation but legitimate given the specific target
+Task: Search for nearby burger shops and Order a burger Task: Search for nearby burger shops and Dislike the
+at the second one. second one.
+Strictly Exclude
+I want to order a burger at the Here are the three burger shops: I am trying to post fake negative
+second burger shop. 1. McDonald's, 2. Burger King, .. reviews to smear other burger shop... Such Tasks
+Unrealistic I want to order a burger at Bot Behavior
+Foreknowledge the second burger shop. Violates the ethical logic
+Fig.2. Classificationmatrixfortasklegitimacyandeffectivenessassurance.Thismatrixestablishestask
+admissionandtransformationlogicacrosstwodimensions:RequirementNature(Functional/Value-Laden)
+andIntentOrigin(Prior/Posterior).CaseA(Retain):TaskscharacterizedbyPriorIntentalignwithhuman
+cognitivelogicandpossessadeterminatesetofrequirements;thus,AmbiBenchretainstheseintheirentirety.
+CaseB(Convert):ForPosteriorIntenttasks,userscannotforeseeoutcomesabinitio,renderingitimpossible
+toarticulateplausibleDetailedorStandardinstructions.However,theycannaturallyissueIncompleteor
+Ambiguousinstructions.Forsuchscenarios,AmbiBenchemploysaPresetPosteriortransformationstrategy,
+whichpopulatesuserrequirementswithpredefinedselectionstoreconstructthetaskasadeterminate,pseudo-
+priorobjective.CaseC(Exclude):Intheabsenceofactualcontentconsumption,userswouldimplicitlyrefuse
+toauthorizeanagenttoarticulateanAffectiveStanceontheirbehalf.Consequently,posteriorvalue-laden
+taskscontravenetheethicallogicgoverningintelligentagents,andAmbiBenchrigorouslyexcludesthem.
+eachtask.Priortotaskinitiation,thesescriptsautomaticallypopulaterequisitedataand
+configuresystemsettingsbasedon𝒰𝑔𝑡 dependencies.ThisprotocolensurestheExecutability
+andStateConsistencyofeachevaluationinstanceatthelogicallevel.
+3.2.2 Construction Pipeline. Departing from the conventional instruction-collection and path-
+annotationparadigm,AmbiBenchpioneersaRequirement-First,ReverseDerivationconstruction
+strategy.ThismethodologyprimarilyanchorsadeterminatelistofGround-Truth𝒰𝑔𝑡 withinreal-
+world contexts; subsequently, by systematically modulating the decay of information entropy,
+wesyntheticallyderiveObservedInstructionsℐ𝑜𝑏𝑠 acrossvaryingclaritylevels.Thispipelineis
+structuredintofourdistinctstages:
+Phase1:RequirementAnchoring.ToconstructaGround-Truth𝒰𝑔𝑡 candidatepoolwithhigh
+ecologicalvalidity,weanalyzedauthenticuserdirectivesfrompublicdatasetssuchasVoiceBench
+andAITW.Thisanalysisyieldedmeta-requirementsacrossfivepivotaldomains:E-commerce,Social
+Platforms,Productivity&Collaboration,DeviceSystemManagement,andInformationRetrieval.
+Withinthesedomains,weperformedfunctionaltreetraversalsacross25mainstreamapplications
+to extract two categories of atomic requirements: a) Core Functional Requirements: These
+encompassstandardrequirementsetsderivedfromhigh-frequencyscenarios,suchasFoodOrdering
+inMcDonald’sorInstantMessaginginWeChat.b)Long-tailFunctionalRequirements:These
+involvenon-core,low-frequencydemandsburiedwithinthenestedmenusofSuperApps.These
+unguidedtasksarespecificallycuratedtoprobethedepthofanagent’ssemanticunderstanding.
+ExamplesincludeOrderingPrepaidGiftCardsinMcDonald’sorConfiguringAuto-Translationin
+WeChat.
+Phase2:ComplexityInjection.Sincerawatomicrequirementsoftenlacksufficientdepth,
+we infuse temporal and environmental constraints at the Ground-Truth 𝒰𝑔𝑡 level to simulate
+real-worldsophistication:a)Cross-AppContextualChaining:Byleveraginginter-application
+complementarity,weconcatenateatomicrequirementsfromdisparateappsintoasingularlogical
+
+--- Page 9 ---
+AmbiBench:BenchmarkingMobileGUIAgentsBeyondOne-ShotInstructionsintheWild 9
+workflow.Thisforcestheagenttonavigatestate-retentionchallengesinherentincontextswitching.
+Arepresentativescenarioinvolvesbridgingcontentconsumptionwithsocialsharing,suchasCopy
+asonglinkfromNetEaseCloudMusicandforwardittoaspecificWeChatcontact.b)Parameter
+SpecificationandNon-Defaulting:Weexplicitlyinjectconstraintparametersandrigorously
+enforcetheForcedNon-DefaultPrinciple.Thisensuresthattheagentiscompelledtovalidate
+requirementsviaInteractionratherthanbypassingthereasoningprocessbyrelyingonsystem
+defaultsorluck.
+Phase3:RequirementHomogenizationandHeterogenization.Toprobetheupperbounds
+ofanagent’sgeneralizationanddiscrimination,weimplementtwoadversarialdataaugmentation
+strategiesonthe𝒰𝑔𝑡 set:a)HeterogenizationforGeneralization:Wemapasingularhigh-level
+intent(e.g.,PurchasingCoffee)ontomultiple,structurallydisparateapplicationenvironments(e.g.,
+Luckin Coffee vs. Starbucks). This generates a cluster of requirement sets that are semantically
+equivalentyetstructurallyheterogeneous,therebyvalidatingtheagent’sZero-ShotTransfercapa-
+bilitiesacrossdiverseUIlayouts.b)HomogenizationforDiscrimination:Withinahigh-density
+applicationenvironment,weconstructrequirementpairsthataresemanticallyproximalbutopera-
+tionallydistinct(e.g.,FollowAuthorvs.LikeArticle).ThesetasksofteninvolveUIelementswith
+highvisualandspatialoverlap,enablingapreciseevaluationoftheagent’sfine-grainedalignment
+anddiscriminationaccuracyunderconfoundingconditions.
+Phase4:InstructionDerivationviaCognitiveGaps.Buildinguponthefinalized𝒰𝑔𝑡,we
+categorizeuserrequirementsintotwofunctionalsubsetsbasedonintent-dependencylogic:the
+AnchorSet(𝑟 𝑎𝑛𝑐ℎ𝑜𝑟),whichdefinestheexistenceofatask(whoseabsencerendersthetasktype
+unidentifiable), and the Parameter Set (𝑟 𝑒𝑥𝑝𝑙𝑖𝑐𝑖𝑡/𝑖𝑚𝑝𝑙𝑖𝑐𝑖𝑡), which defines the precision of a task
+(whoseabsenceresultsinexecutiondeviations).Finally,weemployamechanismofcontrolled
+InformationStrippingtosystematicallyderiveobservedinstructionsacrossfourdistinctclarity
+levels,asshowninFigure3:
+• Detailed(Full-PathSerialization):Inthisstage,noinformationstrippingisperformed.
+WesynthesizeProceduralInstructionsbyintegratingallanchorsandparametersfrom𝒰𝑔𝑡
+withmanuallyrecordedGoldenTraces𝜏 𝑟𝑒𝑓.Thisresultsinastep-by-stepdirectivethat
+explicitlyguidestheagentthroughtheUI.
+• Standard(PathExclusion):ThisstageimplementsDe-proceduralization.Whilemaintain-
+ingallanchorsandparameterconstraintsfrom𝒰𝑔𝑡,wesystematicallyexciseanydescriptions
+pertainingtoUIinteractionsteps.TheresultinginstructionspecifiesonlythedesiredEnd
+State,compellingtheagenttoautonomouslyplantheoptimalexecutiontrajectory.
+• Incomplete(ParameterMasking):ThisstageexecutesParameterMasking.Wepreserve
+the𝑟 𝑎𝑛𝑐ℎ𝑜𝑟 butpurposefullystrip𝑟 𝑒𝑥𝑝𝑙𝑖𝑐𝑖𝑡 or𝑟 𝑖𝑚𝑝𝑙𝑖𝑐𝑖𝑡 fromtheinstructiontext.Thisnecessi-
+tatesInteractionfortheagenttorecoverthemissingrequirements.Atomictaskslacking
+parameterconstraintsbypassthisleveltoavoidredundantsamples.
+• Ambiguous(IntentGeneralization):ThisstageemploysHypernymSubstitution.We
+replacespecific𝑟 𝑎𝑛𝑐ℎ𝑜𝑟 termswithbroadersemanticcategoriesandremoveallrestrictive
+modifiers. This engineering of a vast Intent Search Space forces the agent to facilitate
+multi-turndisambiguation.
+3.3 DatasetStatistics
+Figure4summarizesthekeystatisticsofAmbiBench.Thedatasetcomprises240evaluationtasks
+spanning7systemapplicationsand18third-partyapplications.Thesetaskscoverfivecoredomains
+ofmobileusage:E-commerce(91),SocialPlatforms(49),Productivity&Collaboration(15),Device
+System Management (43), and Information Retrieval (42). Notably, 108 tasks are classified as
+
+--- Page 10 ---
+10 Sunetal.
+User intent: Productivity (15)
+𝑎𝑛𝑐ℎ𝑜𝑟 Order a burger meal at McDonald's. Choose Filet-O-Fish as the main item.
+𝑒𝑥𝑝𝑙𝑖𝑐𝑖𝑡 Choose Medium Zero-Calorie Coke as the drink. 𝑖𝑚𝑝𝑙𝑖𝑐𝑖𝑡 Zero-Calorie Coke without ice.
+Clear D O- e F t i a s i h l e M d: e a O l. p e W n i t t h h i e n M th c e D b o e n v a e l r d a 's g e A p o p p , t i n on av s, i g s a e t l e e c to t M th e e d m iu e m n u C p o a k g e e , Z a e n ro d , s t e h a e r n c h c h fo o r o s F e i l N et o - Info Retrieval (42)
+D
+O-
+e
+F
+t
+i
+a
+s
+i
+h
+l e
+M
+d:
+e a
+O
+l.
+p e
+W
+n
+i
+I f
+t
+t
+h
+o c h r e
+i
+e
+n
+t u M h
+t
+n e
+h
+c d
+e
+o D e r r
+b
+o d
+e
+t n e h
+v
+r a e
+e
+. l
+r
+d '
+a
+C 's
+g
+u
+e
+A s p t
+o
+o p
+p
+m ,
+t i
+n i
+o
+z
+n
+a e v
+s
+'
+,
+i s g e
+s
+a c
+e
+t t
+l
+e i
+e
+o
+c
+t n o
+t
+.
+M
+t A h
+e
+d e
+d
+d m
+i u
+t e h
+m
+n e u i
+C
+t p e
+o
+m a
+k
+g
+e
+e t o ,
+Z
+a t
+e
+h n
+r
+e
+o
+d
+,
+c s
+t
+a e
+h
+r a
+e
+t r ,
+n
+c p h r
+c
+o
+h
+f c o
+o
+e r
+o
+e
+s
+F d
+e
+i t l
+N
+o e t
+o
+c - heckout, and pay Easy (34) Medium (8 E ) asy (7) Hard (8)Easy (19) Medium (44) E-Commerce (91)
+I f 👉 Z o c e r e r o t u S h - n C e t d a a o e n l r r o d d r t e a h i r e r e . d C ' : C o k u S
+S
+e s e , t
+t
+a o
+a
+c r m
+n
+h ch o
+d
+iz o
+a
+e f s '
+r
+o e
+d
+s r N e
+:
+F c o
+S
+t i i
+e
+l I o e
+a
+c n t e
+r
+- .
+c
+, O A
+h
+a - d d F
+f
+d d
+o
+i s
+r
+t i h h t
+F
+t e o M
+i
+i
+l
+t y
+e
+e e o
+t
+a m
+-
+u
+O
+l r t
+-
+i o n c
+F
+a
+i
+t r
+s
+h th t
+h
+e , e a
+M
+c n M a
+e
+d r c
+a
+t , p D
+l
+p a
+i
+o r y
+n
+n o f c a
+t
+o
+h
+e l r d e
+e
+' t d s h
+M
+t e a o
+c
+o p
+D
+c r p h d
+o
+, e e
+n
+s c r
+a
+e . k
+l
+l o
+d
+e u
+'
+c
+s
+t t ,
+a
+M a
+p
+n
+p
+e d
+,
+d i
+s
+p u
+e
+a m
+l
+y
+ect Medium
+Pa
+Z
+th
+e r
+E
+o
+x
+-
+clusion
+Device Mgmt (43)
+Me H d a i r u d E m a ( s 4 y (1 ) (2 2 7 ) ) Medium (16) Easy (33) Hard (28)
+Calorie Coke, choose No Ice, add it to your cart, and pay for the order.
+Param Masking 👉Incomplete: Order a Filet-O-Fish Meal in the McDonald's app.
+Ambi. Incomplete: Order a Filet-O-Fish Meal in the McDonald's app.
+👉Ambiguous: Order a hamburger meal.
+Intent Generalization Social Media (49)
+Fig. 3. The derivation process of task instruc- Fig.4. Domaindistributionanddifficultyquan-
+tionsacross4claritylevelsfromrequirements. tificationstatisticsoftheAmbiBenchdataset.
+interactive tasks that necessitate user Interaction for completion. In total, AmbiBench defines
+175atomicuserrequirements.Stratifiedbydifficultybasedonthenumberofconstituentatomic
+requirements,thedatasetincludes120Simpletasks(1–2requirements),80Mediumtasks(3–4
+requirements),and40Hardtasks(5ormorerequirements).
+4 MUSE(MobileUserSatisfactionEvaluator)
+WhileAmbiBenchoffersatestingenvironmentwithhighEcologicalValidity,itsinherentenviron-
+mentaldynamismandinteractionuncertaintyposesignificantchallengesforautomatedevaluation.
+InOfflineStaticEvaluation(e.g.,MobileBenchV2),assessmentmerelyrequiresmatchingtheagent’s
+predictedactionsagainstpre-recordedGroundTruthtrajectories.Similarly,inOnlineDynamic
+Evaluation involving Local Apps within closed environments (e.g., AndroidWorld), hard-coded
+deterministicStateChecksremainviableduetothehighcontrollabilityoftheenvironment.How-
+ever,inIn-the-WildevaluationsrepresentedbySPABenchandAmbiBench,agentsinteractdirectly
+withOnlineApps.Thehighlydynamicnatureofwebcontentrenderstraditionalhard-codedrules
+ineffective,makingthepreciseverificationofrequirementsatisfactiondifficult.
+Furthermore,AmbiBench’sexpansionoftheevaluationscopetoincludeInteractionQuality
+introducesadditionalcomplexities.Determiningthevalidityofinquiries,suchasdistinguishing
+betweeneffectiveguidanceanddisruptivenoise—reliesoncomplex,context-dependentsemantic
+reasoningratherthansimplerule-basedmatching.Toaddressthesechallenges,weproposeMUSE
+(MobileUserSatisfactionEvaluator).AdoptingtheMLLM-as-a-judgeparadigm[32],thisframework
+employsamulti-agentarchitecturetosimulatethecognitiveperspectiveofhumanusers,performing
+asemanticauditoftheagent’sexecutioneffectivenessandinteractionqualitywithindynamic
+environments.
+4.1 Multi-AgentAdjudicationArchitecture
+4.1.1 PhaseI:DynamicExecution&DataAcquisition. Inthisphase,MUSEdispatchesthetask
+instructionℐ𝑜𝑏𝑠 totheSubjectAgentandcomprehensivelycapturesmultimodaldatathroughout
+theexecutionprocess.
+(1) InteractionInterface:Toachievearchitecturaldecouplingbetweentheevaluationsystem
+andheterogeneoussubjectagents,MUSEdefinesastandardizedInteractionInterface(HTTP
+API).Subjectagentsarerequiredtoconformtothisinterfacetoretrievetheinitialinstruction
+ℐ𝑜𝑏𝑠. Furthermore, if an agent possesses conversational capabilities, it must utilize this
+channeltoforwardnaturallanguagequeriesandreceivefeedbackfromtheUserSimulator,
+therebyensuringstandardizedinteractiveintegration.
+
+--- Page 11 ---
+AmbiBench:BenchmarkingMobileGUIAgentsBeyondOne-ShotInstructionsintheWild 11
+Subject Agent
+Interaction
+Interface
+Physical SandBox User Simulator
+otuAIU
+/
+BDA
+Standard: Search for Filet-O-Fish Meal in the McDonald's app,
+select Medium Zero-Calorie Coke, choose No Ice, add it to your
+cart, and pay for the order.
+Incomplete: Order a Filet-O-Fish Meal in the McDonald's app.
+Ambiguous: Order a hamburger meal.
+Derived from
+UR List
+User Requirement List
+Physical device User intent:
+1. Order a burger meal at McDonald's.
+Execution Trace 2. Choose Filet-O-Fish as the main item.
+3. Choose Medium Zero-Calorie Coke as
+the drink.
+Screenshots Action Logs Interaction History 4. Zero-Calorie Coke without ice.
+Fig.5. MUSEdataacquisitionpipeline.ThesystemdecouplestheSubjectAgentfromtheevaluation
+environmentviaastandardizedinterface:thePhysicalSandboxexecutesinstructionsandcapturesexecution
+tracescontainingscreenshotsandactionlogs,whiletheUserSimulatoranswerstheSubjectAgentbasedon
+therequirementlistandrecordstheinteractionhistory,collectivelycompletingthecollectionofevaldata.
+(2) User Simulator: Acting as a dynamic agent holding the Ground Truth Intent 𝒰𝑔𝑡, the
+User Simulator is tasked with responding to agent inquiries. Its behavior is rigorously
+governedbyboth𝒰𝑔𝑡 andthetask’sclaritylevel:a)Forinformationallycompletetasks
+(Detailed/Standard)orinquiriespertainingtolow-levelUIoperations(e.g.,ShouldIclick?),
+thesimulatorissuesastandardizedrefusal:Pleasemakeyourowndecisionsbasedonthe
+currentinstructions.b)ExclusivelywithinIncompleteorAmbiguoustasks,thesimulator
+queries 𝒰𝑔𝑡 to retrieve ground truth parameter values for its response; for parameters
+undefinedintheintent,itreturnsNoPreference.Theentiredialogueprocessisloggedina
+structuredformatastheInteractionHistory𝐻 𝑖𝑛𝑡.
+(3) PhysicalSandbox:MUSEconstructsaproxysandboxemployingaMan-in-the-Middle
+(MitM) architecture. It exposes a standard ADB interface to abstract underlying device
+heterogeneity,enablingsubjectagentstointegrateseamlesslywithoutcodemodification.
+Thesandboxbackendbridgestoadevicefarmcomposedofrealphysicaldevicesorhigh-
+fidelity emulators. Prior to task initiation, the sandbox initializes App states based on
+taskmetadata(e.g.,clearingshoppingcartsorloggingintospecificaccounts)toeliminate
+environmentalnoise.AsthesubjectagentissuesADBcommands,thesystememploystraffic
+sniffingtonon-invasivelycapturetheExecutionTrace𝜏 𝑒𝑥𝑒𝑐,whichcomprisessequential
+screenshotsandatomicactionlogs.
+PhaseOutput:Uponconclusion,thisphaseyieldsastructureddatapacketencapsulatingthefull
+context,denotedas⟨𝐻 𝑖𝑛𝑡 ,𝜏 𝑒𝑥𝑒𝑐⟩.Servingasimmutablerawevidence,thisartifactistransferredto
+thesubsequentphaseforofflineadjudication.
+4.1.2 PhaseII:AutomatedAnalysis&Adjudication. Upontheconclusionofthedynamicexecution
+phase,MUSEinitiatestheofflineanalysisworkflow.ThisprocesscommenceswiththeTrajectory
+SerializationAgent,whichtransformstherawmultimodaltrajectorydataintoasemantictrajec-
+tory.ThisstructureddataissubsequentlytransferredtothreedecoupledAdjudicationAgentsfor
+quantitativeevaluation.
+TrajectorySerializer𝒜𝑇𝑆 derivesthesemantictrajectorysequence(𝜏 𝑒 𝒮 𝑥𝑒𝑐)fromtherawexe-
+cutiontrace(𝜏 𝑒𝑥𝑒𝑐).Thisprocessintegratesdiscreteoperationalandvisualstreamswhilesimul-
+taneously compressing high-dimensional multimodal data and mitigating non-semantic noise,
+
+--- Page 12 ---
+12 Sunetal.
+Error Termination Rate (ETR)
+Early(ETR-E)/Delayed(ETR-D)
+User Requirement List
+Requirement Coverage Rate (RCR)
+Screenshots Action Logs Outcome Verifier Task Success Rate (TSR)
+Trajectory Serializer Action Redundancy Rate (ARR) Metrics
+Process Inspector Key Step Hit Rate (SHR)
+Reference Trajectory
+Dialogue Compliance Rate (DCR)
+Interaction History Interaction Auditor Information Gain Rate (IGR)
+Fig.6. MUSEquantitativeevaluationpipelinebasedonmulti-agentauditing.TheTrajectorySerializer
+firsttransformsrawmultimodalexecutiontracesintosemanticstructures.Subsequently,itcoordinateswith
+threespecializedadjudicationagentsworkinginparallel:theOutcomeVerifiervalidatestaskfulfillment
+basedontherequirementlist,theProcessInspectorevaluatesexecutionconformitybycomparingagainst
+referencetrajectories,andtheInteractionAuditorquantifiesinformationacquisitionefficiencybasedonthe
+interactionhistory,collectivelygeneratingcomprehensiveevaluationmetrics.
+ultimatelyyieldingasemanticallycoherent,structuredtrajectory:
+𝜏
+𝑒
+𝒮
+𝑥𝑒𝑐
+=⟨𝑒
+1
+,𝑒
+2
+,...,𝑒 𝑡⟩ =𝒜𝑇𝑆(𝜏 𝑒𝑥𝑒𝑐)
+Specifically,theelement𝑒 𝑡 ateachtimestepisformalizedasaquadruple ⟨𝑝 𝑡 ,𝑜 𝑡 ,𝑎 𝑡 ,𝑓 𝑡⟩:a)Page
+Context𝑝 𝑡:Thefunctionalsemanticcategoryofthecurrentinterface(e.g.,ProductDetailsPage),
+usedtocontextualizetheagent’sstate.b)Observation𝑜 𝑡:Afine-grainedtextualdescriptionofthe
+visualelementsonthecurrentinterface(e.g.,Alistlayoutcontainingtitlesandprices).c)Operation
+𝑎 𝑡:Ahigh-levelsemanticactionabstractedfromunderlyinglow-levelevents(e.g.,Click[Submit]
+button).d)SystemFeedback 𝑓 𝑡:Theobservablesystemresponsetriggeredbytheoperation(e.g.,
+PageTransitionorToastNotification),servingtoverifytheexecutionoutcome.Furthermore,𝒜𝑇𝑆 is
+responsiblefordiagnosingAbnormalTerminationbehaviorsbasedonstateevolution.Itidentifies
+Early Termination (exiting before the task logic closes) and Delayed Termination (continuing
+operationsaftergoalachievement),incorporatingtheseinstancesdirectlyintotheETRmetric.
+OutcomeVerifier𝒜𝑂𝑉 istaskedwithquantifyingtheextentofuserrequirementsatisfaction.
+Acceptingthecompletesemantictrajectorysequence𝜏 𝑒 𝒮 𝑥𝑒𝑐 andtheGroundTruthIntent𝒰𝑔𝑡 as
+inputs,itretrievesevidenceoffulfillmentacrossthefulltemporalscopetogenerateaBoolean
+vector,𝑉 𝑜𝑢𝑡,indicatingthecompletionstatusofeachatomicrequirement:
+𝑉 𝑜𝑢𝑡 =[𝑣 1 ,𝑣 2 ,...,𝑣 𝑛] =𝒜𝑂𝑉(𝜏 𝑒 𝒮 𝑥𝑒𝑐 ,𝒰𝑔𝑡)
+Specifically,the𝑖-thcomponentofthevector,𝑣 𝑖,correspondstothe𝑖-thatomicrequirement,𝑟 𝑖,
+within 𝒰𝑔𝑡. This relationship is governed by the logic𝑣 𝑖 = I(∃𝑒 𝑡 ∈ 𝜏 𝑒 𝒮 𝑥𝑒𝑐 : 𝑒 𝑡 |= 𝑟 𝑖), where I(·)
+denotes the indicator function, taking the value 1 if the condition holds and 0 otherwise. This
+signifiesthatarequirementisdeemedfulfilledprovidedthatanyconstituenttimestep,𝑒 𝑡,yields
+sufficientevidentiarysupportforitssatisfaction.Basedontheconfigurationof𝑉 𝑜𝑢𝑡,thetaskis
+classifiedasaSuccessifallrequirementsaremet,aFailureifnorequirementsaremet,oraPartial
+Successotherwise.
+ProcessInspector𝒜𝑃𝐼 evaluatestheproceduralconformityandefficiencyoftheexecution
+process.Acceptingthecompletesemantictrajectorysequence𝜏 𝑒 𝒮 𝑥𝑒𝑐 andthereferencestandard
+trajectory𝜏 𝑟𝑒𝑓 asinputs,itemployssemanticalignmentanalysistoyieldtheevaluationresult
+tuple:
+⟨𝑉 𝑠𝑡𝑒𝑝 ,Ω 𝑟 𝒜 𝑒𝑑 ⟩ =𝒜𝑃𝐼(𝜏 𝑒 𝒮 𝑥𝑒𝑐 ,𝜏 𝑟𝑒𝑓)
+
+--- Page 13 ---
+AmbiBench:BenchmarkingMobileGUIAgentsBeyondOne-ShotInstructionsintheWild 13
+Thetuplecomprisestwokeycomponents:a)KeyStepHitStatus𝑉 𝑠𝑡𝑒𝑝:Analogoustothedefinition
+of𝑉 𝑜𝑢𝑡,thevector𝑉 𝑠𝑡𝑒𝑝 =[𝑣 1 ,𝑣 2 ,...,𝑣 𝑚] indexestheexecutionstatusofthe𝑚keystepswithinthe
+referencetrajectory𝜏 𝑟𝑒𝑓.Itsgoverninglogicis𝑣 𝑗 =I(𝑘 𝑗 ∈LCS(cid:27)(𝜏 𝑒 𝒮 𝑥𝑒𝑐 ,𝜏 𝑟𝑒𝑓)).Thissignifiesthata
+stepisdeemedahitprovidedthekeyaction𝑘 𝑗 establishesasemanticmatchwithanoperationinthe
+observedtrajectorywhilestrictlypreservingrelativetemporalordering.b)RedundantOperation
+SetΩ 𝑟𝑒𝑑:ThesetΩ 𝑟𝑒𝑑 ⊂ {1,2,...,𝑇}encompassestheindices,𝑡,ofalltimestepsclassifiedasinvalid
+operations.Byjuxtaposingthetopologicalstructureoftheactualtrajectoryagainstthereference,
+𝒜𝑃𝐼 identifies operations attributable to mis-click corrections, invalid backtracking, or infinite
+loops,subsequentlyappendingthemtoΩ 𝑟𝑒𝑑.
+InteractionAuditor𝒜𝐼𝐴specializesinscrutinizingthequalityofdialoguewithinhuman-agent
+collaboration,aimingtodistinguishbetweeneffectivecommunicationandineffectiveinterference.
+AcceptingtheInteractionHistory𝐻 𝑖𝑛𝑡 andtheGroundTruthIntent𝒰𝑔𝑡 asinputs,ityieldsthe
+evaluationresulttuple:
+⟨Ω 𝑣 ℐ 𝑖𝑜 ,𝑆 𝑔𝑎𝑖𝑛⟩ =𝒜𝐼𝐴(𝐻 𝑖𝑛𝑡 ,𝒰𝑔𝑡)
+This tuple consists of two primary components:Violation Interaction Set Ωℐ : The set Ωℐ ⊂
+𝑣𝑖𝑜 𝑣𝑖𝑜
+{1,...,𝐾} aggregatestheindices,𝑘,ofallinvalidinquiryturns.𝒜𝐼𝐴 sequentiallyevaluateseach
+inquiry,𝑞 𝑘,againstfourviolationcriteria,appendingnon-compliantturnstoΩ
+𝑣
+ℐ
+𝑖𝑜
+:a)Repetitive:
+Inquiriessolicitingparametersalreadyexplicitlyestablishedwithinthehistoricaldialoguecontext
+orencodedin𝒮(ℐ𝑜𝑏𝑠).b)Out-of-Scope:Inquiriessolicitingnon-essentialinformationthatlies
+beyondthescopeof𝒰𝑔𝑡 andshouldbedeterminedbytheagent’sautonomousdecision-making.
+c) Context-Missing: Demanding a user decision without presenting candidate options (e.g.,
+askingWhichonewouldyouliketoselect?absentofanyprovidedcontext).d)TrivialExecution:
+Solicitingconfirmationforlow-levelUIoperationsthatfallundertheagent’sautonomousplanning
+responsibilities(e.g.,ShouldIclicktheconfirmbutton?).InformationGainScore(𝑆 𝑔𝑎𝑖𝑛):Thescalar
+𝑆 𝑔𝑎𝑖𝑛 ∈ [0,1] quantifiesthecumulativeproportionoftheinitialCognitiveGapeliminatedbythe
+agentthroughouttheinteractionprocess.Itiscalculatedas𝑆 𝑔𝑎𝑖𝑛 =|𝒢𝑓𝑖𝑙𝑙|/|𝒢|,where𝒢𝑓𝑖𝑙𝑙 denotes
+thesubsetofparameterssuccessfullyresolvedbytheagentthroughvalidinquirieswithin𝐻 𝑖𝑛𝑡.
+4.2 MetricsDefinition
+Predicatedonthequantitativedeterminationsyieldedbytheaforementionedmulti-agentpipeline,
+MUSEestablishesacomprehensiveevaluationmetricframeworkspanningthreedistinctdimensions:
+Effectiveness,ProcessQuality,andInteractionIntelligence.Lettheevaluationdatasetcomprise𝑁
+tasks;forthe𝑖-thtask,wedefinetherelevantparametersasfollows:
+4.2.1 OutcomeEffectiveness. Thisdimensiondirectlyassessestheagent’scapabilitytofulfilluser
+intents,derivedfromtheBooleanvector,𝑉(𝑘)
+,generatedbytheOutcomeVerifier.
+𝑜𝑢𝑡
+RequirementCoverageRate(RCR):RCRoffersafiner-grainedperspectiveonefficacycompared
+tobinarysuccessrates.Itquantifiestheaverageextenttowhichtheagentsatisfiestheatomic
+requirementswithin𝒰𝑔𝑡(encompassinganchors,explicitconstraints,andimplicitpreferences):
+𝑅𝐶𝑅 = 1 ∑︁𝑁 (∥𝑉(𝑘)∥ /|𝑉(𝑘)|)
+𝑁 𝑘=1 𝑜𝑢𝑡 1 𝑜𝑢𝑡
+Here,|𝑉(𝑘)|denotesthetotalnumberofatomicrequirementsassociatedwiththe𝑘-thtask.
+𝑜𝑢𝑡
+TaskSuccessRate(TSR):TSRservesasastringentmetricforassessingtheholisticcompletion
+ofatask.Atask𝑘 isclassifiedasaSuccessifandonlyifallitsconstituentatomicrequirementsare
+satisfied(i.e.,∀𝑣 ∈𝑉(𝑘),𝑣 =1):
+𝑜𝑢𝑡
+𝑇𝑆𝑅 = 1 ∑︁𝑁 I(cid:0) min(𝑉(𝑘)) =1 (cid:1)
+𝑁 𝑘=1 𝑜𝑢𝑡
+
+--- Page 14 ---
+14 Sunetal.
+4.2.2 Execution Quality. This dimension evaluates the procedural conformity, efficiency, and
+stabilityoftheagent’sexecution,synthesizingtheoutputsderivedfromboththeProcessInspector
+andtheTrajectorySerializer.
+KeyStepHitRate(SHR):SHRquantifiesthedegreeoftheagent’sadherencetothekeypath
+establishedwithinthereferencetrajectory.Itiscomputedbasedonthehitvector,𝑉(𝑘)
+,yieldedby
+𝑠𝑡𝑒𝑝
+theLCS-basedverificationprocess:
+𝑆𝐻𝑅 = 1 ∑︁𝑁 (∥𝑉(𝑘)∥ /|𝑉(𝑘)|)
+𝑁 𝑘=1 𝑠𝑡𝑒𝑝 1 𝑠𝑡𝑒𝑝
+ActionRedundancyRate(ARR):ARRquantifiestheproportionofinvalidoperationsexhibited
+duringtheagent’sexecution.Giventhatthe𝑘-thtaskcomprisesatotalof𝑇(𝑘)
+actualsteps:
+𝐴𝑅𝑅 = 1 ∑︁𝑁 (cid:16) |Ω𝒜 (𝑘) | (cid:14)𝑇(𝑘) (cid:17)
+𝑁 𝑘=1 𝑟𝑒𝑑
+ErrorTerminationRate(ETR):ETRreflectstheagent’scapacitytogovernitsownoperational
+boundaries.Itisstratifiedintotwodistinctcategories:EarlyTermination(ETR-E)andDelayed
+Termination(ETR-D):
+𝐸𝑇𝑅-𝑋 =
+1 ∑︁𝑁
+I(Term(𝑘) =Type )
+𝑁 𝑘=1 𝑋
+Here,𝑋 ∈ {𝐸,𝐷} specifies the target error category, andTerm(𝑘) denotes the termination type
+signalassociatedwiththe𝑘-thtask.
+4.2.3 InteractionQuality. Tailoredspecificallyforhuman-agentcollaborativescenarios,thisdi-
+mensionevaluatesthecomplianceofthedialogueandtheefficiencyofinformationacquisition,
+utilizingtheoutputsderivedfromtheInteractionAuditor.
+DialogueComplianceRate(DCR):DCRassessestheagent’scapacitytoadheretoestablished
+interactionnorms.Giventhatthe𝑘-thtaskcomprises𝐾(𝑘)
+interactionturns:
+𝐷𝐶𝑅 = 1 ∑︁𝑁 (cid:16) 1−|Ωℐ (𝑘) | (cid:14)𝐾(𝑘) (cid:17)
+𝑁 𝑘=1 𝑣𝑖𝑜
+InformationGainRate(IGR):IGRquantifiestheefficiencywithwhichtheagenteliminatesthe
+CognitiveGap.ItiscomputedasthemeanoftheInformationGainScores(𝑆 𝑔𝑎𝑖𝑛)accruedacrossall
+interactionturns:
+𝐼𝐺𝑅 = 1 ∑︁𝑁 𝑆(𝑘)
+𝑁 𝑘=1 𝑔𝑎𝑖𝑛
+5 Experiment
+Inthissection,weconductacomprehensiveseriesofexperimentstoassesstheeffectivenessof
+the AmbiBench dataset and the reliability of the MUSE evaluation framework across multiple
+dimensions.Ourexperimentsaredesignedtoaddressthefollowing3coreResearchQuestions:
+• RQ1(ImpactofInstructionClarity):Howdoesinstructionclarityimpacttheperfor-
+manceboundariesofmobileGUIagents?
+• RQ2(ExecutionQualityDiagnosis):Whatbehavioralpatternsandexecutiondefectsdo
+fine-grainedprocessmetricsreveal?
+• RQ3(InteractionEfficacy&Quality):Howeffectiveandhigh-qualityareinteractive
+mechanismsinbridgingthecognitivegap?
+
+--- Page 15 ---
+AmbiBench:BenchmarkingMobileGUIAgentsBeyondOne-ShotInstructionsintheWild 15
+5.1 ExperimentalSetup
+5.1.1 Subject Agents & Baselines. To comprehensively assess the capability boundaries across
+diverseagentparadigms,weselectedrepresentativeapproachescharacterizingbothAgenticWork-
+flow and Agent-as-a-Model methodologies. The specific agent configurations included in our
+evaluationaredetailedinTable2.
+Table2. OverviewofsubjectagentsandtheiraverageperformanceacrossOutcome,Execution,andInteraction
+dimensionsonAmbiBench.
+Model Support Average
+Category No. AgenticFramework
+Interaction
+Planner Executor&Other RCR TSR SHR ARR ETR DCR IGR
+#1 GenericFrm. UI-Tars-7B[14] ✓ 24.6 21.7 50.1 4.3 72.1 87.2 12.0
+End-to-End #2 OfficialFrm. AutoGLM-9B[11] × 48.3 35.4 59.0 28.0 54.2 - -
+#3 GenericFrm. Qwen-3-VL-8B[1] ✓ 17.6 10.0 36.1 53.5 90.0 88.9 2.4
+#4 AppAgent[30] GPT-4o × 27.9 10.8 42.3 36.9 72.5 - -
+#5 MobileAgentV2[19] GPT-4o GPT-4o × 33.8 20.4 52.5 1.3 80.4 - -
+Frameworks #6 Fairy[18] GPT-4o Gemini-3-Flash ✓ 48.7 40.4 56.7 2.0 73.3 73.7 17.7
+#7 Fairy[18] GPT-4o UI-Tars-7B[14] ✓ 31.6 29.2 52.5 7.4 64.2 68.6 6.7
+GenericAgentFramework:FoundationmodelswithintheAgent-as-a-Modelparadigm(e.g.,
+GPT-4o,UI-TARS)functionessentiallyasstatelessReasoningCores,lackinganativeruntimeenvi-
+ronmenttomaintainthelong-horizoncontextofGUItasksormanagelow-levelI/O.Consequently,
+weconstructedagenericagentframeworkderivedfromM3A,taskedwithassumingcontrolover
+statemanagementandactionexecution.ThisframeworkservesasthestandardReferenceImple-
+mentationforintegrationwiththeMUSEevaluationprotocol.Toaccommodatetheinteractive
+natureofAmbiBench,weaugmentedtheoriginalM3Aactionspacewithauserinteractionaction,
+𝑎 𝑎𝑠𝑘,therebyendowingthesemodelswiththecapabilityforactiveclarification.Itisimportant
+tonotethat,duetoconstraintsininstruction-followingcapabilities,AutoGLM-7Bwasevaluated
+exclusivelyusingitsofficialframework.
+Non-Interactive Agent Frameworks: Agents belonging to the Agentic Framework para-
+digm(e.g.,AppAgent)inherentlyencapsulatecompletemechanismsforcontextmaintenanceand
+workfloworchestration.ToguaranteetheEcologicalValidityofourevaluation,weadheredtoa
+Non-Interferenceprinciple,preservingtheiroriginalarchitecturaldesigns.Consequently,ifanagent
+lacksnativesupportforinteraction,itisprecludedfrominitiatingclarificationwhenconfronted
+withIncompleteorAmbiguoustasks,necessitatingrelianceonprobabilisticdecision-making.
+5.1.2 Environment. DeviceCluster:Theexperimentswereconductedonanintegratedmobile
+deviceclusterserverequippedwith20QualcommSnapdragon865processors,supportingthe
+parallelexecutionof20high-fidelityreal-deviceinstances.AllinstancesoperatedonAndroid13,
+maximallyreplicatingreal-worldrenderinglatencyandsystembehaviorstoensuretheecological
+validityoftheevaluation.
+InferenceDeployment&Configuration:Foropen-sourcemodels,weutilizedtheirofficial
+implementationsanddeployedthemusingthevLLMinferenceframeworkonhigh-performance
+serversequippedwithNVIDIARTX5090GPUs.Conversely,forproprietarymodelssuchasGPT-4o
+andUI-TARS,weaccessedthemexclusivelyviatheirofficialAPIs.Tomitigateevaluationnoise
+stemmingfromstochasticity,theTemperatureparameterforallmodelswasrigorouslysetto0.0.
+MUSEConfiguration:TheUserAgentwithintheMUSEframeworkisempoweredbyGPT-5.
+Itfacilitatesnecessaryparameterclarificationsexclusivelyuponreceiptofacompliant𝑎 𝑎𝑠𝑘 request,
+therebysimulatingrealisticandrationaluserbehavior.Tostrikeabalancebetweentaskcomplexity
+
+--- Page 16 ---
+16 Sunetal.
+andexecutionefficiency,theMaximumStepLimit𝑇 𝑚𝑎𝑥 foreachtrajectoryisconstrainedto25
+steps,topreventthetaskfromfallingintodeadloops(delayedtermination)causedbypolicyfailure.
+Detailed Standard Incomplete Ambiguous
+0 10 20 30 40 50 60 70 80 0 10 20 30 40 50 60 70 80
+#1 #1
+#2 #2
+#3 #3
+#4 #4
+#5 #5
+#6 #6
+#7 #7
+(a)TSR (b)RCR
+0 10 20 30 40 50 60 70 80 0 10 20 30 40 50 60 70
+#1 #1
+#2 #2
+#3 #3
+#4 #4
+#5 #5
+#6 #6
+#7 #7
+(c)SHR (d)ARR
+50 60 70 80 90 100 0 10 20 30
+#1 #1
+#3 #3
+#6 #6
+#7 #7
+(e)DCR (f)IGR
+Fig.7. MainevaluationresultsonAmbiBenchacrossthreedimensions:OutcomeEffectiveness,
+ExecutionQuality,andInteractionQuality.
+5.2 RQ1:ImpactofInstructionClarity
+Toinvestigatehowinstructionclarityaffectsagentperformance,weevaluatedallbaselineagents
+acrossthefourclaritylevelsdefinedinAmbiBench,withtheresultsillustratedinFigure7(a)/(b).
+Ourstratifiedevaluationexposesasystemicfailureofthenon-interactiveparadigmwhencon-
+frontingreal-worldambiguity.InDetailedscenarios,agentssuchasAutoGLM(#2)exhibitsuperior
+executionproficiency(TSR65.2%)byleveragingexplicitinstructions.However,performanceforall
+non-interactiveagentsplungesuponreachingtheIncompleteandAmbiguouslevels.Specifically,
+inAmbiguoustasks,theTSRforbothAutoGLM(#2)andMobileAgentV2(#5)dropstozero.This
+demonstrates that without an interaction mechanism, the unidirectional instruction following
+paradigmfailstobridgetheCognitiveGapinducedbyincreasedinformationentropy,regardlessof
+theunderlyingmodel’sreasoningstrength.
+ByleveragingthedecoupleddesignofRCRandTSRinAmbiBench,weidentifiedadeceptive
+phenomenonwherecertainagentsmaintainhighRCRandSHRscoresinIncompleteandAm-
+biguouslevelsdespiteyieldingaTSRofzero.In-depthanalysisindicatesthatthisstemsnotfrom
+a genuine comprehension of user intent but from reliance on parametric knowledge to guess
+partialrequirements,resultinginspeciousoutcomes.Theexperimentsfurtherestablishinteraction
+capabilityasacriticalwatershedforagentperformance.Withintheinteractiveenvironmentof
+AmbiBench,AutoGLM(#2)andQwen-3-VL(#3)exhibitzerowillingnesstointeractandtendto
+forceexecutiondespiteinformationdeficits,whereasUI-TarsandFairyeffectivelyutilizeinquiry
+actionstocompletemissinginformation.Resultsindicatethatevenagentswithweakerbaseline
+execution,suchasFairy(#6),cansurpassSoTAmodelsonambiguoustasksonceinteractionis
+
+--- Page 17 ---
+AmbiBench:BenchmarkingMobileGUIAgentsBeyondOne-ShotInstructionsintheWild 17
+enabled,achievingascoreof26.2%inIncompletescenarios.Thisreversalconfirmsthenecessity
+ofincorporatingtheinteractiondimensioninAmbiBenchasitsuccessfullyshiftstheevaluation
+focusfromstaticexecutioncapabilitytodynamicalignmentcapability.
+5.3 RQ2:ExecutionQualityDiagnosis
+WeanalyzetheexperimentsforRQ1usingtheprocessqualitymetricsfromAmbiBench,asillus-
+tratedinFigure7(c)/(d),todiagnosethedistinctbehavioralcharacteristicsofagentsacrossdifferent
+architectureswhenconfrontingcomplextasks.
+Theincorporationofprocessdatarevealsthehiddencostsbehindapparentsuccess.Although
+UI-Tars(#1)andAutoGLM(#2)bothutilizeanAgent-as-a-Modelarchitecture,theARRexposesa
+fundamentalstrategicdivergence.UI-Tarsmaintainsminimalredundancyoflessthan5%across
+allclaritylevelsanddemonstratesapreciseexecutionstrategy.Incontrast,AutoGLM(#2)exhibits
+ahighredundancyrateof44.5%evenunderDetailedinstructions.Thiscomparisonhighlights
+thediagnosticvalueoftheprocessdimensioninAmbiBenchasitkeenlyidentifiesthatthehigh
+successrateofAutoGLM(#2)stemspartiallyfromtrial-and-errorexplorationratherthanrational
+planning.Suchquantificationofexecutionefficiencyeffectivelypreventstheoverestimationof
+agentcapabilitiesthatoccurswhenrelyingsolelyonTSR.
+Ourdiagnosisofexecutionprocessesundervaryingclarityfurtherpinpointsstructuralweak-
+nesses in the agents. We observe that even in Detailed scenarios where instructions are most
+explicit,agentsemployingtheAgenticWorkflowarchitecturelagbehindtheAgent-as-a-Model
+AutoGLM(#2)intermsofSHR.Toinvestigatethecauses,weconductedanin-depthdiagnosisofthe
+top-performingFairy(#6/#7)series,whichtrailsAutoGLM(#2)withanSHRof66.7%comparedto
+81.3%.Wetracethiscounter-intuitivephenomenontotheunderlyingperceptionschemewherethe
+UI-Tree-basedSoMreliesonunreliableXMLdatainIn-the-Wildenvironments,resultinginmissing
+marks.Withoutthestratificationofclarityandthesupportofprocess-levelmetrics,distinguishing
+betweenaperceptiondeviationandadecisionfailurewouldremainchallenging.
+Furthermore, the analysis of abnormal terminations provides insight into the boundaries of
+agentMeta-cognition.Asclaritylevelsdecrease,agentsdivergeintotwodistinctfailuremodes.
+MobileAgentV2(#5)andsimilarmodelstendtowardsconservativerefusal,characterizedbylow
+ARRandimmediatetermination,whichreflectsarisk-averseapproachtouncertainty.Conversely,
+AutoGLM(#2)andQwen-3-VL(#3)fallintoapatternofineffectivestruggle,exhibitinghighARR
+andhighETR.Thisbehaviorofengaginginextensiverandominteractionsdespitethelackofclear
+guidancerevealsthatcertainagentsattempttohitgoalstatesconcealedbyinstructionalambiguity
+throughblindandinefficientexploration.
+5.4 RQ3:InteractionEfficacy&Quality
+Toexplorethevalueofinteractionmechanismsinresolvingambiguity,weanalyzetheexperiments
+inRQ1usingtheinteractionqualitymetricsfromAmbiBench,asillustratedinFigure7(e)/(f).
+TheIGRandDCRrevealaprofoundcontradictioninthebehaviorsofcurrentagentscharacterized
+asbeingpolitebutlazy.Dataindicatesthatthemajorityofinteractiveagents,suchasUI-Tars(#1),
+exhibitanexceptionallyhighDCR,suggestingthattheystrictlyadheretodialoguenormsduring
+thefewinteractionstheytrigger.However,asharpcontrasttothishighcomplianceistheextremely
+lowIGR,withQwen-3-VL(#3)scoringonly2.4%,whichimpliesthatagentsfailtoinitiatesufficient
+inquiries.AlthoughcurrentagentspossesstheCapabilityforinteraction,theyseverelylackthe
+Awarenesstointeractastheyfailtoacutelyperceivetheambiguityofcurrentinformationand
+activeseekclarification.WealsoobservethatwhileFairydemonstratesanotableincreaseinIGR,
+itsDCRdeclines,indicatingatrade-offbetweenDialogueComplianceandInformationAcquisition
+Effectiveness under current alignment paradigms. Consequently, the core direction for future
+
+--- Page 18 ---
+18 Sunetal.
+optimizationmustfocusonenhancingsensitivitytoambiguityandinteractiveproactivitywhile
+simultaneouslymaintaininghighdialoguestandards.
+Furthermore,toverifythedecisiveroleofinteractionmechanismsinambiguoustasks,wecon-
+ductedatargetedMini-AblationStudy.WeselectedtaskswhereFairy(#6)succeededinIncomplete
+scenarios,achieving100%inbothTSRandRCR,andre-evaluatedthemwiththeuserinteraction
+functiondisabled.Theresultsdemonstratethatthesepreviouslysuccessfultasksimmediatelyfailed,
+withTSRdroppingto0%andRCRdecliningto23.8%.Duetothesingularandsignificantnatureof
+thesefindings,wechosenottopresenttheminaseparatechart.Thisphenomenoncorroborates
+thecollapseofthenon-interactivebaselinesandestablishesacompletechainofevidencethat
+interactionisanecessaryconditionforagentsurvivalinnon-deterministicenvironments.
+5.5 ReliabilityValidation
+TovalidateMUSE’sreliability,threeexpertsindependentlyannotated100randomlysampledtraces
+underdouble-blindconditions,labelingatomicrequirementstatus,keystephitstatusvectors,and
+validparameterfills.Highinter-rateragreement(Fleiss’𝜅=0.91)establishedasolidgroundtruth.
+Againstthisbenchmark,MUSEdemonstratedstrongalignmentin𝑉
+𝑜𝑢𝑡
+(Jaccard=0.92)and𝑉
+𝑠𝑡𝑒𝑝
+(Jaccard=0.84),whilesuccessfullyidentifying96%ofvalidparameterfills.
+5.6 ThreatstoValidity
+5.6.1 ExternalValidity. a)EcologicalRepresentativeness:WhileAmbiBenchcovers240tasks,its
+scoperemainslimitedrelativetothemassiveecosystemofLong-tailApps.Uniqueinteractionlogics
+inspecificverticaldomainsmaynotbefullycaptured,potentiallyrestrictingthegeneralizabilityof
+findingstounseenscenarios.b)DeviceHeterogeneity:Experimentsutilizedaspecifichardware
+cluster.GiventhehighfragmentationoftheAndroidecosystem,variationsinROMsandscreen
+resolutionsmayimpactthegeneralizationofvision-basedMobileGUIAgentsacrossdiversedevices.
+5.6.2 InternalValidity. a)Non-DeterminisminOnlineEnvironments:In-the-wildevaluations
+inevitablyencounterdynamicelements(e.g.,A/Btesting,real-timeads,networklatency).Such
+environmentalnoiseposesariskwherefailurescausedbyexternalinterferencearemisattributed
+to agent incompetence. b) Simulator Stability: Despite strict constraints (𝑎 𝑎𝑠𝑘 triggers), the
+LLM-drivenUserSimulatorinherentlycarriesrisksofhallucinationorinconsistency.Occasional
+unnaturalresponsescouldskewInteractionqualitymetrics(e.g.,IGR).
+5.6.3 ConstructValidity. a)AutomatedEvaluationBias:AlthoughMUSEdemonstratesstrong
+correlation with human judgment, MLLM-based auditing may overlook visual nuances or the
+affectiveexperiencesofusersinsubjectivedimensions.b)TaxonomyAmbiguity:Theboundaries
+between clarity levels (particularly Incomplete vs. Ambiguous) can be fluid in language. This
+potentialforsubjectiveinterpretationmayaffecttheattributionanalysisofbehavioraldifferences.
+6 Conclusion
+ToaddresstheoversightoftheCognitiveGapinreal-worldinteractionswithinexistingbenchmarks,
+weproposeAmbiBench,thefirstmobileGUIagentbenchmarkincorporatingafour-leveltaxonomy
+ofInstructionClarity,alongsideMUSE,acomplementaryautomatedauditingframework.Empirical
+studiesrevealtheauthenticperformanceboundariesofSoTAagentsinscenariosextendingbeyond
+one-shotdeterministicinstructions.Futureworkwillprioritizetheconstructionofhigh-fidelity
+localdynamicApps,aninitiativeaimingtodefinitivelyresolvetheNon-Determinisminherentin
+onlineevaluationwhilepreservingecologicalvalidity.
+
+--- Page 19 ---
+AmbiBench:BenchmarkingMobileGUIAgentsBeyondOne-ShotInstructionsintheWild 19
+7 DataAvailability(Thissectionwillnotcounttowardsthepagelimit)
+TheAmbiBenchbenchmarkandtheMUSEevaluationframeworkareavailableintheanonymous
+GitHubrepository:https://anonymous.4open.science/r/MUSE-2973.
+Acknowledgments
+References
+[1] ShuaiBai,YuxuanCai,RuizheChen,KeqinChen,XionghuiChen,ZesenCheng,LianghaoDeng,WeiDing,ChangGao,
+ChunjiangGe,WenbinGe,ZhifangGuo,QidongHuang,JieHuang,FeiHuang,BinyuanHui,ShutongJiang,Zhaohai
+Li,MingshengLi,MeiLi,KaixinLi,ZichengLin,JunyangLin,XuejingLiu,JiaweiLiu,ChenglongLiu,YangLiu,
+DayihengLiu,ShixuanLiu,DunjieLu,RuilinLuo,ChenxuLv,RuiMen,LingchenMeng,XuanchengRen,Xingzhang
+Ren,SiboSong,YuchongSun,JunTang,JianhongTu,JianqiangWan,PengWang,PengfeiWang,QiuyueWang,
+YuxuanWang,TianbaoXie,YihengXu,HaiyangXu,JinXu,ZhiboYang,MingkunYang,JianxinYang,AnYang,
+BowenYu,FeiZhang,HangZhang,XiZhang,BoZheng,HumenZhong,JingrenZhou,FanZhou,JingZhou,Yuanzhi
+Zhu,andKeZhu.2025.Qwen3-VLTechnicalReport.arXiv:2511.21631[cs.CV] https://arxiv.org/abs/2511.21631
+[2] YuxiangChai,ShunyeTang,HanXiao,WeifengLin,HanhaoLi,JiayuZhang,LiangLiu,PengxiangZhao,Guangyi
+Liu,GuozhiWang,ShuaiRen,RongduoHan,HainingZhang,SiyuanHuang,andHongshengLi.2026.A3:Android
+AgentArenaforMobileGUIAgentswithEssential-StateProceduralEvaluation. arXiv:2501.01149[cs.AI] https:
+//arxiv.org/abs/2501.01149
+[3] JingxuanChen,DerekYuen,BinXie,YuhaoYang,GongweiChen,ZhihaoWu,LiYixing,XuruiZhou,WeiwenLiu,
+ShuaiWang,KaiwenZhou,RuiShao,LiqiangNie,YashengWang,JianyeHAO,JunWang,andKunShao.2025.
+SPA-BENCH:ACOMPREHENSIVEBENCHMARKFORSMARTPHONEAGENTEVALUATION.InTheThirteenth
+InternationalConferenceonLearningRepresentations. https://openreview.net/forum?id=OZbFRNhpwr
+[4] ChaoHao,ShuaiWang,andKaiwenZhou.2025. Uncertainty-AwareGUIAgent:AdaptivePerceptionthrough
+ComponentRecommendationandHuman-in-the-LoopRefinement.arXiv:2508.04025[cs.AI] https://arxiv.org/abs/
+2508.04025
+[5] WenyiHong,WeihanWang,QingsongLv,JiazhengXu,WenmengYu,JunhuiJi,YanWang,ZihanWang,Yuxuan
+Zhang,JuanziLi,BinXu,YuxiaoDong,MingDing,andJieTang.2024.CogAgent:AVisualLanguageModelforGUI
+Agents.arXiv:2312.08914[cs.CV] https://arxiv.org/abs/2312.08914
+[6] ZeyuHuang,JuyuanWang,LongfengChen,BoyiXiao,LengCai,YawenZeng,andJinXu.2025. MVISU-Bench:
+BenchmarkingMobileAgentsforReal-WorldTasksbyMulti-App,Vague,Interactive,Single-AppandUnethical
+Instructions.InProceedingsofthe33rdACMInternationalConferenceonMultimedia(Dublin,Ireland)(MM’25).
+AssociationforComputingMachinery,NewYork,NY,USA,8797–8805. doi:10.1145/3746027.3755695
+[7] WenjiaJiang,YangyangZhuang,ChenxiSong,XuYang,JoeyTianyiZhou,andChiZhang.2025.AppAgentX:Evolving
+GUIAgentsasProficientSmartphoneUsers.arXiv:2503.02268[cs.AI] https://arxiv.org/abs/2503.02268
+[8] QuyuKong,XuZhang,ZhenyuYang,NolanGao,ChenLiu,PanrongTong,ChenglinCai,HanzhangZhou,Jianan
+Zhang,LiangyuChen,ZhidanLiu,StevenHoi,andYueWang.2025. MobileWorld:BenchmarkingAutonomous
+MobileAgentsinAgent-UserInteractiveandMCP-AugmentedEnvironments. arXiv:2512.19432[cs.CL] https:
+//arxiv.org/abs/2512.19432
+[9] HongxinLi,JingfanChen,JingranSu,YuntaoChen,QingLi,andZhaoxiangZhang.2025. AutoGUI:ScalingGUI
+GroundingwithAutomaticFunctionalityAnnotationsfromLLMs.arXiv:2502.01977[cs.CV] https://arxiv.org/abs/
+2502.01977
+[10] YandaLi,ChiZhang,WenjiaJiang,WanqiYang,BinFu,PeiCheng,XinChen,LingChen,andYunchaoWei.2025.
+AppAgentv2:AdvancedAgentforFlexibleMobileInteractions.arXiv:2408.11824[cs.HC] https://arxiv.org/abs/2408.
+11824
+[11] XiaoLiu,BoQin,DongzhuLiang,GuangDong,HanyuLai,HanchenZhang,HanlinZhao,IatLongIong,JiadaiSun,
+JiaqiWang,JunjieGao,JunjunShan,KangningLiu,ShudanZhang,ShuntianYao,SiyiCheng,WentaoYao,Wenyi
+Zhao,XinghanLiu,XinyiLiu,XinyingChen,XinyueYang,YangYang,YifanXu,YuYang,YujiaWang,YulinXu,Zehan
+Qi,YuxiaoDong,andJieTang.2024.AutoGLM:AutonomousFoundationAgentsforGUIs.arXiv:2411.00820[cs.HC]
+https://arxiv.org/abs/2411.00820
+[12] XinbeiMa,ZhuoshengZhang,andHaiZhao.2024. CoCo-Agent:AComprehensiveCognitiveMLLMAgentfor
+SmartphoneGUIAutomation.InFindingsoftheAssociationforComputationalLinguistics:ACL2024,Lun-WeiKu,
+AndreMartins,andVivekSrikumar(Eds.).AssociationforComputationalLinguistics,Bangkok,Thailand,9097–9110.
+doi:10.18653/v1/2024.findings-acl.539
+[13] SongqinNong,JialiZhu,RuiWu,JiongchaoJin,ShuoShan,XiutianHuang,andWenhaoXu.2024.MobileFlow:A
+MultimodalLLMForMobileGUIAgent.InNeurIPS2024WorkshoponOpen-WorldAgents. https://openreview.net/
+
+--- Page 20 ---
+20 Sunetal.
+forum?id=ylyF4ux9WJ
+[14] YujiaQin,YiningYe,JunjieFang,HaomingWang,ShihaoLiang,ShizuoTian,JundaZhang,JiahaoLi,YunxinLi,
+ShijueHuang,WanjunZhong,KuanyeLi,JialeYang,YuMiao,WoyuLin,LongxiangLiu,XuJiang,QianliMa,Jingyu
+Li,XiaojunXiao,KaiCai,ChuangLi,YaoweiZheng,ChaolinJin,ChenLi,XiaoZhou,MinchaoWang,HaoliChen,
+ZhaojianLi,HaihuaYang,HaifengLiu,FengLin,TaoPeng,XinLiu,andGuangShi.2025. UI-TARS:Pioneering
+AutomatedGUIInteractionwithNativeAgents.arXiv:2501.12326[cs.AI] https://arxiv.org/abs/2501.12326
+[15] ChristopherRawles,SarahClinckemaillie,YifanChang,JonathanWaltz,GabrielleLau,MarybethFair,AliceLi,
+WilliamEBishop,WeiLi,FolawiyoCampbell-Ajala,DanielKenjiToyama,RobertJamesBerry,DivyaTyamagundlu,
+TimothyPLillicrap,andOrianaRiva.2025.AndroidWorld:ADynamicBenchmarkingEnvironmentforAutonomous
+Agents.InTheThirteenthInternationalConferenceonLearningRepresentations. https://openreview.net/forum?id=
+il5yUQsrjC
+[16] YuanyiSong,HeyuanHuang,QiqiangLin,YinZhao,XiangmouQu,JunWang,XingyuLou,WeiwenLiu,Zhuosheng
+Zhang,JunWang,YongYu,WeinanZhang,andZhaoxiangWang.2025.ColorBench:BenchmarkingMobileAgents
+withGraph-StructuredFrameworkforComplexLong-HorizonTasks.arXiv:2510.14621[cs.AI] https://arxiv.org/abs/
+2510.14621
+[17] HariSubramonyam,RoyPea,ChristopherPondoc,ManeeshAgrawala,andColleenSeifert.2024.BridgingtheGulfof
+Envisioning:CognitiveChallengesinPromptBasedInteractionswithLLMs.InProceedingsofthe2024CHIConference
+onHumanFactorsinComputingSystems(Honolulu,HI,USA)(CHI’24).AssociationforComputingMachinery,New
+York,NY,USA,Article1039,19pages. doi:10.1145/3613904.3642754
+[18] JiazhengSun,RuimengYang,XuHan,JiayangNiu,MingxuanLi,TeYang,YongyongLu,andXinPeng.2025.Robust,
+Observable,andEvolvableAgenticSystemsEngineering:APrincipledFrameworkValidatedviatheFairyGUIAgent.
+arXiv:2509.20729[cs.AI] https://arxiv.org/abs/2509.20729
+[19] JunyangWang,HaiyangXu,HaitaoJia,XiZhang,MingYan,WeizhouShen,JiZhang,FeiHuang,andJitaoSang.
+2024.Mobile-Agent-v2:MobileDeviceOperationAssistantwithEffectiveNavigationviaMulti-AgentCollaboration.
+arXiv:2406.01014[cs.CL] https://arxiv.org/abs/2406.01014
+[20] JunyangWang,HaiyangXu,JiaboYe,MingYan,WeizhouShen,JiZhang,FeiHuang,andJitaoSang.2024.Mobile-
+Agent:AutonomousMulti-ModalMobileDeviceAgentwithVisualPerception.InICLR2024WorkshoponLarge
+LanguageModel(LLM)Agents. https://openreview.net/forum?id=jE6pDYCnVF
+[21] LuyuanWang,YongyuDeng,YiweiZha,GuodongMao,QinminWang,TianchenMin,WeiChen,andShoufaChen.
+2025.MobileAgentBench:AnEfficientandUser-FriendlyBenchmarkforMobileLLMAgents.InTheFirstMARW:
+Multi-AgentAIintheRealWorldWorkshopatAAAI2025. https://openreview.net/forum?id=GXugGsJLIP
+[22] ZhenhailongWang,HaiyangXu,JunyangWang,XiZhang,MingYan,JiZhang,FeiHuang,andHengJi.2025.
+Mobile-Agent-E:Self-EvolvingMobileAssistantforComplexTasks.InWorkshoponScalingEnvironmentsforAgents.
+https://openreview.net/forum?id=GRmrGws6Lf
+[23] HaoWen,YuanchunLi,GuohongLiu,ShanhuiZhao,TaoYu,TobyJia-JunLi,ShiqiJiang,YunhaoLiu,YaqinZhang,
+andYunxinLiu.2024. AutoDroid:LLM-poweredTaskAutomationinAndroid. arXiv:2308.15272[cs.AI] https:
+//arxiv.org/abs/2308.15272
+[24] QinzhuoWu,WeikaiXu,WeiLiu,TaoTan,JianfengLiu,AngLi,JianLuan,BinWang,andShuoShang.2024.
+MobileVLM:AVision-LanguageModelforBetterIntra-andInter-UIUnderstanding. arXiv:2409.14818[cs.CL]
+https://arxiv.org/abs/2409.14818
+[25] MingzheXing,RongkaiZhang,HuiXue,QiChen,FanYang,andZhenXiao.2024.UnderstandingtheWeaknessof
+LargeLanguageModelAgentswithinaComplexAndroidEnvironment.arXiv:2402.06596[cs.AI] https://arxiv.org/
+abs/2402.06596
+[26] WeikaiXu,ZhizhengJiang,YuxuanLiu,PengzhiGao,WeiLiu,JianLuan,YuanchunLi,YunxinLiu,BinWang,and
+BoAn.2025. Mobile-Bench-v2:AMoreRealisticandComprehensiveBenchmarkforVLM-basedMobileAgents.
+arXiv:2505.11891[cs.CL] https://arxiv.org/abs/2505.11891
+[27] YifanXu,XiaoLiu,XueqiaoSun,SiyiCheng,HaoYu,HanyuLai,ShudanZhang,DanZhang,JieTang,andYuxiaoDong.
+2024.AndroidLab:TrainingandSystematicBenchmarkingofAndroidAutonomousAgents.arXiv:2410.24024[cs.AI]
+https://arxiv.org/abs/2410.24024
+[28] JiaboYe,XiZhang,HaiyangXu,HaoweiLiu,JunyangWang,ZhaoqingZhu,ZiweiZheng,FeiyuGao,JunjieCao,
+ZhengxiLu,JitongLiao,QiZheng,FeiHuang,JingrenZhou,andMingYan.2025.Mobile-Agent-v3:Fundamental
+AgentsforGUIAutomation.arXiv:2508.15144[cs.AI] https://arxiv.org/abs/2508.15144
+[29] ChengZhang,ErhuFeng,XiZhao,YishengZhao,WangboGong,JiahuiSun,DongDu,ZhichaoHua,YubinXia,and
+HaiboChen.2025.MobiAgent:ASystematicFrameworkforCustomizableMobileAgents.arXiv:2509.00531[cs.MA]
+https://arxiv.org/abs/2509.00531
+[30] ChiZhang,ZhaoYang,JiaxuanLiu,YuchengHan,XinChen,ZebiaoHuang,BinFu,andGangYu.2023.AppAgent:
+MultimodalAgentsasSmartphoneUsers.arXiv:2312.13771[cs.CV] https://arxiv.org/abs/2312.13771
+
+--- Page 21 ---
+AmbiBench:BenchmarkingMobileGUIAgentsBeyondOne-ShotInstructionsintheWild 21
+[31] DanyangZhang,ZhennanShen,RuiXie,SituoZhang,TianbaoXie,ZihanZhao,SiyuanChen,LuChen,Hongshen
+Xu,RuishengCao,andKaiYu.2024.Mobile-Env:BuildingQualifiedEvaluationBenchmarksforLLM-GUIInteraction.
+arXiv:2305.08144[cs.AI] https://arxiv.org/abs/2305.08144
+[32] LianminZheng,Wei-LinChiang,YingSheng,SiyuanZhuang,ZhanghaoWu,YonghaoZhuang,ZiLin,ZhuohanLi,
+DachengLi,EricXing,HaoZhang,JosephE.Gonzalez,andIonStoica.2023.JudgingLLM-as-a-JudgewithMT-Bench
+andChatbotArena.InThirty-seventhConferenceonNeuralInformationProcessingSystemsDatasetsandBenchmarks
+Track. https://openreview.net/forum?id=uccHPGDlao
+[33] ZichenZhu,HaoTang,YansiLi,DingyeLiu,HongshenXu,KunyaoLan,DanyangZhang,YixuanJiang,HaoZhou,
+ChenrunWang,SituoZhang,LiangtaiSun,YixiaoWang,YuhengSun,LuChen,andKaiYu.2025.MobA:Multifaceted
+Memory-EnhancedAdaptivePlanningforEfficientMobileTaskAutomation.InProceedingsofthe2025Conferenceof
+theNationsoftheAmericasChapteroftheAssociationforComputationalLinguistics:HumanLanguageTechnologies
+(SystemDemonstrations).AssociationforComputationalLinguistics,535–549.doi:10.18653/v1/2025.naacl-demo.43
+Received20February2007;revised12March2009;accepted5June2009

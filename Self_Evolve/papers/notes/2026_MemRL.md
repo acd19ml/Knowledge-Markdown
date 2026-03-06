@@ -6,7 +6,7 @@
 - **Venue**: arXiv preprint, 2026-02-13 | arXiv:2601.13029
 - **Links**: [PDF](./MemRL.pdf) | [Code](位置待确认) | [Project](位置待确认)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
-- **Priority**: P1 | **Reading progress**: Pass 1
+- **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
 MemRL 将 memory retrieval 从语义匹配改为 value-based 决策（Two-Phase Retrieval + Utility-Driven Update），在 frozen-backbone 设定下于 4 个基准取得更高稳定性与泛化：Runtime 平均从 MemP 的 0.760 CSR 提升到 0.798（+3.8%），Transfer 平均从 0.766 提升到 0.794（+2.8%）。

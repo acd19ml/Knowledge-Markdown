@@ -1,0 +1,1873 @@
+--- Page 1 ---
+ExpSeek: Self-Triggered Experience Seeking for Web Agents
+WenyuanZhang1,2,XinghuaZhang3,HaiyangYu3,ShuaiyiNie1,2,
+BingliWu3,JuweiYue1,2,TingwenLiu1,2∗,YongbinLi3*
+1InstituteofInformationEngineering,ChineseAcademyofSciences
+2SchoolofCyberSecurity,UniversityofChineseAcademyofSciences
+3TongyiLab ,AlibabaGroup
+{zhangwenyuan, liutingwen}@iie.ac.cn, {zhangxinghua.zxh, shuide.lyb}@alibaba-inc.com
+Abstract (A) Passive Injection
+Web Agent
+Experienceinterventioninwebagentsemerges Experience Base
+as a promising technical paradigm, enhanc-
+ing agent interaction capabilities by provid- Query T T o hi o n l k C in a g ll Re T s o p o o l n se T T o hi o n l k C in a g ll ... T A h n in s k w in er g
+ingvaluableinsightsfromaccumulatedexpe- Step 1 Web Env Step 2 Step N
+riences. However,existingmethodspredomi- (B) Active Seeking (Ours)
+nantlyinjectexperiencepassivelyasglobalcon- Ex m pe o r d ie e n l ce Guidance
+textbeforetaskexecution,strugglingtoadapt No Trigger Trigger ! No Trigger
+Seek
+to dynamically changing contextual observa- 0.45
+0.27 0.11
+tionsduringagent-environmentinteraction.We
+Experience Base
+proposeExpSeek,whichshiftsexperienceto- Query Thinking Tool Thinking ... Thinking
+wardstep-levelproactiveseeking: (1)estimat- Tool Call Response Tool Call Answer
+Web Env
+Step 1 Step 2 Step N
+ingstep-levelentropythresholdstodetermine
+interventiontimingusingthemodel’sintrinsic Figure1: Comparisonofexperienceinterventionframe-
+signals;(2)designingstep-leveltailor-designed works. Panel A shows the traditional global passive
+experiencecontent.ExperimentsonQwen3-8B injectionofexperience,whileweextendtheframework
+and32Bmodelsacrossfourchallengingweb toPanelB,wheretheagentproactivelyseeksguidance
+agent benchmarks demonstrate that ExpSeek ateachstepbasedonitsownsignals.
+achievesabsoluteimprovementsof9.3%and
+7.5%,respectively. Ourexperimentsvalidate
+the feasibility and advantages of entropy as
+et al., 2025). Agents powered by LLMs, particu-
+aself-triggeringsignal,revealthatevena4B
+larly small-scale, cost-effective models, often ex-
+small-scaleexperiencemodelcansignificantly
+hibit inefficient exploration in multi-turn interac-
+boosttheperformanceoflargeragentmodels.
+tionswiththeenvironmentorrespondprematurely,
+1 Introduction resultinginunreliableanswers(Gaoetal.,2025a).
+As demonstrated by previous studies (Zhao
+Advances in large language models (LLMs)
+et al., 2024; Zheng et al., 2024), agents, like hu-
+are gradually unlocking greater potential for
+mans (Silver and Sutton, 2025), can learn effi-
+agents(Teametal.,2025;Quetal.,2025;Zhang
+ciently from experience, drawing on information
+et al., 2025b). Recently, web agents powered
+accumulatedfromhistoricalinteractiontrajectories.
+bysearchengineshavegainedconsiderableatten-
+Existingmethodsmainlyfollowtwolines: offline
+tion for their capability to retrieve relevant infor-
+refinement,whichpost-processestrajectoriesinto
+mation from the web and address complex user
+reusable patterns and retrieves them at inference
+queries(Ningetal.,2025;Songetal.,2025). Ac-
+time(Kimetal.,2024;Gaoetal.,2025b);andon-
+cordingly, the agent needs to possess the ability
+lineself-evolution,whichaccumulatesexperience
+to conduct multi-turn interactions with the web
+throughiterativeinteractionandfeedback(Wang
+to obtain evidence (Wei et al., 2025), and lever-
+etal.,2025d;Liuetal.,2025b;Zhangetal.,2025a).
+ageittoprovideanswerstotheuser’squeries(Lu
+Despitetheireffectiveness,theexperienceisoften
+etal.,2024). However,theopenwebisnoisyand
+passively injected as a global context before the
+partially observable with sparse useful evidence,
+taskexecution,asshowninFigure1(A).However,
+posingthechallengestotheagent’sreliability(Lee
+duringtheagent’sinteractionwiththeenvironment,
+*correspondingauthors. thecontextualobservationscontinuouslychange. If
+1
+6202
+naJ
+31
+]LC.sc[
+1v50680.1062:viXra
+
+--- Page 2 ---
+theagentreliessolelyontheinitialcontextwithout teractionwith theenvironment, while decreasing
+proactivelyacquiringandintegratingfreshexperi- entropyatthefinalanswerstep,confirmingtheen-
+ence,itsdecision-makingmaybecomesuboptimal hancedexplorationandultimatelyenablingmore
+orevenmisalignedwiththecurrentsituation. Com- effectiveconvergencetowardthecorrectanswer.
+paredwithpassivelyinjectingexperience,whynot Insummary,ourcontributionsareasfollows:
+empowertheagenttoproactivelyseekexperience • WeproposeExpSeek,aself-triggeredexperi-
+duringitsinteractionwiththeenvironmentformore enceseekingframework,inspiringaproactive
+preciseguidance? paradigmforseekingexperiencedistinctfrom
+ThispaperproposesExpSeek,aself-triggered passiveexperienceinjection.
+experience-seekingframeworkthatclarifieswhen • Weexploreandconfirmthattheentropyofa
+to seek experiences and which ones to seek, as modelitselfcanserveasanintrinsicsignalof
+brieflydepictedinFigure1(B): thetimingforproactivelyseekingexperience.
+(1)Thetimingforseekingexperience: Frequent Additionally, we build the experience base
+or sparse experience seeking makes it difficult to with experience triplets, and an experience
+achieveidealresultsintermsofeffectivenessand modelisdesignedtodynamicallygenerateex-
+efficiency. An optimal timing for seeking expe- perienceguidanceduringagent–environment
+rience is when the agent becomes confused and interactions,basedonexperiencetripletsand
+genuinelyinneedofguidanceduringinteraction. historicalcontext.
+Tothisend,weestimateapromisingthresholdin- • Extensiveexperimentsandanalysesshowthe
+tervalforeachstepbasedonentropyvaluethrough significant advantages of ExpSeek with av-
+logisticregressionandbootstrapresampling,and erage improvements of 9.3% and 7.5% on
+usetheestimatedintervaltocontrolthetimingof 8B/32Bmodels,anincreaseofupto14.6%.
+experience seeking. (2) The concrete content of
+experience: Afterdeterminingthetimingforseek- 2 RelatedWork
+ing experience, the next step is to decide its con-
+2.1 ExperienceIntervenesinAgents
+cretecontent. Firstly,weformalizeanexperience
+basefrompairsofsuccessfulandfailedtrajectories. Experience (Silver and Sutton, 2025) serves as
+Eachtripletcontainstheerroneousbehavior,mis- long-term memory to prevent repeated mistakes
+takeanalysis,andcorrectivecues,andisgrouped andaccumulateinsights,distinctfromshort-term
+bytopic. Subsequently,theexperiencemodelreads contextualmemory(Huetal.,2025).
+the history context of the current step, retrieves Recentworkcanbecategorizedintotwolines:
+therelatedexperiencetripletsfromtheexperience (1) Offline Experience refines experience from
+base,andgeneratesguidancetailoredtotheongo- offline training sets. Early methods directly use
+inginteraction. raw trajectories (Zheng et al., 2024), while later
+We evaluate ExpSeek on four challenging workstructuresexperience(Zhaoetal.,2024;Kim
+web agent benchmarks using agents powered by etal.,2024;Fangetal.,2025;Kirtaniaetal.,2025)
+Qwen3-8BandQwen3-32B.ExpSeekrespectively and induces patterns from successful and failed
+achieves 9.3% and 7.5% absolute improvements trajectories (Cai et al., 2025a) to extract transfer-
+overthe8Band32Bbasemodels,andoutperforms able (Gao et al., 2025b; Tang et al., 2025) and
+passiveexperienceinjectionbaselinesby6.7%and reusablereasoningunits. (2)Self-Evolutionaccu-
+6.0%,validatingtheeffectivenessofproactiveexpe- mulatesdomain-specificexperienceonlinethrough
+rienceseekingduringinteractionwithenvironment. gradient-free training (Cai et al., 2025b) or by
+Extensive analyses reveal some key insights: (1) shiftingthemodel’soutputdistribution(Luoetal.,
+Theentropyofamodelitselfisaneffectivetrigger 2025),withreal-timeupdates(Wangetal.,2025d;
+signalandcanindicatewhetheritshouldreceiveex- Liuetal.,2025b;Yangetal.,2025;Caoetal.,2025;
+perienceguidance,controllingthetimingforseek- Zhangetal.,2025a;Ouyangetal.,2025;Cuietal.,
+ing experience. (2) Even with a small-scale 4B 2025). However,suchpassiveexperienceinjection
+model,theproactiveexperienceseekingparadigm isdifficulttoalignwithstepdecisions.
+ofExpSeekcanstillyieldsignificantperformance
+2.2 EntropyinLLMReasoning
+gains for a slightly larger 32B model. (3) The
+self-triggeredexperienceseekingincreasesentropy Entropyservesasafundamentaluncertaintymetric
+of the model during the intermediate steps of in- widelyusedforstaticreasoningevaluation,includ-
+2
+
+--- Page 3 ---
+ing answer selection (Ren et al., 2023; Raj et al., • Construction Phase: Given a training corpus
+2025),confidencecalibration(ChenandMueller, D = {(q ,τ ,y )}N withqueriesq ,trajec-
+train i i i i=1 i
+2024), and error detection (Farquhar et al., 2024; toriesτ ,andgroundtruthy ,experienceacqui-
+i i
+Liu et al., 2025a). As reasoning scales to multi- sitionisformalizedasE = F(D ),whereF
+train
+stepparadigmswhereresponsesaredecomposed isafunctionthatextractsanexperiencebaseE
+into atomic steps (Guo et al., 2025), the role of fromD 1.
+train
+entropy extends to training. Particularly in rein- • Utilization Phase: At step t with context h =
+t
+forcementlearning,entropynotonlyreflectssam- (q,...,R ,O ),theagentobtainsapplicableex-
+t t
+plingdiversitytofacilitateexploration(Wangetal., periencee =G(E,h )throughmappingfunction
+t t
+2025c;Zhengetal.,2025),butalsoactsasafine- G,whichservesasadditionalinputforreasoning.
+grained signal for step-level credit assignment in Traditionalmethodsrepresentaspecialcasewhere
+long-horizonreasoning(Wangetal.,2025b,a),and experienceisconcatenatedatthebeginningofrea-
+further extends to incentivize exploration across soning,withe = G(E,q). ThefunctionG typically
+multi-turn interactions (Dong et al., 2025). This returns the entire base or retrieves relevant cases,
+demonstrates the potential of entropy as a self- providingstaticexperience. Incontrast,ourmethod
+triggersignalforwebagents. invokesG(E,h )atanystepttoallowtheagentto
+t
+seekappropriateguidance.
+3 Preliminaries
+4 Methodology
+AgentFramework. FollowingWuetal.(2025b),
+weconstructwebagentsbasedontheReActframe-
+ThissectionformallyintroducesExpSeek,elaborat-
+work(Yaoetal.,2023),modelingproblem-solving
+ingonthreekeycomponents: experiencebasecon-
+asaninterleavedsequenceofreasoningandacting.
+struction(§4.1),self-triggeringmechanism(§4.2),
+Atrajectoryτ isdefinedas:
+andstep-levelguidance(§4.3).
+τ = (q,R ,O ,...,R ,O ,...,R ), (1)
+1 1 t t T
+4.1 ExperienceBaseConstruction
+whereq isthequery,R istheagent’sresponseat
+t The core of guiding experience lies in recreating
+stept,andO istheenvironmentobservation. We
+t theproblembehaviorandsimulatingguidance.
+distinguishtwotypesofsteps:
+GuidingExperienceSchema. Wedesignexperi-
+• Process Step (S t p = (R t ,O t ), t < T): The re- encetripletscontaining: (1)Behavior: objectively
+sponseR t = ⟨z t ,a t ⟩containsreasoningthoughts describes the state and action at the current step;
+z t (enclosed in <think> tags) and an action a t (2) Mistake: identifies errors by contrasting with
+(in <tool_call> tags), followed by the tool’s correcttrajectories;(3)Guidance: providesdirec-
+responseO t . tional guidance based on error analysis, without
+• Answer Step (S T a = R T ): The terminal step directlyofferinganswersorspecificclues.
+producesR T = ⟨z T ,y⟩,wherethefinalanswer ConstructionProcess. AsshowninFigure2(A),
+yiswrappedin<answer>tags.
+construction involves three steps. First, for each
+StepEntropy. Toquantifytheagent’sconfidence query in D , we sample k trajectories with
+train
+in each step of interaction, we compute the step the agent model and pair successful and failed
+entropyastheaveragetokenentropyacrosseach ones. Second, for each trajectory pair (τ+,τ−),
+response R . Specifically, the entropy of the i-th weuseatoolmodeltoanalyzethefailedtrajectory
+t
+token x with preceding context h is defined as τ− = {S ,S ,...,S } by contrasting with the
+i i 1 2 T
+H(x ) = − (cid:80) P(v | h )logP(v | h ), where successful one τ+. The tool model assigns each
+i v∈V i i
+V is the vocabulary and P(· | h ) is the model’s stepS abinarycorrectnesslabely ∈ {0,1}and
+i t t
+predicteddistribution. Stepentropyiscomputed: outputstripletsforincorrectsteps(wherey = 0).
+t
+Finally, we prompt the tool model to induce top-
+1 (cid:88)
+H¯ t = H(x), (2) icsfortripletsusinganiterativebatchprocessing
+|R |
+t
+x∈Rt approach: when processing each new batch, the
+modeltakesallpreviouslygeneratedtripletswith
+where|R |denotesthenumberoftokensinR .
+t t
+their assigned topics as input, then either assigns
+ExperienceIntervention. Weformallydefineex-
+perience intervention as a class of methods com-
+1Self-evolutionmethodshavethesameD andD ,
+train test
+prisingtwophases: buttypicallydonotprovidegroundtruthy.
+3
+
+--- Page 4 ---
+(a) Success-Failure Trajectory Collection
+How many of the top 50 most-subscribed <think>Based on the current information,
+Trajectory 1 √ YouTube channels are based in India? I cannot find the specific number, so the
+answer is uncertain.</think>
+Training Query Traje . c . t . ory 2 √ <answer>uncertain</answer>
+Dataset Trajectory n × Step Entropy
+(b) Experience Triplet Construction Query T T o hi o n l k C in a g ll Re T s o p o o l n se ... T A h n in s k w in er g Guidance T T o hi o n l k C in a g ll ...
+Triplet
+Set
+Continue Interaction
+Seek Experience
+Select
+(c) Triplet Topic Generation Topics Experience T T o o p p i i c c 2 1: : I H n i f g o h rm -re a l t e io va n n m ce is e ju v d id g e m n e ce n t i g e n x o is r t e s d
+model
+...
+...
+Based on prior guidance experience, the agent encountered some issues ...
+Experience Therefore, it should be encouraged to focus on ... page and further invoke tools
+Triplet Triplet Utilize model Guidance: You should pay more attention to the previously searched ..., and
+subset 1 subset 2 Experience Base Experience further collect clues, rather than directly answer ...
+A. Experience Base Construction B. Seek Guiding Experience during Inference
+Figure 2: The overall architecture of ExpSeek, including experience base construction and actively seeking
+experienceguidanceduringinference. Thestepentropythresholdcalculationprocessisnotdepictedhere.
+existingtopics,modifiesthem,orcreatesnewtop- confirmsthatthedistributionsofcorrectandincor-
+ics for the current batch. This yields a guiding rectstepsarestatisticallyseparableforbothtypes
+experiencebaseE organizedintotopics,withsepa- (processsteps: KS=0.1998,p<0.001;answersteps:
+ratecollectionsE andE forprocessandanswer KS=0.3809,p<0.001). However,separabilitydif-
+p a
+stepsrespectively. fers substantially in practice: process steps show
+considerable overlap as agents naturally explore
+4.2 EntropyasSelf-Trigger
+multiplepaths,producinghighentropyevenwhen
+4.2.1 EntropyAnalysisforStepCorrectness correct(AUC=0.6223,indicatingweakdiscrimina-
+tion(Bradley,1997)),whileanswerstepsdemon-
+Determining when to trigger intervention is chal-
+strate much clearer separation (AUC=0.7187, in-
+lenging. Usingrewardmodelstoanalyzeeachstep
+dicatingacceptablediscrimination). Thissuggests
+incursprohibitivecosts. Inspiredbypriorresearch
+thatentropyservesasanoisybutvalidsignalfor
+on entropy-based error detection and confidence
+process steps, and becomes more reliable for an-
+calibration (Chen and Mueller, 2024; Liu et al.,
+swersteps,motivatingustoestimatethresholdsfor
+2025a), we hypothesize that the step entropy of
+triggeringintervention.
+webagentshasthepotentialtoreflecttheagent’s
+inherent state. We focus on (1) whether entropy
+4.2.2 Threshold-BasedTriggering
+candistinguishcorrectfromincorrectstepsinweb
+Threshold Estimation via Bootstrap. To quan-
+agentreasoning,and(2)whetherthisdistinguisha-
+tify when intervention should occur, we estimate
+bilitydiffersbetweenprocessandanswersteps.
+thresholdintervalsthatcaptureuncertaintyindis-
+We analyze training trajectories from § 4.1.
+tinguishingcorrectfromincorrectsteps. Weformu-
+Basedoncorrectnesslabelsy assignedduringtra-
+t
+latethisasbinaryclassification: givenstepentropy
+jectorypairing,weconstructtwostepcollections:
+H¯ ,predictcorrectnessy ∈ {0,1}.
+t t
+S+ = {S ∈ τ+}∪{S ∈ τ− | y = 1}, We fit separate logistic regression models for
+t t t
+(3) processsteps(S+,S−)andanswersteps(S+,S−),
+S− = {S ∈ τ− | y = 0}, p p a a
+t t
+whereeachmodellearns:
+whereS+ aggregatesallstepsfromsuccessfultra- 1
+P(y = 0 | H¯ ) = , (4)
+jectoriesandcorrectly-labeledstepsfromincorrect t t 1+e−(w·H¯ t+b)
+trajectories,whileS− comprisesonlytheincorrect
+stepsfromfailedtrajectories. Wefurtherpartition modeling the probability of incorrectness, where
+these collections by step type into process steps higherentropycorrespondstohighererrorproba-
+(S+,S−)andanswersteps(S+,S−),thenanalyze bility. The decision boundary at P = 0.5 yields
+p p a a
+theirentropydistributionsH¯ . thresholdθ = −b/w.
+t
+Figure 3 shows that S+ consistently exhibits Sinceasinglefittedmodelonlimiteddatamay
+lower entropy than S− for both step types. The beunstable,weemploybootstrapresampling: we
+Kolmogorov-Smirnovtest(BergerandZhou,2014) samplewithreplacementfromtherespectivestep
+4
+
+--- Page 5 ---
+1.0
+0.8
+0.6
+0.4
+0.2
+0.0
+0.0 0.2 0.4 0.6 0.8 1.0
+noitnevretnI
+fo ytilibaborP
+(a) Process Steps
+Safe Zone
+Buffer Zone
+Intervention Zone
+Median Probability Curve True Dist.
+False Dist.
+100
+0
+0.30 0.35 0.40 0.45 0.50
+Entropy Value
+ycneuqerF
+Simulated Thresholds
+Lower 2.5%
+Median
+Upper 97.5%
+1.0
+0.8
+0.6
+0.4
+0.2
+0.0
+0.0 0.2 0.4 0.6 0.8
+noitnevretnI
+fo
+ytilibaborP
+(b) Final Steps
+Safe Zone
+Buffer Zone
+Intervention Zone
+Median Probability Curve
+True Dist.
+False Dist.
+100
+0 0.20 0.21 0.22 0.23 0.24 0.25 0.26
+Entropy Value
+ycneuqerF
+4
+3
+2
+1
+0
+Simulated Thresholds
+Lower 2.5% Median Upper 97.5%
+ytisneD
+elpmaS
+4
+3
+2
+1
+0
+ytisneD
+elpmaS
+Model θp θp θa θa
+low high low high
+Qwen3-8B 0.314 0.413 0.225 0.257
+Qwen3-32B 0.877 1.384 0.714 0.820
+Table1: Thresholdintervalsobtainedthroughbootstrap
+resamplingforprocessandanswersteps.
+Wetriggerexperienceguidance(§4.3)withprob-
+ability p , where low-entropy steps receive
+intervene
+nointervention,high-entropystepsalwaysreceive
+guidance(lowconfidence),andintermediatecases
+are handled probabilistically to balance interven-
+tionfrequencywithagentautonomy.
+4.3 GuidedInterventionatInference
+At inference, we implement G(E,h ) through a
+t
+experiencemodelM thatdynamicallygenerates
+e
+contextualizedinterventions. Theprocessisillus-
+tratedinFigure2(B).
+ForeachstepS ,wefirstcomputeH¯ andsam- t t
+plefromp (§4.2). Iftriggeredandthepre- intervene
+viousstepwasnotintervened,M selectsthethree
+e
+Figure3: Entropydistributionsofprocessandanswer most relevant topics from E (for process steps)
+p
+stepsonD train forQwen3-8B,withfittedlogisticre- orE a (foranswersteps)basedoncontexth t ,then
+gressioncurves. Greenzoneindicatesnointervention
+adaptsexperiencesunderselectedtopicstogener-
+duringinference,redindicatesintervention,andyellow
+ateguidancee forthecurrentsituation.
+t
+indicatesprobabilisticintervention.
+Thegeneratedguidanceisinjecteddifferentlyby
+steptype. ForprocessstepsSp ,e isappendedto
+t t
+collections (preserving original sizes) N times, O . ForanswerstepsSa,weextenditto{R ,O }
+t T T T
+fit logistic regression on each sample to obtain withe asO ,enablingtheagenttocontinueatstep
+t T
+{θ(i)}N ,andcomputethe95%confidenceinter- T +1(eitherrefiningtheanswerorinvokingtools
+i=1
+valasourthresholdrange: forfurtherreasoning).
+To prevent over-intervention, we disable inter-
+θ lower = Q 0.025 ({θ(i)}), ventionatstept+1afteranyinterventionatstept,
+(5)
+θ = Q ({θ(i)}), allowingtheagenttoincorporateguidancebefore
+upper 0.975
+receivingfurtherintervention.
+whereQ denotesthep-thquantile. Thisyieldssep-
+p
+aratethresholdintervals[θp ,θp ]forprocess 5 Experiments
+lower upper
+stepsand[θa ,θa ]foranswersteps. Moreim-
+lower upper 5.1 Setup
+plementationdetailsareprovidedinAppendixA.1.
+ProbabilisticInterventionatInference. During Benchmarks and Metrics. We evaluate on
+inference, for each step S , we compute its en- four challenging real-world web agent reason-
+t
+tropyH¯ anddeterminetheinterventionprobability ing benchmarks: GAIA (Mialon et al., 2023),
+t
+basedonthecorrespondingthresholdinterval(us- WebWalkerQA (Wu et al., 2025b), xbench-
+ing[θp ,θp ]forprocessstepsor[θa ,θa ] DeepSearch (Chen et al., 2025), and SEAL-
+lower upper lower upper
+foranswersteps): HARD(Phametal.,2025). Weconstructourtrain-
+ingsetbysampling25%fromeachdifficultylevel
+ 0 H¯ < θ (easy, medium, hard)inWebWalkerQAwithran-
+ t lower
+
+p =  H¯ t−θ lower θ ≤ H¯ ≤ θ dom seed 0, yielding 170 examples, with the re-
+intervene  θupper−θ lower lower t upper mainderusedasthetestset. WeemploytheLLM-
+
+1 H¯ > θ as-a-Judgeapproachforevaluationandreportaver-
+t upper
+(6) ageaccuracyacrossfiveindependentruns.
+5
+
+--- Page 6 ---
+WebWalkerQA
+Method GAIA SEAL xbench Avg.
+Easy Medium Hard Avg.
+Qwen3-8B
+NoExperience 42.67 40.19 32.56 38.47 29.13 23.23 25.60 32.23
+-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 -0.0 -0.0
+Training-FreeGRPO 40.66 42.86 38.33 40.62 29.32 25.59 26.00 33.79
+↓2.0 ↑2.7 ↑5.8 ↑2.2 ↑0.2 ↑2.4 ↑0.4 ↑1.6
+REASONINGBANK + 44.50
+↑1.8
+41.52
+↑1.3
+36.33
+↑3.8
+40.78
+↑2.3
+32.04
+↑2.9
+26.38
+↑3.2
+28.00
+↑2.4
+34.80
+↑2.6
+ExpSeek(Ours) 51.00 49.52 44.22 48.25 36.89 30.16 37.20 41.50
+↑8.3 ↑9.3 ↑11.7 ↑9.8 ↑7.8 ↑6.9 ↑11.6 ↑9.3
+-onlyprocessstep 44.17 47.91 38.89 43.66 33.01 27.17 28.40 36.59
+↑1.5 ↑7.7 ↑6.3 ↑5.2 ↑3.9 ↑3.9 ↑2.8 ↑4.4
+-onlyanswerstep 49.50 48.48 41.22 46.40 30.29 30.08 34.80 39.06
+↑6.8 ↑8.3 ↑8.7 ↑7.9 ↑1.2 ↑6.9 ↑9.2 ↑6.8
+Qwen3-32B
+NoExperience 46.67 47.24 41.11 45.01 36.50 27.80 27.40 37.79
+-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 -0.0 -0.0
+Training-FreeGRPO 46.92 46.85 41.67 45.15 36.89 28.19 28.20 38.12
+↑0.3 ↓0.4 ↑0.6 ↑0.1 ↑0.4 ↑0.4 ↑0.8 ↑0.3
+REASONINGBANK + 47.50
+↑0.8
+47.62
+↑0.4
+41.67
+↑0.6
+45.60
+↑0.6
+33.01
+↓3.5
+29.84
+↑2.0
+36.33
+↑8.9
+39.33
+↑1.5
+ExpSeek(Ours) 54.33 53.05 45.89 51.09 43.88 32.76 42.00 45.32
+↑7.7 ↑5.8 ↑4.8 ↑6.1 ↑7.4 ↑5.0 ↑14.6 ↑7.5
+-onlyprocessstep 49.17 47.24 45.56 47.32 40.58 31.50 30.80 40.81
+↑2.5 ±0.0 ↑4.5 ↑2.3 ↑4.1 ↑3.7 ↑3.4 ↑3.0
+-onlyanswerstep 50.83 48.57 42.78 47.39 37.11 32.52 35.40 41.20
+↑4.2 ↑1.3 ↑1.7 ↑2.4 ↑0.6 ↑4.7 ↑8.0 ↑3.4
+Table2: MainresultsofExpSeekonfourbenchmarksusingtwobackboneagents. Wereportmeanaccuracy(%)
+overfiveindependentrunsandabsoluteimprovementsovervanillaReActwithoutexperience. Wealsoprovidefull
+ablationresultsforguidingonlyprocessoranswersteps.
+ToolEnvironment. Agentsareequippedwithtwo 5.2 MainResults
+fundamental tools: (1) Search, which queries a
+Table2reportsthemainexperimentalresults. The
+search engine to return relevant URLs with snip-
+keyfindingsareasfollows:
+pets;and(2)Visit,whichaccessesaspecificURL
+(1)ExpSeekdemonstratessignificantlysuperior
+toretrieveitscontent.
+performance. ExpSeekachievesaverageabsolute
+Configuration. We set the maximum number improvementsof9.3%and7.5%overvanillaRe-
+of ReAct steps to 30, treating episodes exceed- ActonQwen3-8Band32Brespectively,substan-
+ing this limit as failures. We use Qwen3-8B and tially outperforming baselines across all bench-
+Qwen3-32Basagentswithsamplingtemperatureof marksandhighlightingtheadvantagesofstep-level
+1.0andtop-pof0.95. FortoolmodelandM e ,we experienceguidance.
+employQwen3-235B-A22B-Instruct-2507inthe (2) Global intervention methods show limited
+mainexperiments. Duringexperienceconstruction, effectiveness. Both baseline types struggle with
+trajectoriesaresampledfivetimes,andbootstrap challengingopenwebreasoningtasks,showingim-
+sampling uses N = 1000. The constructed ex- provementsunder3%orevenperformancedegra-
+periencerepositoriescontain: for8B,|E p | = 196 dation. This indicates that carefully designed
+(17 topics) and |E a | = 190 (11 topics); for 32B, global experience injection struggles to adapt to
+|E p | = 276(18topics)and|E a | = 143(23topics). noisy web environments while adding reasoning
+Thethresholdintervalsderivedfrombootstrapre- burdentosmalleragents.
+samplingareshowninTable1. (3)Strongcross-taskgeneralizationcapability.
+Baseline. Weselecttwotypicalexperience-based Despite being derived entirely from WebWalk-
+methods as baselines. Training-Free GRPO (Cai erQAtrainingset,ExpSeekmaintainsrobustperfor-
+et al., 2025a) uses semantic advantages to itera- manceacrossthreeout-of-distributionbenchmarks.
+tivelyacquireandupdatehigh-qualityexperiences We also report pass@3 performance, demon-
+from offline trajectories, globally leveraging the stratingExpSeek’scompetitivesamplingdiversity.
+experience repository at test time. REASONING- Additionally,weprovideextensivecasestudiesto
+BANK(Ouyangetal.,2025)isaself-evolvingex- intuitivelyillustratetheeffectivenessofourmethod.
+perienceacquisitionschemethataccumulatesexpe- Supplementary materials and further discussions
+riencesfromonlinetasksandretrievesthemfrom canbefoundinAppendixB.
+a continuously updated experience repository in
+5.3 AblationStudy
+the system prompt during subsequent reasoning.
+Weimplementanenhancedversion REASONING- Tovalidatetheindividualeffectivenessofguiding
+BANK + using235Binsteadofaweakerreasoning processandanswersteps,wereportcompleteab-
+agent to generate experiences. All experimental lation results in Table 2. Guiding only process
+andsetupdetailsareprovidedinAppendixC,D. or answer steps fails to surpass full intervention,
+6
+
+--- Page 7 ---
+4.0
+3.0
+2.0
+1.0
+0.0
+0.2 0.4 0.6 0.8
+ytisneD
+WebWalker-Easy WebWalker-Medium WebWalker-Hard GAIA SEAL xbench
+Vanilla Vanilla 5.0 Vanilla 5.0 Vanilla 6.0 Vanilla 3.0 Vanilla ExpSeek 4.0 ExpSeek 4.0 ExpSeek 4.0 ExpSeek 5.0 ExpSeek 2.5 ExpSeek
+3.0 3.0 3.0 4.0 2.0
+2.0 2.0 2.0 3.0 1.5
+2.0 1.0
+1.0 1.0 1.0 1.0 0.5
+0.0 0.0 0.0 0.0 0.0
+0.2 0.4 0.6 0.2 0.4 0.6 0.2 0.4 0.6 0.1 0.2 0.3 0.4 0.5 0.2 0.4 0.6 0.8
+3.5 3.0 2.5 2.0 1.5
+1.0 0.5
+0.0
+0.0 0.2 0.4 0.6 0.8
+Entropy
+ytisneD V E a x n p i S ll e a ek 3 3 4 . . . 0 5 0 V E a x n p i S ll e a ek 3 3 4 . . . 0 5 0 V E a x n p i S ll e a ek 3 3 4 . . . 0 5 0 V E a x n p i S ll e a ek 4 5 . . 0 0 V E a x n p i S ll e a ek 2 2 . . 0 5 V E a x n p i S ll e a ek 2 2 . . 0 5 2 2 . . 0 5 2 2 . . 0 5 3.0 1.5 1.5 1.5 1.5 2.0 1.0
+0 1 . . 5 0 0 1 . . 5 0 0 1 . . 5 0 1.0 0.5
+0.0 0.0 0.0 0.0 0.0
+0.0 0.2 0.4 0.6 0.8 0.0 0.2 0.4 0.6 0.8 0.0 0.2 0.4 0.6 0.8 0.0 0.2 0.4 0.6 0.8 0.0 0.2 0.4 0.6 0.8 1.0
+Entropy Entropy Entropy Entropy Entropy
+petS
+ssecorP
+)a(
+petS laniF
+)b(
+Figure4:EntropydistributionsofprocessandanswerstepsforQwen3-8BbeforeandafterapplyingExpSeekacross
+allbenchmarks. ResultsforQwen3-32BareprovidedinFigure9.
+Method Acc.↑ Rej.↑ Step↓ Time↓
+50
+Qwen3-8BGAIA NoExperience 29.13 - 4.47 66.94s 45
+Rule+M 38.81 0.0 9.52 329.71s
+Claude-4+ e M 39.47 7.4 8.55 370.82s 40 e Entropy+M 36.89 67.8 5.75 127.57s e 35 Entropy+emb 30.92 74.2 5.54 110.61s
+30
+Qwen3-8Bxbench
+NoExperience 25.60 - 3.31 51.06s 25
+Rule+M 36.40 0.0 8.52 300.09s e Qwen3-8B Qwen3-32B
+Claude-4+M 36.60 4.8 7.40 315.39s
+e
+Entropy+M 37.20 42.2 5.73 143.81s e
+Entropy+emb 27.80 44.4 4.69 88.17s
+Table3: Performanceandefficiencywithdifferenttrig-
+gersandretrieval-basedguidanceinGAIAandxbench.
+Rej: theproportionoftriggerchecksthatresultinnon-
+intervention;Step&Time: averageperquestion.
+showingsignificantperformancedropsonboth8B
+(-2.44%,-4.91%)and32B(-4.12%,-4.51%). No-
+tably, guiding only answer steps achieves perfor-
+mance closer to the full method, which validates
+ourobservationin§4.2thatanswerstepsexhibit
+strongerdistributionaldistinguishability.
+6 ExperimentalAnalyses
+Inthissection,weconductanin-depthanalysisof
+ExpSeekacrossfourdimensions: internalmecha-
+nisms,designrationale,scalability,andefficiency.
+6.1 HowDoesExpSeekWorkInternally?
+TorevealhowExpSeekworksinternally,wevisu-
+alize the entropy distribution shifts of agent out-
+puts before and after experience guidance (Fig-
+ure 4). The results show that guidance increases
+entropyinprocesssteps,enablingtheagenttoes-
+capelocaldecisionsandexplorebroaderreasoning
+spaces;conversely,theentropydistributionofan-
+swerstepsformsaleft-skewedpeak,indicatingthe
+)%( ycaruccA
+GAIA
+No Guidance
+4 3 2 B 0 3 B 5 G B G u G i u d i u a d i n a d c n a e c n e ce 41.8 42.3 43.9 45
+40
+35.9 36.9 5.2%5.8%7.3% 35 33.3 4.2% 6.8%7.8% 30
+25
+20 Qwen3-8B Qwen3-32B
+)%( ycaruccA
+xbench
+No Guidance
+4B Guidance 30B Guidance 42.0 235B Guidance 39.3
+37.2 37.0 34.3 32.3 12.0% 14.7% 11.6% 9.7% 8.7% 6.7%
+Figure5: ScalingLawofexperiencemodelM .
+e
+Method GAIA xbench
+Qwen3-8B←E-8B/32B 36.89/35.60 37.20/36.00
+Qwen3-32B←E-32B/8B 43.88/40.33 42.00/37.20
+Table 4: Experience repository swapping: E-8B/32B
+denotededicatedrepositoriesbuiltforeachagent.
+agentconvergestocorrectanswerswithhighercon-
+fidence after sufficient exploration. This diverge-
+then-convergebehaviorbalancesexplorationand
+exploitationincomplexreasoning.
+6.2 WhySelf-TriggerandGeneration?
+Tovalidateentropy-basedself-triggering,wecom-
+paretwovariants: RewardModel-based2(RM)and
+rule-based(continuousinterventionfromstepone),
+bothwithone-steppost-triggersilence.
+Table3showssimilaraccuracybutdivergenteffi-
+ciency. Rule-basedtriggersresultin1.7×stepand
+2.6×timeoverheadonGAIA(1.5×and2.1×on
+xbench). RM reduces step overhead (1.3-1.5×)
+but increases time (2.2-2.9×), suggesting over-
+intervention. Incontrast,self-triggerbalanceseffi-
+ciencyandperformancebyadaptingintervention
+2Weemployclaude-sonnet-4-20250514tojudgeinter-
+ventionnecessityateachstepbasedonthefullhistory.
+7
+
+--- Page 8 ---
+45.0
+42.5
+40.0
+37.5
+35.0
+32.5
+30.0
+27.5
+4.74.8 5.05.15.35.45.5 5.8 6.0 6.65.6 7.37.47.5 8.6 10.9
+Average Steps
+)%(
+ycaruccA
+No Experience Acc 0
+ExpSeek Accuracy
+Guidance Times per Sample 1
+2
+lavretnI
+ecnadiuG
+Accuracy (%)
+42.0741.7540.7837.5536.2535.2833.98
+43.0142.0738.8936.8935.6036.2531.72
+40.7839.7537.6635.2834.3033.9831.07
+0
+1
+2
+-0.15-0.1-0.05 0 0.050.10.15
+Threshold Shift
+lavretnI
+ecnadiuG
+7
+6
+5
+4
+Average Steps
+3 10.948.61 7.46 6.57 5.50 5.66 5.01
+2
+7.30 7.37 6.53 5.75 5.66 5.14 4.66
+1
+6.02 5.95 5.72 5.43 5.26 4.77 4.76
+0
+elpmaS
+rep
+semiT
+ecnadiuG
+70
+60
+50
+40
+30
+12
+10
+8
+6
+4
+Figure6: Cross-comparisonresultsofperformanceandefficiencyafteradjustinginterventionintensity.
+400 400 350 350
+300 300
+250 250
+200 200 150 150
+100 100
+50 50
+0 0
+eziS
+yrotisopeR
+ecneirepxE
+40
+38
+36
+34
+32
+30
+28
+1/1 exp1/2 exp1/4 exp 1 exp 0 exp Experience Ratio
+)%(
+ycaruccA
+GAIA xbench edgeitcontainsstillholdstransfervalue.
+V A a cc n u il r la a c B y aseline 42 V A a cc n u il r la a c B y aseline Furthermore,Figure7showswereduceexperi- Final Step Exp 40 Final Step Exp
+Process Step Exp Process Step Exp encespertopic. Evenwithjustoneexperienceper 38
+36 topic, M still identifies key intervention points e
+34 32 and maintains high accuracy, demonstrating that
+30 theexperiencemodelcanunderstandandgeneral-
+28 26 izetocurrentreasoningevenwithonlyafewhigh-
+1/1 exp1/ E 2 x e p xp er 1 ie /4 n e c x e p Ra 1 t e i x o p 0 exp qualityseedexperiences,highlightingthenecessity
+of experience topics. While removing the reposi-
+Figure7: Correlationbetweenrepositorysizeandper-
+formanceonQwen3-8B. toryentirelydegradesperformance,theremaining
+substantialaccuracyindicatesthattheM ’sinher-
+e
+entworldexperiencealoneisbeneficial.
+intensitytoproblemdifficulty. Onthemorechal-
+lenging xbench, its trigger rate increases 25.6% 6.4 WhatIstheEfficiencyTrade-off?
+comparedtoGAIAwhilemaintainingsimilarac- Figure 6 illustrates the relationship between ac-
+curacy,confirmingitsabilitytopreciselyidentify curacy and reasoning steps under varying inter-
+interventiontimingbasedoninternalstate. vention frequencies and thresholds. We expand
+We also explore retrieval-based guidance, the intervention interval from 1 to {0,1,2} and
+selecting the most similar experience (via shiftthethresholdby±0.05threetimes,yielding
+text-embedding-v43) instead of generation. Ta- 21 configurations. Results show that as the trig-
+ble 3 shows that retrieval increases time without ger threshold decreases, reasoning steps increase
+improving accuracy, confirming the necessity of rapidlywhileaccuracyrisesthenplateauswithdi-
+generativeguidance. minishingreturns. With~2interventions,accuracy
+reaches 43.01%; beyond 6 interventions, perfor-
+6.3 DoesExpSeekScaleandTransfer?
+mance barely improves, indicating that while in-
+Weexperimentwithsmaller4Band30Bmodels4
+creasing intervention intensity does not degrade
+asM e toexplorethescalingofinterventionmod- performance, it also fails to yield higher gains.
+els. As shown in Figure 5, the three model sizes The results also demonstrate that in practice, the
+exhibitscalinglawonbothGAIAandxbench,all webagentproducesstableperformanceevenwhen
+achievingsubstantialperformancegains. Notably, thresholdsfluctuateatasmallscale.
+the 4B guidance model improves the 32B agent
+by5.2%and9.7%pointsrespectively, validating 7 Conclusion
+the feasibility of weak-to-strong guidance given
+WeproposeExpSeek,aframeworkenablingweb
+reasonableexperience. Additionally,weswapthe
+agentstoactivelyseekstep-levelguidancebasedon
+experiencepoolsbetween8Band32BAgents. Re-
+stepentropy. Evenwithsmallopen-sourceagents,
+sults in Table 4 show that while experience has
+ExpSeekdemonstratessignificantperformanceim-
+model dependency, the abstract guidance knowl-
+provements and excellent properties on complex
+3https://www.alibabacloud.com/help/en/model- real-worldwebreasoningtasks,showinggreatpo-
+studio/embedding tentialforfuturedevelopment.
+4Qwen3-4B-InstructandQwen3-30B-A3B-Instruct
+8
+
+--- Page 9 ---
+Limitations pages5186–5200,Bangkok,Thailand.Association
+forComputationalLinguistics.
+Although ExpSeek achieves significant perfor-
+mance advantages, it still has the following lim- KaiyuanChen,YixinRen,YangLiu,XiaoboHu,Hao-
+tongTian,TianbaoXie,FangfuLiu,HaoyeZhang,
+itations, which we consider as focuses for future
+Hongzhang Liu, Yuan Gong, Chen Sun, Han Hou,
+research: (1) While ExpSeek validates the feasi-
+HuiYang,JamesPan,JiananLou,JiayiMao,Jizheng
+bilityofstepentropyasaself-trigger,thecurrent Liu, Jinpeng Li, Kangyi Liu, and 14 others. 2025.
+thresholdestimationreliesonthetrainingsetand xbench: Tracking agents productivity scaling with
+profession-alignedreal-worldevaluations. Preprint,
+thetoolmodel’sassessmentofstepquality. More
+arXiv:2506.13651.
+accuratethresholdcalculationstrategiesneedtobe
+investigated. (2) It remains unexplored whether SijiaCui,AiyaoHe,ShuaiXu,HongmingZhang,Yanna
+ExpSeekhasthepotentialtoextendtoothernon- Wang, QingyangZhang, YajingWang, andBoXu.
+2025. Self-guidedfunctioncallinginlargelanguage
+web domains and integrate more tools. (3) Since
+modelsviastepwiseexperiencerecall. InFindings
+ExpSeek can also significantly improve pass@k of the Association for Computational Linguistics:
+performance,ithasnotyetbeenstudiedwhetherit EMNLP2025,pages10842–10854,Suzhou,China.
+canserveasanenhancementtechniqueforAgentic AssociationforComputationalLinguistics.
+ReinforcementLearningrollouttoimprovetraining
+GuantingDong,HangyuMao,KaiMa,LichengBao,
+convergencespeedandsamplingquality. Yifei Chen, Zhongyuan Wang, Zhongxia Chen, Ji-
+azhenDu,HuiyangWang,FuzhengZhang,Guorui
+EthicalConsiderations Zhou, Yutao Zhu, Ji-Rong Wen, and Zhicheng
+Dou.2025. Agenticreinforcedpolicyoptimization.
+Our method is intended for academic research Preprint,arXiv:2507.19849.
+only and does not support applications involving
+RunnanFang,YuanLiang,XiaobinWang,JialongWu,
+risks,religion,racialdiscrimination,orethicalvio-
+ShuofeiQiao,PengjunXie,FeiHuang,HuajunChen,
+lations. andNingyuZhang.2025. Memp: Exploringagent
+proceduralmemory. Preprint,arXiv:2508.06433.
+References SebastianFarquhar,JannikKossen,LorenzKuhn,and
+Yarin Gal. 2024. Detecting hallucinations in large
+VanceWBergerandYanYanZhou.2014. Kolmogorov– language models using semantic entropy. Nature,
+smirnov test: Overview. Wiley statsref: Statistics 630(8017):625–630.
+referenceonline.
+Jiaxuan Gao, Wei Fu, Minyang Xie, Shusheng Xu,
+Andrew P Bradley. 1997. The use of the area under Chuyi He, Zhiyu Mei, Banghua Zhu, and Yi Wu.
+theroccurveintheevaluationofmachinelearning 2025a. Beyondtenturns: Unlockinglong-horizon
+algorithms. Patternrecognition,30(7):1145–1159. agenticsearchwithlarge-scaleasynchronousRL. In
+FirstWorkshoponMulti-TurnInteractionsinLarge
+YuzhengCai,SiqiCai,YuchenShi,ZihanXu,Lichao LanguageModels.
+Chen, Yulei Qin, Xiaoyu Tan, Gang Li, Zongyi
+Li, Haojia Lin, Yong Mao, Ke Li, and Xing Sun. JinglongGao,XiaoDing,LingxiaoZou,BiboCai,Bing
+2025a. Training-freegrouprelativepolicyoptimiza- Qin,andTingLiu.2025b. ExpeTrans: LLMsareex-
+tion. Preprint,arXiv:2510.08191. periential transfer learners. In Proceedings of the
+63rdAnnualMeetingoftheAssociationforCompu-
+ZhichengCai,XinyuanGuo,YuPei,JiangtaoFeng,Jin- tationalLinguistics(Volume1: LongPapers),pages
+songSu,JiangjieChen,Ya-QinZhang,Wei-YingMa, 10577–10616,Vienna,Austria.AssociationforCom-
+MingxuanWang,andHaoZhou.2025b. Flex: Con- putationalLinguistics.
+tinuous agent evolution via forward learning from
+experience. Preprint,arXiv:2511.06449. DayaGuo,DejianYang,HaoweiZhang,JunxiaoSong,
+PeiyiWang,QihaoZhu,RunxinXu,RuoyuZhang,
+Zouying Cao, Jiaji Deng, Li Yu, Weikang Zhou, ShirongMa,XiaoBi,and1others.2025. Deepseek-
+ZhaoyangLiu,BolinDing,andHaiZhao.2025. Re- r1incentivizesreasoninginllmsthroughreinforce-
+memberme,refineme: Adynamicproceduralmem- mentlearning. Nature,645(8081):633–638.
+oryframeworkforexperience-drivenagentevolution.
+Preprint,arXiv:2512.10696. YuyangHu,ShichunLiu,YanweiYue,GuibinZhang,
+BoyangLiu,FangyiZhu,JiahangLin,HonglinGuo,
+Jiuhai Chen and Jonas Mueller. 2024. Quantifying ShihanDou,ZhihengXi,SenjieJin,JiejunTan,Yan-
+uncertainty in answers from any language model bin Yin, Jiongnan Liu, Zeyu Zhang, Zhongxiang
+andenhancingtheirtrustworthiness. InProceedings Sun,YutaoZhu,HaoSun,BociPeng,and28others.
+of the 62nd Annual Meeting of the Association for 2025. Memory in the age of ai agents. Preprint,
+ComputationalLinguistics(Volume1: LongPapers), arXiv:2512.13564.
+9
+
+--- Page 10 ---
+Minsoo Kim, Victor Bursztyn, Eunyee Koh, Shu- GeorgeLee,MahsanRofouei,HangfeiLin,Jiawei
+nan Guo, and Seung-won Hwang. 2024. RaDA: Han,Chen-YuLee,andTomasPfister.2025. Reason-
+Retrieval-augmentedwebagentplanningwithLLMs. ingbank: Scalingagentself-evolvingwithreasoning
+InFindingsoftheAssociationforComputationalLin- memory. Preprint,arXiv:2509.25140.
+guistics: ACL2024,pages13511–13525,Bangkok,
+Thailand.AssociationforComputationalLinguistics. Thinh Pham, Nguyen Nguyen, Pratibha Zunjare,
+Weiyuan Chen, Yu-Min Tseng, and Tu Vu.
+Shashank Kirtania, Param Biyani, Priyanshu Gupta, 2025. Sealqa: Raising the bar for reasoning
+Yasharth Bajpai, Roshni Iyer, Sumit Gulwani, and in search-augmented language models. Preprint,
+GustavoSoares.2025. Improvinglanguageagents arXiv:2506.01062.
+throughbrew. Preprint,arXiv:2511.20297.
+Changle Qu, Sunhao Dai, Xiaochi Wei, Hengyi Cai,
+DongjunLee,JuyongLee,KyuyoungKim,JihoonTack, ShuaiqiangWang,DaweiYin,JunXu,andJi-rong
+JinwooShin,YeeWhyeTeh,andKiminLee.2025. Wen.2025. Toollearningwithlargelanguagemod-
+Learning to contextualize web pages for enhanced els: asurvey. FrontiersofComputerScience,19(8).
+decisionmakingbyllmagents. InTheThirteenthIn-
+ternationalConferenceonLearningRepresentations. Harsh Raj, Vipul Gupta, Domenic Rosati, and Sub-
+habrataMajumdar.2025. Improvingconsistencyin
+XiaoouLiu,TiejinChen,LongchaoDa,ChachaChen, large language models through chain of guidance.
+ZhenLin,andHuaWei.2025a. Uncertaintyquantifi- TransactionsonMachineLearningResearch.
+cationandconfidencecalibrationinlargelanguage
+models: Asurvey. InProceedingsofthe31stACM Jie Ren, Yao Zhao, Tu Vu, Peter J. Liu, and Balaji
+SIGKDDConferenceonKnowledgeDiscoveryand Lakshminarayanan.2023. Self-evaluationimproves
+DataMiningV.2,pages6107–6117. selectivegenerationinlargelanguagemodels. InPro-
+ceedingson"ICan’tBelieveIt’sNotBetter: Failure
+Yitao Liu, Chenglei Si, Karthik R Narasimhan, and ModesintheAgeofFoundationModels"atNeurIPS
+ShunyuYao.2025b. Contextualexperiencereplay 2023Workshops,volume239ofProceedingsofMa-
+forself-improvementoflanguageagents. InProceed- chineLearningResearch,pages49–64.PMLR.
+ingsofthe63rdAnnualMeetingoftheAssociation
+forComputationalLinguistics(Volume1: LongPa- DavidSilverandRichardSSutton.2025. Welcometo
+pers),pages14179–14198,Vienna,Austria.Associa- theeraofexperience. GoogleAI,1.
+tionforComputationalLinguistics.
+YueqiSong,FrankF.Xu,ShuyanZhou,andGraham
+XingHanLu, ZdeneˇkKasner, andSivaReddy.2024. Neubig. 2025. Beyond browsing: API-based web
+Weblinx: Real-worldwebsitenavigationwithmulti- agents. InFindingsoftheAssociationforComputa-
+turndialogue. InInternationalConferenceonMa- tionalLinguistics: ACL2025,pages11066–11085,
+chineLearning,pages33007–33056.PMLR. Vienna,Austria.AssociationforComputationalLin-
+guistics.
+Haohao Luo, Jiayi Kuang, Wei Liu, Ying Shen, Jian
+Luan, and Yang Deng. 2025. Browsing like hu- Xiangru Tang, Tianrui Qin, Tianhao Peng, Ziyang
+man: Amultimodalwebagentwithexperientialfast- Zhou, Daniel Shao, Tingting Du, Xinming Wei,
+and-slowthinking. InProceedingsofthe63rdAn- He Zhu, Ge Zhang, Jiaheng Liu, Xingyao Wang,
+nualMeetingoftheAssociationforComputational SiruiHong,ChenglinWu,andWangchunshuZhou.
+Linguistics(Volume1: LongPapers),pages14232– 2025. AGENTKB:Ahierarchicalmemoryframe-
+14251, Vienna, Austria. Association for Computa- workforcross-domainagenticproblemsolving. In
+tionalLinguistics. ICML2025WorkshoponCollaborativeandFeder-
+atedAgenticWorkflows.
+GrégoireMialon,ClémentineFourrier,ThomasWolf,
+YannLeCun, andThomasScialom.2023. Gaia: a Kimi Team, Yifan Bai, Yiping Bao, Guanduo Chen,
+benchmarkforgeneralaiassistants. InTheTwelfth Jiahao Chen, Ningxin Chen, Ruijue Chen, Yanru
+International Conference on Learning Representa- Chen, Yuankun Chen, Yutian Chen, and 1 others.
+tions. 2025. Kimi k2: Open agentic intelligence. arXiv
+preprintarXiv:2507.20534.
+LiangboNing,ZiranLiang,ZhuohangJiang,Haohao
+Qu,YujuanDing,WenqiFan,Xiao-yongWei,Shanru HuaijieWang,ShiboHao,HanzeDong,ShenaoZhang,
+Lin,HuiLiu,PhilipS.Yu,andQingLi.2025. Asur- YilinBao, ZiranYang, andYiWu.2025a. Offline
+veyofwebagents: Towardsnext-generationaiagents reinforcementlearningforLLMmulti-stepreasoning.
+for web automation with large foundation models. In Findings of the Association for Computational
+In Proceedings of the 31st ACM SIGKDD Confer- Linguistics: ACL 2025, pages 8881–8893, Vienna,
+enceonKnowledgeDiscoveryandDataMiningV.2, Austria.AssociationforComputationalLinguistics.
+KDD ’25, page 6140–6150, New York, NY, USA.
+AssociationforComputingMachinery. Jiawei Wang, Jiacai Liu, Yuqian Fu, Yingru Li, Xin-
+tao Wang, Yuan Lin, Yu Yue, Lin Zhang, Yang
+Siru Ouyang, Jun Yan, I-Hung Hsu, Yanfei Chen, Wang,andKeWang.2025b. Harnessinguncertainty:
+Ke Jiang, Zifeng Wang, Rujun Han, Long T. Le, Entropy-modulatedpolicygradientsforlong-horizon
+SamiraDaruki,XiangruTang,VishyTirumalashetty, llmagents. Preprint,arXiv:2509.09265.
+10
+
+--- Page 11 ---
+ShenzhiWang,LeYu,ChangGao,ChujieZheng,Shix- Wen.2025b. Asurveyonthememorymechanismof
+uanLiu,RuiLu,KaiDang,Xiong-HuiChen,Jianxin largelanguagemodel-basedagents. ACMTransac-
+Yang, Zhenru Zhang, Yuqiong Liu, An Yang, An- tionsonInformationSystems,43(6):1–47.
+drewZhao,YangYue,ShijiSong,BowenYu,Gao
+Huang,andJunyangLin.2025c. Beyondthe80/20 Andrew Zhao, Daniel Huang, Quentin Xu, Matthieu
+rule: High-entropy minority tokens drive effective Lin, Yong-Jin Liu, and Gao Huang. 2024. Expel:
+reinforcementlearningforLLMreasoning. InThe Llm agents are experiential learners. Proceedings
+Thirty-ninthAnnualConferenceonNeuralInforma- of the AAAI Conference on Artificial Intelligence,
+tionProcessingSystems. 38(17):19632–19642.
+ZoraZhiruoWang,JiayuanMao,DanielFried,andGra- Longtao Zheng, Rundong Wang, Xinrun Wang, and
+hamNeubig.2025d. Agentworkflowmemory. In Bo An. 2024. Synapse: Trajectory-as-exemplar
+Forty-secondInternationalConferenceonMachine prompting with memory for computer control. In
+Learning. The Twelfth International Conference on Learning
+Representations.
+ZhepeiWei,WenlinYao,YaoLiu,WeizhiZhang,Qin
+Tianyu Zheng, Tianshun Xing, Qingshui Gu, Taoran
+Lu, Liang Qiu, Changlong Yu, Puyang Xu, Chao
+Liang, Xingwei Qu, Xin Zhou, Yizhi Li, Zhou-
+Zhang,BingYin,HyokunYun,andLihongLi.2025.
+futuWen,ChenghuaLin,WenhaoHuang,QianLiu,
+WebAgent-r1: Trainingwebagentsviaend-to-end
+GeZhang,andZejunMa.2025. Firstreturn,entropy-
+multi-turnreinforcementlearning. InProceedingsof
+elicitingexplore. Preprint,arXiv:2507.07017.
+the2025ConferenceonEmpiricalMethodsinNatu-
+ralLanguageProcessing,pages7909–7928,Suzhou,
+China.AssociationforComputationalLinguistics.
+JialongWu,BaixuanLi,RunnanFang,WenbiaoYin,
+LiwenZhang,ZhenglinWang,ZhengweiTao,Ding-
+Chu Zhang, Zekun Xi, Xiangru Tang, Yong Jiang,
+PengjunXie,FeiHuang,andJingrenZhou.2025a.
+Webdancer: Towardsautonomousinformationseek-
+ingagency. InTheThirty-ninthAnnualConference
+onNeuralInformationProcessingSystems.
+JialongWu,WenbiaoYin,YongJiang,ZhenglinWang,
+Zekun Xi, Runnan Fang, Linhai Zhang, Yulan He,
+Deyu Zhou, Pengjun Xie, and Fei Huang. 2025b.
+WebWalker: BenchmarkingLLMsinwebtraversal.
+In Proceedings of the 63rd Annual Meeting of the
+AssociationforComputationalLinguistics(Volume1:
+LongPapers),pages10290–10305,Vienna,Austria.
+AssociationforComputationalLinguistics.
+ChengYang,XuemengYang,LichengWen,Daocheng
+Fu,JianbiaoMei,RongWu,PinlongCai,YufanShen,
+NianchenDeng,BotianShi,YuQiao,andHaifeng
+Li.2025. Learningonthejob: Anexperience-driven
+self-evolvingagentforlong-horizontasks. Preprint,
+arXiv:2510.08002.
+Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak
+Shafran,KarthikRNarasimhan,andYuanCao.2023.
+React: Synergizingreasoningandactinginlanguage
+models. InTheEleventhInternationalConference
+onLearningRepresentations.
+Ding-ChuZhang,YidaZhao,JialongWu,LiwenZhang,
+Baixuan Li, Wenbiao Yin, Yong Jiang, Yu-Feng
+Li,KeweiTu,PengjunXie,andFeiHuang.2025a.
+EvolveSearch: An iterative self-evolving search
+agent. In Proceedings of the 2025 Conference on
+EmpiricalMethodsinNaturalLanguageProcessing,
+pages13134–13147,Suzhou,China.Associationfor
+ComputationalLinguistics.
+ZeyuZhang,QuanyuDai,XiaoheBo,ChenMa,RuiLi,
+XuChen,JiemingZhu,ZhenhuaDong,andJi-Rong
+11
+
+--- Page 12 ---
+A DetailsofMethod Algorithm1ThresholdEstimation
+Input: Entropy sets H+ (correct steps), H− (in-
+A.1 DetailsofThresholdEstimation
+correctsteps),BootstrapiterationsN
+We implement the threshold estimation algo- Output: Thresholdinterval[θ ,θ ]
+lower upper
+rithm usingthe LogisticRegression class from 1: InitializeΘ ← ∅
+scikit-learn with default hyperparameters, 2: fori = 1toN do
+whichiswell-suitedforoursingle-featurebinary 3: //Bootstrapresampling
+classificationtask(correctvs. incorrectstepsbased
+4:
+SampleH+ bydrawing|S+|elementsfrom
+onentropyH¯ t ). H+ withr i eplacement
+5:
+SampleH− bydrawing|S−|elementsfrom
+BootstrapResampling. Samplingwithreplace- i
+H− withreplacement
+ment (Lines 4-5 of Algorithm 1) generates boot-
+6: //Constructtrainingdata
+strapdatasetswheresomeoriginalsamplesappear
+multiple times while others are omitted. Across 7: D i ← {(H¯,0) | H¯ ∈ H i +} ∪ {(H¯,1) |
+H¯ ∈ H−}
+N = 1000iterations,thisproducesadistribution i
+8: //Trainlogisticregression
+ofdecisionboundariesΘ = {θ(1),...,θ(N)}, en-
+9: Train logistic regression: (w i ,b i ) ←
+abling uncertainty quantification via confidence argmin (cid:80) L(y,σ(wH¯ +b))
+intervals. w,b (H¯,y)∈Di
+10: whereσ(z) = 1/(1+e−z)
+DecisionBoundaryInterpretation. Eachlogis- 11: //Extractthresholdatdecisionboundary
+ticregressionmodellearnsparameters(w,b)such 12: θ(i) ← −b i /w i
+that the decision boundary θ = −b/w represents 13: Θ ← Θ∪{θ(i)}
+theentropyvaluewhereP(correct | H¯) = 0.5. Ge- 14: endfor
+ometrically,thiscorrespondstotheinflectionpoint 15: SortΘinascendingorder
+ofthesigmoidfunctionσ(wH¯ +b)projectedonto 16: θ lower ← Q 0.025 (Θ)
+the entropy axis—the point of maximum model 17: θ upper ← Q 0.975 (Θ)
+uncertainty,makingitanaturalinterventionthresh- 18: return [θ lower ,θ upper ]
+old.
+Confidence Interval Construction. The 95% B DetailsofExperimentResults
+confidenceinterval[θ ,θ ]isderivedbyex-
+lower upper
+B.1 Pass@kResults
+tractingthe2.5thand97.5thpercentilesoftheboot-
+strapdistribution: As shown in Figure 5, ExpSeek demonstrates
+strongerperformanceinsamplingdiversity. Com-
+θ = Q (Θ), θ = Q (Θ) (7) pared to vanilla, the absolute improvements in
+lower 0.025 upper 0.975
+pass@3 are 12.9% and 8.8%, exceeding the im-
+whereQ (·)denotesthep-thquantilefunction. provementmarginsinaverageaccuracy. Incontrast,
+p
+thetwobaselinesdonotexhibitbetterdiversity,and
+Computational Efficiency. On an Intel Xeon
+evenfallbelowvanillaonmultipledatasets. This
+CPU,estimatingthresholdsforonesteptype(pro-
+highlights the significant advantage of ExpSeek,
+cessoranswer)completeswithinseconds. Since
+withpotentialevenasarolloutaugmentationstrat-
+we estimate thresholds independently for both
+egyinagenticRLtraining.
+types, the total offline computation time is neg-
+ligiblecomparedtoonlineinferencecosts. B.2 Whypriormethodsunderperform?
+Based on the experimental results, we reflect on
+A.2 AdditionalAdvantagesoftheAlgorithm
+whypriorexperience-basedinterventionmethods
+AsillustratedinFigure8,thethresholdestimation are ineffective. We attribute the reasons to two
+algorithmadaptseffectivelytocaseswithreduced aspects.
+distributionaldifferences. Inthe32Bprocesssteps, (1)Experienceacquisitionisdisconnectedfrom
+the predominance of the yellow region indicates actualreasoning. Mostexperiencerepositorycon-
+thatunderhigheruncertainty,thealgorithmadap- struction methods meticulously process training
+tivelyrandomizestriggerdecisionstoavoidexces- trajectories,performmultipleroundsofcarefulde-
+siveintervention. noising,andcautiouslydistillcoreexperienceitems
+12
+
+--- Page 13 ---
+WebWalkerQA
+Method GAIA SEAL xbench Avg.
+Easy Medium Hard Avg.
+Qwen3-8B
+NoExperience 57.50 60.00 46.11 54.54 47.57 39.76 43.00 48.99
+-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 -0.0 -0.0
+Training-FreeGRPO 56.67 62.54 52.67 57.29 48.54 42.13 45.00 51.26
+↓0.8 ↑2.5 ↑6.6 ↑2.8 ↑1.0 ↑2.4 ↑2.0 ↑2.3
+REASONINGBANK + 61.17
+↑3.7
+58.19
+↓1.8
+50.00
+↑3.9
+56.45
+↑1.9
+48.70
+↑1.1
+44.09
+↑4.3
+46.80
+↑3.8
+51.49
+↑2.5
+ExpSeek(Ours) 69.17 72.45 63.33 68.32 54.37 50.00 62.00 61.89
+↑11.7 ↑12.5 ↑17.2 ↑13.8 ↑6.8 ↑10.2 ↑19.0 ↑12.9
+Qwen3-32B
+NoExperience 62.50 61.43 58.33 60.75 54.37 47.64 53.00 56.21
+-0.0 -0.0 -0.0 -0.0 -0.0 -0.0 -0.0 -0.0
+Training-FreeGRPO 63.95 59.57 57.45 60.32 56.62 48.35 53.60 56.59
+↑1.5 ↓1.9 ↓0.9 ↓0.4 ↑2.3 ↑0.7 ↑0.6 ↑0.4
+REASONINGBANK + 68.33
+↑5.8
+64.33
+↑2.9
+56.44
+↓1.9
+63.03
+↑2.3
+46.60
+↓7.8
+48.82
+↑1.2
+59.00
+↑6.0
+57.25
+↑1.0
+ExpSeek(Ours) 72.50 72.86 63.33 69.56 63.11 51.97 66.00 64.96
+↑10.0 ↑11.4 ↑5.0 ↑8.8 ↑8.7 ↑4.3 ↑13.0 ↑8.8
+Table5: ExtendedmainresultsreportingPass@3accuracyforbaselinesandExpSeek. Wealsoprovideabsolute
+performancedifferencesfromexperience-freeReAct.
+with deep observation of successes and failures.
+However,theconstructionprocessitselfischalleng- 1.0
+ing,andwhensuchheavilyprocessedexperiences 0.8
+aregiventoreasoningagents,theagentsmaynot 0.6
+even understand some abstract expressions. This 0.4
+differs from how humans use experience—when 0.2
+humans recall experience, the amount of infor- 0.0
+0.0 0.2 0.4 0.6 0.8 1.0 1.2
+mationretrievedinstantlyisenormous,including
+scenes,behavioraldetails,andevenemotions,far
+exceedingsimplifiedexperienceitems.
+(2) Experience is difficult to utilize. During
+multi-turnagentinteractions,evenwhenaccurate
+experiencesareprovidedinsystemprompts,itis
+difficulttorequiremodelstopreciselylocateafew
+shorteffectiveexperienceitemsacrossultra-long
+contexts. Moreover, models must also leverage
+experiencetocorrecttheiroriginalreasoningten-
+dencies.
+ExpSeek essentially simulates a user through
+anexperiencemodel,providingeffectiveguidance
+thatdoesnotrequiredeepmodelunderstandingto
+beleveraged. Sinceeachguidanceisgeneratedin
+real-time based on context, the experience is not
+disconnectedfromactualreasoning.
+B.3 CaseStudys
+AsshowninTable7,8,9and10. Thecontrasting
+outcomesrevealacriticallimitationinagent’srea-
+soning when relying on incomplete information,
+anddemonstratehowstrategicguidancecanredi-
+rectagentstowardreliableevidence.
+Why the unguided trajectory failed: The
+agent’s error stemmed from reliance on search
+snippetsthatlisted"Spider-Man: NoWayHome"
+alongside "The Super Mario Bros. Movie" and
+"JurassicWorld: Dominion"inbillion-dollarfilm
+discussions, but omitted distributor information.
+noitnevretnI
+fo
+ytilibaborP
+(a) Process Steps
+Safe Zone
+Buffer Zone
+Intervention Zone
+Median Probability Curve
+True Dist.
+False Dist.
+200
+0
+1.0 1.5 2.0 2.5 3.0
+Entropy Value
+ycneuqerF
+Simulated Thresholds
+Lower 2.5%
+Median
+Upper 97.5%
+1.0
+0.8
+0.6
+0.4
+0.2
+0.0
+0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4
+noitnevretnI
+fo
+ytilibaborP
+(b) Final Steps
+Safe Zone
+Buffer Zone
+Intervention Zone
+Median Probability Curve
+True Dist.
+False Dist.
+100
+0
+0.70 0.75 0.80 0.85 0.90
+Entropy Value
+ycneuqerF
+2
+1
+0
+Simulated Thresholds
+Lower 2.5% Median
+Upper 97.5%
+ytisneD
+elpmaS
+2
+1
+0
+ytisneD
+elpmaS
+Figure8: Entropydistributionsofprocessandanswer
+steps on D for Qwen3-32B, with fitted logistic
+train
+regressioncurves.
+Withoutverificationmechanisms,theagentincor-
+rectly inferred all three were Universal releases,
+when"Spider-Man: NoWayHome"wasactually
+distributed by Sony Pictures. This represents a
+classicentityattributeconfusion—theagentfailed
+to verify the critical "distributor" attribute before
+counting.
+Why guidance succeeded: The guidance im-
+plemented a two-pronged strategy. First, it redi-
+rected the agent toward authoritative box office
+13
+
+--- Page 14 ---
+2.5 2.0
+1.5
+1.0
+0.5
+0.0
+0.4 0.6 0.8 1.0 1.2
+ytisneD
+WebWalker-Easy WebWalker-Medium WebWalker-Hard GAIA SEAL xbench
+Vanilla 3.0 Vanilla 3.0 Vanilla 2.5 Vanilla 3.5 Vanilla 2.5 Vanilla ExpSeek 2 2 . . 0 5 ExpSeek 2 2 . . 0 5 ExpSeek 2.0 ExpSeek 2 3 . . 5 0 ExpSeek 2.0 ExpSeek
+1.5 2.0 1.5 1.5 1.5
+1.0 1.0 1.0 1 1 . . 0 5 1.0
+0.5 0.5 0.5 0.5 0.5
+0.0 0.0 0.0 0.0 0.0
+0.2 0.4 0.6 0.8 1.0 1.2 0.4 0.6 0.8 1.0 0.25 0.50 0.75 1.00 1.25 0.2 0.4 0.6 0.8 1.0 0.4 0.6 0.8 1.0 1.2
+2.0 1.8 1.5 1.2
+1.0
+0.8
+0.5
+0.2
+0.0
+0.0 0.5 1.0 1.5
+Entropy
+ytisneD V E a x n p i S ll e a ek 1 1 1 2 . . . . 2 5 8 0 V E a x n p i S ll e a ek 1 1 1 . . . 2 5 8 V E a x n p i S ll e a ek 1 1 1 . . . 2 5 8 V E a x n p i S ll e a ek 1 1 1 2 . . . . 2 5 8 0 V E a x n p i S ll e a ek 1 1 1 . . . 2 5 8 V E a x n p i S ll e a ek
+1.0 1.0 1.0 1.0 1.0
+0.8 0.8 0.8 0.8 0.8
+0.5 0.5 0.5 0.5 0.5
+0.2 0.2 0.2 0.2 0.2
+0.0 0.0 0.0 0.0 0.0
+0.0 0.5 1.0 1.5 0.0 0.5 1.0 1.5 0.0 0.5 1.0 1.5 0.00 0.25 0.50 0.75 1.00 1.25 0.0 0.5 1.0 1.5
+Entropy Entropy Entropy Entropy Entropy
+petS ssecorP
+)a(
+petS
+laniF
+)b(
+Figure9: EntropydistributionsofprocessandanswerstepsforQwen3-32BbeforeandafterapplyingExpSeek
+acrossallbenchmarks.
+sites (Screen Rant, Rotten Tomatoes, Box Office to focus on answer details and encouraging tra-
+Mojo)thatsystematicallylabelfilmswithdistrib- jectory extension for thorough verification when
+utors. Second, it reinforced the task’s dual re- necessary. Thistripletdesignreproducesstep-level
+quirement—countingfilmssatisfyingbothrevenue error patterns from training trajectories and pro-
+threshold and distributor constraint—prompting vides targeted guidance, enabling the experience
+a verification-based approach. The Screen Rant modeltomoreaccuratelyguidebothprocessand
+article provided explicit evidence that only two finalstepsduringtestinference.
+Universal-distributed films (via Illumination and
+C DetailsofSetting
+Amblinpartnerships)appearedonthebillion-dollar
+list,enablingcorrectfilteringandcounting.
+AsQwen3-8BandQwen3-32Barehybridreason-
+The guidance’s success lies in methodological
+ingmodels,wedeploytheminnon-thinkingmode
+redirectionratherthandirectanswerprovision. By
+and adopt the <thought></thought> tag rather
+steeringtheagenttowardsourceswithricherstruc-
+than <think></think> to prevent conflicts with
+turalmetadataandemphasizingattributeverifica-
+their original output structure. For tool imple-
+tion, it enabled the agent to overcome reasoning mentation, we use Bright Data5 to provide sta-
+failure through improved evidence quality rather ble web API services for the search tool, Jina6
+thanexternalcorrection.
+as the web access service for the visit tool, and
+Qwen3-235B-A22B-Instruct-2507 as the sum-
+B.4 GuidingExperience
+marization model within the visit tool. All other
+In this section, we demonstrate the details of the
+experimentalsettingsandpromptsremainconsis-
+guiding experience. Table 6 presents experience
+tentwithpriorwork(Wuetal.,2025a). Thefour
+demos from both stages. The process step expe-
+benchmarksemployedinourevaluationarewidely
+rience focuses on strategic decisions during rea-
+recognizedinwebagentresearchandarepermitted
+soning, such as how the student selects informa-
+foruseinacademicstudiesundertheirdistribution
+tion sources for verification after searching. Its
+terms.
+mistakeidentifiesmethodologicalissuesaffecting
+subsequentreasoningpaths(e.g.,relyingonsnip- D DetailsofPrompts
+pets rather than accessing authoritative sources),
+Inthissection,wepresentallkeyprompts. Table11
+while guidance provides directional suggestions
+showsthesystempromptforReAct,whichwehave
+forprocessoptimization(e.g.,prioritizingofficial
+slightlyadjustedbasedonguidanceexperience. Ta-
+sources). In contrast, the final step experience
+bles12and13arepromptsforgeneratingtheex-
+concentrates on answer formulation, such as ex-
+perience base, where Table 12 implements iden-
+tracting the final answer from search results. Its
+tifying step mistakes and generating triplets, and
+mistake targets detail-oriented errors directly im-
+Table 13 iteratively generates topics based on all
+pacting output quality (e.g., failing to faithfully
+reproducecompletepropernouns),whileguidance 5https://www.bright.cn
+emphasizesresultaccuracy,promptingthemodel 6https://jina.ai
+14
+
+--- Page 15 ---
+Experiencebasedemos.
+ProcessStepdemo
+{
+"Behavior":"ThestudentrecognizedtheneedtoconfirmwhichAfricancountriesparticipatedinthe7thChinaInternational
+ImportExpo(CIIE)underthethemeof’60thAnniversaryofDiplomaticRelations’throughexternalinformationsources,
+andthereforeinitiatedmulti-anglekeywordsearches.",
+"Mistake":"Althoughthesearchkeywordswerereasonablydesigned,thestudentdidnotprioritizevisitingsourcesmost
+likelytocontainauthoritativeinformation(suchastheofficialCIIEwebsite)forin-depthaccess.Instead,theyreliedonlyon
+searchresultsnippetsforpreliminaryjudgment,layinghiddenrisksforsubsequentmisjudgment.",
+"Guidance":"Whenreviewingsearchresults,youshouldprioritizeidentifyingandplanningtovisitauthoritativeorofficial
+sources(suchasciie.org).Especiallywhenmultipleresultscitethesamewebpage,itshouldbesetastheprimaryverification
+targettoavoidprematurelysynthesizingincompleteinformationtodrawconclusions."
+}
+FinalStepdemo
+{
+"Behavior":"Thestudentreviewedthesearchresults,foundthatmultipleresultspointedtoawebsitedesigncompany
+called’Niegao’(niegoweb.com),andinferredfromthisthatthewebsitewasdesignedbythiscompany.",
+"Mistake": "The student overlooked the complete official company name that clearly appeared in the search re-
+sults—’NiegaoBrandNetwork’or’NiegaoBrandDesign’—andinsteadsimplifieditontheirownto’NiegaoWebsite
+DesignCompany,’resultinginananswerinconsistentwiththestandardanswer.Althoughsemanticallysimilar,thestudent
+failedtofaithfullyreproducethepropernounfromtheoriginaltext.",
+"Guidance": "Beforedrawingconclusions,pleasecarefullycheckthecompleteinstitutionalnamesthatappearinthe
+searchresults,especiallytheofficialnamesofcollaboratingpartiesincasestudypages.Prioritizeusingthefullbrandname
+directlymentionedintheoriginaltextratherthansummarizingitbasedonyourownunderstanding."
+}
+Table6: ExperiencebasedemosforQwen3-8B.
+triplets. Tables14and15arepromptsforutilizing
+theexperiencemodelduringinference. Table14is
+fortheexperiencemodeltodeterminewhichtop-
+ics to utilize, and Table 15 generates appropriate
+proactiveguidancebasedonallexperiencesunder
+thetopicsandthecurrenthistorycontext. Table17
+isthepromptforusingaLLMasanintervention
+trigger,whereoutputting“yes”triggersguidance
+forthatstep. Table18isforutilizingretrievedexpe-
+riencebaseexperiencesduringinference. Table16
+isforgeneratingguidancedirectlyusingtheworld
+experienceoftheexperiencemodelwithoutrelying
+ontheexperiencebase.
+15
+
+--- Page 16 ---
+Casestudy(Incorrect):Qwen3-8Binteractionwithoutguidingexperience
+Question:
+HowmanyUniversalStudiosfilmshavegrossedover$1billionworldwidesince2020?
+AgentAction:
+<think>
+TodeterminehowmanyUniversalStudiosfilmshavegrossedover$1billionworldwidesince2020,Ineedtosearchforalist
+ofUniversalStudiosfilmsandtheirboxofficeearnings.Thiswillinvolvefirstidentifyingwhichfilmsareassociatedwith
+UniversalStudiosandthencheckingtheirgrossearnings.I’llbeginbysearchingforalistofUniversalStudiosfilmsandtheir
+boxofficeperformancesince2020.
+</think>
+<tool_call>
+Search:UniversalStudiosfilmsgrossover$1billionsince2020
+Search:ListofUniversalStudiosmovieswithboxofficeearningsover$1billionsince2020
+</tool_call>
+EnvToolResponse:
+AGooglesearchfor’UniversalStudiosfilmsgrossover$1billionsince2020’found5results:
+......
+2.[Universal-TheFirstHalfofthe2020sInReview:r/boxoffice]
+Universal-TheFirstHalfofthe2020sInReview·TheSuperMarioBros. Movie-$1.36B·JurassicWorldDominion-
+$1.001B·Oppenheimer-$975.6M.
+......
+5.[6MoviesThatHaveMade$1BillionAtTheBoxOfficeSinceCovid]
+6JurassicWorld: Dominion(2022)·5TheSuperMarioBros. Movie(2023)·4Spider-Man: NoWayHome(2021)·3
+Avatar:TheWayofWater(2022)·2...
+......
+AgentAction:
+<think>
+Basedonthesearchresults,IneedtodeterminewhichUniversalStudiosfilmshavegrossedover$1billionworldwidesince
+2020.ThekeyinformationcomesfromtheRedditpostandtheTheNumberswebsite.AccordingtotheRedditpost,"The
+SuperMarioBros.Movie"hasgrossed$1.36B,and"JurassicWorldDominion"hasgrossed$1.001B.FromtheTheNumbers
+website,thereisalistofthetopUniversalmoviesbyworldwideboxoffice,andthemostrecentonesinclude"TheSuper
+MarioBros.Movie"and"JurassicWorldDominion."Additionally,itappearsthatotherfilmssuchas"Avatar:TheWayof
+Water"mightalsoqualifybasedonthecontextprovidedinthesearchresults.Toconfirmthis,IwillvisittheTheNumbers
+websitedirectlytogettheexactdataforUniversalStudiosfilmsandtheirboxofficeearningssince2020.
+</think>
+<tool_call>
+Visit:https://www.the-numbers.com/box-office-records/worldwide/all-movies/theatrical-distributors/universal
+VisitGoal:FindthelistofUniversalStudiosfilmswithboxofficeearningsover$1billionsince2020.
+</tool_call>
+EnvToolResponse:
+Therequestedwebpagedidnotloadfullyandcontainsnousabledata.Asaresult,thereisinsufficientinformationtoidentify
+UniversalStudiosfilmswithboxofficeearningsexceeding$1billionsince2020.
+......
+AgentAction:
+<think>
+TheattempttoaccesstheTheNumberswebsitedirectlydidnotyieldusabledata.Thismaybeduetotechnicalissuesor
+incompletepageloading.Iwillneedtofindanalternativesourceofinformation.Basedontheprevioussearchresults,the
+Redditpostmentioned"TheSuperMarioBros.Movie"and"JurassicWorldDominion"ashavinggrossedover$1billion.
+However,Ishouldverifythiswithanotherreliablesourcetoconfirmtheaccuracyofthesefigures.
+</think>
+<tool_call>
+Search:UniversalStudiosfilmsover$1billionsince2020
+Search:ListofUniversalStudiosmovieswithboxofficeearningsover$1billionsince2020
+</tool_call>
+Table7: Casestudy: Qwen3-8Binteractionwithoutguidingexperience
+16
+
+--- Page 17 ---
+Casestudy(Incorrect):Qwen3-8Binteractionwithoutguidingexperience
+EnvToolResponse:
+AGooglesearchfor’UniversalStudiosfilmsover$1billionsince2020’found5results:
+......
+3.[8MoviesThatBroke$1BillionattheBoxOfficeSinceCovid]Avatar:TheWayofWater’sboxofficecomesinatover
+$2.3billion...
+......
+5.[6MoviesThatHaveMade$1BillionAtTheBoxOfficeSinceCovid]6JurassicWorld:Dominion(2022)·5TheSuper
+MarioBros.Movie(2023)·4Spider-Man:NoWayHome(2021)·3Avatar:TheWayofWater(2022)·2...
+......
+AgentAction:
+<think>
+Fromthesearchresults,Icanseethat"TheSuperMarioBros.Movie"(2023)and"JurassicWorld:Dominion"(2022)are
+mentionedashavinggrossedover$1billionworldwide.Additionally,"Spider-Man:NoWayHome"(2021)isnotedasone
+ofthefirstfilmstoreachthe$1billionmarksincethestartofthepandemic.ThesethreefilmsaredistributedbyUniversal
+Studios,andtheyallhaveboxofficeearningsexceeding$1billiongloballysince2020.Therefore,theanswertothequestion
+isthatthreeUniversalStudiosfilmshavegrossedover$1billionworldwidesince2020.
+</think>
+<answer>
+ThreeUniversalStudiosfilmshavegrossedover$1billionworldwidesince2020:"TheSuperMarioBros.Movie,""Jurassic
+World:Dominion,"and"Spider-Man:NoWayHome."
+</answer>
+Table8: Casestudy: Qwen3-8Binteractionwithoutguidingexperience(Tablecontinued)
+17
+
+--- Page 18 ---
+Casestudy(Correct):Qwen3-8Binteractionwithguidingexperience
+Question:
+HowmanyUniversalStudiosfilmshavegrossedover$1billionworldwidesince2020?
+AgentAction:
+<think>
+TodeterminehowmanyUniversalStudiosfilmshavegrossedover$1billionworldwidesince2020,Ineedtosearchforalist
+ofUniversalStudiosfilmsandtheirboxofficeearnings.Thiswillinvolvefirstidentifyingwhichfilmsareassociatedwith
+UniversalStudiosandthencheckingtheirgrossearnings.I’llbeginbysearchingforalistofUniversalStudiosfilmsandtheir
+boxofficeperformancesince2020.
+</think>
+<tool_call>
+Search:UniversalStudiosfilmsgrossover$1billionsince2020
+Search:ListofUniversalStudiosmovieswithboxofficeearningsover$1billionsince2020
+</tool_call>
+EnvToolResponse:
+AGooglesearchfor’UniversalStudiosfilmsgrossover$1billionsince2020’found5results:
+......
+2.[Universal-TheFirstHalfofthe2020sInReview:r/boxoffice]
+Universal-TheFirstHalfofthe2020sInReview·TheSuperMarioBros. Movie-$1.36B·JurassicWorldDominion-
+$1.001B·Oppenheimer-$975.6M.
+......
+5.[6MoviesThatHaveMade$1BillionAtTheBoxOfficeSinceCovid]
+6JurassicWorld: Dominion(2022)·5TheSuperMarioBros. Movie(2023)·4Spider-Man: NoWayHome(2021)·3
+Avatar:TheWayofWater(2022)·2...
+......
+AgentAction:
+<think>
+Basedonthesearchresults,IneedtodeterminewhichUniversalStudiosfilmshavegrossedover$1billionworldwidesince
+2020.ThekeyinformationcomesfromtheRedditpostandtheTheNumberswebsite.AccordingtotheRedditpost,"The
+SuperMarioBros.Movie"hasgrossed$1.36B,and"JurassicWorldDominion"hasgrossed$1.001B.FromtheTheNumbers
+website,thereisalistofthetopUniversalmoviesbyworldwideboxoffice,andthemostrecentonesinclude"TheSuper
+MarioBros.Movie"and"JurassicWorldDominion."Additionally,itappearsthatotherfilmssuchas"Avatar:TheWayof
+Water"mightalsoqualifybasedonthecontextprovidedinthesearchresults.Toconfirmthis,IwillvisittheTheNumbers
+websitedirectlytogettheexactdataforUniversalStudiosfilmsandtheirboxofficeearningssince2020.
+</think>
+<tool_call>
+Visit:https://www.the-numbers.com/box-office-records/worldwide/all-movies/theatrical-distributors/universal
+Visitgoal:FindthelistofUniversalStudiosfilmswithboxofficeearningsover$1billionsince2020
+</tool_call>
+EnvToolResponse:
+Therequestedwebpagedidnotloadfullyandcontainsnousabledata.Asaresult,thereisinsufficientinformationtoidentify
+UniversalStudiosfilmswithboxofficeearningsexceeding$1billionsince2020.
+......
+AgentAction:
+<think>
+TheattempttoaccesstheTheNumberswebsitedirectlydidnotyieldusabledata.Thismaybeduetotechnicalissuesor
+incompletepageloading.Iwillneedtofindanalternativesourceofinformation.Basedontheprevioussearchresults,the
+Redditpostmentioned"TheSuperMarioBros.Movie"and"JurassicWorldDominion"ashavinggrossedover$1billion.
+However,Ishouldverifythiswithanotherreliablesourcetoconfirmtheaccuracyofthesefigures.
+</think>
+<tool_call>
+Search:UniversalStudiosfilmsover$1billionsince2020
+Search:ListofUniversalStudiosmovieswithboxofficeearningsover$1billionsince2020
+</tool_call>
+Table9: Casestudy: Qwen3-8Binteractionwithguidingexperience
+18
+
+--- Page 19 ---
+Casestudy(Correct):Qwen3-8Binteractionwithguidingexperience
+EnvToolResponse(withGuidance):
+AGooglesearchfor’UniversalStudiosfilmsover$1billionsince2020’found5results:
+......
+3.[8MoviesThatBroke$1BillionattheBoxOfficeSinceCovid]
+Avatar:TheWayofWater’sboxofficecomesinatover$2.3billion...
+......
+5.[6MoviesThatHaveMade$1BillionAtTheBoxOfficeSinceCovid]
+6JurassicWorld: Dominion(2022)·5TheSuperMarioBros. Movie(2023)·4Spider-Man: NoWayHome(2021)·3
+Avatar:TheWayofWater(2022)·2...
+......
+<guidance>Reviewthecoreofthequestion:youneedtocountfilmsreleasedbyUniversalStudioswithworldwideboxoffice
+over$1billionsince2020.Thismeanstheanswerisnotlistingaspecificfilm,butacompletecountbasedonreliablesources.
+Youhavefoundsomefilmsthatmaymeetthecriteria,butdifferentsourcesshowinconsistencies. Insteadofrepeating
+previoussearches,carefullyexaminethosewebpagesintheexistingsearchresultsthatspecificallycompile"billion-dollar
+movie"lists,suchaslinksfromScreenRant,RottenTomatoes,orBoxOfficeMojo.Thesepagesoftenlabeleachfilmwith
+itsdistributorandspecificboxofficefigures,helpingyouverifyonebyonewhetheritbelongstoUniversalStudiosandmeets
+thetimeandamountconditions.Specialreminder:Evenifapagedoesn’tdirectlystate"thereareXfilmsintotal,"youcan
+stillobtaintheanswerthroughmanualcounting—thekeyisfindingareliablelistthatcompletelycatalogssuchfilmsand
+markstheirdistributors.Prioritizevisitingsuchsummaryarticlesorprofessionalboxofficerankingpages.</guidance>
+AgentAction:
+<think>
+Basedontheguidance,Ishouldfocusonreliablesourcesthatlistbillion-dollarmoviesandidentifywhichonesaredistributed
+byUniversalStudios.TheScreenRantarticlementioned"JurassicWorld:Dominion"and"TheSuperMarioBros.Movie"
+ashavinggrossedover$1billion,butIneedtoconfirmthiswithdirectaccesstothefullarticleoramorecomprehensivelist.
+Todothis,IwillvisittheScreenRantpagetoverifytheinformation.
+</think>
+<tool_call>
+Visit:https://screenrant.com/billion-dollar-movies-box-office-2020
+Visitgoal:IdentifythenumberofUniversalStudiosfilmswithboxofficeearningsover$1billionsince2020
+</tool_call>
+EnvToolResponse:
+Evidenceinpage:
+["5TheSuperMarioBros.Movie(2023)-Themovie’ssuccesshasledtoNintendoteasingarangeoffilmsbasedonmore
+ofitsiconicvideogamecharacters.","Illuminationearnedamuchhighernetprofitthanotherbillion-dollarmovies","6
+JurassicWorld:Dominion(2022)-However,afterscathingreviews...themoviewasalwaysgoingtoflounder.Themovie
+didfaceunlikelyboxofficecompetition,too. TopGun: MaverickwasstillplayingwhenJurassicWorld: Dominionwas
+released...","JurassicWorld:Dominionmadealmostexactly$1billionworldwide."]
+Summary:
+Since 2020, two Universal Studios films have earned over $1 billion at the global box office: *Jurassic World: Do-
+minion* (2022) and *The Super Mario Bros. Movie* (2023). Both were produced by Universal-owned or partnered
+studios—Illuminationfor*TheSuperMarioBros. Movie*andAmblinEntertainmentinpartnershipwithUniversalfor
+*JurassicWorld: Dominion*. ThesearetheonlytwoUniversal-releasedfilmsonthelistofsixpost-2020billion-dollar
+earners.
+AgentAction:
+<think>
+BasedontheinformationfromtheScreenRantarticle,thereareexactlytwoUniversalStudiosfilmsthathavegrossedover
+$1billionworldwidesince2020:"JurassicWorld:Dominion"(2022)and"TheSuperMarioBros.Movie"(2023).Theseare
+theonlytwofilmsfromUniversalStudioslistedamongthebillion-dollarearnerssince2020.
+</think>
+<answer>
+Since2020,twoUniversalStudiosfilmshavegrossedover$1billionworldwide:"JurassicWorld:Dominion"(2022)and
+"TheSuperMarioBros.Movie"(2023).Therefore,theansweris2.
+</answer>
+Table10: Casestudy: Qwen3-8Binteractionwithguidingexperience(Tablecontinued)
+19
+
+--- Page 20 ---
+ReActsystemprompt.
+Youareaproblem-solvingexpert,skilledatanalyzingcomplexproblems,formingsolutions,andgraduallyresolvingthem
+step-by-step. Yourapproachisflexibleandcanbeadjustedbasedontheprogressofproblem-solving. Anyproblemyou
+encounterwillcertainlybesolvable;therefore,nomatterhowcomplex,youmustnotgiveupuntilyoufindtheansweryou
+considercorrect.
+Youmustoutputtwopartsbasedonthecurrentinput,bothenclosedbyspecificanglebracketpositionmarkers:
+**Thefirstpart**isenclosedby<thought></thought>andcontainsyourself-thinkingprocess,includinganalysisofthe
+problem,determiningwhethertoolusageisrequired,whichtooltocall,andwhatvaluestopasstothetool.
+**Thesecondpart**isdividedintotwosituations:
+(1)Ifyouwishtocallatool,thenafter</thought>output<tool_call></tool_call>containingstandardtoolcallcontent,
+withtheformatintroducedbelow.
+(2)Ifyoubelievethecurrentproblemcanalreadybesolved,thenafter</thought>output<answer></answer>containing
+thefinalanswer.
+**Availabletoolsandtheirfunctionoverview**
+1.search:Inputakeywordyouthinkneedstobesearched,returnsmultiplewebsitelinksandcorrespondingsummaries.
+2. visit: Inputawebsitelinkandtheproblemyouhopetosolvebyvisitingthatsite,returnstheproblem’sansweranda
+snippetoftheoriginalcontentfromthesitecorrespondingtotheanswer.
+**Detailedtoolcallformat**
+{search_format}
+{visit_format}
+**Modelworkflowdescription**
+1.Modelinputconsistsofthehistoricalloopofinteractions,includingthemodel’sgeneratedthoughtsandtoolcalls,andthe
+user’sreturnedtoolresults.Thehistorymayhavemultiplerounds,alldesignedtosolveagivenproblem.
+2. Themodelmustoutputtwoparts: thinkingprocess,andtoolcalloranswer,eachenclosedbyspecificanglebracket
+positionmarkers:
+-Ifthinking,followtheformat:<thought>hereisthethinkingprocess</thought>
+-Ifcallingatool,followtheformat:<tool_call>toolcallhere</tool_call>
+-Ifdeterminingthefinalanswer,followtheformat:<answer>finalanswer</answer>
+3.Theuserwillrespondwithtoolcallresultsoroccasionallyprovideguidance.Ifthereisguidance,youshouldcarefully
+considerwhethertheuser’sideasarereasonableandtrytofollowthem:
+-Ifrespondingtoatoolcall,youwillseetheformat:<tool_response>hereisthetool’sreturnvalue</tool_response>
+-Iftheuserprovidescarefulguidance,youwillseetheformat: <user_guidance>hereistheuser’sguidancecontent
+</user_guidance>
+4.Everyproblemmusthaveananswer;duringmulti-roundresolution,donotforgetyourpastplanningandprocessresults,
+anddonotforgetthedetailsembeddedintheproblem.
+5.Thesearchtool’sreturnvalueisonlywebsitelinksandsnippetsummaries;theyarehardlyreliablereferencesandcanonly
+serveassearchdirection.Toobtainaccurateinformation,youmustcallthevisittooltovisitasite.
+6. Iftheinteractionincludesaresolutionplan,followtheplan. Donotblindlyignorekeyconstraintsintheplantoavoid
+potentialcascadingerrors.
+7.Intool_callgeneration,theformatmustfollowtheabovedefinitionsandbevalidJSON.Anincorrectformatwillcause
+toolcallstofail.
+*8*.**IMPORTANT**:Iftheuserprovidesguidanceaftertheanswer,prioritizeregenerating<tool_call></tool_call>to
+continuesearchingformissingclues,orprovideonlywhenyouareabsolutelycertainoftheanswer.
+**Multi-roundinteractionfullexample**
+ˋˋˋ{example}ˋˋˋ
+**Notes**
+1.**Youmustgeneratethepositionmarkers**inaccordancewiththerequirementsstatedabove(<thought></thought>;
+<tool_call></tool_call>or<answer></answer>). 2. Inparticular,donotforgettogeneratetheclosingtags: </thought>,
+</tool_call>,OR</answer>
+3.Youmustnotgenerateextraanglebracketpositionmarkers.
+Table11: ReActsystemprompt.
+20
+
+--- Page 21 ---
+Promptforgeneratingexperiencetriplets.
+#QuestionsforStudentstoSolve
+{question}
+#StandardAnswerfortheQuestion
+{answer}
+#Thisisacompletetrajectorythatultimatelygotthecorrectanswerasyourreference:
+ˋˋˋ{true_traj}ˋˋˋ
+#Thisisacompletetrajectorythatultimatelygotthewronganswer:
+ˋˋˋ{false_traj}ˋˋˋ
+#PatternofAllTrajectories:
+Question,R1,O1,R2,O2,R3,O3,R4...
+#InstructionsandYourTask
+1.DefineaSTEPasR_i+O_i,butthelastSTEPonlyhasR_N
+2.EachRisastudent’sresponse,attemptingtocalltoolstofurthersolvetheproblem,butthesecondtrajectorywithwrong
+answeralwayshassomeissues
+3.YourcoretaskistoanswerthisquestionforeachSTEP:ˋˋˋInordertoavoidthefinalerror,ifguidanceisprovidedafter
+thisSTEPends,whatshouldbedonetomaketheagentperformbetter?ˋˋˋ
+4.Ofcourse,acompleteguidanceisatriplet<student’scurrentstate,reasonwhythisSTEPleadstothefinalerror,whatto
+saybeforethenextSTEPtoimprovethecurrentstate>
+ˋˋˋExplanationofthetriplet:
+-Student’scurrentstate: Arelativelygeneraldescription, introducingwhatthestudentsawandwhattheydid. The
+descriptiondoesnotinvolveerrorattribution,focusesonobjectivelystatingthestudent’sbehavior,anddoesnotevaluate
+whetherthebehaviorisgood/badorright/wrong
+-ReasonwhythisSTEPleadstothefinalerror:Unlikethecurrentstate,thispartexplicitlypointsoutwhatmistakethe
+studentmadeinthisSTEP
+-WhattosaybeforethenextSTEPtoimprovethecurrentstate:Basedontheerrorsmentionedabove,providespecific
+guidancethatwillhelpthestudentperformbetterinthenextSTEPiftheyfollowit.Ofcourse,donotdirectlytellthestudent
+theanswer!
+ˋˋˋ
+5.TheguidanceopinioninthetripletgeneratedforSTEP_iwillbeconcatenatedafterO_i,whichmeansthestudentcansee
+itbeforegeneratingR_i+1
+6.NoteverySTEPnecessarilyneedsguidance,youcanskipafteranalysis,butsincethetrajectoryiswrong,**theremustbe
+atleastoneSTEPthathasissuesandcanbesummarizedintoatriplet**
+7.Finally,brieflysummarizewhatthreegoodpiecesofadvicecouldbegivenbeforeworkingonthisproblem
+8.**!!MustNote!!**Thetotalnumberofroundsyouanalyzeinthetrajectoryis**{step_num}**,youmustgeneratethe
+correspondingnumberofSTEPsbeforeyoucancontinuetogenerateTOTAL!
+#OutputFormat(strictlyfollowthemarkdownformatIgiveyou)
+ˋˋˋ
+#STEP1:
+##Analysis
+-Writeanalysiscontenthere
+##Triplet
+(Ifthereisnoerror,directlywrite"-None",donotgenerateatripletwhenthereisnoerror)
+-Student’scurrentstate:Writecurrentstatehere
+-ReasonwhythisSTEPleadstothefinalerror:Writereasonhere
+-WhattosaybeforethenextSTEPtoimprovethecurrentstate:Writeguidancehere
+#STEP2:
+...
+ˋˋˋ
+Table12: Promptforgeneratingexperiencetriplets.
+21
+
+--- Page 22 ---
+Promptforiterativelygeneratingtopics.
+Ateacherisanalyzingeachsteptakenbystudentswhensolvingcomplexproblems. Iwillgiveyouseveral“behavior+
+mistake”itemsthattheteacherhassummarizedforstudentsatcertainsteps,definedas:
+ˋˋˋ
+behavior:Arelativelygeneraldescriptionintroducingwhatthestudentsawandthendid.Thedescriptiondoesnotinvolve
+errorattribution,focusesonobjectivelystatingthestudent’sbehavior,anddoesnotevaluatewhetherthebehaviorisgood/bad
+orright/wrong
+mistake:Thestudentissatisfiedwithpreliminaryinformation(suchas“DeputyPartySecretary”)andfailstorealizetheneed
+tocross-referencemultiplesearchresultstoextractacompleteandaccurateanswer,particularlyoverlookingthatthespecific
+name“xxxxxx”hasalreadyappearedinthefirstentryofthethirdsetofsearchresults.
+ˋˋˋ
+#OverallOverview
+Yourgoalistogive**eachbehavior+mistake**a**scenario-narrativelabel**.Alabel’sdescriptionshouldbeconcise
+enoughtoclearlyexpressthecharacteristicsofthebehaviorandbereusable.
+Foreachgivennewbehavior+mistake,youcanchooseoneofthefollowingthreeactions:
+1. Reuse: Donotchangeanycurrentlabels,andselectanexistinglabelforthenewbehavior(recognizingtheexisting
+classification)
+2.Create:Donotchangeexistinglabels,createanewlabelforthenewbehavior(existingclassificationisincomplete)
+3.Modify:Modifycertaincurrentlabels,andassignthatlabeltothenewbehavior(existingclassificationisinaccurate)
+#DetailedRequirements
+1.Eachlabelmustbeconciseandclear,butneedstohavecertainsemanticinformationthatallowspeopletounderstandthe
+characteristicsofthecurrentbehavior+mistakewithoutexplanation.Itshouldbeatleastadozenordozensofwords(e.g.,in
+thepatternofxxx:xxxxxxxx).
+2.Therecannotbetoomanylabels;eachlabelshouldhavedistinguishabilityinscenariocontent.
+3.Onelabelcancorrespondtomultiplebehaviors,soyoumustensuretheirtextualcontentisconsistent.
+4. Usethegivenidastheuniqueidentifierforbehaviors. Whenoutputting,youneedtooutputtheidsandlabelsofall
+existingbehaviorsandnewbehaviors.
+5.Trytokeepthenumberofdifferentlabelsbalanced.
+#ListofBehaviorsAlreadyGivenLabels
+{exp_list}
+#ListofNewBehaviors
+{new_exp_list}
+#OutputFormat:
+ˋˋˋ
+{output_format}
+ˋˋˋ
+Table13: Promptforiterativelygeneratingtopics.
+22
+
+--- Page 23 ---
+Promptforexperiencemodeltopicselectionstage.
+#OverallInstructions
+YouareateacherwhoisverygoodatguidingstudentstoanswerdifficultquestionsNow,thestudenthasmadesomeattempts
+onthegivenproblem,buttheremaybesomenon-absolutebutpotentialissues,orevenerrors,inthe**currentstep**.Iwill
+giveyouthestudent’smultipleroundsofattemptsfromthebeginningtothecurrentstate,whereassistantrepresentsthe
+student’sresponse,userrepresentstheenvironment’sreturnvalue,andmayalsoincludeyourpreviousguidance.Inaddition,
+atopiclistfullofyourguidanceexperienceisprovidedforyoutochoosefrom.
+#Student’sMultipleRoundsofInteraction
+ˋˋˋ{history}ˋˋˋ
+#CandidateTopicList
+ˋˋˋ{topic_list}ˋˋˋ
+#YourTask
+1.Youneedtocombinethestudent’scurrentstateandselect**3**topicsfromtheseveralpotentialerrortopicsIgiveyou.
+Afteryoucarefullystatethereasonsforselection,justoutputtheidxoftheselectedtopics.
+2.Thestudentmaynothaveactuallymadeamistake,butyoursubsequentguidancecanpreventproblemsbeforetheyoccur.
+#OutputFormat
+Strictlyfollowthemarkdownformatbelowforoutput
+ˋˋˋ
+#AnalysisoftheCurrentStep
+Writeyouranalysishere
+#SelectedTopicidx(separatedbyspaces)
+idx1idx2idx3
+ˋˋˋ
+Output:
+Table14: Promptforexperiencemodeltopicselectionstage.
+23
+
+--- Page 24 ---
+Promptforexperiencemodelguidancegenerationstage.
+#OverallInstructions
+Youareateacherwhoisverygoodatguidingstudentstoanswerdifficultquestions.Now,thestudenthasmadesomeattempts
+onthegivenproblem,buttheremaybesomenon-absolutebutpotentialissues,orevenerrors,inthe**currentstep**.Iwill
+giveyouthestudent’smultipleroundsofattemptsfromthebeginningtothecurrentstate,whereassistantrepresentsthe
+student’sresponse,userrepresentstheenvironment’sreturnvalue,andmayalsoincludeyourpreviousguidance.Inaddition,
+youaregivenyourpreviousrichteachingexperience,whichconsistsofguidanceyouprovidedfordifferentproblemsteps.
+Yourgoalistoprovidethemostappropriateguidanceforthecurrentstep.
+#Student’sMultipleRoundsofInteraction
+ˋˋˋ{history}ˋˋˋ
+#PreviousRichGuidanceExperience
+Theseguidancesarebasedonthestepproblemsyoudiscoveredinstudents,soeachcontentisatriplet,includingthestudent’s
+behavior,theerror,andyourpreviousguidance
+ˋˋˋ{topic_kb}ˋˋˋ
+#YourTaskandRequirements
+1. Thequestionmusthaveananswer. Ifthestudentthinksthereisinsufficientevidence,itmustbebecausetheyhaven’t
+foundtheevidence.Aftercarefulanalysis,provideyourguidanceforthestudent’scurrentstep,withthegoalofhelpingthe
+studentactuallyanswerthequestioncorrectly.
+2. Sincethisstepmaynotnecessarilybewrong, pleasecarefullychooseyourwordingtopreventyourguidancefrom
+introducingbias.
+3.Youranalysismustincludeabriefreviewofthe**problem**thatthestudentneedstosolve,emphasizingthecontentof
+theproblemtothestudenttopreventansweringoff-topic.
+4.Theguidanceyouprovidewillbegiventothestudenttogetherwiththetoolcallresultsafterthisstepends.
+-Ifthestudentgeneratesatoolcallinthisstep,theguidancewillbegiventothestudenttogetherwiththetoolreturnvalue
+-Ifthestudentgeneratesananswerinthisstep,theguidancewillbegivendirectlytothestudent,andthestudentwill
+choosewhethertoansweragainorcontinuetogeneratetoolcallsbasedonyourguidance
+5. It is forbidden to find answers on behalf of the student, and it is forbidden to hint at what the answer is under any
+circumstances.**Youareateacher,notsomeonehelpingstudentscheat**.
+6.Itisforbiddentoprovide**directclues**tostudents.Yourpurposeisonlyto**guide**.
+7.Guidanceshouldbeclearandeasytounderstand.Ifnecessary,youcanencouragestudentstocontinuecallingtoolsor
+switchtools.
+8.Theguidanceyouprovideshouldtrytoimitatethepreviousguidancepatterns,don’timprovisefreely.
+#OutputFormat
+Strictlyfollowthemarkdownformatbelowforoutput
+ˋˋˋ
+#Analysiscombiningstudent’scurrentbehaviorandpreviousexperiencetoprovideappropriateguidanceforthepresent
+moment
+Writeyourdetailedanalysishere
+#GuidanceContent
+Writeyourguidancecontenthere
+ˋˋˋ
+Output:
+Table15: Promptforexperiencemodelguidancegenerationstage.
+24
+
+--- Page 25 ---
+Promptforgeneratingguidanceexperiencedirectlywithoutreferencingtheexperiencebase.
+#OverallInstructions
+Youareateacherwhoisverygoodatguidingstudentstoanswerdifficultquestions.Now,thestudenthasmadesomeattempts
+onthegivenproblem,buttheremaybesomenon-absolutebutpotentialissues,orevenerrors,inthe**currentstep**.Iwill
+giveyouthestudent’smultipleroundsofattemptsfromthebeginningtothecurrentstate,whereassistantrepresentsthe
+student’sresponse,userrepresentstheenvironment’sreturnvalue,andmayalsoincludeyourpreviousguidance.Yourgoalis
+toprovidethemostappropriateguidanceforthecurrentstep.
+#Student’sMultipleRoundsofInteraction
+ˋˋˋ{history}ˋˋˋ
+#YourTaskandRequirements
+1. Thequestionmusthaveananswer. Ifthestudentthinksthereisinsufficientevidence,itmustbebecausetheyhaven’t
+foundtheevidence.Aftercarefulanalysis,provideyourguidanceforthestudent’scurrentstep,withthegoalofhelpingthe
+studentactuallyanswerthequestioncorrectly.
+2. Sincethisstepmaynotnecessarilybewrong, pleasecarefullychooseyourwordingtopreventyourguidancefrom
+introducingbias.
+3.Youranalysismustincludeabriefreviewofthe**problem**thatthestudentneedstosolve,emphasizingthecontentof
+theproblemtothestudenttopreventansweringoff-topic.
+4.Theguidanceyouprovidewillbegiventothestudenttogetherwiththetoolcallresultsafterthisstepends
+-Ifthestudentgeneratesatoolcallinthisstep,theguidancewillbegiventothestudenttogetherwiththetoolreturnvalue
+-Ifthestudentgeneratesananswerinthisstep,theguidancewillbegivendirectlytothestudent,andthestudentwill
+choosewhethertoansweragainorcontinuetogeneratetoolcallsbasedonyourguidance
+5. It is forbidden to find answers on behalf of the student, and it is forbidden to hint at what the answer is under any
+circumstances.**Youareateacher,notsomeonehelpingstudentscheat**.
+6.Itisforbiddentoprovide**directclues**tostudents.Yourpurposeisonlyto**guide**.
+7.Guidanceshouldbeclearandeasytounderstand.Ifnecessary,youcanencouragestudentstocontinuecallingtoolsor
+switchtools.
+#OutputFormat
+Strictlyfollowthemarkdownformatbelowforoutput
+ˋˋˋ
+#Analysiscombiningstudent’scurrentbehaviortoprovideappropriateguidanceforthepresentmoment
+Writeyourdetailedanalysishere
+#GuidanceContent
+Writeyourguidancecontenthere
+ˋˋˋ
+Output:
+Table16: Promptforgeneratingguidanceexperiencedirectlywithoutreferencingtheexperiencebase.
+25
+
+--- Page 26 ---
+Promptformodel-basedguidancetriggeringdecision.
+#OverallInstructions
+Youareateacherwhoisverygoodatguidingstudentstoanswerdifficultquestions. Now,thestudenthasmadesome
+attemptsonthegivenquestion,buttheremaybesomenon-absoluteyetpotentialissuesorevenerrorsinthecurrentstep.I
+willprovideyouwiththestudent’smulti-turnattemptsfromthebeginningtothecurrentpoint,where“assistant”represents
+thestudent’sresponsesand"user"representsenvironmentalfeedback,whichmayalsoincludetheteacher’spriorguidance.
+Yourpurposeistodeterminewhetherguidanceisneededatthecurrentstep.
+#Student’sMulti-turnInteractions
+ˋˋˋ{history}ˋˋˋ
+#YourTaskandRequirements
+Analyzewhetherthestudent’sbehaviorinthecurrentstephaspotentialissues,andprovideasignalindicatingwhether
+guidanceisneeded.
+#OutputFormat
+Strictlyfollowthemarkdownformatbelowforoutput
+ˋˋˋ
+#YourAnalysis
+Youranalysiscontenthere
+#WhethertoProvideGuidance
+yes/no
+ˋˋˋ
+Output:
+Table17: Promptformodel-basedguidancetriggeringdecision.
+Promptforretrievinganddirectlyusingtheexperiencebase.
+Yourcurrentsituationresemblesamistakemadebyapreviousstudent.Thatstudent’sbehaviorwas:
+{behavior}
+Theirmistakewas:
+{mistake}
+Myguidancetothemwas:
+{guidance}
+Learnfromthiserror,examineyourownbehavior,andproceedwithbetterdecision-making.
+Table18: Promptforretrievinganddirectlyusingtheexperiencebase.
+Promptforevaluation.
+Youareanevaluationassistant. Pleasedetermineifthepredictedanswerisequivalenttothelabeledanswer. Aslongas
+theLabeledAnsweriscontainedwithinthePredictedAnswer,itisconsideredcorrect,evenifadditional,moredetailed
+explanationsareincluded.
+YoushouldfocusonwhetherthePredictedAnswertrulyanswersthequestioncorrectly.
+#Question:
+{question}
+#LabeledAnswer:
+{correct_answer}
+#PredictedAnswer:
+{response}
+Respond**onlywith**"Correct"or"Incorrect",noothertokens.
+Table19: Promptforevaluation.
+26

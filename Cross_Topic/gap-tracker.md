@@ -9,7 +9,7 @@
 > **参考文件**：
 > - 矩阵：[comparison-matrix.md](comparison-matrix.md)
 > - GUI Agent 细节：[../GUI_Agent/README.md](../GUI_Agent/README.md)
-> - 领域交叉分析：[gui-agent-x-memory.md](gui-agent-x-memory.md) | [gui-agent-x-self-evolving.md](gui-agent-x-self-evolving.md)
+> - taxonomy 与主线：[taxonomy-draft.md](taxonomy-draft.md) | [main-line.md](main-line.md)
 
 ---
 
@@ -30,8 +30,11 @@
 | 2 | Lee et al. (2024, ACM MobiCom) | §9, p.14 | "Cross App Task execution ... MobileGPT can be extended to maintain a global dataset of known tasks across apps." — 作者明确将跨 app 程序性记忆列为未来工作 | Direct statement (author-stated limitation) |
 | 3 | Lee et al. (2024, ACM MobiCom) | §9, p.14 | "MobileGPT currently stores memory on a local basis, meaning each device has its own version of app memory." — 程序性记忆无法跨用户/设备共享 | Direct statement |
 | 4 | Lee et al. (2024, ACM MobiCom) | §4.1, p.6 | "these graphs exist per app, not per task" — 子任务图是 per-app 孤岛，跨 app 无法复用技能 | Direct statement |
+| 5 | Xu et al. (2026, arXiv:2602.16851) | §3.2.2, p.17 | MemGUI-Bench: GUI-Owl-1.5-32B = 27.1, workflow agents = 41.7 — 即使最强 native GUI model 仍明显落后于显式 workflow/external-memory orchestration | Experimental gap |
 
-> **Evidence Analysis**: AppAgent（新-1）从架构设计层面证明 GUI App 间知识壁垒的客观存在；MobileGPT（新-2/3/4）是目前 GUI 领域最接近 Procedural Memory 的工作，但作者自己明确承认跨 app 迁移是未来工作——这是该 Gap 的"最强反证"同时也是"最强正证"（即使最进阶的 GUI Procedural Memory 实现也承认局限）。两篇原文直接陈述符合 A 级标准。
+> **Evidence Analysis**: AppAgent（新-1）从架构设计层面证明 GUI App 间知识壁垒的客观存在；MobileGPT（新-2/3/4）是早期最接近 Procedural Memory 的 GUI 工作，但作者自己明确承认跨 app 迁移是未来工作。MobileAgentV3.5（新-5）进一步从 benchmark 侧量化了这一缺口：即使最强 native model，遇到需要长期 workflow / external memory orchestration 的任务仍显著落后。多源直接陈述 + 量化实验共同支撑 A 级判断。
+
+**Current Best Partial Solution**: MAGNET (Sun et al., 2026) — 目前最强 GUI 侧正例，已实现 workflow-level Procedural Memory + dynamic evolution，并在 AndroidWorld 达到 42.62%；但其程序记忆仍受 per-app clustering abstraction 约束，且不能抽象成跨 app 可迁移的原子技能，因此只能算 A-1 的 closest partial solution，而非真正解决方案。
 
 **Counter-evidence Check**:
 | Paper | What it did | What it didn't do (why Gap still holds) |
@@ -65,6 +68,7 @@
 | 2026-03-06 | 初始创建 | 综述推断，证据等级 B，状态 待验证 |
 | 2026-03-06 | MobileGPT + AppAgent 精读 | 新增原文证据 新-1/2/3/4；证据等级 B→A；状态 待验证→精读确认；MAGNET/AWM/SkillWeaver 加入 counter-evidence check |
 | 2026-03-06 | ActionEngine + IntentCUA 精读 | 补充 GUI structural / intent-level memory 的 partial solutions；确认其仍未解决跨 App procedural skill 抽象 |
+| 2026-03-06 | MAGNET + MobileAgentV3.5 精读 | 补充 A-1 的 current best partial solution 与 benchmark-side gap evidence；确认 strongest native GUI model 仍明显落后于 workflow orchestration |
 
 ---
 
@@ -81,10 +85,11 @@
 |---|-------|----------|-----------------|---------------|
 | 1 | Park et al. (2023, UIST) | §1, p.1 | "Fully general agents that ensure long-term coherence would be better suited by architectures that manage constantly-growing streams of events and memories." — 情节记忆的必要性已在文本 agent 领域验证，技术可行 | Direct statement |
 | 2 | Packer et al. (2023) | Abstract, p.1 | "virtual context management, a technique drawing inspiration from hierarchical memory systems" — 三层存储（Working/Archival/Recall）提供情节记忆管理的工程蓝图 | Direct statement |
-| 3 | Xu et al. (2026, arXiv:2602.16851) | §3.2.2, p.17 | MemGUI-Bench: native agent models reach 27.1 vs workflow agents 41.7 (14pp gap) — GUI 场景记忆能力缺口的直接量化证据 | Experimental gap |
-| 4 | Park et al. (2023, UIST) | §4.2, p.9 | "Generative agents, when equipped with only raw observational memory, struggle to generalize or make inferences." — 支持 Reflection 必要性，间接说明 GUI 场景截图存储不够 | Indirect implication |
+| 3 | Xu et al. (2026, arXiv:2602.16851) | §2.1, p.4 | "sliding window mechanism with hierarchical context compression" retains recent turns in full and compresses earlier turns into text summary — 当前实现仍是 in-task working memory，而非跨会话 episodic store | Direct statement |
+| 4 | Xu et al. (2026, arXiv:2602.16851) | §3.2.2, p.17 | MemGUI-Bench: GUI-Owl-1.5-32B = 27.1 vs workflow agents = 41.7 — GUI 场景记忆能力缺口的直接量化证据 | Experimental gap |
+| 5 | Park et al. (2023, UIST) | §4.2, p.9 | "Generative agents, when equipped with only raw observational memory, struggle to generalize or make inferences." — 支持 Reflection 必要性，间接说明 GUI 场景截图存储不够 | Indirect implication |
 
-> **Evidence Analysis**: Generative Agents（证据1/4）证明情节记忆在智能体系统中的技术可行性；MemGPT（证据2）提供三层存储的工程蓝图，可适配 GUI 场景；MemGUI-Bench（证据3）是最直接的量化证据——同一 GUI agent 系统在有/无记忆支持时存在 14pp 性能缺口，且该数据来自专门的记忆评测基准。符合 A 级标准（实验数据 + 多来源直接陈述）。
+> **Evidence Analysis**: Generative Agents（证据1/5）证明情节记忆在智能体系统中的技术可行性；MemGPT（证据2）提供三层存储的工程蓝图，可适配 GUI 场景；MobileAgentV3.5（证据3/4）则明确展示当前 GUI native model 实现的只是 compressed working memory，并在 MemGUI-Bench 上暴露出 14.6pp 的长期记忆缺口。多来源直接陈述 + 专项 benchmark 量化共同支撑 A 级判断。
 
 **Counter-evidence Check**:
 | Paper | What it did | What it didn't do (why Gap still holds) |
@@ -113,7 +118,7 @@
 | Date | Event | Change |
 |------|-------|--------|
 | 2026-03-06 | 初始创建 | 综述推断，证据等级 B，状态 待验证 |
-| 2026-03-06 | GenerativeAgents + MemGPT + MobileAgentV3.5 精读 | 新增证据 1~4；A-2 升级为 A 级；状态 待验证→精读确认；技术蓝图（三因素检索 + 三层存储）已明确；MemGUI-Bench 提供量化缺口 |
+| 2026-03-06 | GenerativeAgents + MemGPT + MobileAgentV3.5 精读 | 新增证据 1~5；A-2 升级为 A 级；状态 待验证→精读确认；技术蓝图（三因素检索 + 三层存储）已明确；MobileAgentV3.5 同时补足 working-memory implementation 与 MemGUI-Bench 量化缺口 |
 | 2026-03-06 | M2 精读 | 补充 GUI / Web 侧 summary + retrieval memory 的 partial solution；确认静态 insight bank 仍不等于跨会话 episodic memory |
 
 ---
@@ -179,9 +184,10 @@
 | 1 | Wang et al. (2024, arXiv:2406.01014) | §3.5, p.6 | "Neither erroneous nor ineffective operations are recorded in the operation history to prevent the agent from following these operations." — 失败轨迹被主动丢弃，明确无离线学习 | Direct statement |
 | 2 | Wang et al. (2024, arXiv:2406.01014) | §4.3, p.8 | "automating the generation of high-quality operation knowledge can further improve the performance of Mobile-Agent-v2" — 作者承认缺乏自动化知识生成 | Direct statement (author-stated) |
 | 3 | Sun et al. (2026, arXiv:2601.19992) | Limitations, p.9 | "The framework requires successful trajectories for memory construction, making it less effective in completely novel domains where initial exploration fails." — MAGNET 明确承认无法从失败轨迹构建记忆 | Direct statement (author-stated limitation) |
-| 4 | Xu et al. (2026, arXiv:2602.16851) | §1, p.2 | "short-term and long-term memory" listed as capability requirement but only in-context memory implemented — 部署后无演化机制 | Experimental gap |
+| 4 | Xu et al. (2026, arXiv:2602.16851) | §2.2-§2.4, p.3-11 | GUI-Owl-1.5 的 "self-evolving trajectory synthesis workflow"、Unified CoT synthesis 与 MRPO 都发生在 pre-deployment data/training pipeline 中；部署后仅保留 in-context note/compression，未描述从真实执行轨迹写回经验库 | Experimental gap |
+| 5 | Xue et al. (2026, arXiv:2601.15867v2) | §9, p.18 | "This disparity highlights the limits of offline learning from synthesized traces alone." — 即便 failure-aware Step-level DPO 已引入，训练期离线/合成经验仍未闭环为部署后可持续离线进化 | Direct statement |
 
-> **Evidence Analysis**: Mobile-Agent-v2（证据1/2）直接陈述失败轨迹被主动丢弃且作者承认知识生成自动化为未来工作；MAGNET（证据3）是 GUI 领域最先进的 Procedural Memory 工作，同样明确承认依赖成功轨迹——"最强正例"反而成了最强 Gap 证据。两篇原文独立直接陈述符合 A 级标准。
+> **Evidence Analysis**: Mobile-Agent-v2（证据1/2）直接陈述失败轨迹被主动丢弃且作者承认知识生成自动化为未来工作；MAGNET（证据3）是 GUI 领域当前最佳 partial solution，却仍只能从成功轨迹更新 memory；MobileAgentV3.5（证据4）和 EvoCUA（证据5）则进一步表明，即便最新经验驱动路线已经引入 self-evolving data flywheel、MRPO 或 failure-aware Step-level DPO，进化仍主要停留在训练期/pre-deployment pipeline，而不是部署后可持续的 offline experience evolution。GUI 侧对 A-4 的真正闭环仍未出现。
 
 **Counter-evidence Check**:
 | Paper | What it did | What it didn't do (why Gap still holds) |
@@ -211,7 +217,7 @@
 | Date | Event | Change |
 |------|-------|--------|
 | 2026-03-06 | 初始创建 | 综述推断，证据等级 B，状态 待验证 |
-| 2026-03-06 | MobileAgentV2 + MAGNET + MobileGPT + AWM + ExpeL + SkillRL + EvoCUA 精读 | 新增 GUI 端原文证据 1~4；A-4 升级为 A 级；状态 待验证→精读确认；Counter-evidence check 填充完整（5 篇对照工作）；Self_Evolve 领域有解答但未迁移到 GUI |
+| 2026-03-06 | MobileAgentV2 + MAGNET + MobileGPT + MobileAgentV3.5 + AWM + ExpeL + SkillRL + EvoCUA 精读 | 新增 GUI/Computer-use 端原文证据 1~5；A-4 升级为 A 级；状态 待验证→精读确认；确认当前最强路线仍停留在成功轨迹或训练期经验闭环，Self_Evolve 领域有解答但未迁移到 GUI 部署阶段 |
 
 ---
 

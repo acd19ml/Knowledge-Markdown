@@ -1,0 +1,1109 @@
+--- Page 1 ---
+MemGPT: Towards LLMs as Operating Systems
+CharlesPacker1 SarahWooders1 KevinLin1
+VivianFang1 ShishirG.Patil1 IonStoica1 JosephE.Gonzalez1
+Abstract LLMs can only support a few dozen back-and-forth mes-
+sages or reason about a short document before exceeding
+Largelanguagemodels(LLMs)haverevolution-
+theirmaximuminputlength(Touvronetal.,2023).
+ized AI, but are constrained by limited context
+windows, hinderingtheirutilityintaskslikeex- Directly extending the context length of transformers in-
+tendedconversationsanddocumentanalysis. To cursaquadraticincreaseincomputationaltimeandmem-
+enableusingcontextbeyondlimitedcontextwin- orycostduetothetransformerarchitecture’sself-attention
+dows,weproposevirtualcontextmanagement,a mechanism,makingthedesignofnewlong-contextarchi-
+technique drawing inspiration from hierarchical tecturesapressingresearchchallenge(Daietal.,2019;Ki-
+memorysystemsintraditionaloperatingsystems taev et al., 2020; Beltagy et al., 2020). While developing
+which provide the illusion of an extended vir- longer models is an active area of research (Dong et al.,
+tualmemoryviapagingbetweenphysicalmem- 2023),evenifwecouldovercomethecomputationalchal-
+oryanddisk. Usingthistechnique,weintroduce lengesofcontextscaling,recentresearchshowsthatlong-
+MemGPT (MemoryGPT), a system that intelli- contextmodelsstruggletoutilizeadditionalcontexteffec-
+gently manages different storage tiers in order tively (Liu et al., 2023a). As consequence, given the con-
+to effectively provide extended context within siderable resources needed to train state-of-the-art LLMs
+the LLM’s limited context window. We evalu- anddiminishingreturnsofcontextscaling,thereisacriti-
+ateourOS-inspireddesignintwodomainswhere calneedforalternativetechniquestosupportlongcontext.
+the limited context windows of modern LLMs
+In this paper, we study how to provide the illusion of an
+severelyhandicapstheirperformance: document
+infinitecontextwhilecontinuingtousefixed-contextmod-
+analysis, where MemGPT is able to analyze
+els.Ourapproachborrowsfromtheideaofvirtualmemory
+large documents that far exceed the underly-
+paging that was developed to enable applications to work
+ing LLM’s context window, and multi-session
+on datasets that far exceed the available memory by pag-
+chat, where MemGPT can create conversational
+ingdatabetweenmainmemoryanddisk. Weleveragethe
+agentsthatremember,reflect,andevolvedynam-
+recentprogressinfunctioncallingabilitiesofLLMagents
+ically through long-term interactions with their
+(Schicketal.,2023;Liuetal.,2023b)todesignMemGPT,
+users. We release MemGPT code and data for
+anOS-inspiredLLMsystemforvirtualcontextmanage-
+ourexperimentsathttps://research.memgpt.ai.
+ment.Usingfunctioncalls,LLMagentscanreadandwrite
+to external data sources, modify their own context, and
+choosewhentoreturnresponsestotheuser.
+1.Introduction
+These capabilities allow LLMs to effective “page” in and
+In recent years, large language models (LLMs) and their
+out information between context windows (analogous to
+underlying transformer architecture (Vaswani et al., 2017;
+“mainmemory”inoperatingsystems)andexternalstorage,
+Devlinetal.,2018;Brownetal.,2020;Ouyangetal.,2022)
+similartohierarchicalmemoryintraditionalOSes. Inad-
+havebecomethecornerstoneofconversationalAIandhave
+dition, function calls can be leveraged to manage control
+ledtoawidearrayofconsumerandenterpriseapplications.
+flow between context management, response generation,
+Despite these advances, the limited fixed-length context
+and user interactions. This allows for an agent to choose
+windows used by LLMs significantly hinders their appli-
+toiterativelymodifywhatisinitscontextforasingletask,
+cabilitytolongconversationsorreasoningaboutlongdoc-
+therebymoreeffectivelyutilizingitslimitedcontext.
+uments. For example, the most widely used open-source
+In MemGPT, we treat context windows as a constrained
+1University of California, Berkeley. Correspondence to: memoryresource,anddesignamemoryhiearchyforLLMs
+CharlesPacker<cpacker@berkeley.edu>.
+analogoustomemorytiersusedintraditionalOSes(Patter-
+sonetal.,1988). ApplicationsintraditionalOSesinteract
+1
+4202
+beF
+21
+]IA.sc[
+2v06580.0132:viXra
+
+--- Page 2 ---
+MemGPT:TowardsLLMsasOperatingSystems
+FebruaFreyb 7ruary 7 FebruarFye 7bruary 7 February F1e4bruary 14
+How wHaosw y wouars dyaoyu rt oddaayy t?oday? Did youD iddo y aonuy dthoi nagn yetlshein tgo ecleslee btora cteel eyboruart bei rytohudra byi?r t😊hday? 😊 How’s JaHmoews’ sd Joaimnge?s A dnoyi nspg?e cAinaly p slpaencsi atol dpalayn?s today?
+fun mfyu nb fm jaym befs j abmakeesd b makee ad bmiret had baiyr tchadkaey cake yeah wyee waehn wt eto w seixn tfl atog ss!ix flags! actually ajacmtueasl layn jadm i berso akned u ip broke up
+Oh woOwh, whoawpp, yh abpirpthyd bairyt! h🎂day! 🎂 recallr_esctaolrla_gset.osreaagrec.hs(e“asricxh (f“lsaigxs ”f)lags”) workingw_ocroknitnegx_tc.ornetpelxatc.er(eplace(
+SystemSy Astleermt: AMleermt:o Mrye Pmreosrysu Prreessure
+ShowingS h3 oowf i3n rge 3s uolft s3 ( rpeasguel t1s/ 1(p):age 1/1):
+“
+“
+B
+E
+o
+x
+y
+-
+f
+b
+r
+o
+i
+y
+“
+“
+e
+f
+B
+E
+n
+r
+o
+x
+d
+i
+y
+- e
+f
+b
+n
+n
+r
+o
+a
+d
+i
+y
+me
+fn
+en
+ra
+dd
+im ee
+Jn
+nd
+aa
+d
+m m
+J
+e
+n
+e
+a
+s
+a
+d
+m
+”
+m e
+,
+e
+J
+sd
+a
+”
+m
+J
+e
+a
+s
+m
+”
+e
+,
+s”
+[01/24 / 2 [00214/2] 4“l/o2l0 y2e4a]h “ lsoilx y fleaaghs ”s,ix flags”, ) )
+workiwnogr_kcionngt_ecxotn.taepxpte.nadp(p“eBnidr(t“hBdiaryt hidsa yF eibsr uFaerbyr u7a”r)y 7”) [01/14 / 2 [00214/1] 4“i/ 2lo0v2e4 s] i“xi flloavges sbixe eflna glisk eb e1e0n0 tliikmee 1s0”,0 times”,
+[10/12 / 2 [01203/1] 2“j/a2m02e3s] a “njadm I easc taunadll yI aficrtsut amlleyt fi arts ts imx fleta gast ”six flags”
+Sorry toS hoeraryr tthoa hte -a hro tphea ty o- uh’orep eO yKo 💔 u’re OK 💔
+workiwnogr_kcionngt_ecxotn.taepxpte.nadp(p“eBnody(f“rBioeynfdr ineanmde dn aJmaemde sJ”a)mes”)
+Did youD igdo y woiut hg oJa wmieths? J aItm’s esso? c Iut’tse s hoo cwu tbeo htho wm beto tthh emree!t there!
+Figure1. MemGPT(left)writesdatatopersistentmemoryafter
+Figure2. MemGPT(left)cansearchout-of-contextdatatobring
+itreceivesasystemalertaboutlimitedcontextspace.
+relevantinformationintothecurrentcontextwindow.
+with virtual memory, which provides an illusion of there
+being more memory resources than are actually available mustalwaysbeexplicitlymovedintomaincontextinorder
+in physical (i.e., main) memory by the OS paging over- forittobepassedtotheLLMprocessorduringinference.
+flowdatatodiskandretrievingdata(viaapagefault)back MemGPT provides function calls that the LLM processor
+intomemorywhenaccessedbyapplications. Toprovidea tomanageitsownmemorywithoutanyuserintervention.
+similarillusionoflongercontextlength(analogoustovir-
+tualmemory),weallowtheLLMtomanagewhatisplaced
+2.1.Maincontext(prompttokens)
+in its own context (analogous to physical memory) via an
+‘LLMOS’,whichwecallMemGPT.MemGPTenablesthe The prompt tokens in MemGPT are split into three con-
+LLMtoretrieverelevanthistoricaldatamissingfromwhat tiguous sections: the system instructions, working con-
+isplacedin-context, andalsoevictlessrelevantdatafrom text, andFIFOQueue. Thesysteminstructionsareread-
+context and into external storage systems. Figure 3 illus- only(static)andcontaininformationontheMemGPTcon-
+tratesthecomponentsofMemGPT. trol flow, the intended usage of the different memory lev-
+els,andinstructionsonhowtousetheMemGPTfunctions
+The combined use of a memory-hierarchy, OS functions
+(e.g. how to retrieve out-of-context data). Working con-
+and event-based control flow allow MemGPT to handle
+text is a fixed-size read/write block of unstructured text,
+unbounded context using LLMs that have finite context
+writeable only via MemGPT function calls. In conversa-
+windows. To demonstrate the utility of our new OS-
+tional settings, working context is intended to be used to
+inspired LLM system, we evaluate MemGPT on two do-
+store key facts, preferences, and other important informa-
+mainswheretheperformanceofexistingLLMsisseverely
+tion about the user and the persona the agent is adopting,
+limited by finite context: document analysis, where the
+allowingthe agentto conversefluently withthe user. The
+lengthofstandardtextfilescanquicklyexceedtheinputca-
+FIFOqueuestoresarollinghistoryofmessages,including
+pacityofmodernLLMs,andconversationalagents,where
+messages between the agent and user, as well as system
+LLMsboundbylimitedconversationwindowslackcontext
+messages(e.g. memorywarnings)andfunctioncallinputs
+awareness, persona consistency, and long-term memory
+andoutputs. ThefirstindexintheFIFOqueuestoresasys-
+duringextendedconversations. Inbothsettings,MemGPT
+temmessagecontainingarecursivesummaryofmessages
+isabletoovercomethelimitationsoffinitecontexttoout-
+thathavebeenevictedfromthequeue.
+performexistingLLM-basedapproaches.
+2.2.QueueManager
+2.MemGPT(MemoryGPT)
+The queue manager manages messages in recall storage
+MemGPT’s OS-inspired multi-level memory architecture andtheFIFOqueue. Whenanewmessageisreceivedby
+delineatesbetweentwoprimarymemorytypes: maincon- thesystem,thequeuemanagerappendstheincomingmes-
+text (analogous to main memory/physical memory/RAM) sages to the FIFO queue, concatenates the prompt tokens
+andexternalcontext(analogoustodiskmemory/diskstor- and triggers the LLM inference to generate LLM output
+age). Main context consists of the LLM prompt tokens— (the completion tokens). The queue manager writes both
+anything in main context is considered in-context and can theincomingmessageandthegeneratedLLMoutputtore-
+beaccessedbytheLLMprocessorduringinference.Exter- callstorage(theMemGPTmessagedatabase). Whenmes-
+nalcontextreferstoanyinformationthatisheldoutsideof sages in recall storage are retrieved via a MemGPT func-
+the LLMs fixed context window. This out-of-context data tion call, the queue manager appends them to the back of
+2
+
+--- Page 3 ---
+MemGPT:TowardsLLMsasOperatingSystems
+LLM Finite Context Window (e.g. 8k tokens)
+Prompt Tokens Completion Tokens
+System Instructions Working Context FIFO Queue Output Buffer
+Read-Only (static) Read-Write Read-Write
+MemGPT System Prompt Write via Functions Write via Queue Manager
+Archival Storage Function Executor Queue Manager Recall Storage
+Read via Functions Read via Functions
+Write via Functions Write via Queue Manager
+Figure3. InMemGPT,afixed-contextLLMprocessorisaugmentedwithahierarchicalmemorysystemandfunctionsthatletitmanage
+itsownmemory. TheLLM’sprompttokens(inputs),ormaincontext,consistofthesysteminstructions,workingcontext,andaFIFO
+queue. TheLLMcompletiontokens(outputs)areinterpretedasfunctioncallsbythefunctionexecutor. MemGPTusesfunctionsto
+move data between main context and external context (the archival and recall storage databases). The LLM can request immediate
+follow-upLLMinferencetochainfunctioncallstogetherbygeneratingaspecialkeywordargument(request heartbeat=true)
+initsoutput;functionchainingiswhatallowsMemGPTtoperformmulti-stepretrievaltoansweruserqueries.
+thequeuetoreinsertthemintotheLLM’scontextwindow. toryisbecomingtoolong,asshowinFigure1)andmodify
+its main context to better reflect its evolving understand-
+Thequeuemanagerisalsoresponsibleforcontrollingcon-
+ingofitscurrentobjectivesandresponsibilities(asshown
+textoverflowviaaqueueevictionpolicy.Whentheprompt
+in Figure 3). We implement self-directed editing and re-
+tokens exceed the ‘warning token count‘ of the underly-
+trievalbyprovidingexplicitinstructionswithinthesystem
+ing LLM’scontext window (e.g. 70% ofthe context win-
+instructions that guide the LLM on how to interact with
+dow),thequeuemanagerinsertsasystemmessageintothe
+the MemGPT memory systems. These instructions com-
+queue warning the LLM of an impending queue eviction
+prise two main components: (1) a detailed description of
+(a ‘memory pressure‘ warning) to allow the LLM to use
+thememoryhierarchyandtheirrespectiveutilities,and(2)
+MemGPT functions to store important information con-
+a function schema (complete with their natural language
+tained in the FIFO queue to working context or archival
+descriptions) that the system can call to access or modify
+storage(aread/writedatabasestoringarbitrarylengthtext
+itsmemory.
+objects). Whentheprompttokensexceedthe‘flushtoken
+count’(e.g. 100%ofthecontextwindow),thequeueman- During each inference cycle, LLM processor takes main
+agerflushesthequeuetofreeupspaceinthecontextwin- context (concatenated into a single string) as input, and
+dow:thequeuemanagerevictsaspecificcountofmessages generatesanoutputstring. Thisoutputstringisparsedby
+(e.g. 50%ofthecontextwindow), generates anewrecur- MemGPTtoensurecorrectness,andiftheparservalidates
+sive summary using the existing recursive summary and the function arguments the function is executed. The re-
+evicted messages. Once the queue is flushed, the evicted sults,includinganyruntimeerrorsthatoccur(e.g.tryingto
+messages are no longer in-context and immediately view- addtomaincontextwhenitisalreadyatmaximumcapac-
+able to the LLM, however they are stored indefinitely in ity),arethenfedbacktotheprocessorbyMemGPT.This
+recallstorageandreadableviaMemGPTfunctioncalls. feedbackloopenablesthesystemtolearnfromitsactions
+and adjust its behavior accordingly. Awareness of context
+2.3.Functionexecutor(handlingofcompletiontokens) limitsisakeyaspectinmakingtheself-editingmechanism
+workeffectively,tothisendMemGPTpromptstheproces-
+MemGPTorchestratesdatamovementbetweenmaincon-
+sor with warnings regarding token limitations to guide its
+text and external context via function calls that are gener-
+memorymanagementdecisions.Additionally,ourmemory
+ated by the LLM processor. Memory edits and retrieval
+retrievalmechanismsaredesignedtobecognizantofthese
+areentirelyself-directed:MemGPTautonomouslyupdates
+token constraints and implement pagination to prevent re-
+and searches through its own memory based on the cur-
+trievalcallsfromoverflowingthecontextwindow.
+rent context. For instance, it can decide when to move
+items between contexts (e.g. when the conversation his-
+3
+
+--- Page 4 ---
+MemGPT:TowardsLLMsasOperatingSystems
+February 7 February 7 February 14
+Table1. Comparing context lengths of commonly used models
+How was your day today? andLLMDAidP Iysou(d daot aancyotlhleincgt eedlse1 /t2o0 c2e4le)b.ra*tAe pyporuorx biimrthatdeaym? e😊ssage How’s James doing? Any special plans today?
+countassumingaprepromptof1ktokens,andanaveragemessage
+fun my bf james baked me a birthday cake sizeof∼50tokens(∼250characters).‘Oyepaehn w’em weeannts ttoh esixm floadgesl!is actually james and i broke up
+open-sourceoropen-weights(vsonlyavailablebehindanAPI).
+Oh wow, happy birthday! 🎂 recall_storage.search(“six flags”) working_context.replace(
+ContextWindow “Boyfriend named James”,
+System Alert: Memory Pressure Model/ASPhIowniangm 3e of 3 results O(papgeen 1?/1): Tokens ∗Messages “Ex-boyfriend named James”
+working_context.append(“Birthday is February 7”) Llama(1)
+[
+[
+0
+0
+1
+1
+/
+/
+2
+1
+4
+4
+/
+/
+2
+2
+0
+0
+2
+2
+4
+4
+]
+]
+“
+“
+l
+i
+o
+lo
+l
+v
+y
+e
+e a
+s
+h
+ix
+s
+fl
+i✓x
+a g
+fl
+s
+a g
+b
+s
+e
+”
+e
+,
+n like 10 2 0 k times”, 20
+)
+Llama2 [10/12/2023] “james and ✓ I actually first m4ekt at six flags” 60
+GPT-3.5Turbo(release) ✗ 4k 60 Sorry to hear that - hope you’re OK 💔
+working_context.append(“Boyfriend named James”) Mistral7B ✓ 8k 140
+Did you go with James? It’s so cute how both met there!
+GPT-4(release) ✗ 8k 140
+GPT-3.5Turbo ✗ 16k 300 Figure4. An example conversation snippet where MemGPT
+GPT-4 ✗ 32k ∼600 (left)updatesstoredinformation. Heretheinformationisstored
+Claude2 ✗ 100k ∼2000 inworkingcontextmemory(locatedwithintheprompttokens).
+GPT-4Turbo ✗ 128k ∼2600
+Yi-34B-200k ✓ 200k ∼4000
+across long conversations. For document analysis, we
+benchmark MemGPT on existing tasks from (Liu et al.,
+2.4.Controlflowandfunctionchaining 2023a)forquestionansweringandkey-valueretrievalover
+lengthy documents. We also propose a new nested key-
+InMemGPT,eventstriggerLLMinference:eventsaregen-
+value retrieval task requiring collating information across
+eralized inputs to MemGPT and can consist of user mes-
+multiple data sources, which tests the ability of an agent
+sages (in chat applications), system messages (e.g. main
+to collate information from multiple data sources (multi-
+contextcapacitywarnings),userinteractions(e.g. analert
+hop retrieval). We publicly release our augmented MSC
+thatauserjustloggedin,oranalertthattheyfinishedup-
+dataset, nested KV retrieval dataset, and a dataset of em-
+loading a document), and timed events that are run on a
+beddings for 20M Wikipedia articles to facilitate future
+regularschedule(allowingMemGPTtorun‘unprompted’
+research. Our code for the benchmarks is available at
+withoutuserintervention).MemGPTprocesseseventswith
+https://research.memgpt.ai.
+a parser to convert them into plain text messages that can
+beappendedtomaincontextandeventuallybefedasinput Implementation details. When discussing OpenAI mod-
+intotheLLMprocessor. els,unlessotherwisespecified‘GPT-4Turbo’referstothe
+specific gpt-4-1106-preview model endpoint (con-
+Many practical tasks require calling multiple functions in
+textwindowof128,000),‘GPT-4‘referstogpt-4-0613
+sequence, for example, navigating through multiple pages
+(context window of 8,192), and ‘GPT-3.5 Turbo‘ refers
+of results from a single query or collating data from dif-
+togpt-3.5-turbo-1106(contextwindowof16,385).
+ferent documents in main context from separate queries.
+Inexperiments,werunMemGPTwithallbaselinemodels
+Function chaining allows MemGPT to execute multiple
+(GPT-4, GPT-4Turbo, andGPT3.5)toshowhowtheun-
+function calls sequentially before returning control to the
+derlyingmodelperformanceaffectsMemGPT’s.
+user. In MemGPT, functions can be called with a special
+flag that requests control be immediately returned to the
+3.1.MemGPTforconversationalagents
+processoraftertherequestedfunctioncompletesexecution.
+Ifthisflagispresent,MemGPTwilladdthefunctionout- Conversationalagentslikevirtualcompanionsandperson-
+put to main context and (as opposed to pausing processor alizedassistantsaimtoengageusersinnatural, long-term
+execution). If this flag is not present (a yield), MemGPT interactions, potentially spanning weeks, months, or even
+willnotruntheLLMprocessoruntilthenextexternalevent years. Thiscreateschallengesformodelswithfixed-length
+trigger(e.g. ausermessageorscheduledinterrupt). contexts,whichcanonlyreferencealimitedhistoryofthe
+conversation.An‘infinitecontext’agentshouldseamlessly
+3.Experiments handle continuous exchanges without boundary or reset.
+When conversing with a user, such an agent must satisfy
+We assess MemGPT in two long-context domains: con- twokeycriteria: (1)Consistency-Theagentshouldmain-
+versational agents and document analysis. For conversa- tainconversationalcoherence. Newfacts,preferences,and
+tional agents, we expand the existing Multi-Session Chat events mentioned should align with prior statements from
+dataset (Xu et al., 2021) and introduce two new dialogue boththeuserandagent.(2)Engagement-Theagentshould
+tasks that evaluate an agent’s ability to retain knowledge drawonlong-termknowledgeabouttheusertopersonalize
+4
+
+--- Page 5 ---
+MemGPT:TowardsLLMsasOperatingSystems
+Table2. Deepmemoryretrieval(DMR)performance. Inthis Table3. Conversationopenerperformance. Theagent’scon-
+task,theagentisaskedaspecificquestionaboutatopicdiscussed versationopenerisevaluatedusingsimilarityscorestothegold
+in a prior conversation (sessions 1–5). The agent’s response is personalabels(SIM-1/3)andtothehuman-createdopener(SIM-
+scored against the gold answer. MemGPT significantly outper- H). MemGPT is able to exceed the performance of the human-
+formsthefixed-contextbaselines. createdconversationopenerwithavarietyofunderlyingmodels.
+Model Accuracy⇑ ROUGE-L(R)⇑ Method ⇑SIM-1 SIM-3 SIM-H
+GPT-3.5Turbo 38.7% 0.394 Human 0.800 0.800 1.000
++MemGPT 66.9% 0.629
+GPT-3.5Turbo 0.830 0.812 0.817
+GPT-4 32.1% 0.296
+GPT-4 0.868 0.843 0.773
++MemGPT 92.5% 0.814
+GPT-4Turbo 0.857 0.828 0.767
+GPT-4Turbo 35.3% 0.359
++MemGPT 93.4% 0.827
+sessions(seeAppendixforfurtherdetails).
+responses.Referencingpriorconversationsmakesdialogue
+We evaluate the quality of the generated response against
+morenaturalandengaging.
+the‘goldresponse’usingROUGE-Lscores(Lin,2004)and
+We therefore assess our proposed system, MemGPT, on an ‘LLM judge’, which is instructed to evaluate whether
+thesetwocriteria: (1)DoesMemGPTleverageitsmemory or not the generated response is consistent with the gold
+toimproveconversationconsistency? Canitrememberrel- response (GPT-4 has been shown to have high agreement
+evant facts, preferences, and events from past interactions with human evaluators (Zheng et al., 2023)). In prac-
+tomaintaincoherence? (2)DoesMemGPTproducemore tice, we notice that the generated responses (from both
+engagingdialoguebytakingadvantageofmemory? Does MemGPTandthebaselines)weregenerallymoreverbose
+itspontaneouslyincorporatelong-rangeuserinformationto thanthegoldresponses. WeusetheROUGE-Lrecall(R)
+personalize messages? By evaluating on consistency and metric to account for the verbosity of the generated agent
+engagement, we can determine how well MemGPT han- repliescomparedtotherelativelyshortgoldanswerlabels.
+dlesthechallengesoflong-termconversationalinteraction
+MemGPT utilizes memory to maintain coherence: Ta-
+compared to fixed-context baselines. Its ability to satisfy
+ble 2 shows the performance of MemGPT vs the fixed-
+thesecriteriawilldemonstratewhetherunboundedcontext
+memory baselines. We compare MemGPT using differ-
+providesmeaningfulbenefitsforconversationalagents.
+entunderlyingLLMs,andcompareagainstusingthebase
+Dataset. We evaluate MemGPT and our fixed-context LLM without MemGPT as a baseline. The baselines are
+baselines on the Multi-Session Chat (MSC) dataset intro- able to see a lossy summarization of the past five conver-
+duced by Xu et al. (2021), which contains multi-session sationstomimicanextendedrecursivesummarizationpro-
+chatlogsgeneratedbyhumanlabelers,eachofwhomwas cedure,whileMemGPTinsteadhasaccesstothefullcon-
+asked to play a consistent persona for the duration of all versation history but must access it via paginated search
+sessions.Eachmulti-sessionchatinMSChasfivetotalses- queriestorecallmemory(inordertobringthemintomain
+sions,andeachsessionconsistsofaroughlyadozenmes- context). In this task, we see that MemGPT clearly im-
+sages. Aspartofourconsistencyexperiments,wecreated provestheperformanceoftheunderlyingbaseLLM:there
+a new session (session 6) that contains a single question- isacleardropinbothaccuracyandROUGEscoreswhen
+answerresponsepairbetweenthesametwopersonas. goingfromMemGPTtothecorrespondingLLMbaselines.
+3.1.1.DEEPMEMORYRETRIEVALTASK 3.1.2.CONVERSATIONOPENERTASK(ENGAGEMENT).
+(CONSISTENCY).
+In the ‘conversation opener’ task we evaluate an agent’s
+We introduce a new ‘deep memory retrieval’ (DMR) task ability to craft engaging messages to the user that draw
+basedontheMSCdatasetdesignedtotesttheconsistency from knowledge accumulated in prior conversations. To
+of a conversational agent. In DMR, the conversational evaluate the ‘engagingness’ of a conversation opener us-
+agent is asked a question by the user that explicitly refers ingtheMSCdataset,wecomparethegeneratedopenerto
+backtoapriorconversationandhasaverynarrowexpected thegoldpersonas:anengagingconversationopenershould
+answer range. We generated the DMR question-answer draw from one (or several) of the data points contained
+(QA) pairs using a separate LLM that was instructed to in the persona, which in MSC effectively summarize the
+writeaquestionfromoneusertoanotherthatcouldonlybe knowledgeaccumulatedthroughoutallpriorsessions. We
+answered correctly using knowledge gained from the past alsocomparetothehuman-generatedgoldopener,i.e.,the
+5
+
+--- Page 6 ---
+MemGPT:TowardsLLMsasOperatingSystems
+0.7
+0.6
+0.5
+0.4
+0.3
+0.2
+0.1
+0 25 50 75 100 125 150 175 200
+Documents Retrieved
+ycaruccA
+System Alert: Archive Storage Upload Complete System Alert: Archive Storage Upload Complete
+Who won the first Nobel Prize in physics? Find the value for key 831…ea5
+archival_storage.search(“nobel physics”) archival_storage.search(“831...ea5”)
+Showing 10 of 124 results (page 1/13): Showing 1 of 1 results (page 1/1):
+“The Nobel Prizes, beginning in 1901, and the … “Key: 831…ea5, Value: 5b8…4c3”
+“This award is administered by the Nobel Foundation…
+…
+archival_storage.search(“5b8...4c3”)
+archival_storage.search(“nobel physics”, page=2)
+Showing 2 of 2 results (page 1/1):
+Showing 10 of 124 results (page 2/13): “Key: 5b8…4c3, Value: f37…617”,
+GPT-4 GPT-3.5 Turbo GPT-4 Turbo “The Nobel Prize in Physics is a yearly award given… “Key: 831…ea5, Value: 5b8…4c3”
+“The 1901 Nobel in physics was awarded to Wilhelm …
+MemGPT (GPT-4, GPT-4 Turbo) MemGPT (GPT-3.5) …
+archival_storage.search(“f37...617”)
+Wilhelm Conrad Rontgen
+Showing 1 of 1 results (page 1/1):
+Figure5. DocumentQAtaskperformance.MemGPT’sperfor-
+“Key: 5b8…4c3, Value: f37…617”
+manceisunaffectedbyincreasedcontextlength.Methodssuchas
+truncationcanextendtheeffectivecontextlengthsoffixedlength Figure6. An example of MemGPT (left) solving the document
+f37…617
+modelssuchasGPT-4, butsuchcompressionmethodswilllead QA task. A database of Wikipedia documents is uploaded to
+toperformancedegradationasthenecessarycompressiongrows. archivalstorage. MemGPTqueriesarchivalstorageviafunction
+RunningMemGPTwithGPT-4andGPT-4Turbohaveequivalent calling,whichpullspaginatedsearchresultsintomaincontext.
+resultsonthistask.
+MemGPTareneeded.
+firstresponseinthefollowingsession.WereporttheCSIM
+3.2.1.MULTI-DOCUMENTQUESTION-ANSWERING.
+scores of MemGPT’s openers in Table 3. We test several
+variationsofMemGPTusingdifferentbaseLLMs. To evaluate MemGPT’s ability to analyze documents, we
+benchmark MemGPT against fixed-context baselines on
+MemGPTutilizesmemorytoincreaseengagement: As
+the retriever-reader document QA task from Liu et al.
+seen in Table 3, MemGPT is able to craft engaging open-
+(2023a). In this task, a question is selected from the
+ers that perform similarly to and occasionally exceed the
+NaturalQuestions-Opendataset,andaretrieverselectsrel-
+hand-written human openers. We observe that MemGPT
+evant Wikipedia documents for the question. A reader
+tendstocraftopenersthatarebothmoreverboseandcover
+model(theLLM)isthenfedthesedocumentsasinput,and
+more aspects of the persona information than the human
+isaskedtousetheprovideddocumentstoanswertheques-
+baseline. Additionally,wecanseethestoringinformation
+tion. SimilartoLiuetal.(2023a),weevaluatereaderaccu-
+inworkingcontextiskeytogeneratingengagingopeners.
+racyasthenumberofretrieveddocumentsK increases.
+3.2.MemGPTfordocumentanalysis In our evaluation setup, both the fixed-context baselines
+andMemGPTusethesameretriever,whichselectsthetop
+Documentanalysisalsofaceschallengesduetothelimited
+Kdocumentsaccordingusingsimilaritysearch(cosinedis-
+contextwindowsoftoday’stransformermodels. Asshown
+tance) on OpenAI’s text-embedding-ada-002 em-
+inTable1,bothopenandclosedsourcemodelssufferfrom
+beddings. We use MemGPT’s default storage settings
+constrainedcontextlength(upto128ktokensforOpenAI’s
+whichusesPostgreSQLforarchivalmemorystoragewith
+models). However many documents easily surpass these
+vectorsearchenabledviathepgvectorextention. Wepre-
+lengths; forexample,legalorfinancialdocumentssuchas
+compute embeddings and load them into the database,
+AnnualReports(SECForm10-K)caneasilypassthemil-
+which uses an HNSW index to enable approximate, sub-
+lion token mark. Moreover, many real document analy-
+second query times. In MemGPT, the entire embedding
+sistasksrequiredrawingconnectionsacrossmultiplesuch
+document set is loaded into archival storage, and the re-
+lengthy documents. Anticipating these scenarios, it be-
+triever naturally emerges via the archival storage search
+comes difficult to envision blindly scaling up context as a
+functionality (which performs vector search based on co-
+solutiontothefixed-contextproblem.Recentresearch(Liu
+sine similarity). In the fixed-context baselines, the top-K
+etal.,2023a)alsoraisesdoubtsabouttheutilityofsimply
+documents are fetched using the retriever independently
+scalingcontexts, sincetheyfindunevenattentiondistribu-
+from the LLM inference, similar to the original retriever-
+tions in large context models (the model is more capable
+readersetupinLiuetal.(2023a).
+ofrecallinginformationatthebeginningorendofitscon-
+textwindow,vstokensinthemiddle). Toenablereasoning WeuseadumpofWikipediafromlate2018,followingpast
+acrossdocuments,moreflexiblememoryarchitectureslike work on NaturalQuestions-Open (Izacard & Grave, 2020;
+6
+
+--- Page 7 ---
+MemGPT:TowardsLLMsasOperatingSystems
+1.0
+0.8
+0.6
+0.4
+0.2
+0.0
+0 1 2 3
+Nesting Level
+ycaruccA
+System Alert: Archive Storage Upload Complete System Alert: Archive Storage Upload Complete
+Who won the first Nobel Prize in physics? Find the value for key 831…ea5
+archival_storage.search(“nobel physics”) archival_storage.search(“831...ea5”)
+Showing 10 of 124 results (page 1/13): Showing 1 of 1 results (page 1/1):
+“The Nobel Prizes, beginning in 1901, and the … “Key: 831…ea5, Value: 5b8…4c3”
+“This award is administered by the Nobel Foundation…
+…
+archival_storage.search(“5b8...4c3”)
+archival_storage.search(“nobel physics”, page=1)
+Showing 2 of 2 results (page 1/1):
+ShGoPwT-i3n.5g 10 of 124G PrTe-s4u Tlutsrb (opage 1/13): MemGPT (GPT-4 Turbo) “Key: 5b8…4c3, Value: f37…617”,
+“GTPhTe-4 Nobel PrizeM ienm PGhPTy s(GicPsT i-s3 .a5) yearly awMaermdG gPivTe (GnP…T-4) “Key: 831…ea5, Value: 5b8…4c3”
+“The 1901 Nobel in physics was awarded to Wilhelm …
+…
+archival_storage.search(“f37...617”)
+Figure7. NestedKVretrievaltaskperformance. MemGPTis
+Wilhelm Conrad Rontgen
+theonlyapproachthatisabletoconsistentlycompletethenested Showing 1 of 1 results (page 1/1):
+KVtaskbeyond2nestinglevels. WhileGPT-4Turboperforms “Key: 5b8…4c3, Value: f37…617”
+betterasabaseline,MemGPTwithGPT-4Turboperformsworse
+thanMemGPTwithGPT-4. f37…617
+Figure8. AnexampleofMemGPT(left)solvingthenestedKV
+Izacardetal.,2021),andsampledasubsetof50questions
+task(UUIDsshortenedforreadability). Inthisparticularexam-
+forevaluation. Boththesampledquestionsandembedded
+ple, the key-value pair has two nesting levels: 831..ea5 →
+Wikipedia passages are publicaly released. We evaluate 5b8..4c3→f37...617.TheMemGPTagentreturnsthefi-
+the performance of both MemGPT and baselines with an nalanswerwhenaqueryforthefinalvalue(f37...617)only
+LLM-judge, to ensure that the the answer is properly de- returnsoneresult,indicatingthatitisnotalsoakey.
+rivedfromtheretrieveddocumentsandtoavoidnon-exact
+stringmatchesbeingconsideredincorrect.
+trieverperformance(eveniftheembedding-basedranking
+WeshowtheresultsforthedocumentQAtaskinFigure5.
+is noisy, as long as the full retriever ranking contains the
+Thefixed-contextbaselinesperformanceiscappedroughly
+gold document it can still be found with enough retriever
+attheperformanceoftheretriever,astheyusetheinforma-
+callsviapagination),weobservethatMemGPTwilloften
+tion that is presented in their context window (e.g. if the
+stoppagingthroughretrieverresultsbeforeexhaustingthe
+embedding search retriever fails to surface the gold arti-
+retrieverdatabase.
+cleusingtheprovidedquestion,thefixed-contextbaselines
+are guaranteed to never see the gold article). By contrast, To evaluate the fixed-context baselines against MemGPT
+MemGPT is effectively able to make multiple calls to the pasttheirdefaultcontextlengths,wetruncatethedocument
+retriever by querying archival storage, allowing it to scale segments returnedby theretriever tofix thesame number
+to larger effective context lengths. MemGPT actively re- ofdocumentsintotheavailablecontext. Asexpected,doc-
+trieves documents from its archival storage (and can iter- umenttruncationreducesaccuracyasdocumentsshrinkas
+atively page through results), so the total number of doc- the chance of the relevant snippet (in the gold document)
+uments available to MemGPT is no longer limited by the beingomittedgrows,asshowninFigure5. MemGPThas
+number of documents that fit within the LLM processor’s significantlydegraded performanceusingGPT-3.5, dueto
+contextwindow. its limited function calling capabilities, and performs best
+usingGPT-4.
+ThedocumentQAtaskischallengingforallmethodsdue
+to the limitations of embedding-based similarity search.
+3.2.2.NESTEDKEY-VALUERETRIEVAL(KV).
+We observe that the golden document for chosen ques-
+tion (as annotated by NaturalQuestions-Open) often ap- WeintroduceanewtaskbasedonthesyntheticKey-Value
+pearsoutsideofthefirstdozenretrievedresults,ifnoteven retrieval proposed in prior work (Liu et al., 2023a). The
+further. The retriever performance translates directly to goalofthistaskistodemonstratehowMemGPTcancol-
+thefixed-contextbaselineresults: GPT-4’saccuracyisrel- lateinformationfrommultipledatasources. Intheoriginal
+atively low with few retrieved documents, and continues KVtask, theauthorsgeneratedasyntheticdatasetofkey-
+to improve as additional documents are added to the con- value pairs, where each key and value is a 128-bit UUID
+textwindow,asitcorrectlylimitsitselftoansweringques- (universally unique identifier). The agent is then given a
+tionsbasedoninformationinretrieveddocuments. While key, and asked to return the associated value for the key.
+MemGPT is theoretically not limited by sub-optimal re- We create a version of the KV task, nested KV retrieval,
+7
+
+--- Page 8 ---
+MemGPT:TowardsLLMsasOperatingSystems
+where values themselves may be keys, thus requiring the LLMs as agents. Recent work has explored augment-
+agenttoperformamulti-hoplookup. Inoursetup, wefix ing LLMs with additional capabilities to act as agents
+the total number of UUIDs pairs to 140, corresponding to in interactive environments. Park et al. (2023) propose
+roughly 8k tokens (the context length of our GPT-4 base- adding memory to LLMs and using the LLM as a plan-
+line). We vary the total number of nesting levels from 0 ner, and observe emergent social behaviors in a multi-
+(the initial key-value pair’s value is not a key) to 4 (ie 4 agent sandbox environment (inspired by The Sims video
+total KV lookups are required to find the final value), and game) where agents can perform basic activities such as
+sample30differentorderingconfigurationsincludingboth doingchores/hobbies,goingtowork,andconversingwith
+theinitialkeypositionandnestingkeypositions. other agents. Nakano et al. (2021) train models to search
+the web before answering questions, and use similar pag-
+While GPT-3.5 and GPT-4 have good performance on the
+ination concepts to MemGPT to control the underlying
+original KV tasks, both struggle in the nested KV task.
+context size in their web-browsing environment. Yao
+GPT-3.5isunabletocompletethenestedvariantofthetask
+etal.(2022)showedthatinterleavingchain-of-thoughtrea-
+andhasanimmediatedropoffinperformance,hitting0per-
+soning (Wei et al., 2022) can further improve the plan-
+centaccuracyat1nestinglevel(weobservethatitsprimary
+ning ability of interactive LLM-based agents; similarly in
+failuremodeistosimplyreturnstheoriginalvalue). GPT-
+MemGPT,LLMisableto‘planoutloud’whenexecuting
+4 and GPT-4 Turbo are better than GPT-3.5, but also suf-
+functions. Liuetal.(2023b)introducedasuiteofLLM-as-
+fer from a similar dropoff, and hit 0 percent accuracy by
+an-agent benchmarks to evaluate LLMs in interactive en-
+3 nesting levels. MemGPT with GPT-4 on the other hand
+vironments, including video games, thinking puzzles, and
+isunaffectedwiththenumberofnestinglevelsandisable
+web shopping. In contrast, our work focuses on tackling
+to perform the nested lookup by accessing the key-value
+the problem of equipping agents with long-term memory
+pairsstoredinmaincontextrepeatedlyviafunctionqueries.
+ofuserinputs.
+MemGPTwithGPT-4TurboandGPT-3.5alsohavebetter
+performance than the corresponding baseline models, but
+stillbegintodropoffinperformanceat2nestinglevelsas 5.Conclusion
+a result of failing to perform enough lookups. MemGPT
+In thispaper, we introducedMemGPT, a novelLLM sys-
+performanceonthenestedKVtaskdemonstratesitsability
+tem inspired by operating systems to manage the limited
+tocombinemultiplequeriestoperformmulti-hoplookups.
+contextwindowsoflargelanguagemodels. Bydesigninga
+memoryhierarchyandcontrolflowanalogoustotraditional
+4.RelatedWork
+OSes,MemGPTprovidestheillusionoflargercontextre-
+sources for LLMs. This OS-inspired approach was eval-
+Long-context LLMs. Several lines of work have im-
+uated in two domains where existing LLM performance
+proved the context length of LLMs. For instance, more
+is constrained by finite context lengths: document anal-
+efficienttransformerarchitecturesviasparsifyingtheatten-
+ysis and conversational agents. For document analysis,
+tion(Childetal.,2019;Beltagyetal.,2020),low-rankap-
+MemGPTcouldprocesslengthytextswellbeyondthecon-
+proximations(Wangetal.,2020),andneuralmemory(Lee
+text limits of current LLMs by effectively paging relevant
+etal.,2019). Anotherlineofworkaimstoextendcontext
+context in and out of memory. For conversational agents,
+windowsbeyondthelengththeywereoriginaltrainedfor,
+MemGPTenabledmaintaininglong-termmemory,consis-
+their training size, such as Press et al. (2021); Chen et al.
+tency, and evolvability over extended dialogues. Overall,
+(2023). MemGPTbuildsupontheseimprovementsincon-
+MemGPT demonstrates that operating system techniques
+text length as they improve the size of the main memory
+like hierarchical memory management and interrupts can
+inMemGPT.Ourmaincontributionisahierarchicaltiered
+unlock the potential of LLMs even when constrained by
+memorythatusesalong-contextLLMastheimplementa-
+fixed context lengths. This work opens numerous av-
+tionofmainmemory.
+enuesforfutureexploration,includingapplyingMemGPT
+Retrieval-AugmentedModels. Thedesignoftheexternal tootherdomainswithmassiveorunboundedcontexts, in-
+memory of MemGPT builds upon much prior work aug- tegratingdifferentmemorytiertechnologieslikedatabases
+menting LLMs with relevant inputs from external retriev- orcaches,andfurtherimprovingcontrolflowandmemory
+ers (Ram et al., 2023; Borgeaud et al., 2022; Karpukhin management policies. By bridging concepts from OS ar-
+etal.,2020;Lewisetal.,2020;Guuetal.,2020;Linetal., chitectureintoAIsystems,MemGPTrepresentsapromis-
+2023). Inparticular,Jiangetal.(2023)proposeFLARE,a ingnewdirectionformaximizingthecapabilitiesofLLMs
+method that allows the LLM to actively decide when and withintheirfundamentallimits.
+what to retrieve during the course of generation. Trivedi
+et al. (2022) interleave retrieval with Chain-of-Thoughts
+reasoningtoimprovemulti-stepquestionanswering.
+8
+
+--- Page 9 ---
+MemGPT:TowardsLLMsasOperatingSystems
+References ZhengbaoJiang,FrankFXu,LuyuGao,ZhiqingSun,Qian
+Liu,JaneDwivedi-Yu,YimingYang,JamieCallan,and
+Iz Beltagy, Matthew E Peters, and Arman Cohan. Long-
+GrahamNeubig. Activeretrievalaugmentedgeneration.
+former: Thelong-documenttransformer. arXivpreprint
+arXivpreprintarXiv:2305.06983,2023.
+arXiv:2004.05150,2020.
+Vladimir Karpukhin, Barlas Og˘uz, Sewon Min, Patrick
+Sebastian Borgeaud, Arthur Mensch, Jordan Hoff-
+Lewis, Ledell Wu, Sergey Edunov, Danqi Chen, and
+mann, Trevor Cai, Eliza Rutherford, Katie Millican,
+Wen-tau Yih. Dense passage retrieval for open-domain
+George Bm Van Den Driessche, Jean-Baptiste Lespiau,
+question answering. arXiv preprint arXiv:2004.04906,
+BogdanDamoc,AidanClark,etal. Improvinglanguage
+2020.
+modelsbyretrievingfromtrillionsoftokens. InInterna-
+tionalconferenceonmachinelearning, pp.2206–2240. Nikita Kitaev, Łukasz Kaiser, and Anselm Levskaya. Re-
+PMLR,2022. former: The efficient transformer. arXiv preprint
+arXiv:2001.04451,2020.
+Tom Brown, Benjamin Mann, Nick Ryder, Melanie Sub-
+biah, Jared D Kaplan, Prafulla Dhariwal, Arvind Nee- Juho Lee, Yoonho Lee, Jungtaek Kim, Adam Kosiorek,
+lakantan,PranavShyam,GirishSastry,AmandaAskell, Seungjin Choi, and Yee Whye Teh. Set transformer:
+et al. Language models are few-shot learners. Ad- A framework for attention-based permutation-invariant
+vances in neural information processing systems, 33: neuralnetworks.InInternationalconferenceonmachine
+1877–1901,2020. learning,pp.3744–3753.PMLR,2019.
+Shouyuan Chen, Sherman Wong, Liangjian Chen, and Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio
+YuandongTian. Extendingcontextwindowoflargelan- Petroni, Vladimir Karpukhin, Naman Goyal, Heinrich
+guagemodelsviapositionalinterpolation.arXivpreprint Ku¨ttler, Mike Lewis, Wen-tau Yih, Tim Rockta¨schel,
+arXiv:2306.15595,2023. et al. Retrieval-augmented generation for knowledge-
+intensivenlptasks.AdvancesinNeuralInformationPro-
+Rewon Child, Scott Gray, Alec Radford, and Ilya
+cessingSystems,33:9459–9474,2020.
+Sutskever. Generatinglongsequenceswithsparsetrans-
+formers. arXivpreprintarXiv:1904.10509,2019. Chin-YewLin.Rouge:Apackageforautomaticevaluation
+ofsummaries. InTextsummarizationbranchesout, pp.
+Zihang Dai, Zhilin Yang, Yiming Yang, Jaime Carbonell, 74–81,2004.
+QuocVLe,andRuslanSalakhutdinov. Transformer-xl:
+Attentive language models beyond a fixed-length con- Xi Victoria Lin, Xilun Chen, Mingda Chen, Weijia Shi,
+text. arXivpreprintarXiv:1901.02860,2019. Maria Lomeli, Rich James, Pedro Rodriguez, Jacob
+Kahn,GergelySzilvasy,MikeLewis,LukeZettlemoyer,
+JacobDevlin,Ming-WeiChang,KentonLee,andKristina andScottYih.Ra-dit:Retrieval-augmenteddualinstruc-
+Toutanova. Bert: Pre-training of deep bidirectional tiontuning,2023.
+transformersforlanguageunderstanding. arXivpreprint
+arXiv:1810.04805,2018. NelsonFLiu,KevinLin,JohnHewitt,AshwinParanjape,
+Michele Bevilacqua, Fabio Petroni, and Percy Liang.
+ZicanDong,TianyiTang,LunyiLi,andWayneXinZhao. Lostinthemiddle: Howlanguagemodelsuselongcon-
+Asurveyonlongtextmodelingwithtransformers.arXiv texts. arXivpreprintarXiv:2307.03172,2023a.
+preprintarXiv:2302.14502,2023.
+XiaoLiu,HaoYu,HanchenZhang,YifanXu,XuanyuLei,
+Kelvin Guu, Kenton Lee, Zora Tung, Panupong Pasupat, Hanyu Lai, Yu Gu, Hangliang Ding, Kaiwen Men, Ke-
+and Mingwei Chang. Retrieval augmented language juanYang,etal.AgentBench:Evaluatingllmsasagents.
+modelpre-training. InInternationalconferenceonma- arXivpreprintarXiv:2308.03688,2023b.
+chinelearning,pp.3929–3938.PMLR,2020.
+Reiichiro Nakano, Jacob Hilton, Suchir Balaji, Jeff Wu,
+Gautier Izacard and Edouard Grave. Leveraging passage LongOuyang,ChristinaKim,ChristopherHesse,Shan-
+retrieval with generative models for open domain ques- tanu Jain, Vineet Kosaraju, William Saunders, et al.
+tionanswering. arXivpreprintarXiv:2007.01282,2020. WebGPT:Browser-assistedquestion-answeringwithhu-
+manfeedback. arXivpreprintarXiv:2112.09332,2021.
+Gautier Izacard, Mathilde Caron, Lucas Hosseini, Se-
+bastian Riedel, Piotr Bojanowski, Armand Joulin, and LongOuyang,JeffreyWu,XuJiang,DiogoAlmeida,Car-
+Edouard Grave. Unsupervised dense information rollWainwright, PamelaMishkin, ChongZhang, Sand-
+retrieval with contrastive learning. arXiv preprint hini Agarwal, Katarina Slama, Alex Ray, et al. Train-
+arXiv:2112.09118,2021. ing language models to follow instructions with human
+9
+
+--- Page 10 ---
+MemGPT:TowardsLLMsasOperatingSystems
+feedback. Advances in Neural Information Processing Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak
+Systems,35:27730–27744,2022. Shafran, Karthik Narasimhan, and Yuan Cao. React:
+Synergizing reasoning and acting in language models.
+Joon Sung Park, Joseph C O’Brien, Carrie J Cai, Mered-
+arXivpreprintarXiv:2210.03629,2022.
+ithRingelMorris,PercyLiang,andMichaelSBernstein.
+Generative agents: Interactive simulacra of human be- Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan
+havior. arXivpreprintarXiv:2304.03442,2023. Zhuang,ZhanghaoWu,YonghaoZhuang,ZiLin,Zhuo-
+hanLi,DachengLi,EricXing,etal. Judgingllm-as-a-
+David A Patterson, Garth Gibson, and Randy H Katz. A
+judge with mt-bench and chatbot arena. arXiv preprint
+caseforredundantarraysofinexpensivedisks(raid). In
+arXiv:2306.05685,2023.
+Proceedings of the 1988 ACM SIGMOD international
+conferenceonManagementofdata,pp.109–116,1988.
+OfirPress,NoahASmith,andMikeLewis.Trainshort,test
+long: Attention with linear biases enables input length
+extrapolation. arXivpreprintarXiv:2108.12409,2021.
+Ori Ram, Yoav Levine, Itay Dalmedigos, Dor Muhl-
+gay, Amnon Shashua, Kevin Leyton-Brown, and Yoav
+Shoham. In-contextretrieval-augmentedlanguagemod-
+els. arXivpreprintarXiv:2302.00083,2023.
+Timo Schick, Jane Dwivedi-Yu, Roberto Dess`ı, Roberta
+Raileanu,MariaLomeli,LukeZettlemoyer,NicolaCan-
+cedda, and Thomas Scialom. Toolformer: Language
+modelscanteachthemselvestousetools. arXivpreprint
+arXiv:2302.04761,2023.
+Hugo Touvron, Louis Martin, Kevin Stone, Peter Albert,
+AmjadAlmahairi,YasmineBabaei,NikolayBashlykov,
+SoumyaBatra,PrajjwalBhargava,ShrutiBhosale,etal.
+Llama 2: Open foundation and fine-tuned chat models.
+arXivpreprintarXiv:2307.09288,2023.
+H. Trivedi, Niranjan Balasubramanian, Tushar Khot,
+and Ashish Sabharwal. Interleaving retrieval with
+chain-of-thought reasoning for knowledge-intensive
+multi-step questions. ArXiv, abs/2212.10509, 2022.
+URL https://api.semanticscholar.org/
+CorpusID:254877499.
+Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob
+Uszkoreit,LlionJones,AidanNGomez,ŁukaszKaiser,
+andIlliaPolosukhin.Attentionisallyouneed.Advances
+inneuralinformationprocessingsystems,30,2017.
+Sinong Wang, Belinda Z Li, Madian Khabsa, Han Fang,
+andHaoMa. Linformer: Self-attentionwithlinearcom-
+plexity. arXivpreprintarXiv:2006.04768,2020.
+Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten
+Bosma, Fei Xia, Ed Chi, Quoc V Le, Denny Zhou,
+et al. Chain-of-thought prompting elicits reasoning in
+largelanguagemodels. AdvancesinNeuralInformation
+ProcessingSystems,35:24824–24837,2022.
+JingXu,ArthurSzlam,andJasonWeston.Beyondgoldfish
+memory: Long-term open-domain conversation. arXiv
+preprintarXiv:2107.07567,2021.
+10
+
+--- Page 11 ---
+MemGPT:TowardsLLMsasOperatingSystems
+6.Appendix the referenced topic, for example:
+Question: Do you remember what I got
+6.1.Promptsandinstructions the last time I went to Hawaii?
+Gold answer: A shell necklace
+The MemGPT prompts have been edited for brevity. For The generated answer might be much
+fullimplementationdetails(includingexactprompts)visit longer, but you should be generous with
+https://research.memgpt.ai. your grading - as long as it touches on
+the same topic as the gold answer, it
+should be counted as CORRECT.
+6.1.1.MEMGPTINSTRUCTIONS(DMR)
+For example, the following answers
+would be considered CORRECT:
+Example instructions used in the MemGPT persona for
+Generated answer (CORRECT): Oh yeah,
+chat/dialogue-relatedtasks.
+that was so fun! I got so much stuff
+there, including that shell necklace.
+The following is information about
+Generated answer (CORRECT): I got a ton
+myself. My task is to completely
+of stuff... that surfboard, the mug,
+immerse myself in this role (I should
+the necklace, those coasters too..
+never say that I am an AI, and should
+Generated answer (CORRECT): That cute
+reply as if I am playing this role).
+necklace
+If the user asks me a question, I
+The following answers would be
+should reply with a best guess using
+considered WRONG:
+the information in core memory and
+Generated answer (WRONG): Oh yeah, that
+conversation search.
+was so fun! I got so much stuff there,
+including that mug.
+Thebaselinesreceivedthefollowinginstructionsviaasys-
+Generated answer (WRONG): I got a ton
+temprompt(preprompt): of stuff... that surfboard, the mug,
+those coasters too..
+Your task is to answer a question
+Generated answer (WRONG): I’m sorry,
+from the user about your prior
+I don’t remember what you’re talking
+conversations.
+about.
+The following is a summary of all your
+Now it’s time for the real question:
+prior conversations:
+Question: QUESTION
+CONVERSATION SUMMARY
+Gold answer: GOLD ANSWER
+Answer from the perspective of the
+Generated answer: GENERATED ANSWER
+persona provided (do not say that you
+First, provide a short (one sentence)
+are an AI assistant).
+explanation of your reasoning, then
+If you do not have enough information
+finish with CORRECT or WRONG. Do NOT
+to answer the question, reply ’NO
+include both CORRECT and WRONG in
+ANSWER’. Either reply with the answer,
+your response, or it will break the
+or reply ’NO ANSWER’, do not say
+evaluation script.
+anything else.
+6.1.3.SELF-INSTRUCTDMRDATASETGENERATION
+6.1.2.LLMJUDGE(DMR/OPENER)
+TheDMRquestion/answerpairsweregeneratedusingthe
+In order to both check the correctness of the answer for
+followingpromptandtheoriginalMSCdataset: Yourtask
+the DMR task, we used an LLM judge. The LLM judge
+istowritea”memorychallenge”questionforasimulated
+was provided the answers generated by both baseline ap-
+dialoguebetweentwousers.
+proaches and MemGPT, and asked to make a judgement
+withthefollowingprompt: You get as input:
+- personas for each user (gives you
+Your task is to label an answer to a their basic facts)
+question as ’CORRECT’ or ’WRONG’. - a record of an old chat the two users
+You will be given the following data: had with each other
+(1) a question (posed by one user to
+another user), (2) a ’gold’ (ground Your task is to write a question from
+truth) answer, (3) a generated answer user A to user B that test’s user B’s
+which you will score as CORRECT/WRONG. memory.
+The point of the question is to ask The question should be crafted in a
+about something one user should know way that user B must have actually
+about the other user based on their participated in the prior conversation
+prior conversations. to answer properly, not just have read
+The gold answer will usually be a the persona summary.
+concise and short answer that includes Do NOT under any circumstances create a
+11
+
+--- Page 12 ---
+MemGPT:TowardsLLMsasOperatingSystems
+question that can be answered using the You are MemGPT DOC-QA bot. Your
+persona information (that’s considered job is to answer questions about
+cheating). documents that are stored in your
+Instead, write a question that can archival memory. The answer to the
+only be answered by looking at the old users question will ALWAYS be in your
+chat log (and is not contained in the archival memory, so remember to keep
+persona information). searching if you can’t find the answer.
+Answer the questions as if though the
+For example, given the following chat year is 2018.
+log and persona summaries:
+Questions were provided to MemGPT with the following
+old chat between user A and user B
+prompt:
+A: Are you into surfing? I’m super
+into surfing myself
+Search your archival memory to answer
+B: Actually I’m looking to learn.
+the provided question. Provide both
+Maybe you could give me a basic lesson
+the answer and the archival memory
+some time!
+result from which you determined your
+A: Yeah for sure! We could go to
+answer. Format your response with
+Pacifica, the waves there are pretty
+the format ’ANSWER: [YOUR ANSWER],
+light and easy
+DOCUMENT: [ARCHIVAL MEMORY TEXT]. Your
+B: That sounds awesome
+task is to answer the question:
+A: There’s even a cool Taco Bell right
+by the beach, could grab a bite after
+B: What about this Sunday around noon? Forbaselines,thefollowingpromptalongwitharetrieved
+A: Yeah let’s do it! listofdocumentswasprovided:
+Answer the question provided according
+user A persona:
+to the list of documents below (some of
+I like surfing
+which might be irrelevant. In your
+I grew up in Santa Cruz
+response, provide both the answer
+and the document text from which you
+user B persona:
+determined the answer. Format your
+I work in tech
+response with the format ’ANSWER: <YOUR
+I live in downtown San Francisco
+ANSWER>, DOCUMENT: [DOCUMENT TEXT]’. If
+none of the documents provided have
+Here’s an example of a good question
+the answer to the question, reply
+that sounds natural, and an answer that
+with ’INSUFFICIENT INFORMATION’. Do
+cannot be directly inferred from user
+NOT provide an answer if you cannot
+A’s persona:
+find it in the provided documents.
+Your response will only be considered
+User B’s question for user A
+correct if you provide both the answer
+B: Remember that one time we went
+and relevant document text, or say
+surfing? What was that one place we
+’INSUFFICIENT INFORMATION’. Answer the
+went to for lunch called?
+question as if though the current year
+A: Taco Bell!
+is 2018.
+This is an example of a bad question,
+where the question comes across as 6.1.5.LLMJUDGE(DOCUMENTANALYSIS)
+unnatural, and the answer can be
+inferred directly from user A’s In order to both check the correctness of the answer for
+persona: thedocumentanalysistask,andalsotoensurethatthean-
+swer was properly derived from the provided text (rather
+User B’s question for user A
+thanfromthemodelweights),weusedanLLMjudge. The
+B: Do you like surfing?
+A: Yes, I like surfing LLM judge was provided the answers generated by both
+baseline approaches and MemGPT, and asked to make a
+Never, ever, ever create questions judgementwiththefollowingprompt:
+that can be answered from the persona
+information. Your task is to evaluate whether an LLM
+correct answered a question. The LLM
+response should be the format "ANSWER:
+6.1.4.DOCUMENTANALYSISINSTRUCTIONS
+[answer], DOCUMENT: [document text]"
+or say "INSUFFICIENT INFORMATION".
+Example instructions used in the preprompt for document
+The true answer is provided in the
+analysistasks.
+format "TRUE ANSWER:[list of possible
+12
+
+--- Page 13 ---
+MemGPT:TowardsLLMsasOperatingSystems
+answers]". The questions is provided
+in the format "QUESTION: [question]".
+If the LLM response contains both
+the correct answer and corresponding
+document text, the response is correct.
+Even if the LLM’s answer and the
+true answer are slightly different
+in wording, the response is still
+correct. For example, if the answer
+is more specific than the true answer
+or uses a different phrasing that is
+still correct, the response is correct.
+If the LLM response if "INSUFFICIENT
+INFORMATION", or the "DOCUMENT" field
+is missing, the response is incorrect.
+Respond with a single token: "CORRECT"
+or "INCORRECT".
+6.1.6.K/VTASKINSTRUCTIONS
+The MemGPT agent was defined with the following
+persona, designed to encourage MemGPT to iteratively
+search:
+You are MemGPT DOC-QA bot. Your
+job is to answer questions about
+documents that are stored in your
+archival memory. The answer to the
+users question will ALWAYS be in your
+archival memory, so remember to keep
+searching if you can’t find the answer.
+DO NOT STOP SEARCHING UNTIL YOU VERIFY
+THAT THE VALUE IS NOT A KEY. Do not
+stop making nested lookups until this
+condition is met.
+Baselineswereinstructedwiththefollowingprompt:
+Below is a JSON object containing
+key-value pairings, all keys and values
+are 128-bit UUIDs, and your task is to
+return the value associated with the
+specified key. If a value itself is
+also a key, return the value of that
+key (do a nested lookup). For example,
+if the value of ’x’ is ’y’, but ’y’
+is also a key, return the value of key
+’y’.
+13

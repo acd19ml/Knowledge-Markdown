@@ -64,7 +64,7 @@ GUI-Owl 以 Qwen2.5-VL 为基座，经三阶段训练：(1) **Pre-training Phase
 
 ### Position in Survey
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: 属于 GUI Agent Survey 中 **Section 3（Task Automation Pipeline）→ 3.4 Memory & Knowledge** 与 **Section 5（Self-Evolving / Training）** 的交叉节点。GUI-Owl 的 Self-Evolving Trajectory Production 框架直接对应 Cross_Topic/gui-agent-x-self-evolving.md 中 A-4（Offline Experience Evolution）的初步实例；Mobile-Agent-v3 的 Notetaker Agent 是 A-2（Episodic Memory）的轻量实现。
+> ⚠️ NEEDS YOUR INPUT: 属于 GUI Agent Survey 中 **Section 3（Task Automation Pipeline）→ 3.4 Memory & Knowledge** 与 **Section 5（Self-Evolving / Training）** 的交叉节点。GUI-Owl 的 Self-Evolving Trajectory Production 框架直接对应 Cross_Topic/gap-tracker.md 中 A-4（Offline Experience Evolution）的初步实例；Mobile-Agent-v3 的 Notetaker Agent 是 A-2（Episodic Memory）的轻量实现。
 - **Role**: Positive example（自演化数据生成 + RL 对齐的完整工程案例）/ Contrastive baseline（其 Notetaker 记忆方案与 A-1/A-2 理想方案对比）
 
 ### Gap Signals (extracted from this paper)
@@ -83,7 +83,7 @@ GUI-Owl 以 Qwen2.5-VL 为基座，经三阶段训练：(1) **Pre-training Phase
 - **Experimental design**: AndroidWorld + OSWorld-Verified 是当前主流 online 评估基准，应在我的研究中使用相同基准做对比；历史图像数量消融（Figure 9）为视觉记忆实验提供参考设计。
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: (1) **与 Self_Evolve/ 的联系**：GUI-Owl 的 Iterative Online Rejection Sampling 与 Self_Evolve/04_self-evolution-mechanisms.md 中的"经验驱动演化"高度对应，但 GUI-Owl 仍局限于训练阶段演化，未达到 Self_Evolve 文献中部署后持续演化的目标。(2) **与 Agent_Memory/ 的联系**：Notetaker Agent 对应 Agent_Memory 中的 Working Memory / Episodic Memory 概念，但缺乏长期存储与跨任务检索能力。(3) **与 Cross_Topic/gui-agent-x-memory.md 的联系**：可作为该文件中 A-2（Episodic Memory 缺口）的"当前最好实践但仍不足"的典型案例写入。(4) **与同目录 PC-Agent 的联系**：PC-Agent 同为层级多智能体框架，但专注 PC 场景感知与任务分解，两者互补——GUI-Owl 提供更强的底层感知模型，PC-Agent 提供更精细的多层代理协作设计。
+> ⚠️ NEEDS YOUR INPUT: (1) **与 Self_Evolve/ 的联系**：GUI-Owl 的 Iterative Online Rejection Sampling 与 Self_Evolve/04_self-evolution-mechanisms.md 中的“经验驱动演化”高度对应，但 GUI-Owl 仍局限于训练阶段演化，未达到 Self_Evolve 文献中部署后持续演化的目标。(2) **与 Agent_Memory/ 的联系**：Notetaker Agent 对应 Agent_Memory 中的 Working Memory / Episodic Memory 概念，但缺乏长期存储与跨任务检索能力。(3) **与 Cross_Topic/gap-tracker.md 的联系**：可作为 A-2（Episodic Memory 缺口）的“当前最好实践但仍不足”的典型案例写入。(4) **与同目录 PC-Agent 的联系**：PC-Agent 同为层级多智能体框架，但专注 PC 场景感知与任务分解，两者互补——GUI-Owl 提供更强的底层感知模型，PC-Agent 提供更精细的多层代理协作设计。
 
 ## Citation Tracking
 - [ ] Qin et al., 2025 (UI-TARS-1.5): 当前最强开源对比模型，需阅读了解其训练方法

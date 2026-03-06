@@ -6,7 +6,7 @@
 - **Venue**: arXiv preprint, 2025-10-17 | arXiv:2510.16079
 - **Links**: [PDF](./EVOLVER.pdf) | [Code](https://github.com/Edaizi/EvolveR) | [Project](https://github.com/Edaizi/EvolveR)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
-- **Priority**: P1 | **Reading progress**: Pass 1
+- **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
 Wu et al. 提出 EvolveR 闭环范式（Offline Self-Distillation + Online Interaction + GRPO Policy Evolution），在 Qwen2.5-3B 上将 7 个 QA 基准平均 EM 提升到 0.382，相比最强 baseline（Search-R1-instruct, 0.325）提升 +0.057（约 +17.5% 相对提升）(Section 4.2, p.8; Table 1, p.8)。

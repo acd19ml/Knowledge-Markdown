@@ -6,7 +6,7 @@
 - **Venue**: Preprint, 2026 | arXiv:2602.20502
 - **Links**: [PDF](../source_todo/ActionEngine.pdf) | Code: not listed in PDF | Project: not listed in PDF
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-06
-- **Priority**: P1 | **Reading progress**: Pass 1
+- **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
 ActionEngine 用离线构建的 state-machine graph memory 将 Web GUI agent 从逐步 reactive 推理切到一次性 program synthesis，在 WebArena Reddit 子集上把成功率从 66% 提到 95%，同时把成本降到 11.8x 更低、延迟降到 2x 更低（Abstract / Section 6.2, p.1, p.9）。
@@ -60,7 +60,7 @@ ActionEngine 用离线构建的 state-machine graph memory 将 Web GUI agent 从
 ### Gap Signals (extracted from this paper)
 - Gap signal 1: "existing agents develop only a myopic, task-specific understanding of the application" (Section 1, p.2) → 作者明确把“缺少全局应用模型”定义成当前 reactive agent 的核心瓶颈，说明结构化 memory 仍然是主缺口。
 - Gap signal 2: Tasks 409-410 only reach 50% success because "the 50% failure rate reflect[s] cases where our systematic interpretation differed from the ground-truth evaluator's intent" (Section 6.3, p.9-10) → 仅有结构化页面记忆还不足以处理语义层面的指代歧义。
-- Gap signal 3: 离线 crawling + 在线 program execution 的范式默认目标应用可预探索、可稳定建图 → 对开放世界、临时性任务、跨应用组合任务仍有明显边界。
+- Gap signal 3: "Large-scale redesigns that fundamentally alter the interface structure may require full re-crawling to rebuild the memory from scratch." (Section 5, p.8) → 结构化 graph memory 的维护成本在界面大改时会陡增，开放世界和高频变化场景仍有明显边界。
 
 > ⚠️ NEEDS YOUR INPUT: 我倾向于把这篇论文视为“从 flat trajectory memory 走向 structural GUI memory”的强信号，但它还没有触及跨任务长期经验积累与在线自演化。
 

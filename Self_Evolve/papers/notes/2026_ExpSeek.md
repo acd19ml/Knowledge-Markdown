@@ -6,7 +6,7 @@
 - **Venue**: arXiv preprint, 2026-01-13 | arXiv:2601.08605v1
 - **Links**: [PDF](./ExpSeek.pdf) | Code: 待公开 | Project: 未提供
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
-- **Priority**: P1 | **Reading progress**: Pass 1
+- **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
 ExpSeek 将 web agent 的经验注入从“任务前全局被动拼接”改为“按 step 主动触发 + 动态生成指导”，在 Qwen3-8B/32B 上于 WebWalkerQA、GAIA、SEAL、xbench 四基准分别取得平均 +9.3% / +7.5% 绝对提升（最高单项 +14.6%）。

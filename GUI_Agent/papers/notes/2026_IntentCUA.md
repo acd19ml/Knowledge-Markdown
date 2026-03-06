@@ -6,7 +6,7 @@
 - **Venue**: AAMAS 2026 | arXiv:2602.17049
 - **Links**: [PDF](../source_todo/IntentCUA.pdf) | Code: not listed in PDF | Project: not listed in PDF
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-06
-- **Priority**: P1 | **Reading progress**: Pass 1
+- **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
 IntentCUA 将 raw interaction traces 提炼成 multi-view intent representations、skill hints 与 shared plan memory，用多 agent 协同规划稳定长序列 desktop 任务，在 286 个任务上达到 74.8% success、0.91 SER，显著优于 UI-TARS-1.5 与 UFO2（Abstract / Table 2, p.1, p.8）。

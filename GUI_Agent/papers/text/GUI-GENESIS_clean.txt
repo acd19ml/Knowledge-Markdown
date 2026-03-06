@@ -1,0 +1,963 @@
+--- Page 1 ---
+GUI-GENESIS: Automated Synthesis of Efficient Environments with Verifiable
+Rewards for GUI Agent Post-Training
+YuanCao1 DezhiRan∗†1 MengzhouWu1 YuzheGuo1 XinChen2 AngLi2 GangCao2 ZhiGong2
+HaoYu3 LinyiLi4 WeiYang5 TaoXie∗1
+Abstract interactive post-training to master long-horizon planning
+anddynamicerrorrecovery(Hongetal.,2024;Ranetal.,
+Post-trainingGUIagentsininteractiveenviron-
+2024;Wangetal.,2025a;Xuetal.,2025b). Whiletraining
+ments is critical for developing generalization
+onstaticdatasetsallowsmodelstoclonebasicbehavioral
+and long-horizon planning capabilities. How-
+patterns,suchapproachesoftenfailwhenagentsencounter
+ever, training on real-world applications is hin-
+out-of-distributionstatesorcomplexworkflowsthatnecessi-
+deredbyhighlatency,poorreproducibility,and
+tatetrial-and-error(Rawlesetal.,2023;Torabietal.,2018;
+unverifiablerewardsrelyingonnoisyvisualprox-
+Zhangetal.,2024). Tobridgethegap,thecommunityis
+ies. Toaddressthelimitations,wepresentGUI-
+shifting toward reinforcement learning paradigms where
+GENESIS, the first framework to automatically
+agentsrefinetheirdecision-makingpoliciesthroughcontin-
+synthesize efficient GUI training environments
+uousexplorationwithininteractiveGUIapplications(Yue
+with verifiable rewards. GUI-GENESIS recon-
+etal.,2025;Zhangetal.,2025). Thistransitionhighlights
+structs real-world applications into lightweight
+theneedforinteractiveenvironmentsthatcansupporthigh-
+webenvironmentsusingmultimodalcodemodels
+throughputsamplingrequiredforpolicyoptimization.
+andequipsthemwithcode-nativerewards,exe-
+cutable assertions that provide deterministic re- However,utilizingreal-worldGUIappsasinteractiveenvi-
+wardsignalsandeliminatevisualestimationnoise. ronmentsfundamentallyconstrainstheefficacyandscala-
+ExtensiveexperimentsshowthatGUI-GENESIS bilityofGUIagentpost-trainingregardingcomputational
+reduces environment latency by 10× and costs efficiencyandrewardverification(Rawlesetal.,2025;Xie
+by over $28,000 per epoch compared to train- et al., 2024; Zhou et al., 2024). First, real-world appli-
+ingonrealapplications. Notably,agentstrained cations often mandate active user login sessions and de-
+withGUI-GENESISoutperformthebasemodel pendonremotebackendsynchronization(Ranetal.,2023;
+by14.54%andevenreal-worldRLbaselinesby 2025b). Theseheavyexternaldependenciesnotonlyintro-
+3.27%onheld-outreal-worldtasks. Finally,we duce stochastic instability into the training loop but also
+observethatmodelscansynthesizeenvironments imposeaburdenoncomputationalinfrastructurethatmakes
+theycannotyetsolve,highlightingapathwayfor large-scaleparalleltrainingexpensive(Dengetal.,2023).
+self-improvingagents. Second,real-worldappsinherentlylackpreciseandverifi-
+ablerewards(Wangetal.,2025a),astheground-truthtask
+stateisoftenencapsulatedwithinthebackendorrendered
+implicitlyintheinterface(Kaelblingetal.,1998;Rawles
+1.Introduction
+etal.,2025). Intheabsenceofaverifiableoracle,training
+GUI agents powered by vision-language models have pipelines are forced to employ VLMs as proxy judges to
+achieved remarkable success in automating digital tasks estimatetaskprogress(Guetal.,2025;Wangetal.,2025a;
+throughsupervisedfine-tuning,yettheyincreasinglyrequire Xuetal.,2025a). Theseheavy-weightevaluatorsnotonly
+introduceadditionalinferencecostsbutalsostochasticnoise
+*Co-corresponding authors. †Project Leader. 1Key Lab duetovisualhallucinationsandalignmenterrors,undermin-
+of HCST (PKU), MOE; SCS, Peking University, Beijing,
+ingthepotentialoftheRLVRparadigm(Guoetal.,2025;
+China 2Tencent Inc., Shenzheng, China 3Hong Kong Univer-
+Heetal.,2025).
+sity of Science and Technology, Hong Kong, China 4School
+ofComputingScience, SimonFraserUniversity, Burnaby, BC,
+To overcome the efficiency and verifiability challenges,
+Canada5DepartmentofComputerScience,UniversityofTexas
+at Dallas, Richardson, USA. Correspondence to: Tao Xie
+we introduce GUI-GENESIS, the first framework that si-
+<taoxie@pku.edu.cn>,DezhiRan<dezhiran@pku.edu.cn>. multaneouslyresolvestheefficiencyandverificationchal-
+lengesbysynthesizinglightweightapplicationsequipped
+Preprint.February17,2026.
+1
+6202
+beF
+51
+]IA.sc[
+1v39041.2062:viXra
+
+--- Page 2 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+withembeddedrewardoracles. Drivenbytheinsightthat Qinetal.,2025;Youetal.,2024). Whileearlyapproaches
+globalbackendcomplexityisunnecessaryforagenttrain- primarilyutilizedSupervisedFine-Tuning(SFT)onstatic
+ing, GUI-GENESIS leverages VLMs and code LLMs to datasets(Chenetal.,2024b;Linetal.,2025;Luetal.,2024;
+reverse-engineer user traces into standalone web applica- Wuetal.,2024;Yangetal.,2025),theyoftenstrugglewith
+tionsthatpreservelogicalfidelitywhileeliminatingnetwork error recovery and long-horizon planning. Consequently,
+andresourceoverhead. Beyondstructuralreconstruction, thefieldispivotingtowardReinforcementLearning(RL)
+GUI-GENESISexplicitlyaddressestherewardverification toenableagentstolearnfrominteraction(Luetal.,2025;
+problembyidentifyingtasksuccessconditionsduringsyn- Wangetal.,2025a;Xuetal.,2025a;Yeetal.,2025). How-
+thesisandembeddingexecutableassertionsdirectlyintothe ever,unlikeroboticsorgameswheresimulatorsarehighly
+source code. Such code-native reward serves as an ideal optimized,GUIagentstypicallytrainonreal-worldapplica-
+oracle,transformingthesparse,noisysignalsofreal-world tions(e.g.,Androidemulators),whicharecomputationally
+appsintopreciseanddeterministicfeedbackessentialfor expensive,slow,andpronetonetworkinstability,severely
+stablepolicyoptimization. limitingthescaleofdatacollection.
+ToevaluateGUI-GENESIS,weconductexperimentsona Reinforcementlearningwithverifiablereward. Recent
+benchmarkof149real-worldmobiletasks,demonstrating advancementshaveshownthatscalingreinforcementlearn-
+robustzero-shotsim-to-realtransfer. Agentspost-trained ing with verifiable rewards (RLVR) can dramatically im-
+solelyinoursynthesizedenvironmentsoutperformthebase provereasoningabilities,particularlyindomainswithwell-
+modelbyarelativemarginof14.54%and,remarkably,even definedverifierlikemathematicsandcodegeneration(Guo
+surpassagentstraineddirectlyonthetargetapplicationsby et al., 2025; Hu, 2025; Shao et al., 2024). Despite the
+3.27%. Beyondperformancegains,GUI-GENESISsubstan- promise,applyingRLVRtogeneral-purposetasksencoun-
+tially boosts efficiency, reducing environment latency by tersthebottleneckofrewardengineering. Conventionalso-
+10×andsavingover$28,000perepochcomparedtocloud- lutionsoftenresorttoextensivehumanefforttohand-craft
+basedtrainingwithVLMrewards. Finally, weuncovera rule-basedrewards(Chenetal.,2025;Tongetal.,2025)or
+“synthesis-navigationgap”wherethemodelconstructsvalid constructproxytasks(Wangetal.,2025b).Thischallengeis
+environmentsitcannotyetsolve,highlightingapromising exacerbatedinGUIagenttraining,whererewardstypically
+pathwayforself-improvingagents. relyonnoisyvisualproxiesratherthanground-truthstates.
+Ourmaincontributionsaresummarizedasfollows: Environmentsynthesisinagentictasks. Recentadvance-
+ments have demonstrated the power of multi-step RL for
+• Weidentifyandanalyzetheefficiencyandverifiabil- complex agentic tasks (Moonshot AI, 2026; Team et al.,
+ity bottlenecks of training GUI agents in real-world 2025).Intherealmoftooluse,trainingpipelinesoftenincor-
+applications, and propose environment synthesis as poratemodel-simulateduserinteractions(Guoetal.,2024)
+a scalable, white-box alternative to interaction with or rely on manually engineered environments that mirror
+black-boxapps. real-worldworkflows(Chenetal.,2024a;Yaoetal.,2024).
+Emergingresearchhasbeguntoexploremodel-generated
+• We introduce GUI-GENESIS, the first framework
+interactiveenvironmentstoscaledataproduction(Caietal.,
+thatleveragesmultimodalcodemodelstosynthesize
+2025;Xuetal.,2025c). However,whilelogicaltooluseis
+lightweight web environments equipped with code-
+significantlyeasiertosimulatethanfull-stackapplications,
+nativerewards—deterministicassertionsthatelimi-
+the synthesis of realistic app environments faces distinct
+natevisualestimationnoise.
+challenges,includingGUIreconstructionandthedifficulty
+ofsim-to-realtransfer,whichhavenotbeenadequatelyad-
+• Extensive experiments demonstrate that GUI-
+dressedinpriorwork.
+GENESIS enables effective zero-shot sim-to-real
+transfer, improving agent performance by a relative
+14.54%overthebasemodelwhilereducinglatencyby 3.ProblemFormulation
+10×andsavingover$28,000perepoch. Ouranalysis
+WeconsidertrainingGUIagentsthroughenvironmentin-
+further reveals a synthesis-navigation gap between
+teractions. ThetargetapplicationismodeledasaPOMDP
+environmentconstructionandtasksolving,suggesting
+M = ⟨S,A,P,R,Ω⟩, where states s ∈ S are latent
+apathwayforself-improvingagents. real
+(e.g., backend databases), observations o ∈ Ω are visual
+screenshots,andrewardsR(s,a)dependontheunobserv-
+2.BackgroundandRelatedWork
+abletruestate. Agentslearnpoliciesπ(a|o)tomaximize
+expectedcumulativereward.
+GUIagentsandtheshifttoRL.Recentadvancementsin
+VLMshaveempoweredagentstoautomatetasksacrossweb TrainingdirectlyonM bringstwomajorbottlenecks:
+real
+andmobileplatforms(Baietal.,2025a;Gouetal.,2024;
+2
+
+--- Page 3 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+Efficiencybottleneck. Eachreal-worldinteractionincurs injectcode-nativerewards;and(3)automatedverification
+latencyfromnetwork,rendering,andI/O—oftenexceeding (§4.5),aself-correctionloopthatensuresthesynthesized
+secondsperstep.AtthescalerequiredforeffectiveRL(106- environmentisvalidandexecutable.
+107 steps), wall-clock training time becomes intractable.
+Parallelizationisfinanciallyconstrained(e.g.,∼$24K/day 4.2.Trace-DrivenContextAcquisition
+for100concurrentcloudinstances(Services,2025a;b)).
+To ensure the synthesized environments maintain high fi-
+Verification bottleneck. Since the ground-truth reward delity to real-world visual and interaction dynamics, we
+R(s,a) is latent, training must rely on noisy visual prox- groundthegenerationprocessinactualexecutiontraces.For
+iesRˆ(o,a)(e.g.,fromVLMs(Wangetal.,2025a)). This eachtaskinthetrainingset,wedeployabaselineGUIagent
+introducesacompoundingchallenge: estimationerrorϵ(o) toattemptthetaskonthetargetreal-worldapplication. This
+mayleadtorewardhacking,whiletheheavyinferencecost yieldsanexplorationtraceT = {(I ,u ),...,(I ,u )},
+0 0 T T
+ofVLM-basedevaluationfurtherexacerbatestheefficiency whereI representstherawscreenshotandu denotesthe
+t t
+problem. useractionatstept.
+Synthesisobjective. GiveninteractiontracesD,weaimto
+Crucially,weutilizethesetracesregardlessoftasksuccess.
+constructatask-conditionedsurrogateenvironmentM
+Evenfailedattemptseffectivelycapturethevisualdesign
+syn
+patterns(e.g.,colorschemes,widgetstyles)andthelogical
+thatsatisfies:
+flow (e.g., page transitions). This trace T serves as the
+• Fidelity: π∗ ≈π∗ onthetargettaskmanifold. multimodalcontextforthesynthesizer,enablingthemodel
+Msyn Mreal
+• Verifiability: R syn is deterministic and accessible via toreconstructthedistinct“lookandfeel”ofthetargetapp
+codeassertions,eliminatingvisualestimationnoise. withoutneedingtoinventUIelementsfromscratch.
+• Efficiency: τ (M ) ≪ τ (M ) (e.g., millisec-
+step syn step real
+ondsvs. seconds). 4.3.HierarchicalCodeSynthesis
+Critically,unlikelearnedneuralsimulatorslikeworldmod- Weemployastate-of-the-artmultimodalcodemodel(e.g.,
+els(Lietal.,2025;Luoetal.,2025),M syn issynthesized Kimi k2 (Moonshot AI, 2026)) as the synthesis back-
+asexecutablecode,ensuringthewhite-boxverifiabilityof bone. Given the high complexity of full-stack develop-
+code-nativerewardandnear-instantaneoussimulation. ment,weimplementahierarchicalstrategycombiningmeta-
+prompting(Suzgun&Kalai,2024)forsystemdesignwith
+4.Methodology aplan-and-execute(Zhouetal.,2022)workflowforimple-
+mentation.
+4.1.Overview
+Meta-promptingforsystemdesign. Weinitializesynthe-
+Whileenvironmentsynthesisoffersafundamentalsolution
+siswithahigh-levelmeta-instruction. Themodelanalyzes
+tothelatencyandverificationbottlenecksofreal-worldapps,
+theinputtraceT andtaskdescriptiontogeneratearefined,
+generatingmonolithicapplicationsremainsintractablefor
+task-specificsystemprompt. Tomitigatecommonsynthesis
+currentcodeLLMs(Ranetal.,2025a). However,training
+pitfalls, we enforce four strict design constraints via the
+GUIagentstypicallydoesnotrequireagloballycomplete
+meta-prompt:
+simulation. Since agents are trained to execute specific
+instructions,theenvironmentonlyneedstomaintainbehav- 1. Viewportresolution: Mandatingspecificviewportdi-
+ioralfidelitywithinthetask-relevantstatemanifold. Driven mensions (e.g., 375×812) to enforce alignment with
+bythisinsight,tomaketheenvironmentsynthesisprocess mobileinterfacestandards.
+tractable,wedesignatask-conditionedsynthesisstrategy. 2. Visual fidelity: Prescribing the use of modern CSS
+Insteadofattemptingtoreconstructanentireapplication, frameworks (e.g., Tailwind) to accurately emulate the
+GUI-GENESISsynthesizesadedicated,standalonewebap- nativestylingobservedinthetraces.
+plication (using the Flask framework (Pallets, 2024)) for 3. Functional isolation: Mocking external network re-
+eachspecificRLtask,encapsulatingonlythelogicrequired questswithlocaldatabaselogic(e.g.,SQLite)tocreate
+forthetask-relatedinteractions. self-contained,offline-executableenvironments.
+4. Adversarialdistractors: Explicitlyrequiringthegen-
+As illustrated in Figure 1, GUI-GENESIS automates this
+erationofdistractorelementsalongsidetargetitemsto
+task-conditionedenvironmentsynthesisinthreestages: (1)
+preventtrivializingretrievaltasks.
+trace-driven context acquisition (§4.2), where we cap-
+turevisualandlogicalcontextfromreal-worldinteractions;
+Plan-and-execute implementation. To prevent atten-
+(2)hierarchicalcodesynthesis(§4.3),whereweemploy
+tion degradation in long-context generation, we decou-
+multimodalcodemodelstoconstructtheenvironmentand
+ple file structure planning from code implementation.
+3
+
+--- Page 4 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+Trace Collection Hierarchical Synthesis Verification
+Instruction GUI Environment GUI Agent File List MLLM Coding Executable
+(e.g. “Buy a tickey”) Code Reflection
+The reward logic allows multiple
+triggersunderrepeatedrequestsand
++ lacksproperidempotencycontrol.
+Answer:No
+MLLM Planning Regenerate No Yes
+Code-Native Reward Injection All Pass? Success
+Exploration Trace Reinforcement Learning Reward
+Signal embedded within the backend
+Test Script
+… … # p r 2 in . t G (" o S t t o ep lo 2 c : a S t e io le n c p ti a n g g e C a it n y d ( s B e e l i e ji c n t g B ). e .. i " ji ) ng
+Meta-Prompting page.click("#city-trigger")
+Yourtaskistogenerateahigh quality page.wait_for_url("**/location")
+"SystemPrompt"thatwillbesenttoa # p a C g l e ic . k c l t ic h k e ( " B t e e i x ji t n = g B e b i u ji t n t g o " n )
+CodingMLLM. page.wait_for_url("**/") # Should redirect home
+Figure1.OverviewofGUI-GENESIS
+The model first generates a file manifest (e.g., app.py, StaticSelf-Reflection. Immediatelypost-generation,the
+templates/index.html). Subsequently,weproceed modelispromptedtoreviewitsowncodebasewithaspe-
+throughamulti-turndialoguewherethemodelimplements cificfocusontherewardcalculationlogic. Weobservethat
+eachcomponentsequentially. Thisserializationallowsthe whileapplogiccanbecomplex,RLsuccessconditionsare
+modeltofocusonfrontendfidelityandbackendlogicinde- oftenstraightforwardbooleanchecks. Thisreflectionphase
+pendently. effectivelycatcheslogic errorsinstate trackingvariables
+beforeexecution.
+4.4.Code-NativeRewardInjection
+DynamicPlaywrightTesting. Staticcorrectnessdoesnot
+A criticalinnovation of GUI-GENESIS is the embedding
+guaranteeruntimefeasibility. Werequirethemodeltogen-
+ofverifiablerewardsdirectlyintotheenvironmentsource
+erateacompanionPlaywrighttestscript(Microsoft,2025)
+code, addressing thesparseandnoisyrewardproblemof
+thatattemptstoexecutethegoldenpath,theidealsequence
+real-worldapps.
+ofactionstocompletethetask,onthesynthesizedapp. This
+Duringthebackendgenerationphase,weinstructthemodel stepverifiesthat(1)HTMLwidgetsareinteractable, and
+tosynthesizeadeterministicrewardfunction,implemented (2) backend state transitions correctly trigger the reward
+as calculate_reward(). This function inspects the function. Onlyenvironmentsthatpassthisdynamictestare
+application’sbackendstatevariablesratherthanrelying committedtothetrainingpool.
+onnoisyvisualobservations.Considerthetask“orderabeef
+burgerwithoutonions.” Thesynthesizedfunctionchecks: 5.ExperimentSetup
+We design our experiments to evaluate the quality of the
+r =α·I(cart.has(“burger”))+(1−α)·I(¬cart.has(“onion”)) synthesizedenvironmentsandtheirefficacyinfacilitating
+(1) sim-to-realtransferforgeneral-purposeagents.
+whereI(·)istheindicatorfunctionandα∈(0,1)balances
+sub-goal weights. For α = 0.5, a correct item with an Datasets and Tasks. Our evaluation is conducted on a
+incorrectmodifieryieldsr =0.5. proprietarydatasetfocusedontheWeChatMini-Appecosys-
+tem (Tencent, 2024), one of the largest super apps with
+This approach transforms the reward signal from a noisy
+over one billion active users. This platform represents a
+probabilisticestimationtoadeterministicexecutableasser-
+challengingtestbedduetoitsdynamicDOMstructuresand
+tion. Unlikebinarysuccesslabels,GUI-GENESISsupports
+diverseservicedomains(e.g.,retail,fooddelivery,andpub-
+continuousrewardsr ∈[0,1]throughpartialconditionsat-
+licservices). Wecuratedtwostrictlynon-overlappingtask
+isfaction,providinggranularfeedbackfordensesupervision
+setstopreventdataleakage: atrainingsetcontaining969
+duringRLtraining.
+instructionsbasedonreal-worldtasks,andaevaluationset
+containing149instructionsonadisjointgroupoftask. All
+4.5.AutomatedSelf-Verification
+tasksrequiremulti-stepreasoningandpreciseGUIinterac-
+Generativecodeispronetosyntaxerrorsandlogichalluci- tionstoachievefunctionalgoals.
+nations. Toensurereliability,GUI-GENESISincorporatesa
+rigoroustwo-stageverificationloop,retryinggenerationup Baselines and Training Environments. To isolate the
+toK =5timesuponfailure. impactofenvironmentalfidelityonlearningefficiency,we
+4
+
+--- Page 5 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+maintain a fixed agent architecture and vary the training withrolloutlength=96.
+source and reward mechanism. 1) Base Model (Lower
+Bound): WeutilizeQwen-2.5-VL-32BBaietal.(2025b)
+6.Results
+fine-tuned solely on static snapshots, where actions must
+strictlymatchground-truthcoordinatesactingasbehavioral 6.1.MainResults
+cloning. This checkpoint serves as the initialization for
+Sim-to-Real Performance Gain. As shown in Table 1,
+allsubsequentRLpipelines. 2)Real-WorldEnvironment
+AgentstrainedwithinGUI-GENESISenvironmentsdemon-
+(VLM-Reward):Theagenttrainedthroughinteractingwith
+strate superior transfer capabilities to validation on real-
+liveWeChatmini-apps. Sincesystem-levelstatesareinac-
+worldapps.Equippedwithourproposedcode-nativereward,
+cessibleinproduction,weemployacommercialVLMasthe
+theagentachievesaReal-WorldSR(HumanAnnotation)
+rewardmodel. Thisrepresentsthecurrentstate-of-the-art
+of42.28%,outperformingthebaselinemodel(withoutrein-
+frameworkbutisconstrainedbyhighlatencyandinference
+forcementlearning)byanabsolutemarginof5.37%. This
+costs. 3)GUI-GENESISEnvironment(VLM-Reward):
+represents a relative improvement of 14.54%. More no-
+Theagenttrainswithinoursynthesized,lightweightweben-
+tably, ourmethodsurpassesagentstraineddirectlyinthe
+vironmentsbututilizestheVLMforrewardsignalstoisolate
+real-worldenvironment(40.94%),achievingarelativegain
+the effect of environment simulation. 4) GUI-GENESIS
+of3.27%. Weattributethiscounter-intuitiveresult—where
+Environment (Code-Native Reward): The agent trains
+simulation outperforms reality—to the inherent noise of
+withinoursynthesizedenvironmentsutilizingdeterministic,
+real-world training. Factors such as network latency, ap-
+code-basedexecutionfeedback. Post-training,weevaluate
+plicationinstability,andthehallucination-pronenatureof
+allpolicieszero-shotontherealWeChatmini-appstomea-
+VLMjudgesoftendestabilizethepolicyupdateprocessin
+suresim-to-realtransfer;agentstrainedonGUI-GENESIS
+realenvironments. Incontrast,GUI-GENESISprovidesa
+havenointeractionwiththereal-worldenvironmentprior
+deterministic, low-latency, and noise-free learning signal
+toevaluation.
+thatfostersrobustpolicyacquisition.
+Fidelity of Synthetic Evaluation. To validate the align-
+AgentandRLPipeline. Allexperimentsemployauni-
+ment between our synthetic and real environments, we
+fiedVLM-basedGUIagentexecutingaReAct-style(Yao
+generated 149 synthetic website applications correspond-
+etal.,2022)strategy. Westrictlycontrolthetrainingpro-
+ing to the evaluation instruction set. It is not surprising
+tocolacrossenvironmentsusingMultistepGRPO(Group
+RelativePolicyOptimization)(Shaoetal.,2024). GRPO
+to see that our model trained in GUI-GENESIS environ-
+ments with code-native reward (VLM Eval SR 71.81%,
+enhancesreasoningbysamplingagroupofcompletetrajec-
+Native-code SR 48.99%) outperforms base model (VLM
+toriesandoptimizingthepolicybasedontherelativeadvan-
+EvalSR63.76%,Native-codeSR38.93%)andreal-world-
+tageofoutcomerewardsagainstthegroupaverage. This
+environment-trainedmodel(VLMEvalSR63.76%,Native-
+controlensuresthatperformancedifferencesareattributable
+code SE 44.30%). Our analysis reveals that Native-code
+solelytoenvironmentqualityandrewardreliability.
+SR in the synthetic environment and Human Annotation
+SRintherealworldexhibithighlyconsistenttrends(e.g.,
+Evaluation Metrics We assess the performance across 48.99%vs. 42.28%forourbestmodel),suggestingthatour
+threeaxes. generatedenvironmentsaccuratelymirrorthelogicalcom-
+plexityofrealtasks. AexampleinAppendixshowsthatina
+Toquantifytheagent’ssim-to-realtransfercapability,our
+taskbookingaridewithintermediatestopsonaride-hailing
+primarymetricistheReal-worldSuccessRate(SR).This
+app,VLMfailstocapturewhentheGUIagentsselectsthe
+metricmeasurestherateofsuccessfultaskcompletionupon
+wrongintermediatestopswhileitisevidentforcode-native
+deployingthetrainedagentintotheliveWeChatmini-app
+identification. Crucially, we observe that standard VLM
+environment. Wepresentsuccessrateprovidedbyhuman
+Eval SR tends to significantly overestimate performance
+annotators,notedasHumanAnnotationSRrespectively.
+comparedtoground-truthmetrics. ThisindicatesthatVLM
+Besidesthereal-worldSR,weadoptSynthesisSuccessRates judges often yield false positives on incomplete tasks. C
+(SR)measuringtheagent’sperformanceonsynthesisenvi- onversely,ourcode-nativerewardanalyzestheunderlying
+ronmentgeneratedbyGUI-GENESISwiththe149instruc- program state, providing a rigorous verification standard
+tionsinevaluationset. Similaryetdistincttoreal-worldSR, thatalignsfarmorecloselywithhumanjudgment.
+wepresentsuccessrateprovidedbyaVLM-as-a-judgeand
+AblationonCode-NativeRewards. Wefurtherablatethe
+code-nativerewards=1.0,notedasVLMEvaluationSRand
+sourceoftherewardsignal. Evenwhendisregardingcode-
+Code-nativeSR,respectively.
+level access and training the model with a VLM judged
+EnvironmentEfficiencyisquantifiedbytheaveragelatency rewardwithinoursyntheticenvironment,theagentattains
+(hoursperstep)andthefinancialcostperstepofsimulation,
+5
+
+--- Page 6 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+Table1. MainResultsonSim-to-RealTransferandTrainingEfficiency. WereportSuccessRate(SR)acrossthreedimensions:
+Sim-to-Realgeneralization(HumanAnnotation),SyntheticFidelity(VLMEvalvs.NativeCode),andTrainingCost.
+Real-WorldSR SynthesisSR EnvironmentEfficiency
+TrainingMethod
+HumanAnnotationSR VLMEvalSR Native-codeSR Hoursperstep Costperstep
+BaseModel 36.91% 63.76% 38.93% - -
+Real-WorldEnvironment
+VLM-reward 40.94% 63.76% 44.30% 0.2272 $240
+SyntheticEnvironment
+VLM-reward(Ours) 41.61% 69.80% 47.65% 0.1036 $0.5
+code-native-reward(Ours) 42.28% 71.81% 48.99% 0.1013 $0
+aReal-WorldSRof41.61%. Thisresultissignificantfor Table2.Distributionofgenerationattempts.
+twoobservations: (1)Itoutperformsthereal-worldtraining
+n-thAttemptSuccess Percentage
+baseline(40.94%),confirmingthatthevisualfidelityofour
+synthesized GUIs is high enough to support transferable 1stAttempt 27.37%
+visualgrounding,whileavoidingtheefficiencybottlenecks 2ndAttempt 22.09%
+ofrealapps. (2)Itremainslowerthantheperformanceof 3rdAttempt 14.67%
+code-nativereward(42.28%). Thisgapconfirmsthatverifi- 4thAttempt 9.93%
+able,program-state-basedfeedbackprovidesafiner-grained 5thAttempt 8.23%
+and more reliable learning signal than visual approxima- Failin5Attempts 17.35%
+tionalone,effectivelymitigatingtherewardhackingoften
+observedwithVLMjudges.
+Table3indetails. Intermsoflatency, executingasingle
+interaction takes more than 4 seconds in a real-world en-
+6.2.DetailedAnalysisofSynthesizedEnvironments
+vironment while synthesis environment spends 10 times
+6.2.1.ENVIRONMENTSYNTHESISCOSTANDSUCCESS less time. When considering rollout in batches, the long-
+RATE tailedinteractioninreal-worldenvironmentwillmakethis
+advantage more prominent. Taking model inference and
+Inourgenerationprocess, the GUI-GENESIS framework
+otheroverheadinconsideration,acompleterolloutinareal-
+weproposedeffectivelycombinestrace-drivengrounding
+worldenvironmenttakesanaverageof0.2272hoursdueto
+withadvancedpromptingstrategiestosynthesizeenviron-
+networkinstabilityandrenderingoverhead. Incontrast,our
+mentsthatarebothfaithfultotheoriginalapplicationsand
+synthesizedenvironmentsexecutelocallywithzeronetwork
+equippedwithcode-nativerewardoracles. Asdemonstrated
+overhead, reducing the per-rollout latency to just 0.1013
+inTable2,wegeneratedsyntheticenvironmentsforatotal
+hours,whichisapproximatelya2×speedup.
+of149+969 = 1118RLtasks. Thesynthesispipelineis
+highlyrobust, with82.65%ofenvironmentspassingself- Financially, the disparity is also enormous. Real-world
+verification. To keep aligned with the models trained in trainingincursadualcost:
+real-worldenvironment,wekeepthelastiterationofthose
+tasksnotsuccessfullyself-verified. Notably,therejection 1. Verification: A VLM call to verify a single rollout
+samplingiscost-effective: themajorityofsuccessfulenvi- trajectorycostsapproximately$0.005.
+ronmentsaregeneratedwithinthefirsttwoattempts. The
+2. Infrastructure: Rentingcloud-basedmobiledevices
+total cost for generating this massive scale of 1118 envi-
+typicallycosts$0.17perdevice-minute.
+ronments was only $302.12, less than $0.3 each environ-
+ment. Itiscrucialtoemphasizethatthisisaone-timefixed
+To contextualize these savings, consider a standard RL
+cost. Once generated, these synthetic environments can
+epochinvolving1,000environmentswith12rolloutsper
+beexecutedlocallyformillionsoftrainingstepswithzero
+environment (totaling 12,000 trajectories). As shown in
+marginal cost. A few generation examples are listed in
+Table3,relyingonreal-worldinfrastructureandVLMeval-
+Appendix.
+uators would cost an additional $28,000 per epoch and
+require more than double the training time. By eliminat-
+6.2.2.COMPUTATIONALEFFICIENCYATTRAINING
+ing both device rental fees and VLM API costs via local
+BesidestheefficiencydatapresentedinTable1,wecom- executionandassert-basedrewards,GUI-GENESISmakes
+pare the computational and financial costs of training in large-scaleagentpost-trainingfeasible.
+6
+
+--- Page 7 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+Table3.Comparisonofcomputationalefficiencyandtrainingcosts. inherenttocodeexecution.
+CostsareestimatedforoneRLepoch(∼1,000envs,12rollouts
+perenv).
+       
+Metric Real-WorldEnv GUI-GENESIS(Ours)
+       
+Latency
+TimeperInteraction(s) 4.81 0.42(>10.0×)
+TimeperRollout(h) 0.2272 0.1013(>2.0×)      9 / 0  U H Z D U G      5 H Y   & ' )     
+ 9 / 0  U H Z D U G      & ' ) 
+UnitCosts
+Verifier(pertrajectory) $0.005(VLM) $0.00(Code-native)        
+Infra.(permin) $0.17(DeviceFarm) $0.00(Local)
+       
+TotalCost(1Epoch) >$28,000 Negligible
+       
+                       
+ & R G H  Q D W L Y H  5 H Z D U G  9 D O X H
+Figure 2. Code-native reward correlates with VLM-as-a-judge
+6.2.3.ANALYSISOFCODE-NATIVEREWARDVS.
+rewardbutprovidesmoreaccurateandfine-grainedrewardvalue.
+VLM-AS-JUDGE
+Toinvestigatethefidelityandgranularityofourproposed
+Code-NativeRewardmechanism,weconductedacompara- 6.2.4.COMPLEXITYFIDELITY
+tiveanalysisagainstastandardVLM-basedrewardmodel
+Toassesswhetheroursynthesizedenvironmentsin GUI-
+(VLM-as-Judge). Wesampledadiversesetoftrajectoryter-
+GENESIS retain the interactive complexity of their real-
+minalstatesfromoursynthesizedenvironments,specifically
+worldcounterparts,weanalyzethetrajectorylengths,which
+selecting1,000instancesclassifiedasfailure(score0)and
+is calculated as the unique user interface states required
+1,000instancesclassifiedassuccess(score1)bytheVLM.
+tosolvetasksinbothsettings. Wedeployedthepowerful
+WethencomputedthecorrespondingCode-NativeRewards
+multi-modal model we use in generation pipeline to col-
+for these instances. The probability density functions of
+lect interaction traces across both the original real-world
+theCode-NativeRewardsforbothgroupsarevisualizedin
+applications and our synthesized headless environments.
+Figure2.
+Weobservedspecificinstanceswheretheagentnavigated
+AlignmentwithVisualPerception. AsshowninFigure2, aimlesslybetweenpageswithoutmakinganyprogress. To
+ourCode-NativeRewarddemonstratesastrongconsistency mitigatethisnoiseandfocusonmeaningfulinteraction,we
+with the visual semantic judgments of the VLM. For the filterouttrajectoriesexceeding20steps. Figure3presents
+groupclassifiedasfailuresbytheVLM(orangecurve),we thehistogramofaveragestepsforsuccessfultaskcomple-
+observe that 75% of the corresponding Code-Native Re- tionafterclipping. Whileweobserveaslightdistributional
+wardsareconcentratedintherange[0,0.6]. Thisconfirms shift—wherereal-worldtasksoccasionallydemandlonger
+that when the agent visually appears to have failed, our navigationalsequencesduetoextraneouspop-upsorloading
+internalstatelogiccorrectlyreflectsalowcompletionsta- states,thesynthesizedenvironmentsexhibitacomparable
+tus. Conversely,fortheVLM-positivegroup(bluecurve), spread in trajectory length. The data indicates that GUI-
+over75%oftheCode-NativeRewardsexceed0.8,witha GENESIS does not distinctively trivialize the task logic;
+significantlogicalpeakat1.0. Thisalignmentverifiesthat instead, the average step count remains sufficiently high
+oursynthesizedenvironmentsmaintainsemanticintegrity (Mean≈5.63). Thisconfirmsthatoursyntheticenviron-
+betweenthevisualrenderingandtheunderlyingcodelogic. mentspreservethestructuraldepthnecessaryforagentsto
+masterlong-horizonplanninganddynamicerrorrecovery,
+GranularityandDensification. Beyondmerealignment,
+validatingtheirefficacyasarigoroustrainingground.
+theCode-NativeRewardprovidesasignificantlymorefine-
+grainedevaluationstandardthanthebinary“one-size-fits-
+6.2.5.SCALINGPROPERTIESOFSYNTHESIZED
+all”classificationofVLMs. WhiletheVLMcollapsesall
+ENVIRONMENTS
+incomplete trajectories into a single failure class (0), our
+approach leverages the internal program state to discern Toinvestigatetherelationshipbetweenthediversityofsyn-
+varyingdegreesofprogress. Asillustratedintheinterval thesized environments and the agent’s generalization ca-
+[0,0.6], states that are indistinguishable to the VLM are pabilities,weconductascalinganalysisonthesizeofthe
+assigneddistinctscalarrewards(e.g.,0.2,0.3,0.4)basedon trainingdataset.specifically,weconstructthreetrainingsub-
+assertionfulfillment. Thisgranularitytransformsthelearn- setsofvaryingmagnitudes: aquarter-scaleset(N =240),
+ing signal from sparse to dense, providing reinforcement ahalf-scaleset(N =480),andthefull-scaleset(N =969)
+learningagentswithdistinguishablegradientstodifferen- of the synthesized environments. We evaluate the post-
+tiatebetween“early-stagefailure”and“near-completion,” trainedagentsonthe149environments,whicharesynthe-
+whileensuringthehighstabilityandperfectreproducibility sized based on instructions from the evaluation set, and
+7
+
+--- Page 8 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+   
+   
+  
+  
+  
+  
+                                          
+ 7 U D M H F W R U \  / H Q J W K   6 W H S V 
+ W Q X R &  \ F Q H X T H U )
+ 6 \ Q W K H V L ] H G  ( Q Y 
+ 5 H D O  Z R U O G  $ S S V
+Figure3. DistributionofTrajectoryLengths. Acomparisonof
+thenumberofsteps(uniquescreenshots)requiredtosolvetasks
+inReal-Worldvs. Synthesizedenvironments, whichexhibitsa
+similartrajectorylengthdistributiontoreal-worldones,implying
+thatthesynthesizedenvironmentsdonotdistinctivelytrivializethe
+tasklogic.
+report performance using both code-native SR and VLM
+EvalSRasinthemainresult.
+  
+  
+  
+  
+  
+ % D V H  0 R G H O      ( Q Y V      ( Q Y V      ( Q Y V
+ 1 X P E H U  R I  6 \ Q W K H W L F  ( Q Y V  L Q  7 U D L Q L Q J  6 H W
+ H U R F 6  G U D Z H 5
+6.3.Analysis: TheSynthesis-NavigationDivergence
+Wefurtherinvestigatetherelationshipbetweentheunderly-
+ingcodemodel’sabilitytosynthesizetheenvironmentand
+theagent’sabilitytonavigateit.
+Qualitative Analysis. As illustrated in Figure 5, we ob-
+serveadistinctdivergenceacrossseveralgeneratedcases.
+Although full application synthesis is intuitively a more
+complextaskthannavigation,wenotethattherelationship
+betweenthetwoisnotmerelyhierarchicalindifficulty. In-
+stead,themodelexhibitsasymmetriccapabilitiesinthese
+domains;notably,thereexistspecificinstanceswherethe
+modelsuccessfullysynthesizesafunctionalapplicationbut
+failstonavigateit. Thisintriguingfindingsuggestsapoten-
+tialpathwayforself-evolutionarytraining,whereinamodel
+couldacquirenovelnavigationskillsbyexploringthevery
+environmentsitgenerates.
+ 9 / 0  6 5  7 U D L Q L Q J  R Q  6 \ Q W K H W L F  ( Q Y V F s c b i e a o n a i o l e t k t m f o i o n a s r g t e a i t l c a e k s c e k t t F t b m t h a u a u s e i t k l s t “ o t i P o c n l p l a f o o l y a c ” r y a a i t n e g F t m s h e a e e l i e n l d c t u o r t o i w n i p d g h d e e a o n n r w t e if n a y s
+ & R G H  1 D W L Y H  6 5
+Figure5. Casestudieswhencodemodelgeneratesapplications
+thatitselfcannotsuccessfullynavigate.
+7.ConclusionandFutureWork
+Inthispaper,wetacklethefundamentalscalabilityandveri-
+Figure4.Scalingnumberofsyntheticenvironmentsshowscontin-
+uousimprovement,verifiedbybothVLMSRandnative-codeSR fiabilitybottlenecksoftrainingGUIagentsinreal-worldin-
+onsynthesizedevaluationdataset. teractiveenvironments. WehaveintroducedGUI-GENESIS,
+a framework that leverages state-of-the-art coding LLMs
+toreverse-engineeruserinteractiontracesintolightweight,
+interactive, and verifiable environments. By decoupling
+Theresults,asillustratedinFigure4,revealastrongposi-
+trainingfromheavyreal-worldbackendsandintroducing
+tivecorrelationbetweenenvironmentscaleandagentper-
+code-native reward injection, GUI-GENESIS provides a
+formance. Aswescalethetrainingsetfrom240to969en-
+preciserewardsignalandacceleratestrainingthroughput
+vironments,weobserveamonotonicimprovementinboth
+by orders of magnitude. Extensive experiments confirm
+metrics. Notably,thesteadyriseintheCode-NativeReward
+thatagentspost-trainedinthesesynthesizedenvironments
+indicates that the agent is not merely learning superficial
+achievesuperiortrainingstabilityandefficiency,andsuc-
+visualpatterns,butisgenuinelymasteringtheunderlying
+cessfullytransfertoreal-worldtasks.
+logicandcausalrelationshipswithintheGUIapplications.
+Itspecificallysuggeststhatthecurrentperformanceisnot Wehighlightapotentialontheco-evolutionofcodingagents
+bottleneckedbythefidelityofthesynthesizedenvironments, andGUIagents. Often,themodelcansynthesizelogicfor
+butratherbythequantityofdiverseinteractionscenarios. complextasksthatitcannotyetsolveasanagent. Future
+Since our framework allows for the low-cost, automated work could explore a dual framework where the coding
+generationoflightweightapps,thislinearscalingproperty agentsynthesizesprogressivelychallengingenvironments,
+pointstoapromisingpathway: wecaneffectivelyextrapo- effectivelygeneratinganautomatedcurriculum,topushthe
+lateagentperformancebysimplyscalingupthegeneration boundariesoftheGUIagent. Simultaneously,theinterac-
+ofsyntheticenvironments,withouttheneedforexpensive tionfailuresoftheGUIagentcanserveasfeedbacktorefine
+humandemonstrationcollection. Thisfindingsupportsthe thecodingagent’scapabilities. WebelieveGUI-GENESIS
+potentialforaself-improvingloopwherethegeneratorand providesaninitialsteptowardthevisionofself-evolving
+agentco-evolve,continuallyunlockinghighersuccessrates agents,drivingmutualimprovementthroughthecontinuous
+oncomplexreal-worldtasks. synthesisandsolutionofthecomplexdigitalworld.
+8
+
+--- Page 9 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+Acknowledgments Deng,X.,Gu,Y.,Zheng,B.,Chen,S.,Stevens,S.,Wang,
+B.,Sun,H.,andSu,Y. Mind2web: Towardsageneralist
+Tao Xie is with the Key Laboratory of High Confidence
+agentfortheweb. NeurIPS,36:28091–28114,2023.
+SoftwareTechnologies(PekingUniversity),MinistryofEd-
+ucation; School ofComputer Science, Peking University, Gou, B., Wang, R., Zheng, B., Xie, Y., Chang, C., Shu,
+Beijing,China;BeijingTongmingLakeInformationTech- Y.,Sun,H.,andSu,Y. Navigatingthedigitalworldas
+nology Application Innovation Center; Fudan University humansdo: UniversalvisualgroundingforGUIagents.
+Institute ofSystems forAdvanced Computing, Shanghai, arXivpreprintarXiv:2410.05243,2024.
+China;ShanghaiInstituteofSystemsforOpenComputing,
+Gu, J., Ai, Q., Wang, Y., Bu, P., Xing, J., Zhu, Z., Jiang,
+Shanghai, China. This work was partially supported by
+W., Wang, Z., Zhao, Y., Zhang, M.-L., et al. Mobile-
+the National Natural Science Foundation of China under
+r1: Towardsinteractivereinforcementlearningforvlm-
+GrantNo. 92464301, U25A6023. DezhiRanispartially
+basedmobileagentviatask-levelrewards. arXivpreprint
+supportedbyaHunyuanScholarAward.
+arXiv:2506.20332,2025.
+References Guo,D.,Yang,D.,Zhang,H.,Song,J.,Wang,P.,Zhu,Q.,
+Xu, R., Zhang, R., andetal. Deepseek-r1incentivizes
+Bai,S.,Cai,Y.,Chen,R.,Chen,K.,Chen,X.,Cheng,Z.,
+reasoninginllmsthroughreinforcementlearning. Nature,
+Deng, L., Ding, W., Gao, C., Ge, C., Ge, W., Guo, Z.,
+645(8081):633–638,September2025. ISSN1476-4687.
+Huang,Q.,Huang,J.,Huang,F.,Hui,B.,Jiang,S.,Li,Z.,
+doi: 10.1038/s41586-025-09422-z. URLhttp://dx.
+Li,M.,Li,M.,Li,K.,Lin,Z.,Lin,J.,Liu,X.,Liu,J.,Liu,
+doi.org/10.1038/s41586-025-09422-z.
+C.,Liu,Y.,Liu,D.,Liu,S.,Lu,D.,Luo,R.,Lv,C.,Men,
+R.,Meng,L.,Ren,X.,Ren,X.,Song,S.,Sun,Y.,Tang, Guo, Z., Cheng, S., Wang, H., Liang, S., Qin, Y., Li, P.,
+J.,Tu,J.,Wan,J.,Wang,P.,Wang,P.,Wang,Q.,Wang, Liu,Z.,Sun,M.,andLiu,Y. Stabletoolbench: Towards
+Y., Xie, T., Xu, Y., Xu, H., Xu, J., Yang, Z., Yang, M., stablelarge-scalebenchmarkingontoollearningoflarge
+Yang,J.,Yang,A.,Yu,B.,Zhang,F.,Zhang,H.,Zhang, languagemodels,2024.
+X., Zheng, B., Zhong, H., Zhou, J., Zhou, F., Zhou, J.,
+Zhu,Y.,andZhu,K. Qwen3-vltechnicalreport. 2025a. He,H.,Ye,Y.,Cai,Q.,Hu,C.,Jiao,B.,Jiang,D.,andPan,
+URLhttps://arxiv.org/abs/2511.21631. L. Randompolicyvaluationisenoughforllmreasoning
+withverifiablerewards,2025. URLhttps://arxiv.
+Bai,S.,Chen,K.,Liu,X.,Wang,J.,Ge,W.,Song,S.,Dang, org/abs/2509.24981.
+K., Wang, P., Wang, S., Tang, J., Zhong, H., Zhu, Y.,
+Yang,M.,Li,Z.,Wan,J.,Wang,P.,Ding,W.,Fu,Z.,Xu, Hong,W.,Wang,W.,Lv,Q.,Xu,J.,Yu,W.,Ji,J.,Wang,
+Y.,Ye,J.,Zhang,X.,Xie,T.,Cheng,Z.,Zhang,H.,Yang, Y., Wang, Z., Dong, Y., Ding, M., et al. Cogagent: A
+Z.,Xu,H.,andLin,J.Qwen2.5-vltechnicalreport.arXiv visual language model for GUI agents. In CVPR, pp.
+preprintarXiv:2502.13923,2025b. 14281–14290,2024.
+Cai, S., Fang, R., Wu, J., Li, B., Wang, X., Jiang, Y., Su, Hu, J. Reinforce++: A simple and efficient approach
+L.,Zhang,L.,Yin,W.,Zhang,Z.,Feng,F.,Xie,P.,and for aligning large language models. arXiv preprint
+Wang,X. Autoforge: Automatedenvironmentsynthesis arXiv:2501.03262,2025.
+foragenticreinforcementlearning,2025. URLhttps:
+//arxiv.org/abs/2512.22857. Kaelbling,L.P.,Littman,M.L.,andCassandra,A.R. Plan-
+ningandactinginpartiallyobservablestochasticdomains.
+Chen,J.,He,Q.,Yuan,S.,Chen,A.,Cai,Z.,Dai,W.,Yu,
+Artificialintelligence,101(1-2):99–134,1998.
+H., Yu, Q., Li, X., Chen, J., Zhou, H., and Wang, M.
+Enigmata: Scaling logical reasoning in large language Li,D.,Fang,Y.,Chen,Y.,Yang,S.,Cao,S.,Wong,J.,Luo,
+models with synthetic verifiable puzzles, 2025. URL M., Wang, X., Yin, H., Gonzalez, J. E., et al. World-
+https://arxiv.org/abs/2505.19914. modelbench: Judgingvideogenerationmodelsasworld
+models. arXivpreprintarXiv:2502.20694,2025.
+Chen,S.,Wiseman,S.,andDhingra,B. Chatshop: Inter-
+activeinformationseekingwithlanguageagents,2024a. Lin, K. Q., Li, L., Gao, D., Yang, Z., Wu, S., Bai, Z.,
+URLhttps://arxiv.org/abs/2404.09911. Lei, S. W., Wang, L., and Shou, M. Z. Showui: One
+vision-language-action model for gui visual agent. In
+Chen,W.,Cui,J.,Hu,J.,Qin,Y.,Fang,J.,Zhao,Y.,Wang,
+ProceedingsoftheComputerVisionandPatternRecog-
+C., Liu, J., Chen, G., Huo, Y., et al. Guicourse: From
+nitionConference,pp.19498–19508,2025.
+generalvisionlanguagemodelstoversatileGUIagents.
+arXivpreprintarXiv:2406.11317,2024b.
+9
+
+--- Page 10 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+Lu,Q.,Shao,W.,Liu,Z.,Meng,F.,Li,B.,Chen,B.,Huang, Services,A.W. Awsdevicefarm,2025a. https://aws.
+S., Zhang, K., Qiao, Y., and Luo, P. GUI odyssey: A amazon.com/device-farm/.
+comprehensivedatasetforcross-appGUInavigationon
+Services, A. W. Aws device farm pricing,
+mobiledevices. arXivpreprintarXiv:2406.08451,2024.
+2025b. https://aws.amazon.com/cn/
+Lu,Z.,Chai,Y.,Guo,Y.,Yin,X.,Liu,L.,Wang,H.,Xiao, device-farm/pricing/.
+H., Ren, S., Xiong, G., and Li, H. Ui-r1: Enhancing
+efficientactionpredictionofguiagentsbyreinforcement Shao,Z.,Wang,P.,Zhu,Q.,Xu,R.,Song,J.,Bi,X.,Zhang,
+learning. arXivpreprintarXiv:2503.21620,2025. H.,Zhang,M.,Li,Y.,Wu,Y.,etal. Deepseekmath: Push-
+ingthelimitsofmathematicalreasoninginopenlanguage
+Luo,D.,Tang,B.,Li,K.,Papoudakis,G.,Song,J.,Gong, models. arXivpreprintarXiv:2402.03300,2024.
+S.,Hao,J.,Wang,J.,andShao,K. Vimo: Agenerative
+visual gui world model for app agents. arXiv preprint Suzgun,M.andKalai,A.T. Meta-prompting: Enhancing
+arXiv:2504.13936,2025. languagemodelswithtask-agnosticscaffolding. arXiv
+preprintarXiv:2401.12954,2024.
+Microsoft. Playwright. https://github.com/
+microsoft/playwright, 2025. Framework for Team, K., Bai, Y., Bao, Y., Chen, G., Chen, J., Chen,
+WebTestingandAutomation. N., Chen, R., Chen, Y., Chen, Y., Chen, Y., et al.
+Kimi k2: Open agentic intelligence. arXiv preprint
+Moonshot AI. Kimi k2.5: Visual agentic intelligence.
+arXiv:2507.20534,2025.
+https://www.kimi.com/blog/kimi-k2-5.
+html,2026. Accessed: 2026-01-29. Tencent. Weixin mini program platform capabil-
+ities, 2024. URL https://developers.
+Pallets. Flask, 2024. URL https://flask.
+weixin.qq.com/miniprogram/dev/
+palletsprojects.com/. ThePythonmicroframe-
+platform-capabilities/miniapp/intro/.
+workforbuildingwebapplications.
+Accessed: 2026-01-29.
+Qin, Y., Ye, Y., Fang, J., Wang, H., Liang, S., Tian, S.,
+Tong, J., Tang, J., Li, H., Mou, Y., Zhang, M., Zhao, J.,
+Zhang,J.,Li,J.,Li,Y.,Huang,S.,etal. Ui-tars: Pioneer-
+Wen,Y.,Song,F.,Zhan,J.,Lu,Y.,Tao,C.,Guo,Z.,Yu,
+ingautomatedguiinteractionwithnativeagents. arXiv
+J., Cheng, T., Xi, Z., Jiang, C., Yin, Z., Zheng, Y., Ge,
+preprintarXiv:2501.12326,2025.
+W.,Chen,G.,Gui,T.,Qiu,X.,Zhang,Q.,andHuang,X.
+Ran,D.,Wang,H.,Wang,W.,andXie,T. Badge: prioritiz- Game-rl: Synthesizingmultimodalverifiablegamedata
+ingUIeventswithhierarchicalmulti-armedbanditsfor toboostvlms’generalreasoning, 2025. URLhttps:
+automatedUItesting. InICSE,pp.894–905,2023. //arxiv.org/abs/2505.13886.
+Ran,D.,Wang,H.,Song,Z.,Wu,M.,Cao,Y.,Zhang,Y.,
+Torabi, F., Warnell, G., andStone, P. Behavioralcloning
+Yang,W.,andXie,T. Guardian: Aruntimeframework
+from observation. arXiv preprint arXiv:1805.01954,
+forLLM-basedUIexploration. InISSTA,pp.958–970,
+2018.
+2024.
+Wang, H., Zou, H., Song, H., Feng, J., Fang, J., Lu, J.,
+Ran,D.,Cao,Y.,Wu,M.,Chen,S.,Guo,Y.,Ren,J.,Song,
+Liu, L., Luo, Q., Liang, S., Huang, S., et al. Ui-tars-
+Z., Yu, H., Wei, J., Li, L., Yang, W., Ray, B., and Xie,
+2technicalreport: Advancingguiagentwithmulti-turn
+T. Appforge: Fromassistanttoindependentdeveloper–
+reinforcementlearning.arXivpreprintarXiv:2509.02544,
+aregptsreadyforsoftwaredevelopment?,2025a. URL
+2025a.
+https://arxiv.org/abs/2510.07740.
+Wang,X.,Yang,Z.,Feng,C.,Liang,Y.,Zhou,Y.,Liu,X.,
+Ran,D.,Song,Z.,Wang,W.,Yang,W.,andXie,T. TaOPT:
+Zang,Z.,Li,M.,Lin,C.-C.,Lin,K.,Li,L.,Huang,F.,
+Tool-agnosticoptimizationofparallelizedautomatedmo-
+andWang,L. Vicrit: Averifiablereinforcementlearning
+bileUItesting. InASPLOS,pp.1251–1265,2025b.
+proxy task for visual perception in vlms, 2025b. URL
+Rawles,C.,Li,A.,Rodriguez,D.,Riva,O.,andLillicrap, https://arxiv.org/abs/2506.10128.
+T. Androidinthewild: Alarge-scaledatasetforAndroid
+Wu,Z.,Wu,Z.,Xu,F.,Wang,Y.,Sun,Q.,Jia,C.,Cheng,
+devicecontrol. NeurIPS,36:59708–59728,2023.
+K., Ding, Z., Chen, L., Liang, P. P., et al. Os-atlas: A
+Rawles, C., Clinckemaillie, S., Chang, Y., Waltz, J., Lau, foundationactionmodelforgeneralistguiagents. arXiv
+G., Fair, M., Li, A., Bishop, W. E., Li, W., Campbell- preprintarXiv:2410.23218,2024.
+Ajala,F.,etal. Androidworld: Adynamicbenchmarking
+environmentforautonomousagents. InICLR,2025.
+10
+
+--- Page 11 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+Xie,T.,Zhang,D.,Chen,J.,Li,X.,Zhao,S.,Cao,R.,Hua, Ye,J.,Zhang,X.,Xu,H.,Liu,H.,Wang,J.,Zhu,Z.,Zheng,
+T.J.,Cheng,Z.,Shin,D.,Lei,F.,etal. Osworld: Bench- Z., Gao, F., Cao, J., Lu, Z., et al. Mobile-agent-v3:
+markingmultimodalagentsforopen-endedtasksinreal Foundamentalagentsforguiautomation. arXivpreprint
+computerenvironments. AdvancesinNeuralInformation arXiv:2508.15144,2025.
+ProcessingSystems,37:52040–52094,2024.
+You,K.,Zhang,H.,Schoop,E.,Weers,F.,Swearngin,A.,
+Xu,Y.,Liu,X.,Liu,X.,Fu,J.,Zhang,H.,Jing,B.,Zhang, Nichols,J.,Yang,Y.,andGan,Z. Ferret-ui: Grounded
+S., Wang, Y., Zhao, W., and Dong, Y. Mobilerl: On- mobile ui understanding with multimodal llms. In Eu-
+lineagenticreinforcementlearningformobileguiagents. ropean Conference on Computer Vision, pp. 240–255.
+arXivpreprintarXiv:2509.18119,2025a. Springer,2024.
+Xu,Y.,Wang,Z.,Wang,J.,Lu,D.,Xie,T.,Saha,A.,Sahoo, Yue,Y.,Chen,Z.,Lu,R.,Zhao,A.,Wang,Z.,Song,S.,and
+D., Yu, T., andXiong, C. Aguvis: Unifiedpurevision Huang,G. Doesreinforcementlearningreallyincentivize
+agentsforautonomousGUIinteraction. InICML,2025b. reasoningcapacityinllmsbeyondthebasemodel? arXiv
+preprintarXiv:2504.13837,2025.
+Xu,Z.,Hao,B.,Wang,Z.,Wen,Y.,Xu,X.,Liu,Y.,Chen,
+L.,Wang,D.,Wang,M.,Zhao,T.,Chen,Y.,Peng,C.,Gu, Zhang,C.,Neubig,G.,andYue,X. Ontheinterplayofpre-
+J.,Gan,L.,Zhao,X.,Zhuang,C.,andGu,S. Funreason- training,mid-training,andrlonreasoninglanguagemod-
+mt technical report: Advanced data synthesis solution els,2025. URLhttps://arxiv.org/abs/2512.
+forreal-worldmulti-turntool-use,2025c. URLhttps: 07783.
+//arxiv.org/abs/2510.24645.
+Zhang,J.,Wu,J.,Teng,Y.,Liao,M.,Xu,N.,Xiao,X.,Wei,
+Yang,Y.,Wang,Y.,Li,D.,Luo,Z.,Chen,B.,Huang,C., Z., and Tang, D. Android in the zoo: Chain-of-action-
+andLi,J. Aria-ui: Visualgroundingforguiinstructions. thoughtforGUIagents.arXivpreprintarXiv:2403.02713,
+InFindingsoftheAssociationforComputationalLinguis- 2024.
+tics: ACL2025,pp.22418–22433,2025.
+Zhou,D.,Schärli,N.,Hou,L.,Wei,J.,Scales,N.,Wang,
+Yao,S.,Zhao,J.,Yu,D.,Du,N.,Shafran,I.,Narasimhan, X.,Schuurmans,D.,Cui,C.,Bousquet,O.,Le,Q.,etal.
+K. R., and Cao, Y. React: Synergizing reasoning and Least-to-mostpromptingenablescomplexreasoningin
+actinginlanguagemodels. InTheeleventhinternational largelanguagemodels. arXivpreprintarXiv:2205.10625,
+conferenceonlearningrepresentations,2022. 2022.
+Yao,S.,Shinn,N.,Razavi,P.,andNarasimhan,K. τ-bench: Zhou,S.,Xu,F.F.,Zhu,H.,Zhou,X.,Lo,R.,Sridhar,A.,
+Abenchmarkfortool-agent-userinteractioninreal-world Cheng,X.,Ou,T.,Bisk,Y.,Fried,D.,etal. Webarena:
+domains, 2024. URL https://arxiv.org/abs/ A realistic web environment for building autonomous
+2406.12045. agents. InICLR,2024.
+11
+
+--- Page 12 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+A.Prompt
+WeshowourpromptusedinGUI-GENESISbelow:
+MetaPrompt
+YouareanexpertPromptEngineer. Yourtaskistogenerateahigh-quality"SystemPrompt"thatwillbesenttoa
+CodingLLM(Multimodal). TheCodingLLMwilluseyourprompt(andattachedimages)tobuildafullyfunctional
+website. instructionInthepromptyougenerate,youmuststrictlyrequirethefollowing:
+###1. VisualAlignment(HighPriority)ThepromptmustexplicitlyinstructtheCodingLLMtohandlevisual
+requirementsbasedontheavailabilityofscreenshots: ***TargetDevice**: Forcethewebsitetorenderspecifically
+foramobileresolutionof**410x858**. DoNOTscalespecificallyfordesktopviewing;maintainmobilelayouts. *
+**NativeAppSimulation**: Designtheinterfacetomimicanativemobileapplication(iOS/Androidstyle)rather
+thanastandardmobilewebpage. Useapp-likenavigation(e.g.,stickybottomtabbars,topnavigationbarswith
+backbuttons),roundedlayouts,card-basedlists,andtouch-friendlyinteractionzones. ***Screenshot-trace-based
+Design**: TheCodingLLMwillalsoreceiveatraceofscreenshotswhenfinishingthetaskbutthetracemightbe
+werong. CodingLLmdonnothavetofaithfullyreproducethescreenshotsbuttakethem,especiallythedesignstyle,
+forareference.
+### 2. Technical & Functional Stack * **Tech Stack**: The website must be built using **Python (Flask or
+FastAPI)** for the backend and **vanilla HTML/CSS/JS** for the frontend. * **Mock Backend**: All data
+persistencemustbemockedin-memory(noexternaldatabaserequirements). ***UI/UX**: Thefrontendmustbe
+aestheticallypleasing,modern,andresponsive.
+###3. DataDiversity&Distractors***InputGenerality**:Foranytextinputfields,theimplementationmustallow
+free-textentry. Donotrestrictinputstothespecifictextseeninthescreenshotsorprovidedefaultrecommendation.
+***DistractorOptions**: Ifthetaskinvolvesselectinganitemfromalist(e.g.,dropdowns,radiobuttons,search
+results),**youmustgeneraterealistic"distractor"items**alongsidethecorrecttargetitem. Donotonlyimplement
+thesinglecorrectoptionshowninthescreenshot. Includeatleast3-5plausiblebutincorrectalternatives.
+###4. HiddenRLRewardMechanismThegeneratedpromptmustinsistonarich,multi-layered"Reinforcement
+LearningRewardSignal"embeddedwithinthebackend: ***StateTracking**: Thebackendmustmaintainan
+internal state tracking the progress specifically for the ‘target_task‘. * **Action Explanation**: Explain every
+actionwith"ACTION_EXPLANATION=xxx"printedtotheserversystemoutput. ***RewardOutputFormat**:
+Theoutputstringmuststrictlyfollow: ‘RL_REWARD=xxx,NEXT=xxx‘printedtostdout(NOTdisplayedonthe
+webpage). ***Sparse&Multi-StepRewards**: *Donotjustgiveabinary0or1reward. Distributerewardsacross
+criticalsteps. *‘RL_REWARD‘mustbeanormalizedvalue(0.0to1.0)representingthecumulativecompletion
+status. *Donotgiverewardatthefirststageforsuccessfullylaunchingtheapp.
+###5. Task-SpecificPageFlow&TerminationThepromptmustinstructtheCodingLLMtoconstructthefinalpage
+logicbasedonthetasktype:***Ordering/booking/recharging**:Thefinalpagemustbean**OrderConfirmation**
+or**PaymentConfirmation**page. ***InformationQuery**: Thefinalpagemustclearlydisplaythe**Query
+Results**. ***Date-relatedtasks**: Thefinalpagemustshowthe**DateSelection**interface. ***Routing/Start-
+Endtasks**(e.g.,transit,navigation): Thefinalpagemustvisualizethe**StartPoint,EndPoint,andDirection**. *
+**TerminalState**: Oncethefinalpageisreached,theflowstops. **DoNOT**automaticallyrestartorredirect.
+**DoNOT**showageneric"TaskCompleted"popup;simplystayontherelevantconfirmation/resultUI.**Based
+on these requirements, please generate the final, cohesive System Prompt that we will send to the Multimodal
+CodingLLM.**
+Plan-and-ExecutePrompt
+Givenaboveinstruction,outputalistoffilepathsnecessarytobuildthisproject. Rules: 1. Includefileslikeapp.py,
+index.html,styles.css,script.js,andspecificfeaturepages. 2. DoNOTincludeimageassets(jpg,png)asyoucannot
+generatethem. Useplaceholdersincodelater. 3. ReturnONLYaJSONobjectwithasinglekey"files"containing
+anarrayofstrings. Wewillaskyoutiofillinthesefileslater.
+...
+Nowoutputcodeforthefilefile_path. ReturnONLYtherawcodecontentforthisfile. Nomarkdownbackticksat
+thestart/end.
+12
+
+--- Page 13 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+MetaPromptresponse,usedtogeneratecodedirectly
+##**Role&Objective**
+YouareaneliteFull-StackDeveloperandUI/UXDesigner. Yourobjectiveistobuildafullyfunctional,high-fidelity
+mobilewebapplicationbasedontheuser’sspecificrequestandprovidedreferencescreenshots. **UserTask**:
+(ChecktheweatherinLvliangCityfortomorrow). **AppType**: WeatherInformationApplication. Youmust
+generateacompleteprojectstructureusing**Python(Flask)**forthebackendand**VanillaHTML/CSS/JS**for
+thefrontend. Theapplicationmustrunimmediatelyvia‘pythonapp.py‘.
+## **1. Visual & UI/UX Requirements (Strict Enforcement)** * **Target Resolution**: You are building
+specificallyforamobileviewportof**410pxwidthx858pxheight**. **Constraint*: Donotoptimizefordesktop.
+EnsureallCSSusesflexibleunitssuitableforthisspecificmobileratio. ***Language**: Alltext,labels,andUI
+elementsmustbein**Chinese(Simplified)**. ***NativeAppSimulation**: *Thewebinterfacemustfeellikea
+nativeiOS/Androidapp,notastandardwebsite. *Useafixedbottomnavigationbar(sticky),atopappbarwithback
+navigation(whereapplicable),andcard-basedlayoutswithroundedcorners(border-radius: 12px+). *Ensuretouch
+targetsarelarge(minimum44x44px). ***DesignAutonomy&Screenshots**: *Usetheprovidedscreenshotsas
+a**stylereference**(colorpalette,fonthierarchy,iconstyle). ***However**,ifthescreenshotscontradictthe
+SpecificUserTask(e.g.,showingashoppingappwhentheuserasksforweather),prioritizethe**UserTask**for
+layoutandfunctionality. *Self-inferamodern,cleanweatherdashboardlayoutifscreenshotsareunclear.
+##**2. TechnicalStack&Implementation*****Backend**: Python(Flask). ***Frontend**: HTML5,CSS3,
+JavaScript (No external frameworks like React/Vue; use Jinja2 templates or inline HTML strings). * **Data
+Persistence**: Use**In-Memory**storage(globalPythondictionaries/lists). DonotuseSQLorexternaldatabases.
+##**3. DataLogic,Inputs&Distractors*****Free-TextInput**: Thesearchbarforcityselectionmustallow
+**free-textentry**. Donothardcodetheinputto"Lvliang". Allowtheusertotype. ***RealisticDistractors**: *
+Whendisplayingsearchresults,history,or"NearbyCities",youmustinclude**3-5plausibledistractoroptions**
+(e.g.,Taiyuan,Datong,Beijing,Xi’an)alongsidethecorrecttarget(Lvliang). *Donotpresent"Lvliang"astheonly
+option.
+##**4.ReinforcementLearning(RL)RewardMechanism**Youmustembedalogictrackingsysteminthebackend
+toevaluatetheuser’sprogresstowardthegoal:"CheckweatherinLvliangfortomorrow."**OutputRequirements**:
+*Everytimetheuserperformsasignificantaction(clicks,searches,pageloads),thebackendmustprinttwolinesto
+‘stdout‘: 1. ‘ACTION_EXPLANATION=[Briefdescriptionofwhathappened]‘2. ‘RL_REWARD=[0.0to1.0],
+NEXT=[Nextlogicalstep]‘**RewardScoringLogic**: ***0.0**: Applaunch/Homepageload. (Donotreward
+simplestartup). ***0.3**: Usersuccessfullyinputs(Lvliang)intothesearchfieldORselects"Lvliang"fromalist
+ofcities. ***0.6**: UsernavigatestothespecificDetailPagefor"Lvliang". ***1.0**: Userselects/togglesthe
+dateto"Tomorrow"ortheviewspecificallyconfirms"LvliangWeather: Tomorrow"isvisible. *Note: Therewardis
+cumulative. Iftheuserreachesthefinalstate,output1.0.*
+##**5. PageFlow&Termination**1. **HomePage**: SearchbarorCityList. 2. **Interaction**: Usersearches
+for"LvliangCity". 3. **Result/DetailPage**: Displaysweatherdetails. *Sincethisisan**InformationQuery**
+task,theflow**terminates**attheResultPage. *ThefinalviewmustbetheWeatherDetailinterfaceshowingthe
+forecastforLvliang.
+Testscrptgenerationprompt
+Finally,generateajavascripttestscripttotestyourwebsitewithplaywrightinpython. Usesys.exit(1)toreturn
+testingerror.ReturnONLYtherawcodecontentforthisfile. Nomarkdownbackticksatthestart/end.’
+Self-ReflectionPrompt
+’app.py’: ...,’templates/index.html’: ..., Hereismycodeforaccomplishingfollowingrequirementsinstruction;is
+myimplementationrightornot? pleaseansweronlywith"yes"or"no". Youcanfocuson: istherewardrulesame
+totherequirement? canwebsiteworknormallyforinteraction?
+13
+
+--- Page 14 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+B.GenerationExamples
+Wefirstshowsomecodesnippetstoshowhowgeneratedcodecanfulfillourrequirementsinaspecifiedcase,“tocheck
+weatherincertaincity”.
+Howgeneratedcodeusespecefiedresolution
+... :root –primary-blue: #4a90e2;–text-main: #333;–text-secondary: #888;–bg-light: #f7f8fa;–card-bg: #ffffff;
+–border-color: #eee;–app-width: 410px;–app-height: 858px; ...
+HowgeneratedcodeimitatemobileappGUI
+... body font-family: -apple-system,BlinkMacSystemFont,"SegoeUI",Roboto,"HelveticaNeue",Arial,sans-serif;
+background-color: #2c3e50;/*Backgroundfordesktopview*/display: flex;justify-content: center;align-items:
+center;height: 100vh;color: var(–text-main); ...
+Howgeneratedcodecalculatecode-nativerewards
+... ifcity_name=="Lvliang"orcity_id==1: state.current_step=2#Immediatetransitiontoterminallogicas
+theviewwillshowtomorrow’sweatherprint("ACTION_EXPLANATION=Userviewingtomorrow’sweatherfor
+Lvliang",flush=True)print("RL_REWARD=1.0,NEXT=TERMINAL",flush=True)...
+Howgeneratedcodemockdatabaseinteractions
+...
+MOCK_CITIES=[{"id": 1,"name": "Lvliang","province": "Shanxi","detail": "China"},
+{"id": 2,"name": "Taiyuan","province": "Shanxi","detail": "China"},
+{"id": 3,"name": "Datong","province": "Shanxi","detail": "China"},
+{"id": 4,"name": "Linfen","province": "Shanxi","detail": "China"},
+{"id": 5,"name": "Xinzhou","province": "Shanxi","detail": "China"},
+{"id": 6,"name": "Xiaoyi","province": "Shanxi","detail": "China"},
+{"id": 7,"name": "Fenyang","province": "Shanxi","detail": "China"}]
+...
+Howgeneratedcodewritetestscripts
+importsysimportosimporttimefromplaywright.sync_apiimportsync_playwright
+defrun_test(): port=os.environ.get("PORT",5000)url=f"http://0.0.0.0:port"
+with sync_playwright() as p: # Launch browser with the specified mobile dimensions browser =
+p.chromium.launch(headless=True) context = browser.new_context( viewport=’width’: 410, ’height’: 858,
+user_agent="Mozilla/5.0(iPhone;CPUiPhoneOS14_7_1likeMacOSX)AppleWebKit/605.1.15(KHTML,like
+Gecko)Version/14.1.2Mobile/15E148Safari/604.1")page=context.new_page()
+try: #1. LoadtheApplicationprint(f"Navigatingtourl...")page.goto(url)page.wait_for_selector("#city-search-
+input",timeout=5000)
+#2. Searchfor"Lvliang"print("Action: Searchingfor’Lvliang’...")search_input=page.locator("#city-search-
+input")search_input.fill("Lvliang")search_input.press("Enter")
+... exceptExceptionase: print(f"TESTERROR:str(e)")sys.exit(1)
+if__name__=="__main__": run_test()
+C.SupplementaryCaseStudies
+14
+
+--- Page 15 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+Figure6.Case:bookingaridewithintermediatestopsonaride-hailingapp
+Figure7.Casewhencodemodelactivelygeneratesdistractors
+15
+
+--- Page 16 ---
+GUI-GENESIS:AutomatedSynthesisofEfficientEnvironmentswithVerifiableRewardsforGUIAgentPost-Training
+Figure8.Casewhencodemodelimitatesvisualtracedetailsandreplicatesanserviceagreement
+16

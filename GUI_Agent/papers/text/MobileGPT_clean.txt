@@ -1,0 +1,1110 @@
+--- Page 1 ---
+MobileGPT: Augmenting LLM with Human-like App
+Memory for Mobile Task Automation
+Sunjae Lee Junyoung Choi Jungjae Lee
+SchoolofComputing,KAIST SchoolofComputing,KAIST SchoolofComputing,KAIST
+RepublicofKorea RepublicofKorea RepublicofKorea
+sunjae1294@kaist.ac.kr joonchoi518@kaist.ac.kr dlwjdwo00701@kaist.ac.kr
+Munim Hasan Wasi Hojun Choi Steven Y. Ko
+SchoolofComputing,KAIST SchoolofComputing,KAIST SimonFraserUniversity
+RepublicofKorea RepublicofKorea Canada
+munim@kaist.ac.kr hchoi@kaist.ac.kr steveyko@sfu.ca
+Sangeun Oh∗ Insik Shin∗
+KoreaUniversity SchoolofComputing,KAIST
+RepublicofKorea FluizCorp.,
+sangeunoh@korea.ac.kr RepublicofKorea
+ishin@kaist.ac.kr
+Abstract with82.7%accuracy,andisabletoadaptthemtodifferent
+Theadventoflargelanguagemodels(LLMs)hasopenedup contextswithnearperfect(98.75%)accuracywhilereduc-
+new opportunities in the field of mobile task automation. ingbothlatencyandcostby62.5%and68.8%,respectively,
+Their superior language understanding and reasoning ca- comparedtotheGPT-4poweredbaseline.
+pabilities allow users to automate complex and repetitive CCSConcepts
+tasks.However,duetotheinherentunreliabilityandhigh
+• Computing methodologies → Artificial intelligence; •
+operationalcostofLLMs,theirpracticalapplicabilityisquite
+Human-centeredcomputing→Ubiquitousandmobile
+limited.Toaddresstheseissues,thispaperintroducesMo-
+computing.
+bileGPT1,aninnovativeLLM-basedmobiletaskautomator
+equipped with a human-like app memory. MobileGPT em- Keywords
+ulatesthecognitiveprocessofhumansinteractingwitha
+AIAgent;TaskAutomation,LargeLanguageModels
+mobileapp—explore,select,derive,andrecall.Thisapproach
+allowsforamorepreciseandefficientlearningofatask’spro- ACMReferenceFormat:
+SunjaeLee,JunyoungChoi,JungjaeLee,MunimHasanWasi,Hojun
+cedurebybreakingitdownintosmaller,modularsub-tasks
+Choi,StevenY.Ko,SangeunOh,andInsikShin.2024.MobileGPT:
+that can be re-used, re-arranged, and adapted for various
+AugmentingLLMwithHuman-likeAppMemoryforMobileTask
+objectives.WeimplementMobileGPTusingonlineLLMsser-
+Automation.InThe30thAnnualInternationalConferenceonMobile
+vices(GPT-3.5andGPT-4)andevaluateitsperformanceon
+ComputingandNetworking(ACMMobiCom’24),November18–22,
+a dataset of 185 tasks across 18 mobile apps. The results
+2024,WashingtonD.C.,DC,USA.ACM,NewYork,NY,USA,16pages.
+indicatethatMobileGPTcanautomateandlearnnew tasks https://doi.org/10.1145/3636534.3690682
+∗Co-correspondingauthors
+1Thesystemisavailableat:https://mobile-gpt.github.io/ 1 Introduction
+Today,werelyonawholeuniverseofmobileappstohandle
+Permissiontomakedigitalorhardcopiesofpartorallofthisworkfor
+tasksintegraltoourdailylives,rangingfromcommunication
+personalorclassroomuseisgrantedwithoutfeeprovidedthatcopiesare
+notmadeordistributedforprofitorcommercialadvantageandthatcopies to home security. Consequently, the demand for efficient
+bearthisnoticeandthefullcitationonthefirstpage.Copyrightsforthird- taskautomationinthemobileenvironmenthasintensified,
+partycomponentsofthisworkmustbehonored.Forallotheruses,contact seekingtoalleviatedigitalfatiguestemmingfromrepetitive
+theowner/author(s).
+andcomplexdigitalinteractionsthatoftenoverwhelmmany
+ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA
+userstoday[8,14].
+©2024Copyrightheldbytheowner/author(s).
+Unsurprisingly,numerousmethodshavebeenexploredto
+ACMISBN979-8-4007-0489-5/24/11.
+https://doi.org/10.1145/3636534.3690682 achievetaskautomation.API-basedapproacheslikeSiri[2]
+4202
+tcO
+61
+]CH.sc[
+3v30030.2132:viXra
+
+--- Page 2 ---
+ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA Leeetal.
+andGoogleAssistant[11]allowuserstointeractwithamo- involvedsub-tasks.Forexample,assumeyouhavelearned
+bile app’s specific functionality through natural language howto"SendamessagetoBob."Havinglearnedthis,notonly
+conversation. However, these approaches demand signifi- canyoueasilyadaptthisknowledgetosimilarinstructions
+cant coding efforts from developers, who must manually like"SendamessagetoAlice,"butalsocanapplyittoexecute
+createnewlogicforeachtask.Demonstration-basedmeth- newtaskssuchas"ReadmessagesfromJohn."Thisinherent
+ods[22,26,27,29]empowerend-userstoprogramcustom humanabilitystemsfromourtendencytobreakdowntasks
+automationscripts.Yet,duetotheirheavyrelianceonhuman intosmallersub-tasks andencapsulatetheminamodular,
+demonstrations,theyfacescalabilitychallenges.Similarly, reusableformat.
+learning-basedapproaches[17,25,30,61,62]requireexten- Thishumancapacitytolearnandrecallmemoriesatthe
+sivecollectionsofhuman-annotateddatasets,hamperingthe unitofsub-tasksiswhatweaimtoreplicatewithMobileGPT.
+widespreadapplication. Toachievethis,weaddressthreekeychallenges:i)Accurate
+Recently,LLM-basedtaskautomators[41,46,57,68,71], andreliabletaskexecution:Toensureaccuratetaskexecution
+equippedwithhighreasoningandgeneralizationabilities[1, and memory construction, we employ several prompting
+37, 43], have been a game-changer. They enable task au- techniquestoimproveLLMs’accuracyandprovidemech-
+tomationtobefullyautonomousandgenerallyapplicable, anismsforuserstocorrecterrorsincaseLLMsmakemis-
+sidesteppingthelabor-intensivemanualdevelopment,demon- takes. ii) Efficient memory storage: To facilitate the use of
+stration,andtrainingthatpreviousmethodsrequired.How- memory,MobileGPTefficientlyparameterizesandstorestask
+ever,thisapproachalsocomeswithitsownlimitations.First, informationinahierarchicalmemorystructure,inwhich
+theinherentnon-deterministicandunpredictablenatureof tasksaredecomposedintomultiplefunction-callformatted
+LLMscanunderminethereliabilityandconsistencyoftask sub-tasksandeachsub-taskisfurtherdecomposedintoa
+automation.Thisiscriticalinmobileenvironmentsasmany sequenceofprimitiveactions.iii)Flexiblememoryretrieval:
+mobiletasksnowadaysinvolvesensitiveandprivateinfor- Toensurerobustandcost-effectivetaskautomationinthe
+mation.Second,LLMsarecostly,bothintermsofbudgetand dynamiclandscapeofmobileinterfaces,MobileGPTleverages
+time.Weobservedthattasksthatwouldtakejustover30 patternmatchingandin-contextlearningtechniquestoflex-
+secondsforahumancouldtakemorethantwominutesfor iblyadaptactionsinvolvedinsub-taskstovaryingcontexts
+anLLM,andcostoveradollareachtimetheyareperformed. andinterfacechanges.
+Toovercomethelimitationsofpreviousapproaches,we We have implemented a prototype of MobileGPT using
+introduceMobileGPT,aninnovativeLLM-basedmobiletask onlineLLMservices(GPT-3.5andGPT-4).Ourcomparison
+automatoraugmentedwithanappmemorycapableoflearn- study with state-of-the-art mobile task automators Auto-
+ingandrecallingmobiletasks.MobileGPTisdesignedtoac- Droid[68]andAppAgent[71]demonstratesthatMobileGPT
+complishfollowingdesigngoals:i)AccurateandConsistent: achieves a task completion rate of 82.7% when executing
+itshouldperformtaskswithhighaccuracyandconsistency, anewtask,outperformingthesesystemsby8%and15.3%
+ensuringthatonceataskislearned,itcanbefaithfullyre- respectively.Furthermore,MobileGPTachievesanear-perfect
+produced.ii)Adaptability:Whenrevisitingatask,itshould (98.75%)successrateinadaptinglearnedtaskstoanewin-
+dynamicallyadjustitsexecutioninresponsetovaryingcon- structionwithdifferenttaskparameters.Ourablationstudy
+texts,ratherthanblindlyreplicatingthepreviousexecutions. suggeststhatMobileGPTachievesa62.5%reductionintask
+iii) Efficiency: MobileGPT seeks to significantly reduce the completiontimeanda68.8%decreaseinLLMquerycosts
+cost and time involved in task automation, especially for whenrecallinglearnedtasks.Ausabilitystudywith23par-
+tasksthatareperformedrepeatedly. ticipantsdemonstratesthatMobileGPT’shuman-in-the-loop
+IndesigningMobileGPT,wedrewinspirationfromhow taskrepairmechanismenablesuserstointeractintuitively
+humansdecomposecomplextasksintosmallersub-tasksto withthetaskautomator,allowingthemtorepairandcollab-
+effectivelylearnandrecalltasks[6,7,19,35].Specifically, orativelybuilduponthetaskautomationprocess.
+considerhowhumanslearnnewtasksusingmobileapps:
+2 SystemOverview
+givenanappscreen,wefirst1)explorethecandidatesub-
+tasks by analyzingscreen interfaces and identifying their 2.1 SystemWorkflow
+functionalities.Then,we2)selectthemostpromisingsub- Akintothehumancognitivelearningprocess, MobileGPT
+taskthatcanbringusclosertothegoal.Lastly,we3)derive operatesonacycleofExplore-Select-Derivephasestoexecute
+andexecutetheprimitiveactionsrequiredtocompletethe andlearnnewmobiletasks.Thissectiongivesahigh-level
+chosensub-task—low-levelactionssuchasclick,input,and overviewofthesystem’sworkflow(Figure1).
+scroll.Oncewehavecompletedthetaskbyrepeatingthese Explore. Prior to performing any tasks, MobileGPT un-
+3steps,itbecomespartofourmemory,allowingforeasy4) dertakesmultipleexploreoperationsofflinetopre-emptively
+recallandrepetitionofnotonlythetaskitselfbutalsoits
+
+--- Page 3 ---
+MobileGPT ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA
+Figure1:MobileGPTworkflowandsystemoverview
+collectandorganizethefunctionalitiesoftheapp.Toachieve Uponfinishingasub-task,thesystemreturnstotheSelect
+this, MobileGPT employs two software tools—random ex- phaseandselectsthenextsub-tasktoexecute.Thisiterative
+plorer[62]andusertracemonitor[10]—tovisitandanalyze process is continued until the Select phase indicates that
+asmanyappscreensasitcanduringtheofflinestage.For the user’s instruction has been fully executed. Then, the
+eachscreenitvisits,MobileGPTaskstheLLMtogeneratea instructionistranslatedintoahigh-leveltask(e.g.,"senda
+listofsub-tasksavailableonthescreen.Thisgeneratedlist messagetoBob"to"sendmessage")andsavedinthememory
+iscachedintomemorytobeusedduringtheselectphase inahierarchicalformat,asillustratedinFigure1.
+uponreceivinguserinstructions.Appscreensthathavenot Recall.Whenthesystemisgivenaninstructionwhileits
+been explored offline are analyzed on demand during the memoryisnotempty,itchecksiftheinstructionmatchesany
+taskexecution. previouslylearnedtaskbycomparingtheinstruction’shigh-
+Select.Whenauserissuesavoiceinstruction,MobileGPT leveltaskrepresentationwiththosestoredinitsmemory.If
+retrieves the list of sub-tasks associated with the current amatchisfound,itexecutestheinstructiondirectlyfrom
+screenfromthememory.Then,itasksLLMwhichsub-task thememory,Ifnomatchisfound,MobileGPTcyclesthrough
+toperforminordertocompletetheuserinstruction.The Explore,Select,Derivetolearnthenewtask.However,ifthe
+selected sub-task is carried on to the Derive phase to be newtaskinvolvesanyknownsub-tasks,MobileGPTcanstill
+translatedintoasequenceoflow-levelactions. reproducethem,akintohowhumanstransferknowledge
+Derive.IntheDerivephase,MobileGPTpromptstheLLM fromonetasktoanother.Thisfacilitatesfasterexecution
+withapre-definedsetoflow-levelaction(e.g.,click,input, andlearningofnewtasks.
+orscroll),andasksittopickanactionneededtoaccomplish 2.2 SystemDesign
+the chosen sub-task. The action is then dispatched to the
+Toenabletheworkflowabove,MobileGPTaddressesthefol-
+mobiledevicetobeexecutedwithintheapp.Thisphaseis
+lowingchallenges:
+repeateduntiltheappnavigatestothenextpage,ortheLLM
+explicitlyindicatesthatthesub-taskiscompleted.
+C1. How toaccuratelyand reliablyexecute atask inthe
+firsttry?
+
+--- Page 4 ---
+ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA Leeetal.
+C2. Howtoefficientlystoretaskexecutions? deterministicthroughoutmultipletrialsofthetask(more
+C3. Howtoflexiblyrecallpasttaskexecution? detailsin§5).
+3 AccurateandReliableTaskExecution
+C1. Thefirststeptowardslearningataskistocorrectlyex- LLMshavebeenreportedtosolvecomplextasksmoreaccu-
+ecuteitthefirsttime.MobileGPTexecutesunknowntasksby ratelybybreakingthemdownintosmallersub-tasks[65,67].
+leveragingmultipleLLMqueriestoiteratethroughphasesof MobileGPTadoptsthisstrategybyhierarchicallydecompos-
+Explore,Select,andDerive.However,giventhecomplexity ing tasks into sub-tasks according to the Explore-Select-
+of mobile tasks and the unpredictability of LLM, we can- Derivephases.ThissectionoutlineshowMobileGPTeffec-
+not guarantee the complete accuracy of these executions. tivelynavigateseachofthesephases,whilealsoaddressing
+Forinstance,wheninstructedto"find5-starhotels," LLMs thechallengesposedbytheinherentunreliabilityofLLMs.
+maysimplytype"5-starhotel"inthesearchfield,whereas Forclarity,thissectiondescribeseachphaseundertheas-
+the expected behavior is to click the ‘5-star’ filter option. sumptionthatMobileGPT’smemoryisempty.
+Therefore,toaddressthisinherentnon-determinismandthe 3.1 PromptingMobileScreentoLLM
+unreliability of LLMs, MobileGPT employs a dual-strategy
+TheinitialstepinapplyingLLMsformobiletasksinvolves
+correctionmechanismthatallowsboththeLLMandtheuser
+convertingmobilescreensintotextrepresentation.Drawing
+tofixerrorsintheexecutionprocess(moredetailsin§3).
+uponpreviousresearch[63]showingthatLLMscomprehend
+C2. In many cases, tasks are not entirely independent
+GraphicalUserInterfaces(GUIs)betterwhenpresentedin
+ofeachother;theyoftensharecommonsub-tasks.Forin-
+HTMLsyntax,weconvertmobilescreensintoasimplified
+stance,both‘SendamessagetoBob’and‘Openchatwith
+HTMLrepresentation.
+Alex’involvethesub-taskoflocatingacontact.Iftheexe-
+Webeginbyextractingthescreen’slayoutinformation
+cutionproceduresofthetwotasksarestoredseparatelyat
+usingAndroidAccessibilityService[10].Thisinformation
+thetasklevel,thesub-tasktheyperformincommonshould
+includesahierarchicalrelationshipbetweenUIelementsand
+betrainedredundantly.Tominimizesuchinefficiency,Mobi-
+variousattributes(e.g.,class_name,text,descriptions)and
+leGPTemploysathree-levelhierarchicalmemorystructure:
+properties(e.g.,clickable,editable)thatdescribethefunc-
+tasks, sub-tasks, and actions. This hierarchy enables Mobi-
+tionalityandappearanceoftheUI.Tomakethelayoutfile
+leGPTtoaccessmemoryatthesub-tasklevel,facilitatingthe
+succinct,wepruneUIelementsthatareneitherinteractive
+sharingofpastexecutionexperienceacrossdifferenttasks.
+norcarrysignificantsemanticattributes(e.g.,emptylayout
+Moreover,eachtaskoftencomeswithdifferentvariations.
+container).Then,wemapeachremainingUIelementinto
+Thetaskofsendingamessagecanbespecifiedas"sendmes-
+anHTMLelement,wheretheUI’stextanddescriptionat-
+sagetoBob"or"sendEliceamessage‘Hey’."Toaddressthis
+tributesserveasthecontentoftheHTMLelement,andthe
+rangeofvariations,weneedtoproperlyparameterizethe
+UI’sinteractivepropertyistranslatedintothecorresponding
+learnedtask.MobileGPTachievesthisbyrepresentingeach
+HTMLtag.Forinstance,the‘<button>’tagisusedforclick-
+subtask in a function-call format and the task as a series
+ableUIs,‘<input>’foreditableUIs,‘<scroll>’forscrollable
+ofthesefunctioncalls(seeFigure1).Thisapproachallows
+UIs,andsoon.Lastly,weassigneachHTMLelementwith
+formoregranularparameterization,asMobileGPTidentifies
+auniqueindexnumber,whichservesasacommunication
+parametersincrementallywhileproceedingwiththetask,in-
+linkbetweenMobileGPTandLLMstospecificallyrefertoand
+cludingimplicitparametersthatarehiddenintheinstruction,
+interactwitheachelementonthescreen.Thisprocessnot
+suchasthemessagecontentparameterintheinstruction
+onlyensuresacleaner,morerelevantrepresentationofapp
+"sendmessagetoBob."
+screensbutalsosignificantlyreducesthenumberoftokens
+C3.Evenwhenrepeatingthesametaskorsub-task,the
+byanaverageof84.6%.Throughoutthispaper,wewillrefer
+specificsofeachstepmayvarydependingonthecontextof
+tothisHTMLrepresentationofanappscreenasthe"screen
+execution.Forexample,searchingforacontactinthecontext
+representation."
+of"SendamessagetoBob"involvesenteringandclicking
+3.2 Explore,Select,andDerive
+"Bob"inthesearchpage,whereas"SendamessagetoJohn"
+requiressearchingfor"John"instead.Therefore,insteadof Wegeneratethescreenrepresentationeverytimethereisa
+blindlyreplicatingpastactions,MobileGPTflexiblyadapts changeinthescreen.Thisscreenrepresentationisthenused
+itspastexecutionstoaccommodatenotonlytheintricate throughouttheprocessoftheExplore,Select,andDerive
+parametersofthetaskbutalsochangesinscreencontent. phases.
+Inaddition,incasedirectadaptationfallsshort,MobileGPT Explore. Thegoaloftheexplorephaseistogeneratea
+leveragesthefew-shotlearningcapabilityofLLMstoguide listofactionablesub-tasksforagivenscreen.Eachsub-task
+themingeneratingresponsesthatarebothconsistentand representsanindividualoperationorfunctionalitythatthe
+
+--- Page 5 ---
+MobileGPT ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA
+screenprovides.Toaccomplishthis,MobileGPTpromptsthe LLMselectsoneoftheactionsfromthelistalongwiththe
+LLMwiththescreenrepresentationandasksittoenumer- indexofthetargetUIelementonwhichtheactionneedsto
+atesub-tasksinastructuredfunctioncallformatwiththe beperformed.Forinstance,iftheindexofthesearchbuttonis
+following informationincluded: 1) sub-taskname and de- 5,theoutputofthefirstderiveactionforthesub-task‘Search’
+scription,2)parameternamesanddescriptions,and3)index wouldbeclick(ui_index=5).Theactionisthendispatchedto
+ofrelevantUIelements.Forexample,possiblesub-tasksfor themobiledevicetobeexecutedwithintheapp.MobileGPT
+Telegram’sinitialappscreen(Figure1)include: repeats this process until there is a transition in the app
+screenortheLLMexplicitlyindicatesthatthesub-taskis
+1.{name:"Search",desc:"Searchforacontact",params:{"query":"who
+areyoulookingfor?"},UI_index:3} completed. Afterward,MobileGPTreturnstotheSelectphase
+2.{name:"Open_Menu",desc:"Openmenu",params:{},UI_index:7} tochoosethenextsub-task,andalternatesbetweentheSelect
+andDerivephasesuntiltheLLMselectsthesubtask‘Finish’,
+Notethat,unlikeotherphases,theexplorephaseoperates
+indicatingthattheuser’sinstructionhasbeencompleted.
+independentlyofuserinstructions.Hence,weconductthis
+phaseoffline,beforeperformingtheuser’sdesignatedtask. 3.3 DualStrategyFailureHandling
+We use tools like random explorer [62], which performs Despitetheirhighreasoningabilities,LLMssometimesshow
+random UI actions to navigate through app screens, and inconsistentanderroneousbehavior.Toaddressthis,Mobi-
+usertracemonitor[10],whichtracksusers’appusageinthe leGPTemploysadual-strategycorrectionmechanism.
+background.Thesetoolsallowfortheproactivecollection Self-Correctingthroughfeedbackgeneration. Previ-
+ofsub-tasksrelatedtoeachappscreen.Whilethecurrent ousstudies[13,36]indicatethatlanguagemodelscanself-
+implementation of MobileGPT conducts this offline phase correctwhengivenappropriatefeedback.Tofacilitatethisin
+locallyontheuser’sdevice,itcouldbeoffloadedtoaserver MobileGPT,wehaveheuristicallyidentifiedtwomaintypes
+toenhanceefficiency. ofcommonlyoccurringerrorsanddevelopedarule-based
+Select. Duringtheselect phase,MobileGPTpromptsthe self-feedbackgenerationmodule.Upondetectinganerror,
+LLMwithi)theuserinstruction,ii)thecurrentscreenrep- MobileGPTgeneratesappropriatefeedbackandappendsit
+resentation, and iii) a list of available sub-tasks. The list attheendofthenextprompt.ThisguidesLLMsinrefining
+includes both the sub-tasks identified during the explore theirapproachandself-correctingtheongoingexecution.
+phaseandapredefinedsetofglobalsub-taskscommonto ThefirsttypeoferroroccurswhentheLLMincorrectly
+allscreenssuchas‘Read_Screen’foransweringtheuser’s attempts to interact with the UIs. Feedback for this error
+questionbasedonthecurrentscreencontentand‘Finish’for includes:"ThereisnoUIwithindex𝑖"and"TheUIisnot(click-
+indicatingtaskcompletion.TheLLMthenpicksthesub-task able)."Theseerrorscanbeeasilydetectedastheyresultina
+mostpertinenttotheinstructionandfillsinitsrequiredpa- failurewhenexecutingtheaction.Thesecondtypeoferror
+rameters.Forinstance,giventheinstruction"Sendamessage is when LLM gets stuck in a loop. For example, endlessly
+toBob",theoutputofthefirstselectphasewouldbe: scrolling through a YouTube video list or trying to scroll
+{name:"Search",description:"Searchforacontact",parameters:{ whenalreadyatthebottomofalist.Feedbackforthiserror
+"query":”𝑩𝒐𝒃”},UI_index:3} includes: "There is no change in the screen." and "You have
+loopedthesamescreensXtimes."Theseerrorscanbedetected
+Whenparametervaluesareunknown,MobileGPTasksthe
+bymonitoringthescreenchangesandtrackingthevisited
+userforthemissinginformation.Thisallowsforinteractive
+appscreens.
+communicationbetweentheuserandthesystem,enabling
+Human-in-the-loop(HITL)taskrepair. Incaseself-
+task automation even when the user’s instruction is not
+entirelyclear.
+correctionfallsshort,MobileGPTprovidesmechanismsfor
+Afterasub-taskhasbeenselectedanditsparametersfilled,
+userstocorrecttheLLM’smistakesthemselves.InMobileGPT,
+therearethreemajorpointsofpotentialLLMfailure:Explore,
+MobileGPTchecksifthesub-taskhasalreadybeenlearned
+Select,andDerive.i)Explorefailswhensub-tasksaremissing
+(i.e.,presentinthememory)inthecontextofanothertask.
+fromthelistofavailablesub-tasks,ii)Select failswhenthe
+Ifthesub-taskisknown,MobileGPTexecutesthesub-task
+LLMchoosesincorrectsub-tasksorinputswrongparameters,
+directlyfromthememory,bypassingtheDerivephase.Oth-
+andiii)Derivefailswhenincorrectactionsarederivedand
+erwise,itproceedstotheDerivephase.
+Derive. Duringthederivephase,MobileGPTincrementally
+executed.MobileGPTprovidesspecificrepairmechanismsfor
+eachfailuretype1.
+derivesandexecuteslow-levelactionstoaccomplishthesub-
+Figure2isasimplifiedillustrationoftherepairmecha-
+taskselectedduringtheselect phase.Specifically,MobileGPT
+nism.Asillustrated,userscanentertherepairmodeanytime
+prompts the LLM with i) the sub-task to execute, ii) the
+currentscreenrepresentation,andiii)apre-definedlistof
+during the task execution by clicking on the MobileGPT’s
+low-levelactions—click,input,scroll,long-click—.Then,the 1seehttps://mobile-gpt.github.iofordemovideo.
+
+--- Page 6 ---
+ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA Leeetal.
+App Memory of ‘Telegram’
+Task: SendMessage
+App Page
+search select send
+1 2 3 4
+Sub-Task
+openMenu Input Click Action
+S
+A
+u
+v
+b
+a
+-
+i
+T
+la
+a
+b
+s
+l
+k
+e
+s 5
+newGroup addContact
+6
+•
+•
+•
+•
+S
+o
+p
+se
+e
+p
+o
+l
+a
+e
+s
+e
+r
+t
+n
+c
+c
+P
+t
+M
+h
+h
+C
+o
+o
+en
+t
+n
+o
+u
+tact 8
+Save
+7 ChatSettings
+10
+9
+Figure3:Transitiongraphoftheapp‘Telegram’
+Figure2:IllustrationofHITLtaskrepairmechanism
+4 HierarchicalAppMemory
+floatingbutton.Uponenteringtherepairmode,MobileGPT
+MobileGPT’smemoryarchitectureresembleshowhumans
+pausesitsexecutionandhandscontrolovertotheuser.The
+getfamiliarwiththeapp—accumulateknowledgeaboutthe
+usercanthenperformrepairsdirectlyonthecurrentscreen
+appasawhole,notjustthetasksthemselves.Thissection
+ornavigatebacktopreviousscreenstore-domistakesmade
+outlineshowMobileGPTsystematicallyarchivestheresults
+byMobileGPT.Notethatcertaincriticalactions,suchassend-
+oftheExplore,Select,andDerivephases,andutilizesthem
+ingamessageordeletingacontact,cannotbeundone.In
+forfuturetaskexecutions.
+suchcases,userswouldhavetomanuallyrestoretheapp
+4.1 MemoryStructure
+to its original state. Upon identifying the screen needing
+repair,userscani)addorremovesub-tasksfromthelistof MobileGPTorganizesitsmemoryintheformofatransition
+availablesub-tasks(Explore),ii)changetheselectedsub-task graph that encapsulates the following key information: i)
+anditsparameters(Select),oriii)edittheactionsinvolvedin availablesub-tasksofeachappscreen(Explore),ii)sequence
+thesub-taskbydemonstratingasequenceofactions,similar ofsub-tasksinvolvedineachtask(Select),andiii)howto
+totheprogrammingbydemonstrationtechniques(Derive). perform each sub-task (Derive). Figure 3 illustrates an ex-
+Additionally,MobileGPTassistsusersinlocatingthepoint ampleofthisgraphfortheapp‘Telegram.’Notethatthese
+ofrepairbyprovidingadetailedvisualsummaryofthetask graphsexistperapp,notpertask,meaningthattaskswithin
+execution both in terms of sub-tasks and actions. This al- thesameappallsharethesamegraph.
+lowsuserstopinpointthefailurepointeveniftheywerenot Node.Eachnodeinthetransitiongraphsymbolizesan
+closelymonitoringtheexecution. apppage—aparticularstatewithinanappthatoffersaunique
+Akeyadvantageof MobileGPT’sHITLrepairisthatusers setoffunctionalities(i.e.,sub-tasks).Figure4illustratesex-
+canreturncontrolbacktotheMobileGPTafterfixinganerror. amplesofapppages;Notethatscreenswithdifferentvisual
+Thisseamlesstransitionrequiresamutualunderstanding appearancescanbelongtothesamepage(Figure4a),while
+betweentheusersandtheLLMs,sothatLLMscanrecognize screensthatlooksimilar(Figure4b)couldbelongtodifferent
+thecorrectionsmadeandrefinetheirapproachaccordingly. pages,dependingontheirfunctionalities.
+MobileGPT’sdesign—organizingtasksasasequenceofsub- Tothisend,MobileGPTusesalistofsub-taskstorepresent
+tasksratherthanlow-levelactions—playsapivotalrole.The eachpagenode(e.g.,node1inFigure3),categorizingscreens
+naturallanguagedescriptionsofsub-tasksnotonlyhelpin thatsharethesamelistofsub-tasksasthesamenode.This
+deliveringtheLLM’scurrentprogresstotheuserbutalso facilitatesthesharingofsub-taskknowledgeacrossawider
+effectivelycapturetheusers’intentionsbehindtheirrepair. variationofappscreens,ensuringthatasub-tasklearnedon
+Forexample,whentheusercorrectsactionsinvolvedinthe onescreencanbeappliedtoanother,evenifthetwoscreens
+sub-task‘Search’,thecorrectionisencapsulatedinafeedback donotlookexactlyalike.Forexample,onceMobileGPTlearns
+"Userrepairedhowto:Searchforacontact"andappendedto howto‘Follow’inElonMusk’sprofilepage,itcanusethe
+thenextprompt.ThisfeedbackenablestheLLMtograsp sameknowledgeto‘Follow’MarkZuckerberg.
+theintentbehindtheuser’srepairandproceedaccordingly. Edge.Transitionsbetweennodesaredefinedbysub-tasks,
+Withoutsuchcontextualinformation,LLMscouldrepeatthe whereeachsub-taskconsistsofasequenceofprimitiveac-
+sameerrororactionsalreadyperformedbytheuser. tionsthatoutlinethestepsforexecutingthesub-task.This
+
+--- Page 7 ---
+MobileGPT ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA
+§3.2).TheseUIelementsserveasrequirementsforperform-
+ingaspecificsub-task.Forexample,iftheLLMreturnsthe
+following‘Search’subtaskduringtheExplorephase,
+{name:"Search",desc:"Searchforacontact",params:{...},UI_index:3}
+theSearchbutton,whichcorrespondstotheUIindexof3
+willbethekeyelementforthesubtask‘Search’.
+<buttonUI_index=3id="search_button"description="Search"/>
+Then,eachtimeMobileGPTarrivesatanewscreen,itveri-
+Figure4:Examplesofapppages:Screensin(a)belong fiesifthecurrentscreenincludeskeyUIelementsrequired
+tothesameapppagebecausetheyprovidethesame byeachsub-task.Inspecific,wecheckifthescreenrepre-
+functionalities.Screensin(b)belongtodifferentapp sentation has a UI that matches the attributes (e.g., ui_id,
+pages because they provide different functionalities description,andclass_name)ofthekeyUIelements.Ifthe
+(theleftisfor‘Subscribe’buttherightisfor‘Follow’). screenrepresentationhasmatchingUIsforallofthenode’s
+sub-tasks,wecategorizethescreenunderthatnode.
+Ifnomatchingnodeisfound,MobileGPTundergoesthe
+Explorephase.However,beforecreatinganewnode,Mobi-
+leGPTcalculatesthecosinesimilaritybetweenthescreen’s
+hierarchical structure enables MobileGPT to efficiently re- newlygeneratedsub-tasksandthoseofexistingnodesto
+producelearnedsub-tasksbyfollowingthesequenceofac- ensurethatnoexistingnodehasthesamelistofsub-tasks.If
+tionsinvolved.MobileGPTestablishesanewedgewhenit amatchisfound,wemapthescreentothenodeandupdate
+undergoestheDerivephasetoexecutepreviouslyunknown itssub-taskinformationwithoutcreatinganewnode.This
+sub-tasks.Impotantly,thesesub-taskedgesarenotconfined double-checkprocessminimizesthecreationofredundant
+toindividualtasksbutaresharedacrosstasks. nodes,preventingalreadyestablishedsub-taskedgesfrom
+Task. AfterMobileGPTsuccessfullycompletestheuser becomingobsolete.
+instruction,itstoresthetaskasacollectionofnodeandsub- Inourevaluation,whereMobileGPTencounteredandclas-
+taskpairs.Thisrepresentationeffectivelyindicateswhich sified269appscreens,thismethodshowedonly3falseposi-
+sub-taskneedstobeexecutedonwhichpage.Consequently, tives(misclassifyingdifferentapppagesasthesamenode)
+MobileGPTcanbypassallthreephasesoflearning—Explore, andnofalsenegatives(failingtofindthecorrectpagenode).
+Select,andDerivewhenexecutingpreviouslylearnedtasks. TheresultissignificantlybettercomparedtoexistingSotA
+Additionally,itfacilitatesstate-agnostictaskexecution;Re- text-based[28]andvision-based[70]screenclassification
+gardlessofwhichapppagetheappiscurrentlyon,MobileGPT methods,whichhad38,and57falsepositives,and14,and
+canfindwhichsub-tasktoexecute. 28falsenegatives,respectively.
+4.2 Sub-taskbasedScreenclassification 5 FlexibleTaskRecall
+Sinceanapppage(i.e.,anode)isagroupofappscreensthat Whenrecallingtasksorsub-tasks,thespecificdetailsofeach
+sharethesamelistofsub-tasks,ourmemoryarchitecture actionshouldbeadjustedtothecurrentcontextofitsexecu-
+requiresanaccurateclassificationofappscreensbasedon tion.Toaddressthis,MobileGPTleveragestheattribute-based
+theirfunctionalities.However,traditionalscreenclassifica- patternmatchingandLLM’sfew-shotlearningcapability[5]
+tionmethods[28,70]arenotsuitableforthis,astheyfocus toadjustandreproduceactionsflexiblyandaccurately.
+onthescreen’sappearance,ratherthanitsfunctionalities.
+5.1 Attribute-basedActionAdaptation.
+Abrute-forceapproachtoclassifyscreensbytheirfunc-
+Therearetwocaseswhereweneedtoadjusttheaction.The
+tionalitieswouldbetoruntheExplorephase(i.e.,extract
+firstcaseiswhenataskparameterchanges.Forinstance,if
+alistofavailablesub-tasks)eachtimeweencounteranew
+theuserinstructionchangesfrom"SendamessagetoBob"
+screenandfuzzymatchwiththoseinthememory.However,
+to "Send a message to Alice", we need to search and click
+thiswouldincursignificantoverheadandcost.Therefore,
+for"Alice" insteadof"Bob".Thesecondcaseiswhenthere
+MobileGPTintroducesalighterapproachtoasub-task-based
+is an alteration in the screen’s content. For example, in a
+screenclassification:insteadofcheckingifascreenhasthe
+contactpage,thehierarchicalpositionofaspecificcontact
+samelistofsub-tasks,itverifiesifthescreencanperform
+(i.e.,indexoftheUI)maychangeifcontactsareaddedor
+thosesub-tasks.
+Specifically,duringtheExplorephase,MobileGPTasksthe removed. To effectively handle both scenarios, MobileGPT
+LLMtoreturneachsubtaskwithrelevantUIindexes(see
+
+--- Page 8 ---
+ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA Leeetal.
+generalizesandadaptsactionstoboththeparametersand failstohandleincompleteinstructionslike"Sendamessage
+thescreencontents. toBob,"wherethemessagecontentismissing,andimplicit
+GeneralizingActions. Whenlearninganewsub-task, instructionslike"Callthefirstcontactfromtherecentcall,"
+MobileGPTstoresactionsinageneralizedformattoensure wherethecontactnameisn’texplicitlystated.
+thattheyarereusableacrossdifferentcontexts.Thisinvolves Ontheotherhand,MobileGPTeffectivelyaddressesthis
+twosteps:ScreenGeneralizationandParameterGeneraliza- challengebyidentifyingandderivinginformationrequired
+tion.Foragivenaction(e.g.,click(ui_index=5)),MobileGPT toperformthetaskincrementallyatthesub-tasklevel.For
+firstgeneralizesitagainstthecurrentscreenrepresentation example, when processing "Send a message to Bob,", Mobi-
+by locating the target UI and recording its key attributes leGPTproactivelyasksforthemissingmessagecontentbe-
+(e.g.,id,text,description).Then,eachkeyattributesaregen- fore performing the subtask send(message_content). Simi-
+eralizedfurtheragainstthetaskparametersbycomparing larly, for "Call the first contact from the recent call,", Mobi-
+theirvalues.Ifthevalueoftheattributematchesthatofthe leGPTautonomouslyidentifiesthecontactinformationby
+subtaskparameter,theattribute’svalueisreplacedwiththe lookingattherecentcalllistbeforeexecutingthesub-task
+correspondingparametername.Forexample,givenasubtask call(contact_name).ThisallowsMobileGPTtogeneralizeac-
+‘select(contact_name:"Bob")’andascreenrepresentation: tionsagainstamoregranularandprecisesetofparameters
+eveniftheuserinstructionisnotentirelyclear.
+<!−−Contactlist−−>
+<buttonindex=5id="contact"text="Bob"/> 5.2 In-contextActionAdaptation
+<buttonindex=6id="contact"text="Alice"/>
+Theattribute-basedadaptationmethodisnotaone-size-fits-
+theaction‘click(ui_index=5)’getsgeneralizedthroughfol- allsolution,asseveralfactorscanleadtofailure.First,the
+lowingtwosteps: targetUImaynotincludeanykeyattributesforgeneraliza-
+click(ui_index=5)→1.click(id:"contact",text:"Bob") tion.Second,multipleUIscouldsharethesameattributes.
+→2.click(id:"contact",text:"[contact_name]") Third,UIsmaychangeunexpectedlywithappupdates.
+Therefore,whentheattribute-basedadaptationfails,we
+AdaptingActions. Whenrecallingthewholetask,Mo-
+resorttoLLMtore-derivetheactiononceagain.However,
+bileGPTsimplyreplaysthegivensequenceofsub-tasks,by-
+LLMsareinherentlynon-deterministic.Thismeansthereis
+passingallExplore,Select,andDerivephases.Yet,westill
+noguaranteetheywillreproduceapreviouslycorrectaction.
+needtofillintheparametersforeachsub-taskandadjust
+Worseyet,iftheLLMhadmadeamistakeinthepast,ithas
+theinvolvedactionaccordingly.Todoso,beforeexecuting
+ahighprobabilityofrepeatingthesameerror.
+eachsub-task,MobileGPTqueriesLLMtoslot-fillparameters
+Toaddressthisissue,weleveragethefew-shotlearning
+basedontheuserinstructionandthecurrentscreenrepre-
+capabilityoftheLLM[5,67]toproducemoreaccurateand
+sentation.SimilartotheSelectphase,ifparametervalues
+reliableresponses.WhenqueryingtheLLM,wepresentit
+areunknown(e.g.,missingfromtheinstruction),MobileGPT
+withanexampleofhowtheaction(i.e.,onethatrule-based
+askstheuserfortheinformation.
+adaptationfailed)hasbeenderivedinthepast.Specifically,
+Toadaptanactiontoanewcontext,wesimplyreverse
+the example includes a prior user instruction, an abbrevi-
+theaforementionedtwogeneralizationstepsbasedonthe
+atedversionofthepastscreenrepresentation,anditscorrect
+given sub-task parameters and the screen representation.
+output.Theoutputintheexamplecouldeitherbeanaction
+Specifically, MobileGPT substitutes parameter names with
+originallygeneratedbytheLLMduringtheDerivephaseor
+theactualparametervaluesandidentifiestheUIelement
+onethathasbeenmodifiedbytheuserthroughtheHITL
+thatmatchestheseupdatedattributes.Forexample,given
+taskrepair.Inanycase,theprovidedexamplealwaysdemon-
+thesub-task‘select(contact_name:"Alice")’,thegeneralized
+stratesacorrectanswer.Byprovidingsuch examples,we
+actionforclickingacontactgetsadjustedasfollows:
+effectivelyguidetheLLMtoproduceconsistentresponses
+click(id:"contact",text:"[contact_name]")
+basedonitsmemory.Moreover,iftheexampleactionisthe
+→1.click(id:"contact",text:"Alice")→2.click(ui_index=6)
+one that has been corrected by the user, it prevents LLM
+Thistwo-stepgeneralizationandadaptationtechniqueal- fromrepeatingthesamemistakes.
+lowsustocorrectlylocatethetargetUIinresponsetothe
+6 Implementation
+changeinthetaskparametersandscreen.
+Benefits.Oneadvantageofidentifyingparametersatthe Ourimplementationof MobileGPTconsistsofanAndroid
+sub-tasklevelandusingthemfortheactionadaptationisits mobileappandaPythonserver,whichcommunicatesvia
+abilitytohandleambiguitiesandincompletenessoftenfound Wi-Fi.TheMobileGPTappcapturesscreenrepresentationand
+in real-world user instructions. A prior work [26], which
+generalizesactionsbasedonthewordsintheinstruction,
+
+--- Page 9 ---
+MobileGPT ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA
+injectsactionstothesmartphone.ThePythonserverman- MobileGPT
+Dataset AutoDroid AppAgent
+agesappmemoryandprocessestheExplore,Select,Derive, Cold Warm
+andRecallphases. AutoDroid 83.5% 80.2% 86.8% 85.7%
+AppAgent 27.3% 21.4% 50.0% 50.0%
+LLMAgents. MobileGPTemploysmultipleLLMagentsto
+MobileGPT 68.8% 60.5% 82.5% 82.5%
+cyclethroughtheExplore,Select,Derive,andRecallphases.
+Overall 74.7% 67.4% 82.7% 82.16%
+Eachagentisequippedwithamodeltailoredtoitsopera-
+Table1:Tasksuccessrateacrossdifferentdatasets.
+tionalrequirements.ForExplore,Select,andDeriveagents,
+whichinvolvemobilescreenunderstandingandmulti-step
+reasoning,weusedthemostcapableGPT-4-turbolanguage
+model.Fortranslatinguserinstructionstothehigh-leveltask
+theexistingdataset,withthefollowingaverageandmaxi-
+representationandslot-fillingsubtaskparameters,weopted
+mumsteplengthstatistics—MobileGPT:5.3(avg)/13(max);
+forthefasterandmoreeconomicalGPT-3.5-turbomodel.
+DroidTask:4.5/17;AITW:5.5/14.
+AppLaunch. Whenaninstructionisgiven,MobileGPT
+7.2 ComparativeStudy
+canrecommendthemostappropriateappsforthegiventask.
+ItdoessobycrawlingGooglePlayappdescriptionsforeach 7.2.1 ExperimentalSetup.
+appinstalledontheuser’sdeviceandstoringtheminthe Baselines.WeevaluateMobileGPT’sperformanceagainst
+vectordatabase[49]usingthetext-embeddingmodel[44]. twobaselinesystems:AppAgent[71]andAutoDroid[68].
+Then,whenausergivesaninstruction,MobileGPTretrieves AppAgentisavision-languagemodel(GPT-4-turbo)pow-
+andpresentsthetopthreemostrelevantappsbasedontheir eredtaskautomatorthatusesscreenshotstoexecutetasks.
+descriptions.Whentheusermakesaselection,MobileGPT AutoDroidisanLLM(GPT-4-turbo)poweredtaskautomator
+launchestheappandloadsitscorrespondingappmemory thatusestextscreenrepresentation,similartoMobileGPT.
+toproceedwiththetask. ThekeydistinctionbetweenMobileGPTandthetwobaseline
+Scrolling. Whenreproducingactionswithoutdefinite systemsisthatMobileGPTleveragesappmemorytolearnand
+targetUIelements(i.e.,scroll,sliding),MobileGPTchecksfor recallpastexecutions,therebyoptimizingcostsandlatency.
+itssubsequentaction’stargetUIs.Ifthetargetisfound,it ForMobileGPT,weusedtheGPT-4-turbomodelfortheEx-
+skips all the scrolls in between and directly performs the plore,Select,andDerivephasesandtheGPT-3.5Turbomodel
+subsequent action. Otherwise, the system reproduces the forslot-fillingsubtaskparameters.Foreachbaseline,weused
+scrollactionsuntilitcanfindthenextaction’stargetUI. theiropen-sourceversionavailableonGitHub[39,40].
+Dataset.Weevaluatetheperformanceofthreesystemsus-
+7 Evaluation
+ingdatasetsfromallthreeworks.Afterexcludingoverlap-
+Our evaluation is divided into two sections: comparative pingordeprecatedappsandtasks,thetotalnumberofapps
+study and ablation study. Throughout the evaluation, we is18,andthetotalnumberoftasksis185.Thisbreaksdown
+usedaGooglePixel6smartphone. asfollows:AutoDroiddataset(7apps,91tasks),AppAgent
+7.1 MobileGPTDataset dataset(3apps,14tasks),andMobileGPTdataset(8apps,80
+tasks).Theaveragetaskcomplexity,measuredbythenumber
+ThemaincontributionofMobileGPTliesinimprovingperfor-
+ofsteps,is4.0,6.6,and5.3,respectively,andscreendiversity,
+manceforrepeatedtasksandsub-tasks.However,existing
+measured by the number of unique app pages, totals 237
+datasets(e.g.,AITW[53],DroidTask[68],PixelHelp[30])do
+(AutoDroid:82,AppAgent:39,MobileGPT:116).
+notcapturethisaspect,astheyfocusontaskdiversitywith
+Procedure.Theevaluationof MobileGPTisdividedintotwo
+ahighlyindependentsetofuserinstructions.
+Therefore,wecreatedadataset1designedtoassesshow stages:cold-startandwarm-start.Inthecold-start,MobileGPT
+executesthetaskforthefirsttimeandconstructsitsmemory.
+effectivelyasystemcanlearnfromoneinstructionandadapt
+Then,inthewarm-start,itutilizesthememorytoexecute
+toanother.Thedatasetincludes80tasksacrosseightwidely
+the same task again. Note that AutoDroid and AppAgent
+used off-the-shelf mobile apps: Google Dialer, Telegram,
+run each task only once, as they do not have distinctions
+Twitter, TripAdvisor, Gmail, Microsoft To-Do, Uber Eats,
+betweencold-startandwarm-start.
+andYouTubeMusic.Eachtaskisaccompaniedbytwouser
+Wemanuallymonitoredeachsteptoidentifyerrorsdur-
+instructionswithdifferenttaskparameters—totaling160user
+ingtaskexecution.Whenanerroroccurred,weallowedthe
+instructions.Forexample,thetaskof"PostReply"forTwitter
+systemthreeadditionalattemptsforself-correction.Atask
+comeswithtwoinstructions:"PostreplytoElonMusk’snew
+wasconsideredsuccessfulifthesystemnavigatedtothefinal
+tweet"and"PostreplytoBillGate’snewtweetsaying‘Reply
+screenwithinthesethreeattempts.Toensureafairevalua-
+fromMobileGPT’."Thedataset’scomplexityiscomparableto
+tioninthecomparisonstudy,wedidnotutilizeMobileGPT’s
+1Thedatasetisavailableathttps://github.com/mobile-gpt/MobileGPT HITLtaskrepairfeature.
+
+--- Page 10 ---
+ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA Leeetal.
+7.2.2 Accuracy.
+Table1comparesthetasksuccessrateofeachsystemacross
+differentdatasets.ThesuccessrateofAppAgentdatasetis
+significantlylowerbecausethedatasetincludesmorecom-
+plexapps(YouTube,Spotify,GoogleMaps).
+Notably,MobileGPT’scold-start demonstratesthehighest
+accuracyacrossallthreedatasets,whichcanbeattributed
+toseveralfactors.First,AppAgentexhibitsthelowesttask
+accuracybecauseitreliessolelyonscreenshotimages,which
+provesinadequatefortext-heavyapplicationssuchasGmail, Figure5:Averagetaskcompletioncostandlatencyof
+Twitter,andTelegram.Second,AutoDroidrepresentstheapp AutoDroid,AppAgentandMobileGPT
+screen in a list of interactable UI elements. However, this
+overlyabbreviatedrepresentationoftenomitscrucialinfor-
+mationaboutthescreen,suchasthehierarchicalrelationship
+learnedthenecessarysub-tasksandactionsduringtheinitial
+betweenUIsandlayoutUIelementsthatdescribenearbyUIs,
+cold-startstage,leavingonlysimpletaskssuchassubtask
+potentiallymisleadingtheLLMtomakeincorrectdecisions.
+slot-fillingforthewarm-startstage.Wefurtheranalyzethese
+In contrast, MobileGPT retains hierarchical information
+benefitsin§7.3.
+andminimallyomitsUIelementswhenconvertingthescreen
+Overall,thecomparisondemonstratesthatMobileGPThas
+toatextrepresentation,preservingasmuchinformationas
+slightly higher latency and cost during cold starts but be-
+possiblefromtheoriginalAndroidlayoutfile.Additionally,
+comessignificantlyfasterandcheaperduringwarmstarts.
+MobileGPT’smethodofsplittingtasksintosubtasks,which
+Giventherecurrentnatureofmobiletasks[15,20,34,59],
+resemblesthechain-of-thoughtpromptingtechniques[64,
+ourapproachishighlypracticalasitsignificantlyreducesthe
+67],contributestoitsoverallcold-start taskaccuracy.
+burdenofcommonwarm-starts,withonlyaminorincrease
+MobileGPT’swarm-starthadoneadditionalfailurethanits
+inthatofcold-starts.
+cold-startduetoanerrorwhilerecallingataskfrommemory.
+7.3 AblationStudy
+Yet,thefactthatthewarm-start accuracyisnearlyidentical
+tothecold-startdemonstratesthatMobileGPTcanrecalltasks InevaluatingLLM-basedsystems,itiscrucialtorecognize
+verysuccessfullyusingthememorybuiltthroughcold-start thatsystemperformanceheavilydependsontheprompts
+(Moredetailsin§7.3). used—a system could perform better simply from better
+7.2.3 Cost&Latency. prompts. Therefore, isolating the effect of prompts is es-
+Figure5illustratestheaveragetasklatencyandcost2.Com- sentialtoaccuratelymeasurethearchitecturalbenefitsof
+suchsystems.
+parisonsweremadeonlyfortaskssuccessfullycompleted
+byallthreesystems(77tasks).Thenumberofstepstaken 7.3.1 ExperimentalSetup.
+foreachtaskwascomparableacrossallsystems. Baseline.TofurtheranalyzeMobileGPT’sstructuraldesign,
+AutoDroidachievessignificantlylowercoststhroughits includingitsthree-phaseinferencestructure(Explore-Select-
+concisescreenrepresentationandinstructionprompts(i.e., Derive)andmemory,wecomparedMobileGPTagainstacus-
+systemprompts).However,notethatthiscost-effectiveness tombaselinesystem.Thisbaselineisdesignedtosharethe
+may come at the expense of accuracy, as overly abbrevi- samepromptsasMobileGPTwhilefollowingthetraditional
+atedscreenrepresentationcouldomitimportantdetails,and Derive-onlystructureemployedinpriorapproaches[63,68,
+LLMs typically perform better with more comprehensive 69].Thiscomparisonallowsustomeasureperformancegains
+instructions.Conversely,AppAgentexhibitsthehighestcost attributablesolelytoMobileGPT’suniquestructuraldesign.
+andlatencydespitethelowestaccuracy,demonstratingthat Dataset. Intheablationstudy,weusedtheMobileGPTdataset,
+relying solely on screenshots is highly inefficient both in asdatasetsfromotherworkscannotfullyassessMobileGPT’s
+termsofaccuracyandcost. uniqueabilitytolearnandrecalltasks(see§7.1).
+MobileGPT’scold-start costandlatencyfallbetweenAu- Procedure. The evaluation is divided into cold-start and
+toDroidandAppAgent.MobileGPT’swarm-start,however, warm-start stages.Thecold-start executesthefirstinstruc-
+exhibitsthelowestcostandlatency,with87%and90%reduc- tionsetfromeachhigh-leveltask,andthewarm-start ex-
+tioninlatencycomparedtothoseofAutoDroidandAppA- ecutesthesecondinstructionset.Thisprocedureassesses
+gent.ThishighefficiencyislargelyduetoMobileGPThaving howwellMobileGPTlearnsfromoneinstructionandadapts
+toanotherwithdifferenttaskparameters.
+2Atthetimeofevaluation,theLLMcosts(per1Ktokens)were:GPT-4-Turbo Whenthesystemdeviatesfromthecorrectpath,weallow
+$0.01,GPT-3.5Turbo$0.003 threeextraattemptsforself-correction.Ifitfailstocorrect
+
+--- Page 11 ---
+MobileGPT ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA
+TaskLearning TaskRecall
+(cold-start) (warm-start)
+Accuracy
+Slot In-context
+(%) Explore Select Derive
+Filling Adaptation
+Phase 96.4% 96.2% 99.1% 99.5% 100%
+Step 95.5% 99.8%
+Table2:MobileGPT’sstepandphaseaccuracy.
+Figure6:Tasksuccessrateof MobileGPTandthebase-
+line.
+self-feedbackgenerationorHTILtaskrepair,itavoidsrepeat-
+itself,wemarkthetaskasafailureandmanuallyrepairthe ingthesamemistakeinothertasksinvolvingoverlapping
+errorusingtheHITLtaskrepair.Aftertherepair,weletthe subtasks.Forexample,findingacontactinTelegramrequires
+systemcontinuethetask.Inthecaseof MobileGPT,Thefinal usingthesearchbuttoninsteadofscrollingthroughthecon-
+pathaftertherepairgetsstoredinthememoryandutilized tactlist. Initsinitialtask, MobileGPTattemptstoscrollto
+duringthewarm-start. locatethecontact.However,aftercorrectingthisapproach
+Offlineexploration.ForMobileGPT,weusedarandomex- through self-feedback generation and learning to use the
+plorertoexploreeachtargetappbeforebeginningthetasks. searchbutton,MobileGPTsubsequentlygoesdirectlytothe
+we discovered 50 unique app pages for each app, which searchbuttonforsimilartasks,bypassingthescrolling.
+typicallytookbetween10to15minutes.Theseapppages Incontrast,thebaselinesystemfrequentlyresortstoscrolling
+accountedfor89.65%(104outof116)ofthetotalapppages through contacts, consistently repeating the same errors
+requiredduringtheevaluation.Theremainingapppages, acrosstasks.Furthermore,thebaselinesometimesfailsor
+along with those unsuitable for random exploration (e.g., performsinefficientlyduringthewarmstartphase,evenif
+paymentpage),canbeexploredofflinebymonitoringuser ithassuccessfullycompletedthetaskduringthecoldstart.
+interactions with the app. The total cost for this random Thisinconsistencyhighlightsthenon-deterministicnature
+explorationwas$10.78,whichisdeemedreasonableconsid- ofLLMs,whichcangeneratevaryingoutputsbasedonfac-
+eringthatthispreparationisaone-timeprocess. torssuchastaskparameters,screenrepresentation,andeven
+7.3.2 TaskSuccessRate thetimingofthequery.
+Figure6illustratesthetasksuccessrateof MobileGPTcom- 7.3.3 StepAccuracy.
+paredtothebaseline.Impressively,MobileGPTachievesnear- To further analyze accuracy, we examine LLM queries at
+perfectaccuracy(98.75%)duringthewarm-startphase,with each step of the tasks. In MobileGPT, each step is broken
+asingleexceptionobservedinUberEats.Thisimprovement downintomultiplephases:duringthecold-start,MobileGPT
+over the cold-start accuracyis due to theuser’s ability to goesthroughExplore,Select,andDerivephasestolearnnew
+correcttaskexecutionsbeforesavingthemtomemory,ensur- tasks.Duringthewarm-start,itemployssub-taskslot-filling
+ingreliabilityandcorrectnessofthetaskrecallevenifLLMs andin-contextactionadaptationforrecallinglearnedtasks.
+mademistakesduringthecold-start.Forinstance,inGmail’s Afailureinanysinglephaseresultsintheentirestepbeing
+"Recover Deleted Email" task, MobileGPT initially failed to markedasafailure.Thestepaccuracyofthebaselineis92.4%
+opentheMoreOptionsMenubecausethereweretwoseem- Table2presentsMobileGPT’saccuracyacrossitsdifferent
+inglyidenticalMoreOptionsbuttonsonthescreen.However, phases.MobileGPTexhibitsahigherstepaccuracythanthe
+after"teaching"itwhichbuttontoclickthroughHITLtask baseline,evenduringcold-starts.Thisimprovementcanbe
+repair,MobileGPTsuccessfullyclickedthecorrectbuttondur- tracedtoMobileGPT’sabilitytodistributethereasoningload
+ingthewarmstart.Furthermore,MobileGPT’scombination for each step across multiple phases, similar to how the
+ofAttribute-basedandIn-contextactionadaptationenables Chain-of-thoughtprompting[67]improvesLLMaccuracy
+preciseandconsistentrecalloflearnedtasks,evenwhentask bydecomposingproblemsintoaseriesofintermediatesteps
+parametersandresultingscreencontentchange. beforereachingthefinalsolution.
+MobileGPTconsistentlyoutperformsthebaseline,evendur- Whenrecallingpreviouslylearnedtasks(warm-start),Mo-
+ingthecold-startstages.Thisadvantagearisesfromtwofac- bileGPTdemonstratesnear-perfectaccuracy,withonlyone
+tors:MobileGPT’scapabilitytodecomposecomplextasksinto slot-filling query failing. Remarkably, MobileGPT achieves
+multiplesubtasksanditsabilitytosharelearnedsubtasks 100%accuracyforin-contextadaptation.Inourevaluation,
+acrossdifferenttasks.Notably,whenMobileGPTmakesaner- out of 327 primitive actions, 53 actions (16.2%) were not
+rorduringasubtaskandreceivesacorrection,eitherthrough adaptablethroughattribute-basedadaptationandtherefore
+
+--- Page 12 ---
+ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA Leeetal.
+AverageMemoryHitRate 7.4 ResourceConsumption
+AppName
+Cold-Start Warm-Start
+WemeasuredtheresourceconsumptionoftheMobileGPTon
+GoogleDialer 35.9% 95.8%
+mobiledevicesusingtheAndroidStudioprofilertool[12].
+Telegram 50.1% 98.6%
+Theanalysisindicatednosignificantoverhead,asthemajor-
+Twitter 31.7% 80.1%
+ityofcomputationsareoffloadedtotheserver.Theaverage
+TripAdvisor 29.1% 89.3%
+Gmail 6.7% 70.6% powerconsumptionoftheMobileGPTappduringtaskexecu-
+MicrosoftTo-Do 27.8% 92.6% tionwas330.38mW,comprisingCPUat237.05mW,memory
+UberEats 26.1% 78.0% at67.15mW,andWLANat26.18mW,representing11.78%of
+YouTubeMusic 18.0% 87.2% thetotalpowerconsumption.heaveragememoryconsump-
+Table3:MobileGPTAverageMemoryHitRateperApp. tionwas213MB,whichisonly0.04%ofatypicalmodern
+smartphone’smemorycapacity(6GB).
+7.5 UserStudy
+ParticipantsandStudyProcedure. Werecruited23par-
+ticipants(16male,7female,meanage23.2,SD=3.5,range=19-
+32)throughanonlinecommunityposting,witheachpartic-
+requiredin-contextadaptationviaLLM.Asaresult,LLMwas ipantreceivingacompensationof12USD.Thestudycon-
+abletoadaptall53actionstonewinstructionsandscreens. sistedoftwosessions:thefirstsessionevaluatedtheover-
+7.3.4 Cold-startlatency&cost. allusabilityof MobileGPTincomparisontoSamsungBixby
+Figure7comparesthelatencyandcostbetweenMobileGPT Macro (Programming by Demonstration) and the custom
+and the baseline. During the initial cold start, even with baseline.Thesecondsessionassessedtheusabilityof Mo-
+theadditionalSelectphasethatMobileGPTemploystobreak bileGPT’shuman-in-the-looptaskrepairmechanisms.Each
+downtasksintosubtasks,theincreaseinlatencyandcostis sessionlasted30minutes.Allrecruitmentandexperiments
+minimal,averagingonly3.9%and0.6%,respectively. compliedwithourinstitution’sIRBpolicies.
+Moreover, MobileGPT even outperforms the baseline in In the first session, participants were asked to perform
+Telegramduetoitsabilitytoreuselearnedsubtaskstobe thefollowingthreetasksusingthethreetaskautomation
+reusable across different tasks. Table 3 displays the aver- tools:1)"FindmeavailablehotelsinLasVegasfromNovember
+agememoryhitrateforeachapp,indicatingthepercentage 10toNovember15,"2)"FindmehotelsinNewYork,"and3)
+ofactionsretrieveddirectlyfrommemorywithoutengag- "FindmerestaurantsinLasVegas."Thesetasksweredesigned
+ing the LLM. Since LLM is the primary source of latency, toassesstheusabilityoftheautomationtoolsacrossthree
+a higher memory hit rate results in faster task execution. scenarios:i)executingacompletelynewtask,ii)repeating
+Telegramservesasanexcellentexample;sincemanyofits thesametaskwithdifferentparameters,andiii)executing
+tasksinvolvethecommonsubtaskofsearchingforaspecific anewbutsimilartask.Aftereachtask,participantsrated
+contact,MobileGPTsignificantlyoutperformsthebaseline, the usability of each tool on a 7-point Likert scale. Upon
+evenduringthecold-starts.Conversely,Gmailshowsalow completingalltasks,participantsrankedthetoolsbasedon
+memory hit rate (6.7%), as its tasks have few overlapping theirpreferencesandindicatedtheirwillingnesstouseeach
+sub-tasks.WhilecurrentresultssuggestthatGmaildoesnot toolinreal-worldscenarios.
+fully leverage our design when learning new tasks (cold- In the second session, participants were introduced to
+start),weanticipatethatbothlatencyandcostwilldecrease MobileGPT’srepairmechanisms,whichallowuserstocorrect
+exponentiallyasmoresubtasksareaccumulatedovertime. mistakesmadebytheLLM.Afterabrieftutorial,participants
+7.3.5 Warmstartlatency&cost. weretaskedwithexecutingtheinstruction"ModifyTom’s
+Inthewarmstartstage,wherethesamehigh-leveltaskis phonenumberto123-456-789"usingMobileGPT.Duringthe
+repeatedbutwithdifferentparameters(i.e.,differentuser study,MobileGPTwasconfiguredtomakepredefinederrors
+instructions),MobileGPTdramaticallyreduceslatencyand coveringallthreeareasofrepair:Explore,Select,andDerive.
+cost,achievingimprovementsof62.5%and68.8%overthe Participantswerenotinformedinadvanceaboutthespecific
+baseline,respectively.TheeffectivenessofMobileGPT’smem- mistakesthesystemwouldmake.Followingthetask,they
+oryvariesdependingonthememoryhitrate.Thememory ratedtheusabilityoftherepairmechanismusingtheSystem
+hit rate for warm start is not always 100% because some UsabilityScale(SUS)[4].Additionally,theyevaluatedthe
+actionsstillrequireLLMforitsadaptation(i.e.,In-context necessityandeffectivenessoftherepairmechanism,along
+adaptation).Nevertheless,evenintheworstcasewhereno withtheiraccuracytoleranceforataskautomatorwithand
+actionsareadaptable(e.g.,Twitter),ourevaluationindicates withouttherepairmechanism.
+thatMobileGPTconsistentlyoutperformsthebaseline.
+
+--- Page 13 ---
+MobileGPT ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA
+40
+30
+20
+10
+0
+1 2 3 4 5 6 7 8
+sdnoceS
+Baseline MobileGPT
+40
+0.3
+30
+0.2
+20
+0.1
+10
+0 0
+1 2 3 4 5 6 7 8 1 2 3 4 5 6 7 8
+App Name: 1: Dialer aaaaaa2: Telegram aaaaaa3: Twitter aaaaaa4: TripAdvisor aaaaaa5: Gmailaaaaaa6: Microsoft To-Do aaaaaa7: Uber Eatsaaaaaa8: YT Music
+(a) Latency (b) Cost
+ralloD
+Cold Start Warm Start Cold Start Warm Start
++26.4%
+-38.8% +14.1% +1.6% -86.0% -59.2% +15.1% 0.3
++8.6% -69.1%
++4.7% +7.6% -79.8% -28.5% -56.9% -53.5% +28.2% +6.0% +15.8% 0.2 -67.6% -70.7%
++7.0%
+-65.6% -55.1%
+-67.3% -6.0% -87.0%
+-40.8% -6.0% -7.7% -95.9% -53.1% 55.4%
+0.1
+0
+1 2 3 4 5 6 7 8
+Figure7:Averagetasklatencyandcostof MobileGPTandthebaseline
+OverallUsability(7-point-scale) complexityoftherepairmission(repairingallthreephases
+Scenario PbD Baseline MobileGPT withinasingletask)andtheparticipants’generalunfamil-
+NewTask 3.2 4.4 4.7 iaritywiththeconceptofautonomousagentsmakingerrors.
+RepeatTask 3.0 4.3 6.1
+Inthepost-survey,participantsratedthenecessityand
+SimilarTask 3.0 4.3 5.7
+effectivenessoftherepairmechanismhighly,withscoresof
+Table4:Usabilityscorefordifferenttaskscenarios.
+4.7and4.8outof5,respectively.Participantsalsoindicated
+that the acceptable accuracy threshold for a task automa-
+torwithoutarepairmechanismis96%onaverage,whereas,
+Session1:Overallusability. Table4showstheusabil- witharepairmechanism,thisthresholddropsto84%.This
+ity scores for each task automation tool across scenarios. indicatesthatparticipantsaremorelenientwithaccuracy
+Throughoutthescenarios,participantsgenerallyfoundPbD expectationswhenarepairmechanismisavailable,under-
+inefficientbecausetheyneededtore-createthemacroscript scoringitsvalueintaskautomation.
+even at the slightest change in the screen or instructions, 8 RelatedWork
+andthebaselineasconvenientbuttooslow.Incontrast,Mo-
+UsingLLMinUITaskautomation. Recently,therehave
+bileGPTinitiallyhadausabilityscoresimilartothebaseline
+beenseveraleffortstoleverageLLMsfortaskautomation[42,
+inthefirstscenario,butshowedsignificantimprovementin
+63,68,69,71],capitalizingontheirabilitytocomprehend
+thesubsequenttasks,withMann-WhitneyUTestresultsof
+andperformtaskswithoutrequiringpriortrainingoruser
+(U=216.5,p=0.26),(U=24.0,p=4.8𝑒−8),and(U=67.5,p=6.5𝑒−6),
+demonstrations.NoteworthyexamplesincludeAutoDroid[68]
+respectively—"(MobileGPT)performsthetaskaccuratelyata
+andAppAgent[71],whichenhanceLLMswithapp-specific
+fairlyhighspeed.Possiblyfasterthandoingitbyhand.Seems
+knowledgetoimprovetheirunderstandingofmobileappli-
+tohavegoodgeneralizability"(P4),"Itwasalittlesluggishfor
+cationsandboosttaskperformanceaccuracy.Despitethese
+thingsthatIhadn’tdonebefore,butitwasstillfasterthanthe
+advancements,thepracticaldeploymentoftheseapproaches
+baselineandIfigureditwouldgetfasterwithmoretraining"
+inreal-worldtaskautomationremainsuncertainduetothe
+(P7).ThistrendsuggeststhatMobileGPT’sabilitytoquickly
+inherentunreliabilityandhighcostsassociatedwithLLMs.
+reproducetasksandadaptlearnedsub-taskstorelatedtasks
+MobileGPTtacklesthesechallengesbyintegratinghuman-
+greatlyenhancesitsusability.Thisiscorroboratedbythe
+likeappmemorywithLLMs,allowingfortheeffectivereuse
+post-surveyresults,whereallbutoneparticipantfavored
+oflearnedsubtasks,whichsignificantlyreducesthenumber
+MobileGPTthemost,andallparticipantsexpressedwilling-
+ofLLMqueries,therebyoptimizinglatencyandcost.
+nesstouseMobileGPTinreal-worldapplications,compared
+MacroMining.Anotherlineofworkcloselyrelatedto
+to35%and30%forthebaselineandPbDtools,respectively.
+MobileGPTismacromining[16,18,30,31,62],whichaimsto
+Session 2: Human-in-the-loop Task Repair. Mobi-
+generatemacroscriptswithouthumanintervention.Forin-
+leGPT’s task repair mechanism received an average score
+stance,Lietal.[16]utilizeLLMtodiscoversub-taskswithin
+of64.6(std=16.9)ontheSystemUsabilityScale,indicating
+apptracesandcombinethemtocreatetask-orientedmacros.
+itas"ok" user-friendliness[3].Whilethereisroomforim-
+provement,thescoreisconsideredacceptablegiventhehigh
+
+--- Page 14 ---
+ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA Leeetal.
+However,acommonchallengeinusingmacrosisthegener- even less common. To accommodate the varying devices,
+alizationofactions.Existingapproachestacklethischallenge appmemorycanbecategorizedbasedonthedeviceform
+through embedding-based screen matching and attribute- factor, as the app interface varies depending on the form
+basedUImatching.However,thesemethodsoftenstruggle factor(e.g.,smartphoneortabletdevice).Thediversityofthe
+whenscreensimilarityisambiguousorwhenUIslackcrit- deviceresolutionisnotaconcern,asMobileGPTidentifiesUI
+icalattributes.Incontrast,MobileGPTeffectivelyaddresses elementsusingtheirhierarchicalstructure(i.e.,index),not
+these issues by using sub-task-based screen classification theirpixelcoordinates.
+andin-contextactionadaptation,enablingmorerobustand Cross App Task execution. Users may give instruc-
+reliabletaskautomation. tionsthatinvolvemultipleapps.Forexample,theinstruction
+CachingLLMresponses. Fundamentally,MobileGPTis "Checkmybankaccount,andifithasover10dollars,order
+builtupontheprinciplesofcachingLLMs’responses.Sim- me a pizza" requires interaction with both a banking app
+ilar research efforts include caching frequently occurring andafooddeliveryapp.Toaccommodatesuchscenarios,
+tokenstatesforfasterinference[9],cachingLLMresponses MobileGPTcanbeextendedtomaintainaglobaldatasetof
+tohandlesimilarqueries[73],andtrainingsmallermodels knowntasksacrossapps.MobileGPTcanthenusethistoplan
+toreplicatecachedresponses[52,60].However,theseexist- outwhichtasktoexecuteinwhichordertofulfilltheuser
+ingstudiesprimarilyfocusontheuseofLLMsinchatbot instruction.
+applications.Tothebestofourknowledge,MobileGPTisthe UnsupportedApps. Thecurrentimplementationof Mo-
+firsttoexplorecachingwithinthecontextofanLLM-based bileGPTdoesnotsupportmobileappsthatlacktextrepresen-
+taskautomator. tationoftheirscreenlayouts,suchasthoseusingthird-party
+LLM-basedAutonomousAgentinotherfields. LLMs UIengines(e.g.,Flutter,WebApps)orscreensdominatedby
+demonstratesignificantpotentialinautomatinghumantasks. images(e.g.,maps,cameraviews).Toaddressthislimitation,
+Specifically,itcanderivethemostappropriateactionsfor wecanleveragescreen-to-texttranslationmodels[21,23,70,
+specific tasks when provided with a proper action space 72]orvision-languagemodels(VLMs)[33,45,66]toprocess
+(e.g.,tools,functioncalls,APIs).Consequently,researchers boththescreenshotandthetext-basedscreenrepresentation,
+acrossvariousfieldshaveattemptedtoexpandthecapabili- enabling MobileGPT to function effectively across a wider
+tiesofLLMsbyintegratingUIinteractions[42,53,68,69], rangeofapplications.
+programmingtools[54,56],APIs[24,32,48,51,55,58],and Using Vision Language Model. We have performed
+games[47,64,74].MobileGPTisuniqueinitsabilitytogener- a feasibility study on using a VLM (GPT-4-turbo) within
+ateahigher-levelactionspace(i.e.,sub-tasks)onitsownand MobileGPT.WehavefoundthatMobileGPTachieveshigher
+utilizethemfordifferentgoals(i.e.,userinstruction).This accuracy when given both the screenshot and the screen
+approach canbeextendedto otherfields,as manydigital representation. One limitation, however, is the increased
+taskssharecommonandrecurringsub-tasks. latencyoftheVLMcomparedtotext-onlyLLMs.Nonethe-
+less,becauseMobileGPTcanminimizethenumberofqueries
+9 Discussion
+throughmemorycaching,thehigherper-querylatencyleads
+Security &Privacy. Screen representations can contain toamorepronouncedbenefitof MobileGPT’sdesign.
+personalinformation,suchasnamesandphonenumbers,
+10 Conclusion
+posingprivacyriskswhentransmittedtotheLLM.Tomiti-
+gatethis,wecanemployaPersonalIdentifierInformation WeintroducedMobileGPT,anovelLLM-poweredmobiletask
+(PII)Scanner[38,50]todetectpersonaldatawithinprompts automatorthatenhancestheefficiencyandreliabilityoftask
+andreplaceitwithnon-privateplaceholders.Additionally, automation by emulating human cognitive processes. We
+certainactions—e.g.,agreeingtotermsofserviceorconfirm- anticipatethatMobileGPTwillstrengthentheintegrationof
+ingapayment—shouldbeperformedwithusersupervision. intelligentautomationintoeverydaytechnologyuse.
+Toaddressthis,weprovidetheLLMwiththeoptiontoselect
+Acknowledgments
+a‘getuserconfirm’ actionduringtheDerivephase,ensur-
+ingthatanypotentiallyriskyactionsareidentifiedanduser ThisworkwassupportedbyIITP(RS-2023-00232728),TIPA
+confirmationisrequestedbeforeproceeding. (TIPS 00262147, RS-2024-00447529), K-Startup (20144069),
+SharingAppMemory. MobileGPTcurrentlystoresmem- andtheNationalResearchFoundationofKorea(NRF)grant
+oryonalocalbasis,meaningeachdevicehasitsownversion (RS-2024-00347516,RS-2023-00222910).
+ofappmemory.Toenhancethis,thememorycanbeshared References
+orcrowd-sourcedtocreatealarge-scaleappmemory.This
+[1] anthropic.2023. TalktoClaude. anthropic. RetrievedNov11,2023
+approachcaneffectivelyeliminatetheneedforeachuserto
+fromhttps://claude.ai/
+learntasksindividually,makingthecold-startlearningstage
+
+--- Page 15 ---
+MobileGPT ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA
+[2] Apple.2023.UseSirionallyourAppledevices.Meta. RetrievedNov [21] KentonLee,MandarJoshi,IuliaTurc,HexiangHu,FangyuLiu,Julian
+11,2023fromhttps://support.apple.com/en-us/HT204389 Eisenschlos,UrvashiKhandelwal,PeterShaw,Ming-WeiChang,and
+[3] AaronBangor,PhilipKortum,andJamesMiller.2009. Determining KristinaToutanova.2023.Pix2Struct:ScreenshotParsingasPretrain-
+whatindividualSUSscoresmean:Addinganadjectiveratingscale. ingforVisualLanguageUnderstanding. arXiv:2210.03347[cs.CL]
+Journalofusabilitystudies4,3(2009),114–123. [22] SunjaeLee,HoyoungKim,SijungKim,SangwookLee,HyosuKim,
+[4] JohnBrooke.1996.Sus:a“quickanddirty’usability.Usabilityevalua- JeanYoungSong,StevenYKo,SangeunOh,andInsikShin.2022.
+tioninindustry189,3(1996),189–194. A-mash:providingsingle-appillusionformulti-appusethroughuser-
+[5] TomBrown,BenjaminMann,NickRyder,MelanieSubbiah,JaredD centricUImashup.InProceedingsofthe28thAnnualInternational
+Kaplan,PrafullaDhariwal,ArvindNeelakantan,PranavShyam,Girish ConferenceonMobileComputingAndNetworking.690–702.
+Sastry,AmandaAskell,etal.2020. Languagemodelsarefew-shot [23] GangLiandYangLi.2023.Spotlight:MobileUIunderstandingusing
+learners.Advancesinneuralinformationprocessingsystems33(2020), vision-languagemodelswithafocus.(2023).
+1877–1901. [24] MinghaoLi,FeifanSong,BowenYu,HaiyangYu,ZhoujunLi,Fei
+[6] CarlosGCorrea,MarkKHo,FrederickCallaway,NathanielDDaw, Huang, and Yongbin Li. 2023. Api-bank: A benchmark for tool-
+andThomasLGriffiths.2023. Humansdecomposetasksbytrading augmentedllms.arXivpreprintarXiv:2304.08244(2023).
+offutilityandcomputationalcost.PLOSComputationalBiology19,6 [25] TaoLi,GangLi,JingjieZheng,PurpleWang,andYangLi.2022.MUG:
+(2023),e1011087. InteractiveMultimodalGroundingonUserInterfaces.arXivpreprint
+[7] CarlosGCorrea,MarkKHo,FredCallaway,andThomasLGriffiths. arXiv:2209.15099(2022).
+2020. Resource-rationaltaskdecompositiontominimizeplanning [26] TobyJia-JunLi,AmosAzaria,andBradA.Myers.2017. SUGILITE:
+costs.arXivpreprintarXiv:2007.13862(2020). CreatingMultimodalSmartphoneAutomationbyDemonstration.In
+[8] PınarErtenandOguzhanOzdemir.2020.TheDigitalBurnoutScale Proceedingsofthe2017CHIConferenceonHumanFactorsinComputing
+DevelopmentStudy.İnönüÜniversitesiEğitimFakültesiDergisi21(10 Systems(Denver,Colorado,USA)(CHI’17).AssociationforComputing
+2020). https://doi.org/10.17679/inuefd.597890 Machinery,NewYork,NY,USA,6038–6049. https://doi.org/10.1145/
+[9] InGim,GuojunChen,Seung-seobLee,NikhilSarda,AnuragKhandel- 3025453.3025483
+wal,andLinZhong.2023.Promptcache:Modularattentionreusefor [27] TobyJia-JunLi,YuanchunLi,FanglinChen,andBradAMyers.2017.
+low-latencyinference.arXivpreprintarXiv:2311.04934(2023). ProgrammingIoTdevicesbydemonstrationusingmobileapps.In
+[10] Google.2023. Createyourownaccessibilityservice. Google. Re- End-UserDevelopment:6thInternationalSymposium,IS-EUD2017,Eind-
+trievedNov11,2023fromhttps://developer.android.com/guide/topics/ hoven,TheNetherlands,June13-15,2017,Proceedings6.Springer,3–17.
+ui/accessibility/service [28] TobyJia-JunLi,LindsayPopowski,TomMitchell,andBradAMyers.
+[11] Google.2023. HeyGoogle. Google. RetrievedNov11,2023from 2021.Screen2vec:Semanticembeddingofguiscreensandguicompo-
+https://assistant.google.com/ nents.InProceedingsofthe2021CHIConferenceonHumanFactorsin
+[12] Google.2024.Profileyourappperformance.Google. RetrievedJuly25, ComputingSystems.1–15.
+2024fromhttps://developer.android.com/studio/profile/ [29] TobyJia-JunLiandOrianaRiva.2018.KITE:Buildingconversational
+[13] ZhibinGou,ZhihongShao,YeyunGong,YelongShen,YujiuYang,Nan botsfrommobileapps.InProceedingsofthe16thAnnualInternational
+Duan,andWeizhuChen.2023.Critic:Largelanguagemodelscanself- ConferenceonMobileSystems,Applications,andServices.96–109.
+correctwithtool-interactivecritiquing.arXivpreprintarXiv:2305.11738 [30] YangLi,JiacongHe,XinZhou,YuanZhang,andJasonBaldridge.2020.
+(2023). MappingnaturallanguageinstructionstomobileUIactionsequences.
+[14] EmilieMunchetalGregersen.2023.Digitaldependence:Onlinefatigue arXivpreprintarXiv:2005.03776(2020).
+andcopingstrategiesduringtheCOVID-19lockdown.Media,Culture, [31] YuanchunLiandOrianaRiva.2021.Glider:Areinforcementlearning
+andSociety(2023). approachtoextractUIscriptsfromwebsites.InProceedingsofthe44th
+[15] EmitzaGuzmanandWalidMaalej.2014.Howdouserslikethisfeature? InternationalACMSIGIRConferenceonResearchandDevelopmentin
+afinegrainedsentimentanalysisofappreviews.In2014IEEE22nd InformationRetrieval.1420–1430.
+internationalrequirementsengineeringconference(RE).Ieee,153–162. [32] YaoboLiang,ChenfeiWu,TingSong,WenshanWu,YanXia,YuLiu,
+[16] Forrest Huang, Gang Li, Tao Li, and Yang Li. 2023. Automatic YangOu,ShuaiLu,LeiJi,ShaoguangMao,etal.2023.Taskmatrix.ai:
+Macro Mining from Interaction Traces at Scale. arXiv preprint Completingtasksbyconnectingfoundationmodelswithmillionsof
+arXiv:2310.07023(2023). apis.arXivpreprintarXiv:2303.16434(2023).
+[17] PeterCHumphreys,DavidRaposo,TobiasPohlen,GregoryThornton, [33] HaotianLiu,ChunyuanLi,QingyangWu,andYongJaeLee.2023.
+RachitaChhaparia,AlistairMuldal,JoshAbramson,PetkoGeorgiev, Visualinstructiontuning.arXivpreprintarXiv:2304.08485(2023).
+AdamSantoro,andTimothyLillicrap.2022.Adata-drivenapproachfor [34] Huaxiao Liu, Xinglong Yin, Shanshan Song, Shanquan Gao, and
+learningtocontrolcomputers.InInternationalConferenceonMachine MengxiZhang.2022.Miningdetailedinformationfromthedescription
+Learning.PMLR,9466–9482. forAppfunctionscomparison.IETSoftware16,1(2022),94–110.
+[18] PeterCHumphreys,DavidRaposo,TobiasPohlen,GregoryThornton, [35] MartinLövdén,BenjamínGarzón,andUlmanLindenberger.2020.Hu-
+RachitaChhaparia,AlistairMuldal,JoshAbramson,PetkoGeorgiev, manskilllearning:expansion,exploration,selection,andrefinement.
+AdamSantoro,andTimothyLillicrap.2022.Adata-drivenapproachfor CurrentOpinioninBehavioralSciences36(2020),163–168.
+learningtocontrolcomputers.InInternationalConferenceonMachine [36] AmanMadaan,NiketTandon,PrakharGupta,SkylerHallinan,Luyu
+Learning.PMLR,9466–9482. Gao,SarahWiegreffe,UriAlon,NouhaDziri,ShrimaiPrabhumoye,
+[19] AkshayKumarJagadish,MarcelBinz,TankredSaanum,JaneXWang, YimingYang,etal.2023. Self-refine:Iterativerefinementwithself-
+andEricSchulz.2023.Zero-shotcompositionalreinforcementlearning feedback.arXivpreprintarXiv:2303.17651(2023).
+inhumans.(2023). [37] meta.2023.IntroducingLlama2.meta. RetrievedNov11,2023from
+[20] ChakajklaJesdabodiandWalidMaalej.2015. Understandingusage https://ai.meta.com/llama/
+statesonmobiledevices.InProceedingsofthe2015ACMinternational [38] Microsoft. 2023. How to detect and redact Personally Identify-
+jointconferenceonpervasiveandubiquitouscomputing.1221–1225. ing Information (PII). Microsoft. Retrieved Nov 11, 2023
+fromhttps://learn.microsoft.com/en-us/azure/ai-services/language-
+
+--- Page 16 ---
+ACMMobiCom’24,November18–22,2024,WashingtonD.C.,DC,USA Leeetal.
+service/personally-identifiable-information/how-to-call [59] ChristophStanik,MarloHaering,ChakajklaJesdabodi,andWalid
+[39] mnotgod96.2024.AppAgent-TencentQQGYLab. RetrievedJuly25,2024 Maalej.2020.Whichappfeaturesarebeingused?Learningappfeature
+fromhttps://github.com/mnotgod96/AppAgent usagesfrominteractiondata.In2020IEEE28thInternationalRequire-
+[40] MobileLLM.2024. AutoDroid. RetrievedJuly25,2024fromhttps: mentsEngineeringConference(RE).IEEE,66–77.
+//github.com/MobileLLM/AutoDroid [60] IliasStogiannidis,StavrosVassos,ProdromosMalakasiotis,andIon
+[41] MultiOn.2023.Theworld’sfirstPersonalAIAgent.MultiOn. Retrieved Androutsopoulos.2023.CachemeifyouCan:anOnlineCost-aware
+Nov11,2023fromhttps://www.multion.ai/ Teacher-StudentframeworktoReducetheCallstoLargeLanguage
+[42] ReiichiroNakano,JacobHilton,SuchirBalaji,JeffWu,LongOuyang, Models.arXivpreprintarXiv:2310.13395(2023).
+ChristinaKim,ChristopherHesse,ShantanuJain,VineetKosaraju, [61] LiangtaiSun,XingyuChen,LuChen,TianleDai,ZichenZhu,andKai
+WilliamSaunders,etal.2021. Webgpt:Browser-assistedquestion- Yu.2022. META-GUI:TowardsMulti-modalConversationalAgents
+answeringwithhumanfeedback. arXivpreprintarXiv:2112.09332 onMobileGUI.arXivpreprintarXiv:2205.11029(2022).
+(2021). [62] DanielToyama,PhilippeHamel,AnitaGergely,GheorgheComanici,
+[43] openai.2023.CreatingsafeAGIthatbenefitsallofhumanity.openai. AmeliaGlaese,ZafaraliAhmed,TylerJackson,ShiblMourad,and
+RetrievedNov11,2023fromhttps://openai.com/ DoinaPrecup.2021.Androidenv:Areinforcementlearningplatform
+[44] OpenAI. 2023. New and improved embedding model. Ope- forandroid.arXivpreprintarXiv:2105.13231(2021).
+nAI. RetrievedNov11,2023fromhttps://openai.com/blog/new-and- [63] BryanWang,GangLi,andYangLi.2023. Enablingconversational
+improved-embedding-model interactionwithmobileuiusinglargelanguagemodels.InProceedings
+[45] OpenAI.2023. Vision. OpenAI. RetrievedNov11,2023fromhttps: ofthe2023CHIConferenceonHumanFactorsinComputingSystems.
+//platform.openai.com/docs/guides/vision 1–17.
+[46] OthersideAI.2023.YourAIassistantforeverydaytasks.OthersideAI. [64] GuanzhiWang,YuqiXie,YunfanJiang,AjayMandlekar,Chaowei
+RetrievedNov11,2023fromhttps://www.hyperwriteai.com/personal- Xiao,YukeZhu,LinxiFan,andAnimaAnandkumar.2023.Voyager:
+assistant Anopen-endedembodiedagentwithlargelanguagemodels. arXiv
+[47] JoonSungPark,JosephCO’Brien,CarrieJCai,MeredithRingelMorris, preprintarXiv:2305.16291(2023).
+PercyLiang,andMichaelSBernstein.2023.Generativeagents:Inter- [65] LeiWang,WanyuXu,YihuaiLan,ZhiqiangHu,YunshiLan,RoyKa-
+activesimulacraofhumanbehavior.arXivpreprintarXiv:2304.03442 WeiLee,andEe-PengLim.2023.Plan-and-solveprompting:Improving
+(2023). zero-shotchain-of-thoughtreasoningbylargelanguagemodels.arXiv
+[48] ShishirGPatil,TianjunZhang,XinWang,andJosephEGonzalez. preprintarXiv:2305.04091(2023).
+2023. Gorilla:Largelanguagemodelconnectedwithmassiveapis. [66] WenhaiWang,ZheChen,XiaokangChen,JiannanWu,XizhouZhu,
+arXivpreprintarXiv:2305.15334(2023). GangZeng,PingLuo,TongLu,JieZhou,YuQiao,etal.2023.Visionllm:
+[49] Pinecone.2023. Long-TermMemoryforAI. PineconeSystems. Re- Largelanguagemodelisalsoanopen-endeddecoderforvision-centric
+trievedNov11,2023fromhttps://www.pinecone.io/ tasks.arXivpreprintarXiv:2305.11175(2023).
+[50] EndpointProtector.2023.Cutting-EdgePIIScanner.EndpointProtec- [67] JasonWei,XuezhiWang,DaleSchuurmans,MaartenBosma,FeiXia,
+tor. RetrievedNov11,2023fromhttps://www.endpointprotector.com/ EdChi,QuocVLe,DennyZhou,etal.2022.Chain-of-thoughtprompt-
+solutions/ediscovery/pii-scanner ingelicitsreasoninginlargelanguagemodels. AdvancesinNeural
+[51] YujiaQin,ShihaoLiang,YiningYe,KunlunZhu,LanYan,YaxiLu, InformationProcessingSystems35(2022),24824–24837.
+YankaiLin,XinCong,XiangruTang,BillQian,etal.2023. Toolllm: [68] HaoWen,YuanchunLi,GuohongLiu,ShanhuiZhao,TaoYu,Toby
+Facilitatinglargelanguagemodelstomaster16000+real-worldapis. Jia-JunLi,ShiqiJiang,YunhaoLiu,YaqinZhang,andYunxinLiu.2023.
+arXivpreprintarXiv:2307.16789(2023). Empoweringllmtousesmartphoneforintelligenttaskautomation.
+[52] GuillemRamírez,MatthiasLindemann,AlexandraBirch,andIvan arXivpreprintarXiv:2308.15272(2023).
+Titov.2023. Cache&distil:OptimisingAPIcallstolargelanguage [69] Hao Wen, Hongming Wang, Jiaxuan Liu, and Yuanchun Li. 2023.
+models.arXivpreprintarXiv:2310.13561(2023). DroidBot-GPT: GPT-powered UI Automation for Android. arXiv
+[53] ChristopherRawles,AliceLi,DanielRodriguez,OrianaRiva,and preprintarXiv:2304.07061(2023).
+TimothyLillicrap.2023.Androidinthewild:Alarge-scaledatasetfor [70] JasonWu,SiyanWang,SimanShen,Yi-HaoPeng,JeffreyNichols,and
+androiddevicecontrol.arXivpreprintarXiv:2307.10088(2023). JeffreyPBigham.2023. WebUI:ADatasetforEnhancingVisualUI
+[54] JingqingRuan,YihongChen,BinZhang,ZhiweiXu,TianpengBao, UnderstandingwithWebSemantics.InProceedingsofthe2023CHI
+GuoqingDu,ShiweiShi,HangyuMao,XingyuZeng,andRuiZhao. ConferenceonHumanFactorsinComputingSystems.1–14.
+2023. Tptu:Taskplanningandtoolusageoflargelanguagemodel- [71] ZhaoYang,JiaxuanLiu,YuchengHan,XinChen,ZebiaoHuang,Bin
+basedaiagents.arXivpreprintarXiv:2308.03427(2023). Fu,andGangYu.2023.Appagent:Multimodalagentsassmartphone
+[55] TimoSchick,JaneDwivedi-Yu,RobertoDessì,RobertaRaileanu,Maria users.arXivpreprintarXiv:2312.13771(2023).
+Lomeli,LukeZettlemoyer,NicolaCancedda,andThomasScialom. [72] XiaoyiZhang,LiliandeGreef,AmandaSwearngin,SamuelWhite,Kyle
+2023.Toolformer:Languagemodelscanteachthemselvestousetools. Murray,LisaYu,QiShan,JeffreyNichols,JasonWu,ChrisFleizach,
+arXivpreprintarXiv:2302.04761(2023). etal.2021.Screenrecognition:Creatingaccessibilitymetadataformo-
+[56] YongliangShen,KaitaoSong,XuTan,DongshengLi,WeimingLu,and bileapplicationsfrompixels.InProceedingsofthe2021CHIConference
+YuetingZhuang.2023.Hugginggpt:Solvingaitaskswithchatgptand onHumanFactorsinComputingSystems.1–15.
+itsfriendsinhuggingface.arXivpreprintarXiv:2303.17580(2023). [73] HanlinZhu,BanghuaZhu,andJiantaoJiao.2024. EfficientPrompt
+[57] Significant-Gravitas.2023.AutoGPT:theheartoftheopen-sourceagent CachingviaEmbeddingSimilarity. arXivpreprintarXiv:2402.01173
+ecosystem.github. RetrievedNov11,2023fromhttps://github.com/ (2024).
+Significant-Gravitas/AutoGPT [74] XizhouZhu,YuntaoChen,HaoTian,ChenxinTao,WeijieSu,Chenyu
+[58] YifanSong,WeiminXiong,DaweiZhu,ChengLi,KeWang,YeTian, Yang,GaoHuang,BinLi,LeweiLu,XiaogangWang,etal.2023.Ghost
+andSujianLi.[n.d.].Restgpt:Connectinglargelanguagemodelswith intheMinecraft:GenerallyCapableAgentsforOpen-WorldEnviro-
+real-worldapplicationsviarestfulapis.CoRR,abs/2306.06624,2023. mentsviaLargeLanguageModelswithText-basedKnowledgeand
+doi:10.48550.arXivpreprintarXiv.2306.06624([n.d.]). Memory.arXivpreprintarXiv:2305.17144(2023).

@@ -1,0 +1,2247 @@
+--- Page 1 ---
+Meta Context Engineering via Agentic Skill Evolution
+HaoranYe1 XuningHe1 VincentArak2 HaonanDong1 GuojieSong1,(cid:66)
+1StateKeyLaboratoryofGeneralArtificialIntelligence,SchoolofIntelligenceScienceandTechnology,PekingUniversity
+2SchoolofElectronicsEngineeringandComputerScience,PekingUniversity
+Abstract: Theoperationalefficacyoflargelanguagemodelsreliesheavilyontheirinference-timecontext.
+ThishasestablishedContextEngineering(CE)asaformaldisciplineforoptimizingtheseinputs. CurrentCE
+methodsrelyonmanuallycraftedharnesses,suchasrigidgeneration-reflectionworkflowsandpredefinedcontext
+schemas. Theyimposestructuralbiasesandrestrictcontextoptimizationtoanarrow,intuition-bounddesign
+space. Toaddressthis,weintroduceMetaContextEngineering(MCE),abi-levelframeworkthatsupersedes
+staticCEheuristicsbyco-evolvingCEskillsandcontextartifacts. InMCEiterations,ameta-levelagentrefines
+engineeringskillsviaagenticcrossover,adeliberativesearchoverthehistoryofskills,theirexecutions,and
+evaluations. Abase-levelagentexecutestheseskills,learnsfromtrainingrollouts,andoptimizescontextas
+flexiblefilesandcode. WeevaluateMCEacrossfivedisparatedomainsunderofflineandonlinesettings. MCE
+demonstratesconsistentperformancegains,achieving5.6–53.8%relativeimprovementoverstate-of-the-art
+agentic CE methods (mean of 16.9%), while maintaining superior context adaptability, transferability, and
+efficiencyinbothcontextusageandtraining.
+Keywords: MetaContextEngineering,LargeLanguageModels,Agents,SkillEvolution,Self-Improvement
+{Date:January27,2026
+§GithubRepo:https://github.com/metaevo-ai/meta-context-engineering
+#Contact: hrye@stu.pku.edu.cn gjsong@pku.edu.cn
+Meta Context Engineering
+How can I design Skill Dat abase I can discover the
+an optimal agentic best CE skill by
+h en ar g n in e e s e s r f i o n r g ? context le e a v rn o i l n v g in a g n ! d
+E C nS g o ki nn i t l e l e b e x ort oink g Skill B: 72%
+Skill A: 65% Why did Skill C: 68%
+w S o W k rk i h l e l a d A t ? in su S c k c i e ll e B d? c b H o e m o s w b t i p c n a a e r n t t s h I ? e The meta-agent
+D ksaT evolves CE skills.
+The Magic Formula:
+1. The meta-agent evolves CE skills via
+co C n u st r r r a e i n n t e C d E b y m m et a h n o u d a s l l a y r e c r f a u f n te d d a m ha e r n n t e a s ll s y es. 2 . c T a o g h n e e t n e b t x i a c t s a c e r r - t o a if s g a s e c o t n s v t . e e r. xecutes skills to build
+3. The system learns from execution history
+and environmental feedback.
+4. Skills and context co-evolve.
+C E w c c c r m e o o o o a t r n n n r k n i t t t e s e e e a v p x x x g a a t t t e _ _ _ l c . m 1 2 3 p e . . . y e m m m n d d d t.py The M at e W ta o - r A k gent Ag C e o n B m t e ic b s i t C n I r i d n o e g s a s t s h o e ve r:
++10%
+Improvement
+CodCiTnoogod Tlikoniotgsl kits With the evolved
+skills, I can learn the
+perfect context!
+A better skill emerges Success throug h co-evolution!
+The base-agent executes skills and optimizes context.
+Figure1: AconceptualoverviewofMetaContextEngineering(MCE)inacartoonstyle. MCEoperatesasabi-level
+optimizationframeworkwhereameta-agentdrivesskillevolutionwhileabase-agentmanagescontextoptimization.
+6202
+beF
+11
+]IA.sc[
+2v75512.1062:viXra
+
+--- Page 2 ---
+1 Introduction
+The operational efficacy of large language models (LLMs) is governed by the curation and orchestration of their
+inference-time context [Mei et al., 2025]. As LLM infrastructure evolves from monolithic chat interfaces toward
+compoundagenticsystems,contextoptimizationhasbecomebothacriticalbottleneckandapowerfulleverforits
+enhancement. This establishes the discipline of Context Engineering (CE), which focuses on the principled LLM
+contextoptimizationtomaximizedownstreamutilityandenablecontinuousself-improvement[Huaetal.,2025].
+RecentadvancesdemonstrateCE’sefficacyacrossdiverseobjectives,suchasenhancingvertical-domainperformance
+[Agrawaletal.,2025,Caietal.,2025b,Zhangetal.,2026],solvinglong-horizontasks[Huetal.,2025a,Kangetal.,
+2025,Sunetal.,2025,Zhangetal.,2025a],coordinatingmultipleagents[Maetal.,2026,Wuetal.,2024a,Yuksekgonul
+et al., 2025], and self-evolution driven by experience [Gao et al., 2025, Lu et al., 2026, Wei et al., 2025, Ye et al.,
+2024]. UnlikeoptimizingLLMparameters,optimizingtheircontextprovidesdistinctmethodologicaladvantages: (1)
+interpretability,byencodingexperienceinnaturallanguageratherthanopaqueweights;(2)efficiency,byenabling
+rapiddeploymentwithoutcostlyupdatesofmodelparameters;(3)modularity,facilitatingthecompositionandtransfer
+of established contexts; and (4)robustness, ensuring immunity tocatastrophic forgettingby decoupling capability
+acquisitionfrommodelweights.
+However, current CE systems are fundamentally constrained by manually crafted agentic harnesses that impose
+characteristic inductive biases. At the context representation level, different context structures impose their own
+trade-offs: case-based trajectories retain rich episodic traces but lack generalization [Zhou et al., 2025]; itemized
+listsaccumulateabstractinsightsbutremainflatandstructurallyinexpressive[Zhangetal.,2026];andgraph-based
+hierarchiesofferflexibleorganizationbutincurhighlatencywithoutconsistentlyoutperformingnaiveretrieval[Aietal.,
+2025,Xuetal.,2025a]. Atthecontextoptimizationlevel,existingmethodsexhibitopposingyetequallylimitingbiases.
+Ononehand, prompt-rewritingapproachessuchasGEPA[Agrawaletal.,2025]favorbrevity, iterativelyrefining
+concise,high-levelrulesthatfailintasksrequiringdetailedstrategiesanddeepdomainknowledge[Zhangetal.,2026].
+Ontheotherhand,additive-curationapproaches[Caietal.,2025a,b,Suzgunetal.,2025,Zhangetal.,2026]favor
+verbosity,accumulatingcontextthroughgeneration-reflection-curationpipelinesthatproducenoisycontextupdate(due
+tolimitedglobalvisibility),incurexcessiveoverhead(duetoinstance-leveloptimization),andcausecontextbloat(due
+toadditiveaccumulationwithoutholisticsynthesis). Ultimately,theseheuristicchoicesrestrictCEtoanarrowdesign
+subspace,precludingthediscoveryoftask-optimalstrategiesthatliebeyondhumanintuition.
+Toaddresstheselimitations,weintroduceMetaContextEngineering(MCE),aframeworkthatsupersedesstatic
+heuristicsthroughtheco-evolutionofCEskillsandcontextartifacts. MCEformalizesCEasabi-leveloptimization
+problem,effectivelydecouplingtheengineeringstrategy(howtorepresentandoptimizecontext)fromtheresulting
+engineeredartifact(whatcontextislearned). Atthemeta-level,weproposeagenticskillevolution,inwhichanagent
+iteratively refines CE skills [Anthropic, 2025]: executable instructions and code that govern the CE process. This
+evolutionisdrivenbyagenticcrossover,anevolutionaryoperatorthatsynthesizessuperiorskillsbyreasoningacross
+task specifications, historical CE trajectories, and performance metrics. At the base-level, an agent executes these
+evolvedskillstolearnfromtrainingrolloutsandconstructscontext,inafullyagenticmanner. Unlikepriormethodsthat
+predefinecontextschemas,ourbase-agentleveragescodingtoolkitsandfilesystemaccesstoinstantiateandoptimize
+contextasflexible,programmaticartifacts.
+Inthismanner,MCEreplacesheuristicscaffoldingwithagenericdesignspace. Priorstate-of-the-art(SOTA)methods,
+suchasthegeneration-reflection-curationworkflowofagenticcontextengineering(ACE)[Zhangetal.,2026],represent
+singularpointswithinthevastmanifoldofpossibleCEskills.BygrantingAIthefullagencyandcapabilitiestogenerate
+arbitrarycode,invokeotherLLMs,andmanipulatefilestructures,MCEcanreconstructsuchpipelines,discovernovel
+CEarchitectures,anddynamicallyadjustCEstrategies.
+WeevaluateMCEacrossfivediversedomains(finance,chemistry,medicine,law,andAIsafety),usingfourLLMs,and
+againstSOTACEmethods. Underofflineandonlinesettingsrespectively,MCEachieves89.1%and74.1%average
+relativeimprovementovertheDeepSeek-V3.1basemodel,outperformingthepriorSOTAby18.4%and33.0%. In
+addition, MCE demonstrates superior 1) context adaptability: flexibly adjusting context length from 1.5K to 86K
+tokensacrosstasks,freefromthebrevityorverbositybiasesofpriormethods;2)contextefficiency: achievingbetter
+performancewithfewercontexttokens;3)contexttransferability: exhibiting4–7%lowerperformancedegradation
+whentransferringcontextsfromstrongtoweakmodels;and4)trainingefficiency: acceleratingtrainingby13.6×and
+requiring4.8×fewerrolloutsthanACEtoachievehighertrainingaccuracy.
+We summarize contributions as follows. ❶ We propose MCE, a bi-level framework that co-evolves CE skills and
+contextartifacts,supersedingstaticCEharnesseswithlearnableskills. ❷Atthemeta-level,weintroduceagenticskill
+evolution,leveragingagentskills[Anthropic,2025]asanovelabstractionforevolutionaryagentoptimization. ❸At
+thebase-level,weintroducefullyagenticcontextoptimization,leveragingcodingtoolkitsandfilesystemaccessto
+2
+
+--- Page 3 ---
+instantiatecontextasflexible,programmaticartifacts. ❹Weconductcomprehensiveevaluationsacrossfivedomains,
+fourLLMs,andbothofflineandonlinesettings. MCEachieves5.6–53.8%relativeimprovementoverstate-of-the-art
+CEmethods(meanof16.9%),whiledemonstratingsuperiorcontextadaptability,transferability,andefficiencyinboth
+contextusageandtraining.
+2 BackgroundandRelatedWork
+2.1 AgenticContextEngineering
+WhileLLMspossessstrongzero-shotcapabilities,post-deploymentcontextengineering(CE)iscrucialfordomain
+adaptationandself-improvement[Fangetal.,2025,Huetal.,2025b,Khattabetal.,2023,Shinnetal.,2023,Yuksekgonul
+etal.,2025]. CurrentSOTACEmethodsrelyonmanuallydesignedagenticharnesses: modelsaccumulateexperience
+throughexploration-reflectionworkflowstoupdatecontextswithpredefinedschemas.
+However,theseharnessesimposecharacteristicinductivebiases. Atthecontextrepresentationlevel,thetrade-offs
+aredistinct: case-basedtrajectoriesretainrichepisodictracesbutlackgeneralizationandabstraction[Wangetal.,
+2024b,Zhouetal.,2025];itemizedlistsaccumulateabstractinsightsbutremainflatandstructurallylimited[Suzgun
+etal.,2025,Zhangetal.,2026];andhierarchical,graph-basedmemoriesincurhighlatencyandcomplexitywithout
+consistentlyoutperformingnaiveretrieval[Aietal.,2025,Chhikaraetal.,2025,Lietal.,2025,Xuetal.,2025a]. Atthe
+contextoptimizationlevel,existingmethodsexhibitopposingyetequallylimitingbiases.Ononehand,prompt-rewriting
+approachessuchasGEPA[Agrawaletal.,2025]employfullLLM-basedrewritesdrivenbyreflectionsoversampled
+trajectories, favoring abstract, high-level rules over detailed domain knowledge (brevity bias). On the other hand,
+additive-curationapproachessuchasDynamicCheatsheet(DC)[Suzgunetal.,2025]andAgenticContextEngineering
+(ACE) [Zhang et al., 2026] orchestrate modular agents (generators, reflectors, and curators) to iteratively perform
+on-policyrollouts,textualreflections,andcontextupdates. Thesemethodsutilizelocalizedupdatestoitemizedlistsand
+canadditivelyaccumulateinsights,butsufferfromstructuralrigidityandcontextbloat[Caietal.,2025a,b].
+We posit that no single agentic harness is universally optimal, motivating MCE’s dual-level optimization. Our
+instantiationofMCEisdrivenbytwoconvergingtrends. First,agentarchitecturesareshiftingfromrigid,multi-agent
+scaffoldstowardunified,self-looping,andself-spawningframeworkswithmaximalagencyandminimalyetgeneral
+tools[Anthropic,2025a,Bolin,2026,langchain-ai,2025,Manus,2025]. Inthisarchitecture,domainspecificitycanbe
+encapsulatedinagentskills: organizedinstructions,scripts,andresourcesthatagentsdiscoverandloaddynamically
+[Anthropic,2025]. Thismotivatesourmeta-leveldesign: CEasafullyagenticprocesswithoutrestrictivescaffolding,
+withtaskspecificityinjectedthroughlearnedskills.
+Second,codingtoolkitsandcomputer(filesystem)accesshavebecametheessentialharnessofbothgeneralandvertical
+agents[Anthropic,2026,Chengetal.,2026,Manus,2025,Yangetal.,2025]. Theprevalencestemslargelyfromthe
+versatilityofTuring-completeprogramminglanguages,whichoffermaximaldesignflexibility[Zhangetal.,2025c,d],
+andtheirinherentverifiability,whichfacilitatesrobusttraining[Wangetal.,2024a,Wei,2025,Yangetal.,2024]. This
+insightinformsourbase-leveldesignspace: contextartifactsconsistoffilesandcode,whicharegeneral,agent-native
+representationsunconstrainedbypredefinedschemas.
+Ultimately,MCErepresentsatransitionfrommanuallycraftedCEworkflowstofullyagenticmeta-andself-learning
+systems,wheredomainspecificityencapsulatedwithlearnedskillsandcontextismanagedviaagent-generatedfiles
+andcode.
+2.2 EvolutionaryComputationwithLLMs
+Conventionalevolutionarycomputation(EC)reliesonmanuallydesignedoperators,whichstruggletocapturecomplex
+solutionstructuresanddomainproperties. RecentresearchdemonstratesthatLLMscanserveasintelligentgenetic
+operators,leveragingsemanticknowledgetogeneratemeaningfulvariationswithoutexplicitrules[Wuetal.,2024b].
+Thisparadigmshiftenablestheexplorationofunstructuredsearchspacesandfacilitatesoptimizationacrossvarying
+levelsofabstraction[Langeetal.,2025,Novikovetal.,2025]. PriorworkinLLM-drivenEChasprimarilytargeted
+the solution level (e.g., prompts [Guo et al., 2024], textual solutions [Lee et al., 2025], numerical parameters [Xu
+etal.,2025b]),functionlevel(e.g.,heuristics[Liuetal.,2024b,Romera-Paredesetal.,2024,Yeetal.,2024],reward
+functions[Maetal.,2024]),andprogramlevel(e.g.,searchalgorithms[Hottungetal.,2025,Novikovetal.,2025],
+neuralarchitectures[Liuetal.,2025],agentworkflows[Zhangetal.,2025b]).
+Inthiswork,weintroduceagentskills[Anthropic,2025]asanovel,integratedlevelofabstractionforevolutionary
+optimization. Agent skills are organized folders of instructions, scripts, and resources, that an agent can discover
+andutilize. Wefindthatthisabstractionoffersthreedistinctadvantagesformeta-levelagentoptimization. First,by
+3
+
+--- Page 4 ---
+Working Meta-level: Skill Evolution Task
+Directory Specification
+Skill Skill ... Skill New Skill
+Skill Overview Read
+Skill Database
+Metrics Meta-agent Agentic Crossover
+Base-level: Context Optimization Context Function Evaluation & Feedback
+Task Optional
+Specification Utilities
+Engineer
+New Skill
+Context
+Function
+Base-agent
+Training
+Rollouts
+Best-so-far
+Selection
+Update
+Tool Set Read Bash
+Iteration 1 Write Glob
+CE/ context/ data/ Edit Grep
+SKILL.md ... rollouts TodoWrite
+Iteration 2
+Static Training
+Components Rollouts
+CE/ context/ data/ Knowledge Bases Training Data
+SKILL.md ... rollouts Decision Rules
+Examples
+Dynamic Evaluation for
+Operators Meta-agent
+Multiple Retrieval Validation Data
+Iterations Filtering
+... Composition Logic
+MCE: Meta Context Engineering
+Iteration k-1 Inference with Optimized Context
+Context Context
+Performance Adaptability
+Context
+CE/ context/ data/ Query Function LLM Output Context Training
+SKILL.md ... rollouts Efficiency Efficiency
+Figure2: MethodologicaloverviewofMetaContextEngineering(MCE).
+encapsulatinginstructions,resources,andscriptsintoaunifiedrepresentation,skillsenabletheseamlessco-evolution
+ofdifferentsolutionlevels,overcomingthefragmentedframeworksoftenseeninpriorco-evolutionaryapproaches
+[CenandTan,2025,Guoetal.,2025,Xieetal.,2025,Zhaoetal.,2025]. Second,skillsprovideamodularinterface
+foragenticharnesses,decouplingtheoptimizationtargetfromthecoreagentarchitecturetoenhancestability. Third,
+thisrepresentationfacilitatesmoreagenticgeneticoperators: agentscanflexiblyinspectandselectivelyrecombine
+componentsfromancestorskilldirectories,enablingmoregranularandcontext-awareevolutionaryupdates.
+3 MetaContextEngineering
+WeformalizeMetaContextEngineering(MCE)asabi-leveloptimizationframeworkthatco-evolvescontextengineering
+skills and context artifacts (§ 3.1). At the meta-level, an agent refines skills that guide context representation and
+optimization(§3.2);atthebase-level,anagentexecutestheseskillstooptimizecontextasfilesandcode(§3.3). This
+dual-leveloptimizationisorchestratedbyasimple(1+1)-EvolutionStrategy(ES)andinstantiatedwithgeneralagents
+thathaveaccesstocodingtoolkitsandfilesystems(§3.4). WepresentthemethodologicaloverviewinFig.2.
+3.1 ProblemFormulation
+Wedefineacontextfunctioncthatmapseachqueryx∈X toitscontext,specifiedbyatuple(ρ,F):
+c(x)=(F ◦···◦F )(x;ρ), (1)
+k 1
+where ρ = {ρ ,...,ρ } denotes static components (e.g., system prompts, knowledge bases, code libraries) and
+1 m
+F = {F ,...,F } denotes dynamic operators (e.g., retrieval, selection, filtering, formatting, composition) that
+1 k
+transformandassemblethesecomponentsconditionedonqueryx.
+Givenanagentf thatproducesoutputyˆ=f (x,c(x)),thegoalofCEistofindtheoptimalcontextfunction:
+θ θ
+c∗ =argmaxJ(c), (2)
+c∈C
+where J(c) is a task-specific objective. This formulation encompasses supervised settings, where J(c) =
+− (cid:80) ℓ(f (x ,c(x )),y ) measures prediction accuracy, and RL-based settings, where J(c) = E [R(f (x,c(x)))]
+i θ i i i x θ
+measuresexpectedreward.
+Thisformulationadmitsdiverseinstantiationsalongthespectraofdynamismandcomplexity:staticpromptscorrespond
+toconstantfunctionsc(x)=ρ withidentityoperators;retrieval-augmentedsystemsimplementc(x)=F (x;ρ)
+0 retrieve
+4
+
+--- Page 5 ---
+overfixedresources;andagenticsystemsmayincorporatepre/post-modelhooksandchainmultipleoperatorsthat
+dynamicallygenerate,modify,ordiscardcomponentsduringinference. Theoptimaldesignof(ρ,F)dependsonthe
+taskdomain,datacharacteristics,andcomputationalconstraints.
+PriorCEmethodsinstantiatecwithpredefinedcomponentsandoperators,thenoptimizecdirectlyusingfixedprocedures.
+Forinstance,ACEemploysiterativegeneration-reflection-curationloopstooptimizecontextasanitemizedlist[Zhang
+et al., 2026]. These procedures impose structural biases that may be suboptimal for specific tasks. MCE instead
+introducesaskills∈S asanexecutablespecificationthatdefineshowthecontextfunctionshouldberepresentedand
+learnedfromdata. Givenaskills,abase-levelagentexecutesittoproduceacontextfunctionc = (ρ ,F ). MCE
+s s s
+thensolvesthebi-levelproblem:
+s∗ =argmaxJ (c∗) s.t. c∗ =argmaxJ (c ;s), (3)
+val s s train s
+s∈S cs
+wheretheinneroptimizationfindsthebestcontextfunctiongivenskills,andtheouteroptimizationfindstheskillthat
+yieldscontextwithmaximalvalidationperformance.
+MCEdecoupleswhattolearn(thecontextfunctionc )fromhowtorepresentandlearnit(theskills). Thisdecoupling
+s
+isanalogoustoseparatinglearnedparametersfrommodelarchitectureandtrainingalgorithmsinmachinelearning
+(ML),exceptthatMCEoperatesatahigherlevelofabstraction,wheretheMLmodels(LLMs)arealreadywell-trained
+and frozen. Such decoupling has given rise to fields such as meta-learning, AutoML, neural architecture search,
+hyperparameteroptimization,andmeta-black-boxoptimization. ByelevatingthisdecouplingtoCE,MCEopensanew
+designspaceforoptimizingagenticAI.
+3.2 Meta-Level: AgenticSkillEvolution
+Themeta-levelagentmaintainsitsskilldatabaseH ={(s ,c ,Jtrain,Jval)}k−1,afolderthatsummarizesthehistory
+k−1 i i i i i=1
+of skills, their resulting context functions, and evaluation metrics from all previous iterations. At iteration k, the
+meta-agentgeneratesanewskillbyperformingagenticcrossover:
+s
+k
+= CROSSOVER(τ,H
+k−1
+), (4)
+where τ denotes the task specification (e.g., task description, data format, evaluation criteria). Agentic crossover
+isanLLMagent-drivenoperatorthatsynthesizesanewskillbyselectivelycombiningandrefiningelementsfrom
+previousskills. UnlikepriorLLM-drivenevolutionaryoperatorsthatapplyfixedrecombinationrules(e.g.,merging
+twoprogramsintoabetterone),itisaflexibleanddeliberativeprocess: theagentreasonsoverthetaskspecification,
+arbitrarilyinspectsworkspacefolders,identifiessuccessfulandfailurepatterns,andcomposesanimprovedskill.
+Askills ∈ S isrepresentedasafolderinthebase-agentworkspace. Inpractice,wefindthatitmayinclude,but
+isnotlimitedto,thefollowing: (1)amethodologydescribingthelearningprocedureinnaturallanguage(e.g.,core
+philosophy,multi-phaseapproacheswitherroranalysis,contextpruningstrategies);(2)executablescriptsimplementing
+themethodology(e.g., Pythoncodeforerrorpatternextraction, LLM-basedcontextgeneration, embedding-based
+similarity analysis); (3) structured context templates (e.g., decision frameworks, disambiguation rules, gap-driven
+refinements);(4)validationprotocols(e.g.,functionstoassesscontextqualityandmeasuregeneralization);and(5)
+dynamiccontextoperatorssuchasretrievalfunctionsthatselectivelyfilterandcomposerelevantcontextbasedonquery
+features(e.g.,keyword-basedsectionextraction,embedding-basedsimilaritymatching,rule-basedpatterndetectionfor
+error-pronecases). Anexampleofalearnedskillisprovidedin§C.
+Analysisoftheevolvedskillsrevealsthreekeytechnicaladvantages. First,weobservethatMCEdynamicallyadjusts
+autonomy,expressivity,andgranularity: learnedskillsarefoundtospecifyrigidworkflowsordelegatefullautonomy
+dependingontheneed,enablingeitherholisticbatch-levelsynthesisortargetedinstance-levelupdates.Second,evolving
+skills tailor context verbosity to task complexity and model capacity, generating concise rules for simple tasks or
+capacity-limitedmodels,whileprovidingdetailedexplanationsotherwise. Third,themeta-agenteffectivelymonitors
+trainingandvalidationsignals,detectsoverfitting,andsteersskillevolutiontowardimprovedgeneralization. Further
+analysisareprovidedin§Cand§D.
+3.3 Base-Level: FullyAgenticContextOptimization
+Givenskills fromthemeta-level,thebase-levelagentexecutesittoproduceacontextfunction. Theagentoperates
+k
+withinaworkspacecontaining: (1)itsskillfolders ,(2)priorbestcontextfunctionc∗ (warm-start),(3)training
+k k−1
+rolloutsR ={(x ,yˆ,eval )}obtainedbyevaluatingc∗ onD ,and(4)optionalutilityfunctionstoinvokeother
+k i i i k−1 train
+AImodels(§E).Thebase-agent’sobjectiveistoupdatethecontextfunctionbylearningfromrolloutfeedback. The
+processisfullyagenticandguidedbythecurrentskill:
+c
+k
+= ENGINEER(τ,s
+k
+;c∗
+k−1
+,R
+k
+). (5)
+5
+
+--- Page 6 ---
+Algorithm1MetaContextEngineering(MCE)
+Require: Taskspecificationτ,dataD =D ∪D ,iterationsK
+train val
+1: InitializeskilldatabaseH 0 ←∅,bestcontextc∗ 0 ←∅
+2: fork =1,...,K do
+3: //Meta-level: evolveskill
+4: s k ← CROSSOVER(τ,H k−1 )
+5: //Base-level: executeskilltoproducecontext
+6: R k ← ROLLOUT(c∗ k−1 ;D train )
+7: c k ← ENGINEER(τ,s k ;c∗ k−1 ,R k )
+8: //Evaluateandupdatedatabase
+9: J k train ←J(c k ;D train ), J k val ←J(c k ;D val )
+10: H k ←H k−1 ∪{(s k ,c k ,J k train,J k val)}
+11: c∗ k ←argmax c∈{c∗ k−1 ,ck} Jval(c)
+12: endfor
+13: return Bestcontextfunctionc∗ andcorrespondingskill
+K
+Here, a context function is instantiated as a collection of files in a designated directory, including both static and
+dynamiccomponents. Staticcomponentsρmayincludeknowledgebases,decisionrules,orexamples,whiledynamic
+operatorsF mayimplementretrieval,filtering,orcompositionlogic. Thecodeandfile-basedrepresentationimposes
+nostructuralconstraints,enablingarbitrarycomputationalproceduresforcontextgenerationandmanipulation. This
+standsincontrasttopriormethodsthatspecifyrigidcontextrepresentationsandoptimizationworkflows.
+3.4 AlgorithmicOrchestration
+Algorithm1summarizestheiterativeMCEprocedure. Eachiterationconsistsofthreephases: (1)skillevolution,where
+themeta-agentgeneratess byanalyzingthetaskspecificationτ andskillhistoryH ; (2)contextoptimization,
+k k−1
+wheretrainingrolloutsareprogrammaticallyperformedandthebase-agentexecutess toproducecontextfunctionc ;
+k k
+and(3)evaluation,wherec isassessedonthevalidationdatasettoupdatetheskilldatabaseandtrackthebest-so-far
+k
+solutionc∗. Trainingdatabatchingcanbeoptionallyadoptedforthebase-agentwhendatasetsizeislarge. Overall,the
+k
+dual-leveloptimizationimplementsasimplehistory-informed(1+1)-ES:ateachiteration,agenticcrossovercan
+referencetheentireskillhistoryH ;asingleoffspringcontextc isgeneratedandcomparedagainstthecurrentbest
+k−1 k
+c∗ ,withthebetteroneretained. Whileweadoptthisstrategyforsimplicity,moreadvancedsearchalgorithmsmay
+k−1
+furtherimproveperformance.
+Bothmetaandbase-leveladoptfullyagenticoptimizations: eachagentinteractswithaprogrammingenvironment
+through a standard tool set T = {Read, Write, Edit, Bash, Glob, Grep, TodoWrite} and produces outputs by
+manipulating a file system workspace. The read/write permissions of both agents are strictly scoped according to
+theirrespectiverolesandthecurrentiteration. Thisdesigniscompatiblewithmodernagenticframeworkssuchas
+ClaudeAgentSDK[Anthropic,2025a]andLangChainDeepAgents[langchain-ai,2025],enablingstraightforward
+integration into existing infrastructure. To facilitate programmatic invocation during rollouts and evaluations, we
+requirethebase-agenttoimplementcallableinterface(s)withpredefinedinput-outputsignatures;theseinterfacescan
+betask-specificandflexiblydefined. Theyarevalidateduponcompletionofeachbase-agentexecution.
+4 Experiments
+4.1 ExperimentalSetup
+TasksandDatasets. WeevaluateMCEacrossfivebenchmarksspanningdifferentdomains(financial,chemistry,
+medicine,law,andAIsafety)todemonstrateitsversatilityandgenerality. Unlessotherwisespecified,weadhereto
+theoriginaltrain/val/testsplitsbutusedatasubsetsduetocomputationalbudgetconstraints. Allexperimentsusethe
+samedatasetsinthesameorderduringsequentialprocessingtoensurefaircomparisonacrossbaselines. Weinclude
+ground-truthlabelsforCEmethodswhenapplicable. Detailsofthedatasetsanddataprocessingareprovidedin§A.
+Webrieflydescribethedatasetsbelow. (1)FiNER(Financial)[Loukasetal.,2022]requireslabelingtokensinXBRL
+financialdocumentswithitsentitytypes. Wereportthepass@1predictionaccuracy. (2)USPTO-50k(Chemistry)
+[Schneideretal.,2016]requirespredictingprecursorreactantsfromproductmolecules. Wereportthepass@1exact
+matchaccuracy. (3)Symptom2Disease(Medicine)[GretelAI,2023]requirespredictingdiseasesfrompatientsymptom
+descriptionsacross22diseasecategories. Wereportpass@1predictionaccuracy. (4)LawBench(Law)[Feietal.,2024]
+6
+
+--- Page 7 ---
+isacomprehensiveChineselegalbenchmark. WeusethecriminalchargepredictionsubtaskfromLawBench,and
+reportmicro-F1score. (5)AEGIS2(AISafety)[Ghoshetal.,2025]requiresclassifyinguserpromptsassafeorunsafe
+andidentifyingspecificviolationcategories. WereporttheF1score.
+Baselines. WecompareMCEagainstthefollowingbaselines. Toensurefaircomparisons,weadheretothesuggested
+implementationsinACE[Zhangetal.,2026],usetheidenticalinitialcontextorprompttemplates,andallowatraining
+budgetnolessthanthatusedinMCE.(1)BaseModel: Zero-shotevaluationusingthesamepromptasMCEbutwithout
+learnedcontext. (2)In-ContextLearning(ICL):Providestaskdemonstrationsintheprompt. FollowingZhangetal.
+[2026],weincludealltrainingsamplesfittingwithinthecontextwindow. (3)MIPROv2[Opsahl-Ongetal.,2024]: We
+implementtheofficialDSPyimplementationwithauto="heavy". (4)GEPA[Agrawaletal.,2025]: Weimplementthe
+officialDSPyimplementationwithauto="heavy"andmatchMCE’stotalrolloutbudget. (5)DynamicCheatsheet
+(DC)[Suzgunetal.,2025]: Weusetheofficialimplementationincumulativemode(DC-CU).(6)ACE[Zhangetal.,
+2026]: Weusetheofficialimplementationwithoriginalparametersettings1andrunofflinetrainingfor5epochsunless
+playbookaccumulationexceedsthecontextwindoworvalidationperformanceplateaus.
+Models. FollowingZhangetal.[2026],weuseDeepSeekV3.1[Liuetal.,2024a]asthedefaultgenerator(themodel
+performinginferenceduringtrainingandtesting)acrossallmethodsandbenchmarks. ForAEGIS2,safetyguardrails
+necessitatelightweightmodels;weuseQwen3-8B[Team,2025]asthegeneratoracrossallmethods. Thereflector
+modelisconsistentlysettoDeepSeekV3.1. MCEadditionallyrequiresanagenticmodel; weuseMiniMaxM2.1
+[MiniMaxAI,2025]bydefault. MCEbase-agentsareallowedtoinvokeDeepSeekV3.1duringitsexecution. All
+modelsareaccessedviaOpenRouter[OpenRouter,Inc.,2025]. In§4.3,weshowthatMiniMaxM2.1doesnotimprove
+ACE,rulingoutknowledgetransferfromtheagenticmodelasthesourceofMCE’sgains.
+MCEInstantiation. Inexperiments,MCEoptimizescontextforfiveepochs. WeinstantiatetheMCEagentsusing
+theClaudeAgentSDK[Anthropic,2025a]. TomaintainmethodologicalconsistencywithCEbaselinesandenablefair
+comparison,wedefinethecontextinterfaceasaone-shotretrievalfunction: query→context. Thesystemprompts
+forMCEagentsunderthisinstantiationaregivenin§B.
+EvaluationSettings. Weevaluateallmethodsundertwocomplementarysettings[Zhangetal.,2026]. (1)Offline:
+CEmethodshaveaccesstoatrainingsetanditerateoveritformultipleepochstooptimizecontextbeforeevaluation
+onaheld-outtestset. (2)Online: CEmethodsprocessthetestsetsequentially,withperformancemeasuredonlyon
+eachinstance’sfirstinference. ForMCE,thebase-levelagentaccumulatesallprocessedinstancesinitsfilesystemfor
+continuouslearning. WeevaluatetwoMCEvariants: oneusingafixedskillgeneratedbasedontaskspecifications,and
+anotherwherethebaseagentoperatesautonomouslywithoutskillguidance.
+4.2 MainResults
+4.2.1 ContextPerformance
+Table1presentsourevaluationofcontextperformanceacrossmethodsandbenchmarks.Wesummarizeourobservations
+below. WealsorefertosomeoftheresultsinTable2,whichwewillrevisitin§4.2.2.
+Obs.❶MCEsubstantiallyimprovesbaseLLMsfordomainadaptation. MCEachieves89.1%averagerelative
+improvementoverthebasemodel(DeepSeek-V3.1)acrossthefivebenchmarks. Thegainsareevenmorepronounced
+forsmallermodelssincetheymaylackbasicdomainknowledgewithoutCE.AsshowninTable2,Gemma3-4Bwith
+MCEcontextachieves172.6%averagerelativegain.
+Obs.❷MCEconsistentlyoutperformsallbaselinesacrossbenchmarksandsettings. MCEranksfirstonallfive
+benchmarksintheofflinesetting,with89.1%averagerelativegaincomparedto70.7%forACE(second-best). Inthe
+onlinesetting,MCEmaintainsleadershipwith74.1%averagegainversusACE’s41.1%. Thisconsistentsuperiority
+acrossdiversedomainsdemonstratesMCE’srobustnessasageneral-purposeCEframework.
+Obs.❸MCEadaptstotask-specificrequirements,whilebaselinesexhibitinconsistentperformanceduetotheir
+fixedinductivebiases. Baselinesshowinconsistentrankingsacrosstasksbecausetheirhard-codedagenticharnesses
+suitonlycertainproblemstructures.FiNERdemandsdeepreflectionandpatternabstraction;simplein-contextimitation
+fails(ICLperformspoorly),whileACE’sreflection-curationloopexcels.Symptom2Diseasebenefitsfromrawexamples
+duetohighsemanticsimilaritybetweentrainandtestinstances;here,ACEunderperformsevenICL,asitsreflection
+overheadaddsnoisewithoutbenefit. OnAegis2.0, thelightweightgenerator(Qwen3-8B)favorsconciseprompts,
+1https://github.com/ace-agent/ace
+7
+
+--- Page 8 ---
+Table1: Contextperformanceondifferentbenchmarks. Avg. Rel. Gainmeasuresthemeanrelativeimprovementover
+thebasemodelacrossallbenchmarks. Best and second-best resultsarehighlighted.
+Method FiNER USPTO50k Symptom2Disease LawBench Aegis2.0 Avg. Rel.
+Acc.%↑ Acc.%↑ Acc.%↑ Micro-F1↑ F1↑ Gain%↑
+BaseModel 58.0 6.0 63.7 0.36 0.54 –
+OfflineSetting
+ICL 64.0(+6.0) 9.0(+3.0) 84.4 (+20.7) 0.57(+.21) 0.59(+.05) 32.1
+MIPROv2 69.0(+11.0) 14.0(+8.0) 73.1(+9.4) 0.60(+.24) 0.59(+.05) 48.6
+GEPA 66.0(+8.0) 15.0(+9.0) 70.8(+7.1) 0.69 (+.33) 0.76 (+.22) 61.5
+ACE 71.0 (+13.0) 18.0 (+12.0) 79.2(+15.5) 0.65(+.29) 0.68(+.14) 70.7
+MCE 75.0 (+17.0) 20.0 (+14.0) 89.2 (+25.5) 0.70 (+.34) 0.80 (+.26) 89.1
+OnlineSetting
+DC 61.0(+3.0) 14.0(+8.0) 73.1(+9.4) 0.46(+.10) 0.53(-.01) 35.8
+ACE 64.0(+6.0) 13.0(+7.0) 62.3(-1.4) 0.63(+.27) 0.57(+.03) 41.1
+MCE(w/oskills) 67.0 (+9.0) 18.0 (+12.0) 76.9 (+13.2) 0.70 (+.34) 0.68 (+.14) 71.3
+MCE 68.0 (+10.0) 20.0 (+14.0) 76.4 (+12.7) 0.66 (+.30) 0.63 (+.09) 74.1
+Table2: Strong-to-weakcontexttransferability. WetraincontextsusingDeepSeek-V3.1asthegeneratorandtransfer
+them to smaller models. Results show performance across three benchmarks (Aegis2 excluded as it already uses
+Qwen3-8B;USPTO50kexcludedasbothMCEandACEproducecontextsthatexceedsmallermodels’effectivecontext
+length,andthetaskcomplexitypreventssmallermodelsfromproducingvalidanswers). Avg. Rel. Dropmeasuresthe
+meanrelativeperformancedegradationwhentransferringfromDeepSeek-V3.1tosmallermodelswithinthesame
+method. Best resultsarehighlighted.
+Model Method FiNER Symptom2Disease LawBench Avg. Rel. Avg. Rel.
+Acc.%↑ Acc.%↑ Micro-F1↑ Gain%↑ Drop%↓
+BaseModel 58.0 63.7 0.36 – –
+DeepSeek-V3.1 ACE 71.0(+13.0) 79.2(+15.5) 0.65(+.29) 42.4 –
+MCE 75.0 (+17.0) 89.2 (+25.5) 0.70 (+.34) 54.6 –
+BaseModel 56.0 65.1 0.24 – –
+Llama3.3-70B ACE 71.0(+15.0) 68.4(+3.3) 0.19(-.05) 3.7 28.1
+MCE 74.0 (+18.0) 82.1 (+17.0) 0.27 (+.03) 23.6 23.6
+BaseModel 59.0 65.6 0.27 – –
+Qwen3-8B ACE 63.0(+4.0) 72.2(+6.6) 0.32(+.05) 11.8 23.6
+MCE 71.0 (+12.0) 80.2 (+14.6) 0.45 (+.18) 36.4 17.1
+BaseModel 17.0 51.9 0.01 – –
+Gemma3-4B ACE 64.0(+47.0) 51.4(-0.5) 0.00(-.01) 58.5 48.3
+MCE 65.0 (+48.0) 70.3 (+18.4) 0.03 (+.02) 172.6 43.4
+givingGEPA’sbrevitybiasanedgeoverACE.MCE’srobusttop-rankacrossalltasksindicatesitsabilitytodiscover
+task-appropriatestrategiesbeyondanysingleheuristic. Weprovidedetailedanalysisin§D.
+Obs.❹ MCE-enhanced general LLMs can surpass domain-specific vertical models. On benchmarks where
+specializedmodelsareavailable,MCE-enhancedgeneralLLMsoutperformthem. LawBenchreportsthatthebest
+legal-specific model achieves 0.56 F1, while MCE reaches 0.70. On Aegis2.0, Qwen3-8B with MCE attains 0.80
+F1,surpassingLlamaGuard38B(0.72),adedicatedsafetyguardrailmodel. Thissuggeststhatlearnedcontextcan
+substituteforexpensivedomain-specificfine-tuning.
+8
+
+--- Page 9 ---
+78
+76
+74
+72
+70
+68
+66
+64
+62
+0 20K 40K 60K 80K
+Context Size (# Tokens)
+)%(
+ycaruccA
+ACE
+MCE-L MCE (Ours) 95
+MCE-S
+ACE (Epoch 1) 90
+ACE (Epoch 5)
+85 ACE (Epoch 2)
+80
+ACE (Step 20)
+75
+0 250 500 750 1000 1250 1500 1750 2000
+# Rollouts
+Figure3: ContextefficiencyonFiNER.Weplotcontext
+accuracyvs. contexttokens. ForMCE,weincludethe
+contextgeneratedintwoiterations. ForACE,weinclude
+contextatStep20ofEpoch1,endofEpoch1,2,and5.
+)%(
+ycaruccA
+gniniarT
+1.9h
+25.8h
+95% 13.6× faster training
+ACE peak: 94%
+MCE reaches 95% at 450 rollouts
+(4.8× more efficient)
+ACE
+MCE (Ours)
+Figure4: TrainingefficiencyonFiNER.Weplotbest-so-
+fartrainingsetaccuracyvs. thenumberofrollouts(for
+MCE,thisincludesbothtrainingandvalidationinference).
+Wealsoindicatethetotaltrainingduration.
+4.2.2 ContextAdaptability,Efficiency,andTransferability
+Obs.❺MCEisfreefromtheinductivebiasesincontextlengthimposedbypriormethods. PriorCEmethods
+exhibitinherentbiases: GEPA[Agrawaletal.,2025]tendstowardbrevity,typicallyproducingaround1–2Ktokens,
+whileACE[Zhangetal.,2026]suffersfromcontextbloat,reachingupto80Ktokensafter5epochsofoptimization
+(whenusing200traininginstances). Incontrast,MCElearnstoproducecontextofsuitablelengthforeachtask. The
+twomosteffectivecontextsonFiNERhave1.5Kand20Ktokens(Fig.3),whilethoseonLawBenchandUSPTO50k
+reach44Kand86Ktokens. TheseresultsdemonstratethatMCEadaptscontextlengthflexiblytotaskrequirements,
+overcomingtheinductivebiasesofpriormethods.
+Obs.❻MCEproducesmoreefficientcontextsthanACE.Fig.3comparescontextefficiencyonFiNER.Atcomparable
+contextlengths(∼1.5Ktokens), MCE-Sachieves73%accuracyversus65%forACE(Step20). Moreover, MCE-
+L reaches 75% accuracy with only 20K tokens, outperforming ACE even after 5 epochs of optimization (70% at
+79Ktokens). WeattributeMCE’ssuperiorcontextqualitytotwofactors: (1)theagentmaintainsaglobalviewof
+accumulatedcontext,enablingittorestructureandrefineexistingknowledgeratherthanblindlyappendingnewitems;
+and(2)MCEagenticallyprocesseslargebatchesoftrainingrollouts,aggregatingfeedbackacrossmanyexamples
+beforeupdatingthecontext. Together,thesepropertiesyieldcoherent,non-redundantcontexts,avoidingtheredundancy
+anddegradationobservedinACE’sadditivecuration.
+Obs.❼MCEcontextstransferbetterfromstrongtoweakmodels. ApracticaldesideratumforCEsystemsisthe
+abilitytotransferlearnedcontextsfromstrongmodelstoweakerones,enablingaformofknowledgedistillation. As
+showninTable2,whentransferringDeepSeek-V3.1-trainedcontextstosmallermodels,MCEconsistentlyexhibits
+lowerperformancedegradationthanACE.Incontrast,ACE’stransferredcontextsoccasionallydegradeperformance
+belowthebasemodel(e.g.,LawBenchF1decreasesfrom0.24to0.19onLlama3.3-70B).WeattributeMCE’ssuperior
+transferabilityto: (1)contextefficiency—smallerLLMsstrugglewithlong-contextprocessing,andMCE’scompact
+contextsmitigatethis;and(2)generalizability—MCE’sfullyagentic,batch-leveloptimizationproduceswell-structured
+contextslessdependentonthetrainingmodel,whereasACE’srollout-specificcurationmayoverfittotheerrorpatterns
+ofthetrainingmodel.
+4.2.3 TrainingEfficiency
+WeinvestigatethetrainingefficiencyofMCEontheFiNERbenchmark(Fig.4).
+Obs.❽MCEsignificantlyreducestrainingduration. OnFiNER,MCEcompletes5trainingepochsin1.9hours
+versus 25.8hours for ACE, which isa 13.6× speedup. This speedup stems from MCE’sbatch-level optimization:
+depending on the skill, the base agent either directly analyzes training data to curate context (reading incorrect
+predictions, identifying patterns, and updating files without heavy LLM scaffolding) or writes code to parallelize
+reflectionandcurationacrosstrainingrollouts. ThiscontrastswithACE’sinstance-by-instanceoptimization.
+9
+
+--- Page 10 ---
+Obs.❾MCEisrollout-efficient. Thesamearchitecturalpropertiesthatimprovecontextquality(globalcontextview
+andbatch-leveloptimization)alsoaccelerateconvergence. OnFiNER,MCErequiresonly450rolloutstoreach95%
+trainingaccuracy,whileACEpeaksat94%after2169rollouts(4.8×fewer).
+4.3 AblationStudies
+Table3: Ablatingthebi-leveldesignofMCEonFiNER. Table4: ACEperformancewithdifferentreflector/curator
+modelsonFiNER.MiniMaxM2.1generatesmoreverbose
+Method Offline Online playbooksbutachievesloweraccuracy.
+BaseModel(zero-shot) 58.0
+DeepSeekV3.1 MiniMaxM2.1
+Checkpoint
+ACE 71.0(+13.0) 64.0(+6.0)
+#Tokens Acc(%) #Tokens Acc(%)
+MCE(w/oskills) 73.0(+15.0) 67.0(+9.0)
+Epoch1 12K 71 38K 69
+MCE(w/afixedskill) 71.0(+13.0) 68.0(+10.0)
+Epoch2 23K 69 90K 69
+MCE(full,w/evolvingskills) 75.0(+17.0) -
+Final 79K 70 114K 67
+AblatingtheBi-levelDesign(Table3). WeconductablationstudiesonFiNERtovalidateMCE’sbi-leveldesign.
+Wecomparethreevariants: (1)w/oskills: thebase-agentoperateswithoutanyskillguidance;(2)w/afixedskill: the
+base-agentfollowsasingleskillgeneratedbythemeta-agentfromtaskspecificationsalone,withoutiterativeevolution;
+and(3)full: thecompleteMCEwithevolvingskills. Notethatthefullversionisinapplicabletotheonlinesetting,as
+single-passprocessingprecludesiterativeskillevolution.
+The results reveal three findings. First, meta-level skill evolution provides a clear boost: full MCE achieves 75%
+versus73%fortheskill-lessvariantintheofflinesetting. Second,evenwithoutskillguidance,thebase-agentalone
+outperformsACE(73%vs.71%offline,67%vs.64%online),indicatingthatfullyagenticCEcanbeeffectivewithout
+manualscaffolding. Third,fixedskillsexhibithighvarianceacrosstasks(seealsoTable1),astheirqualitydependson
+taskspecificationalonewithoutlearningfromvalidationperformance.
+RulingOutModelConfounds(Table4). MCEusesMiniMaxM2.1astheagenticmodel,raisingthequestionof
+whetherperformancegainsstemfromsuperiormodelcapabilitiesratherthanMCE’smethodology. Toaddressthis,we
+replacethereflectorandcuratorinACEwithMiniMaxM2.1andcompareagainstthedefaultDeepSeekV3.1.
+TheresultsshowthatMiniMaxM2.1degradesACE’sperformance. Despitegeneratingmoreverboseplaybooks(114K
+vs.79Ktokensatcompletion),MiniMaxM2.1achieveslowerfinalaccuracy(67%vs.70%). Trainingalsoterminates
+earlier(epoch3,step73)astheplaybookexceedsthecontextwindow. Thisrulesoutknowledgetransferfromthe
+agenticmodelasthesourceofMCE’sgains. WeconcludethatMCE’sadvantagesstemfromitsmethodologicaldesign,
+though these advantages require an agentic model capable of interacting with the programming environment, and
+producingvalidfilesandcode.
+5 ConclusionandDiscussion
+ThisworkpresentsMetaContextEngineering(MCE),abi-leveloptimizationframeworkthatadvancesbeyondstatic
+context representations and optimization procedures in prior CE methods. MCE introduces learnable CE skills,
+represents context as files and code, employs fully-agentic bi-level optimization, orchestrates dual agents under
+an evolutionary framework, and co-evolves CE skills and context artifacts. Our experiments across five domains
+demonstrateMCE’sconsistentsuperiority. MCEachieves5.6–53.8%relativeimprovementoverSOTAmethods,witha
+meangainof16.9%. Additionally,MCEexhibitssuperiorcontextadaptability,efficiency,andtransferability,aswellas
+substantialtrainingspeedups. TheseresultsvalidatethattreatingCEasalearnableagenticcapability,ratherthana
+fixedworkflowwithpredefinedschemas,unlocksagenericdesignspaceforoptimizingagenticAIsystems.
+Limitations. MCE is particularly advantageous for tasks centered on domain knowledge acquisition and pattern
+matching,asitslearnableskillseffectivelycapturedatacharacteristicsandorganizedomain-specificstructures. How-
+ever, MCE may not offer advantages on reasoning-intensive tasks, as existing manually crafted agentic harnesses
+(characterizedbyiterativetrials,errorcorrection,andsystematicreflection)arealreadywell-suitedforsuchproblems.
+Second, MCE may struggle in scenarios where rollouts involve very long and complex trajectories. Such settings
+demandfine-grainedcreditassignmentanddetailedtrajectoryanalysis,whichbatch-levelfullyagenticCEmayfailto
+performeffectively. Wenotethatthislimitationstemsfromthecapabilitiesoftheunderlyingagentmodelratherthan
+10
+
+--- Page 11 ---
+theMCEframeworkitself;asagenticmodelscontinuetoimprove,thisconstraintisexpectedtodiminish. Weexpect
+MCEtoscalebetterwiththeadvancementofagenticmodels.
+FutureWork. Weidentifythreemeaningfuldirectionsforfutureresearch. First,theagenticskillevolutionparadigm
+extends beyond CE. Prior evolutionary approaches target specific solutions, heuristic code, or search algorithms;
+MCEinsteadevolvesskills,ahigher-orderandintegratedabstractionessentialforgeneralAI.Whilestaticskillsare
+well-recognized[Anthropic,2025b,MuratcanKoylan,2025],MCEisamongthefirsttodynamicallyevolvethem,
+bridging manual skill engineering and autonomous self-improvement. The paradigm of evolutionary skills could
+generalizetootheragenticcapabilitiesandtaskdomains. Second,ourgeneratorcurrentlyusesone-shotinferencefor
+consistencywithCEbaselines. SinceMCEstorescontextasfiles,anagenticgeneratorthatinteractsdirectlywiththese
+artifactscouldbemoreeffective. ExtendingMCEtoco-evolvecontextutilizationskillsalongsidecontextlearning
+skillsisa promisingdirection. Third, progressivedisclosureis nativetoagentskills: agents loadskilldetailsinto
+contextonlywhenrelevant. ThisenablesMCEtocomposeandscaleskillsacrossdomainswithminimaloverhead.
+Investigatingskilltransferacrosstasksandemergentbehaviorsfromskillcompositionareinterestingopenquestions.
+Takentogether,MCEreformulatesCEasalearnableagenticcapability,unlockingagenericdesignspaceforoptimizing
+generalAI.Weenvisionagentsthatnotonlyexecutetasksbutcontinuouslyrefinetheirlearningalgorithmsandmemory
+architectures,enablingopen-endedevolution.
+11
+
+--- Page 12 ---
+References
+[1] LakshyaAAgrawal,ShangyinTan,DilaraSoylu,NoahZiems,RishiKhare,KristaOpsahl-Ong,ArnavSinghvi,
+Herumb Shandilya, Michael J Ryan, Meng Jiang, et al. Gepa: Reflective prompt evolution can outperform
+reinforcementlearning. arXivpreprintarXiv:2507.19457,2025.
+[2] Qingyao Ai, Yichen Tang, Changyue Wang, Jianming Long, Weihang Su, and Yiqun Liu. Memorybench: A
+benchmarkformemoryandcontinuallearninginllmsystems. arXivpreprintarXiv:2510.17281,2025.
+[3] Anthropic. Equippingagentsfortherealworldwithagentskills. AnthropicEngineeringBlog,October2025. URL
+https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent
+-skills.
+[4] Anthropic. Claudeagentsdkoverview,2025a. URLhttps://platform.claude.com/docs/en/agent-sdk
+/overview. Accessed: 2026-01-19.
+[5] Anthropic. anthropics/skills: PublicrepositoryforAgentSkills,2025b. URLhttps://github.com/anthropic
+s/skills. Accessed: 2026-01-24.
+[6] Anthropic. Claudecodedocs. https://code.claude.com/docs/en/gitlab-ci-cd#claude-md-configu
+ration,2026. Accessed: 2026-01-20.
+[7] MichaelBolin. Unrollingthecodexagentloop,January2026. URLhttps://openai.com/index/unrolling
+-the-codex-agent-loop/. Engineeringblogpost,OpenAI.
+[8] YuzhengCai,SiqiCai,YuchenShi,ZihanXu,LichaoChen,YuleiQin,XiaoyuTan,GangLi,ZongyiLi,Haojia
+Lin,etal. Training-freegrouprelativepolicyoptimization. arXivpreprintarXiv:2510.08191,2025a.
+[9] ZhichengCai, XinyuanGuo, Yu Pei, JiangtaoFeng, JinsongSu, JiangjieChen, Ya-Qin Zhang, Wei-YingMa,
+MingxuanWang,andHaoZhou. Flex: Continuousagentevolutionviaforwardlearningfromexperience. arXiv
+preprintarXiv:2511.06449,2025b.
+[10] ShipengCenandYingTan. Beyondalgorithmevolution: Anllm-drivenframeworkfortheco-evolutionofswarm
+intelligenceoptimizationalgorithmsandprompts. arXivpreprintarXiv:2512.09209,2025.
+[11] DaixuanCheng,ShaohanHuang,YuxianGu,HuatongSong,GuoxinChen,LiDong,WayneXinZhao,Ji-Rong
+Wen,andFuruWei. Llm-in-sandboxelicitsgeneralagenticintelligence. arXivpreprintarXiv:2601.16206,2026.
+[12] PrateekChhikara,DevKhant,SaketAryan,TaranjeetSingh,andDeshrajYadav. Mem0: Buildingproduction-
+readyaiagentswithscalablelong-termmemory. arXivpreprintarXiv:2504.19413,2025.
+[13] JinyuanFang,YanwenPeng,XiZhang,YingxuWang,XinhaoYi,GuibinZhang,YiXu,BinWu,SiweiLiu,
+ZihaoLi,etal. Acomprehensivesurveyofself-evolvingaiagents: Anewparadigmbridgingfoundationmodels
+andlifelongagenticsystems. arXivpreprintarXiv:2508.07407,2025.
+[14] ZhiweiFei,XiaoyuShen,DaweiZhu,FengzheZhou,ZhuoHan,AlanHuang,SongyangZhang,KaiChen,Zhixin
+Yin,ZongwenShen,etal. Lawbench: Benchmarkinglegalknowledgeoflargelanguagemodels. InProceedings
+ofthe2024conferenceonempiricalmethodsinnaturallanguageprocessing,pages7933–7962,2024.
+[15] Huan-angGao,JiayiGeng,WenyueHua,MengkangHu,XinzheJuan,HongzhangLiu,ShilongLiu,JiahaoQiu,
+XuanQi,YiranWu,etal. Asurveyofself-evolvingagents: Onpathtoartificialsuperintelligence. arXivpreprint
+arXiv:2507.21046,2025.
+[16] Shaona Ghosh, Prasoon Varshney, Makesh Narsimhan Sreedhar, Aishwarya Padmakumar, Traian Rebedea,
+JibinRajanVarghese,andChristopherParisien. Aegis2.0: Adiverseaisafetydatasetandriskstaxonomyfor
+alignmentofllmguardrails. arXivpreprintarXiv:2501.09004,2025.
+[17] GretelAI. Symptomtodiagnosisdataset. https://huggingface.co/datasets/gretelai/symptom_to_
+diagnosis,2023. Accessed: 2026-01-22.
+[18] QingyanGuo,RuiWang,JunliangGuo,BeiLi,KaitaoSong,XuTan,GuoqingLiu,JiangBian,andYujiuYang.
+Connecting large language models with evolutionary algorithms yields powerful prompt optimizers. In The
+TwelfthInternationalConferenceonLearningRepresentations,2024.
+12
+
+--- Page 13 ---
+[19] ShuhanGuo,NanYin,JamesKwok,andQuanmingYao. Nested-refinementmetamorphosis: Reflectiveevolution
+forefficientoptimizationofnetworkingproblems. InFindingsoftheAssociationforComputationalLinguistics:
+ACL2025,pages17398–17429,2025.
+[20] AndréHottung,FedericoBerto,ChuanboHua,NayeliGastZepeda,DanielWetzel,MichaelRömer,HaoranYe,
+DavideZago,MichaelPoli,StefanoMassaroli,etal. Vrpagent: Llm-drivendiscoveryofheuristicoperatorsfor
+vehicleroutingproblems. arXivpreprintarXiv:2510.07073,2025.
+[21] Mengkang Hu, Tianxing Chen, Qiguang Chen, Yao Mu, Wenqi Shao, and Ping Luo. Hiagent: Hierarchical
+workingmemorymanagementforsolvinglong-horizonagenttaskswithlargelanguagemodel. InProceedings
+ofthe63rdAnnualMeetingoftheAssociationforComputationalLinguistics(Volume1: LongPapers),pages
+32779–32798,2025a.
+[22] YuyangHu,ShichunLiu,YanweiYue,GuibinZhang,BoyangLiu,FangyiZhu,JiahangLin,HonglinGuo,Shihan
+Dou,ZhihengXi,etal. Memoryintheageofaiagents. arXivpreprintarXiv:2512.13564,2025b.
+[23] QishuoHua,LyumanshanYe,DayuanFu,YangXiao,XiaojieCai,YunzeWu,JifanLin,JunfeiWang,andPengfei
+Liu. Contextengineering2.0: Thecontextofcontextengineering. arXivpreprintarXiv:2510.26493,2025.
+[24] Minki Kang, Wei-Ning Chen, Dongge Han, Huseyin A Inan, Lukas Wutschitz, Yanzhi Chen, Robert Sim,
+andSaravanRajmohan. Acon: Optimizingcontextcompressionforlong-horizonllmagents. arXivpreprint
+arXiv:2510.00615,2025.
+[25] OmarKhattab,ArnavSinghvi,ParidhiMaheshwari,ZhiyuanZhang,KeshavSanthanam,SriVardhamanan,Saiful
+Haq,AshutoshSharma,ThomasTJoshi,HannaMoazam,etal. Dspy: Compilingdeclarativelanguagemodel
+callsintoself-improvingpipelines. arXivpreprintarXiv:2310.03714,2023.
+[26] langchain-ai. langchain-ai/deepagents: Deepagents,2025. URLhttps://github.com/langchain-ai/deep
+agents. Accessed: 2026-01-19.
+[27] RobertTjarkoLange,YukiImajuku,andEdoardoCetin. Shinkaevolve: Towardsopen-endedandsample-efficient
+programevolution. arXivpreprintarXiv:2509.19349,2025.
+[28] Kuang-HueiLee,IanFischer,Yueh-HuaWu,DaveMarwood,ShumeetBaluja,DaleSchuurmans,andXinyun
+Chen. Evolvingdeeperllmthinking. arXivpreprintarXiv:2501.09891,2025.
+[29] ZhiyuLi,ChenyangXi,ChunyuLi,DingChen,BoyuChen,ShichaoSong,SiminNiu,HanyuWang,JiaweiYang,
+ChenTang,etal. Memos: Amemoryosforaisystem. arXivpreprintarXiv:2507.03724,2025.
+[30] AixinLiu,BeiFeng,BingXue,BingxuanWang,BochaoWu,ChengdaLu,ChenggangZhao,ChengqiDeng,
+ChenyuZhang,ChongRuan,etal. Deepseek-v3technicalreport. arXivpreprintarXiv:2412.19437,2024a.
+[31] Fei Liu, Xialiang Tong, Mingxuan Yuan, Xi Lin, Fu Luo, Zhenkun Wang, Zhichao Lu, and Qingfu Zhang.
+Evolutionofheuristics: towardsefficientautomaticalgorithmdesignusinglargelanguagemodel. InProceedings
+ofthe41stInternationalConferenceonMachineLearning,pages32201–32223,2024b.
+[32] YixiuLiu,YangNan,WeixianXu,XiangkunHu,LyumanshanYe,ZhenQin,andPengfeiLiu. Alphagomoment
+formodelarchitecturediscovery. arXivpreprintarXiv:2507.18074,2025.
+[33] AI@MetaLlamaTeam. Thellama3herdofmodels,2024. URLhttps://arxiv.org/abs/2407.21783.
+[34] LefterisLoukas,ManosFergadiotis,IliasChalkidis,EiriniSpyropoulou,ProdromosMalakasiotis,IonAndrout-
+sopoulos,andGeorgiosPaliouras. Finer: Financialnumericentityrecognitionforxbrltagging. InProceedings
+ofthe60thAnnualMeetingoftheAssociationforComputationalLinguistics(Volume1: LongPapers),pages
+4419–4431,2022.
+[35] Yuxing Lu, J. Ben Tamo, Weichen Zhao, Nan Sun, Yishan Zhong, Wenqi Shi, Jinzhuo Wang, and May D.
+Wang. Llm-as-rnn: A recurrent language model for memory updates and sequence prediction, 2026. URL
+https://arxiv.org/abs/2601.13352.
+[36] YechengJasonMa,WilliamLiang,GuanzhiWang,De-AnHuang,OsbertBastani,DineshJayaraman,YukeZhu,
+LinxiFan,andAnimaAnandkumar. Eureka: Human-levelrewarddesignviacodinglargelanguagemodels. In
+TheTwelfthInternationalConferenceonLearningRepresentations,2024.
+13
+
+--- Page 14 ---
+[37] Zihan Ma, Zhikai Zhao, Chuanbo Hua, Federico Berto, and Jinkyoo Park. Judgeflow: Agentic workflow
+optimizationviablockjudge. arXivpreprintarXiv:2601.07477,2026.
+[38] Manus. Manus: Autonomousaiagentplatform,2025. URLhttps://manus.im/app. Accessed: 2026-01-19.
+[39] LingruiMei,JiayuYao,YuyaoGe,YiweiWang,BaolongBi,YujunCai,JiazhiLiu,MingyuLi,Zhong-ZhiLi,
+DuzhenZhang,etal.Asurveyofcontextengineeringforlargelanguagemodels.arXivpreprintarXiv:2507.13334,
+2025.
+[40] MiniMaxAI. Minimax-m2.1modelcard. OnlinemodelcardatHuggingFace,2025. https://huggingface.
+co/MiniMaxAI/MiniMax-M2.1.
+[41] MuratcanKoylan. Agent-Skills-for-Context-Engineering,2025. URLhttps://github.com/muratcankoyla
+n/Agent-Skills-for-Context-Engineering. Accessed: 2026-01-24.
+[42] AlexanderNovikov,NgânVu˜,MarvinEisenberger,EmilienDupont,Po-SenHuang,AdamZsoltWagner,Sergey
+Shirobokov,BorislavKozlovskii,FranciscoJRRuiz,AbbasMehrabian,etal. Alphaevolve: Acodingagentfor
+scientificandalgorithmicdiscovery. arXivpreprintarXiv:2506.13131,2025.
+[43] OpenRouter,Inc. Openrouter: Theunifiedinterfaceforllms. https://openrouter.ai/,2025. Accessed:
+2026-01-16.
+[44] KristaOpsahl-Ong,MichaelJRyan,JoshPurtell,DavidBroman,ChristopherPotts,MateiZaharia,andOmar
+Khattab. Optimizinginstructionsanddemonstrationsformulti-stagelanguagemodelprograms. InEMNLP,
+2024.
+[45] BernardinoRomera-Paredes,MohammadaminBarekatain,AlexanderNovikov,MatejBalog,MPawanKumar,
+EmilienDupont,FranciscoJRRuiz,JordanSEllenberg,PengmingWang,OmarFawzi,etal. Mathematical
+discoveriesfromprogramsearchwithlargelanguagemodels. Nature,625(7995):468–475,2024.
+[46] NadineSchneider,NikolausStiefl,andGregoryALandrum.What’swhat:The(nearly)definitiveguidetoreaction
+roleassignment. Journalofchemicalinformationandmodeling,56(12):2336–2346,2016.
+[47] NoahShinn,FedericoCassano,AshwinGopinath,KarthikNarasimhan,andShunyuYao. Reflexion: Language
+agentswithverbalreinforcementlearning. AdvancesinNeuralInformationProcessingSystems,36:8634–8652,
+2023.
+[48] WeiweiSun,MiaoLu,ZhanLing,KangLiu,XuesongYao,YimingYang,andJiecaoChen. Scalinglong-horizon
+llmagentviacontext-folding. arXivpreprintarXiv:2510.11967,2025.
+[49] MiracSuzgun,MertYuksekgonul,FedericoBianchi,DanJurafsky,andJamesZou.Dynamiccheatsheet:Test-time
+learningwithadaptivememory. arXivpreprintarXiv:2504.07952,2025.
+[50] QwenTeam. Qwen3technicalreport,2025. URLhttps://arxiv.org/abs/2505.09388.
+[51] XingyaoWang,YangyiChen,LifanYuan,YizheZhang,YunzhuLi,HaoPeng,andHengJi. Executablecode
+actionselicitbetterllmagents. InForty-firstInternationalConferenceonMachineLearning,2024a.
+[52] ZoraZhiruoWang,JiayuanMao,DanielFried,andGrahamNeubig. Agentworkflowmemory. arXivpreprint
+arXiv:2409.07429,2024b.
+[53] JasonWei. Asymmetryofverificationandverifier’slaw,jul2025. URLhttps://www.jasonwei.net/blog/
+asymmetry-of-verification-and-verifiers-law. BlogpostonAItaskverifiabilityandverifier’srule.
+Accessed: 2026-01-19.
+[54] Tianxin Wei, Noveen Sachdeva, Benjamin Coleman, Zhankui He, Yuanchen Bei, Xuying Ning, Mengting
+Ai, Yunzhe Li, Jingrui He, Ed H Chi, et al. Evo-memory: Benchmarking llm agent test-time learning with
+self-evolvingmemory. arXivpreprintarXiv:2511.20857,2025.
+[55] QingyunWu,GaganBansal,JieyuZhang,YiranWu,BeibinLi,ErkangZhu,LiJiang,XiaoyunZhang,Shaokun
+Zhang,JialeLiu,etal. Autogen: Enablingnext-genllmapplicationsviamulti-agentconversations. InFirst
+ConferenceonLanguageModeling,2024a.
+[56] XingyuWu,Sheng-haoWu,JibinWu,LiangFeng,andKayChenTan. Evolutionarycomputationintheeraof
+largelanguagemodel: Surveyandroadmap. IEEETransactionsonEvolutionaryComputation,2024b.
+14
+
+--- Page 15 ---
+[57] LindongXie, YangZhang, ZhixianTang, EdwardChung, GenghuiLi, andZhenkunWang. Co-evolutionof
+largelanguagemodelsandconfigurationstrategiestoenhancesurrogate-assistedevolutionaryalgorithm. In
+Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V. 2, pages
+3321–3332,2025.
+[58] WujiangXu,ZujieLiang,KaiMei,HangGao,JuntaoTan,andYongfengZhang. A-mem: Agenticmemoryfor
+llmagents. arXivpreprintarXiv:2502.12110,2025a.
+[59] ZhenxingXu,YizheZhang,WeidongBao,HaoWang,MingChen,HaoranYe,WenzhengJiang,HuiYan,and
+JiWang. Autoep: Llms-drivenautomationofhyperparameterevolutionformetaheuristicalgorithms. arXiv
+preprintarXiv:2509.23189,2025b.
+[60] JianYang,XianglongLiu,WeifengLv,KenDeng,ShawnGuo,LinJing,YizhiLi,SharkLiu,XianzhenLuo,
+YuyuLuo,etal. Fromcodefoundationmodelstoagentsandapplications: Acomprehensivesurveyandpractical
+guidetocodeintelligence. arXivpreprintarXiv:2511.18538,2025.
+[61] JohnYang,CarlosEJimenez,AlexanderWettig,KilianLieret,ShunyuYao,KarthikNarasimhan,andOfirPress.
+Swe-agent: Agent-computerinterfacesenableautomatedsoftwareengineering. AdvancesinNeuralInformation
+ProcessingSystems,37:50528–50652,2024.
+[62] HaoranYe,JiaruiWang,ZhiguangCao,FedericoBerto,ChuanboHua,HaeyeonKim,JinkyooPark,andGuojie
+Song.Reevo:Largelanguagemodelsashyper-heuristicswithreflectiveevolution.Advancesinneuralinformation
+processingsystems,37:43571–43608,2024.
+[63] MertYuksekgonul,FedericoBianchi,JosephBoen,ShengLiu,PanLu,ZhiHuang,CarlosGuestrin,andJames
+Zou. Optimizinggenerativeaibybackpropagatinglanguagemodelfeedback. Nature,639(8055):609–616,2025.
+[64] AlexLZhang,TimKraska,andOmarKhattab. Recursivelanguagemodels. arXivpreprintarXiv:2512.24601,
+2025a.
+[65] GuibinZhang,KaijieChen,GuanchengWan,HengChang,HongCheng,KunWang,ShuyueHu,andLeiBai.
+Evoflow: Evolvingdiverseagenticworkflowsonthefly. arXivpreprintarXiv:2502.07373,2025b.
+[66] Jenny Zhang, Shengran Hu, Cong Lu, Robert Lange, and Jeff Clune. Darwin godel machine: Open-ended
+evolutionofself-improvingagents. arXivpreprintarXiv:2505.22954,2025c.
+[67] Jiayi Zhang, Jinyu Xiang, Zhaoyang Yu, Fengwei Teng, XiongHui Chen, Jiaqi Chen, Mingchen Zhuge, Xin
+Cheng,SiruiHong,JinlinWang,BingnanZheng,BangLiu,YuyuLuo,andChenglinWu. Aflow: Automating
+agenticworkflowgeneration. InY.Yue,A.Garg,N.Peng,F.Sha,andR.Yu,editors,InternationalConference
+onRepresentationLearning,volume2025,pages34040–34077,2025d. URLhttps://proceedings.iclr.c
+c/paper_files/paper/2025/file/5492ecbce4439401798dcd2c90be94cd-Paper-Conference.pdf.
+[68] QizhengZhang,ChangranHu,ShubhangiUpasani,BoyuanMa,FengluHong,VamsidharKamanuru,JayRainton,
+ChenWu,MengmengJi,HanchenLi,etal. Agenticcontextengineering: Evolvingcontextsforself-improving
+languagemodels. TheFourteenthInternationalConferenceonLearningRepresentations(ICLR),2026.
+[69] ZheZhao,HaibinWen,PengkunWang,YeWei,ZaixiZhang,XiLin,FeiLiu,BoAn,HuiXiong,YangWang,
+etal. Fromunderstandingtoexcelling:Template-freealgorithmdesignthroughstructural-functionalco-evolution.
+arXivpreprintarXiv:2503.10721,2025.
+[70] Huichi Zhou, Yihang Chen, Siyuan Guo, Xue Yan, Kin Hei Lee, Zihan Wang, Ka Yiu Lee, Guchun Zhang,
+Kun Shao, Linyi Yang, et al. Memento: Fine-tuning llm agents without fine-tuning llms. arXiv preprint
+arXiv:2508.16153,2025.
+15
+
+--- Page 16 ---
+Meta Context Engineering via Agentic Skill Evolution
+(Appendix)
+A ExperimentalDetails 16
+A.1 FiNER . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 16
+A.2 USPTO-50k . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+A.3 Symptom2Disease . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 18
+A.4 LawBench . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+A.5 Aegis2 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+B Prompts 21
+C LearnedSkills 26
+D CaseStudiesandAnalysis 31
+D.1 FiNER . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 32
+D.2 USPTO50k . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 33
+D.3 Symptom2Disease . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 35
+D.4 LawBench . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38
+D.5 Aegis2.0 . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 41
+E UtilityFunctions 43
+A ExperimentalDetails
+Thissectionprovidesexperimentaldetailsforthebenchmarks. Wealsopresenttaskspecificationsforourbi-level
+agentsandgeneratorprompttemplatesusedacrossallmethods.
+A.1 FiNER
+WeutilizetheFiNERdatasetfromtheACEofficialrepository2. Tocreateachallengingevaluationbenchmarkwithin
+ourcomputationalbudget,werandomlysampleasubsetfocusingonfinancialtagsrelatedtodebtinstruments,credit
+facilities,andloan-relatedfinancialreporting,withtrain/validation/testsplitsof200/100/100instances. Eachinstanceis
+formulatedasanamedentityrecognitiontaskwherethemodelmustpredicttheappropriatefinancialtagforagiven
+entitywithinitssentencecontext. Specifically,eachqueryfollowstheformat: “Whatisthebesttagforentity‘<value>’
+insentence: ‘<sentence>’?”,wherethegroundtruthisthecorrespondingtagname.
+Thesubsetencompasses12debtandcredit-relatedfinancialtagsfromtheXBRLtaxonomy:
+1. DebtInstrumentInterestRateStatedPercentage
+2https://github.com/ace-agent/ace/tree/main/finance/data
+16
+
+--- Page 17 ---
+2. DebtInstrumentFaceAmount
+3. LineOfCreditFacilityMaximumBorrowingCapacity
+4. DebtInstrumentBasisSpreadOnVariableRate1
+5. DebtInstrumentCarryingAmount
+6. DebtInstrumentRedemptionPricePercentage
+7. LongTermDebtFairValue
+8. LongTermDebt
+9. LettersOfCreditOutstandingAmount
+10. LineOfCredit
+11. LineOfCreditFacilityCurrentBorrowingCapacity
+12. DebtInstrumentUnamortizedDiscount
+TaskSpecificationforFiNER
+TheFINERbenchmarkrequiresmappingfinancialentities(numbers,percentages,textspans)insentencestothecorrectUS
+GAAPXBRLtagfromavocabularyof139tags.Thisisachallengingsemanticclassificationtaskwhere:
+−**Largevocabulary**:139tagswithhighlysimilarnames(e.g.,‘InterestExpense‘vs‘InterestExpenseDebt‘)
+−**Semanticnuances**:Sameentitytypecanmaptodifferenttagsbasedoncontext(e.g.,debtamountscanbe‘
+DebtInstrumentFaceAmount‘,‘DebtInstrumentFairValue‘,or‘DebtInstrumentCarryingAmount‘)
+−**Longtagnames**:Tagscanbe100+characters,requiringcarefulattentiontodetail
+−**Contextdependency**:Thesurroundingsentenceprovidescriticaldisambiguationcues
+Eachtrainingsamplecontains:
+−**question**:Asentencewithahighlightedentityandthequestion"WhatisbesttagforentityXinsentence:Y?"
+−**target**:ThecorrectXBRLtag
+GeneratorPromptTemplateforFiNER
+Youareanexpertdomainproblemsolver.
+TaskContext:
+YouareXBRLexpert.HereisalistofUSGAAPtagsoptions:
+SharebasedCompensationArrangementBySharebasedPaymentAwardAwardVestingRightsPercentage,
+[...139USGAAPtagsomittedforbrevity...]
+InstructionalContext:
+{context}
+Question:{question}
+YouMUSTrespondwithavalidJSONobjectcontainingexactlytwofields:
+1."reasoning":Yourstep−by−stepanalysis
+2."final_answer":Yourconcisefinalanswer
+A.2 USPTO-50k
+WeutilizetheUSPTO-50kdataset[Schneideretal.,2016],awidely-usedbenchmarkforsingle-stepretrosynthesis
+predictionincomputationalchemistry. GivenatargetproductmoleculerepresentedinSMILESnotation, thetask
+requirespredictingtheprecursorreactantsneededtosynthesizeit. Thistaskevaluatesthemodel’sunderstandingof
+organicreactionmechanismsandchemicaltransformationpatterns.
+WefollowCaietal.[2025b]indatapreprocessing. Werandomlysample50instancesfromtheoriginaltrainingsplitfor
+training,30instancesfromthetrainingsplitforvalidation,and100instancesfromthetestsplitforevaluation. Stratified
+samplingisusedtouniformlycoverall10reactiontypes,ensuringbalancedrepresentationacrossdifferentchemical
+transformationclasses.
+17
+
+--- Page 18 ---
+TaskSpecificationforUSPTO-50k
+TheUSPTO−50kbenchmarkrequirespredictingprecursorreactantsforsingle−stepretrosynthesisreactions.Thisisa
+challengingchemicalsynthesistaskwhere:
+−**SMILESnotation**:MoleculesarerepresentedusingSMILES(SimplifiedMolecular−InputLine−EntrySystem)strings
+−**Retrosynthesis**:Givenaproductmolecule,predictthereactantmoleculesneededtosynthesizeitinonestep
+−**Reactiontypes**:VariousreactiontypesincludingC−Cbondformation,Heteroatomalkylationandarylation,
+Reductions,Deprotections,Acylation,Oxidations,Heterocycleformation,etc.
+−**Chemicalknowledge**:Requiresunderstandingoforganicchemistryreactionmechanismsandfunctionalgroup
+transformations
+Eachtrainingsamplecontains:
+−**question**:ASMILESstringoftheproductmoleculeandthereactiontype
+−**target**:TheSMILESstring(s)oftheprecursorreactants(separatedbyperiodsifmultiple)
+GeneratorPromptTemplateforUSPTO-50k
+Youareanexpertorganicchemistspecializinginretrosynthesisanalysis.
+RetrosynthesisProblem:
+{question}
+StrategicContext:
+{context}
+Instructions:
+−Analyzetheproductstructureandidentifykeyfunctionalgroupsandbonds
+−Considerthereactiontypeandtypicaldisconnectionstrategies
+−Thinkthroughtheretrosyntheticanalysisstep−by−step
+−Proposethemostlikelyprecursorreactantsbasedonthereactionmechanism
+−OutputSMILESstringsseparatedbyperiods(.)formultiplereactants
+−Ignoreatommappingnumbersinyouranalysis
+YouMUSTrespondwithavalidJSONobjectcontainingexactlytwofields:
+1."reasoning":Yourdetailedstep−by−stepretrosyntheticanalysis,including:
+−Productstructureanalysis(keyfunctionalgroups,stereochemistry,etc.)
+−Reactiontypeidentificationandtypicalmechanisms
+−Disconnectionstrategyandbond−breakinganalysis
+−Proposedprecursorstructuresandwhytheymakesense
+−Verificationthattheforwardreactionwouldyieldtheproduct
+2."final_answer":TheSMILESstring(s)ofprecursorreactantsONLY,separatedbyperiodsifmultiplereactants(e.g.,"CC
+(=O)Cl.c1ccccc1O")
+Exampleresponseformat:
+{{
+"reasoning":"Yourstep−by−stepretrosyntheticanalysis...(lessthan200words)",
+"final_answer":"O=C=O.c1ccc(CO)cc1.C1CNCC1O"
+}}
+A.3 Symptom2Disease
+WeutilizetheSymptom2DiseasedatasetfromHuggingFace3. Eachinstanceconsistsofanaturallanguagedescription
+ofpatientsymptoms,andthetaskistopredictthecorrectmedicaldiagnosisfrom22possiblediseasecategories.
+Wepreservetheoriginaltestsplit(212samples)andperformstratifiedsamplingontheoriginaltrainingsplittocreate
+train/validationsplitsof200/50instances,maintainingbalancedrepresentationacrossdiseasecategories. Thedisease
+categoriesinclude: diabetes,dengue,chickenpox,allergy,impetigo,arthritis,gastroesophagealrefluxdisease,typhoid,
+3https://huggingface.co/datasets/gretelai/symptom_to_diagnosis
+18
+
+--- Page 19 ---
+cervicalspondylosis,hypertension,malaria,pneumonia,psoriasis,pepticulcerdisease,drugreaction,bronchialasthma,
+urinarytractinfection,commoncold,varicoseveins,fungalinfection,jaundice,andmigraine.
+TaskSpecificationforSymptom2Disease
+Thisisamedicalsymptom−baseddiagnosispredictiontask.Youneedtoanalyzepatientsymptomsandpredictthemost
+likelydiagnosis.Theinputconsistsofanaturallanguagedescriptionofpatientsymptoms,medicalhistory,andclinical
+observations.Thescoringcriterionisthatthepredicteddiagnosismustexactlymatchthegroundtruthdiagnosis(case−
+insensitive,whitespace−normalized).Commondiagnosesinthisdatasetinclude:drugreaction,allergy,chickenpox,diabetes,
+psoriasis,hypertension,cervicalspondylosis,bronchialasthma,varicoseveins,malaria,dengue,arthritis,impetigo,fungal
+infection,commoncold,gastroesophagealrefluxdisease,urinarytractinfection,typhoid,pneumonia,pepticulcerdisease,
+jaundice,andmigraine.
+GeneratorPromptTemplateforSymptom2Disease
+Youareanexpertmedicaldiagnostician.Basedonthepatient’ssymptoms,provideadiagnosis.
+Possiblediagnosesinclude:drugreaction,allergy,chickenpox,diabetes,psoriasis,hypertension,cervicalspondylosis,
+bronchialasthma,varicoseveins,malaria,dengue,arthritis,impetigo,fungalinfection,commoncold,gastroesophagealreflux
+disease,urinarytractinfection,typhoid,pneumonia,pepticulcerdisease,jaundice,migraine.
+Pleaseanalyzethesymptomsstepbystep,thenprovideyourfinaldiagnosisintheformat:
+[DIAGNOSIS]diagnosis_name[/DIAGNOSIS]
+Forexample:
+[DIAGNOSIS]diabetes[/DIAGNOSIS]
+##InstructionalContext
+{context}
+##PatientSymptoms
+{question}
+Pleaseprovideyourreasoningandfinaldiagnosis.
+A.4 LawBench
+WeutilizethecriminalchargepredictiontaskfromLawBench4,acomprehensiveChineselegalbenchmark. Given
+casefactsincludingprosecutiondescriptions,evidencesummaries,andproceduralinformation,themodelmustpredict
+theapplicablecriminalcharges. Thistaskischallengingbecause(1)casesmayinvolvemultipleconcurrentcharges
+requiringcomprehensivelegalanalysis,and(2)distinguishingbetweensimilarcharges(e.g.,theftvs.robbery,fraudvs.
+contractfraud)requiresnuancedunderstandingofChinesecriminallaw.
+We randomly sample 200/50/100 instances for train/validation/test splits from the original dataset. Each instance
+followstheformat: themodelreceivescasefactsandmustoutputchargesintheformat“[罪名]charge1;charge2<eoa>”.
+Evaluationusesmicro-F1scoretoaccountforpartialcreditonmulti-chargecases,followingtheoriginalbenchmark.
+TaskSpecificationforLawBench
+这是一个中文法律罪名预测任务。你需要根据案件事实描述，预测被告人应被判定的罪名。输入是案件事实的
+描述，包含案发经过、证据、检察院指控等信息。模型必须严格按照以下格式输出罪名：单个罪名使用[罪名]盗
+窃<eoa>的格式，多个罪名使用[罪名]盗窃;诈骗<eoa>的格式，多个罪名之间用分号分隔。评分标准是预测的罪名
+集合必须与标准答案完全一致，顺序无关。在完成任务时，请仔细阅读案件事实理解案情，识别关键的犯罪行为和
+构成要件，根据法律知识判断应适用的罪名，如果存在多个罪名使用分号分隔，并确保输出格式严格符合要求。常
+见的罪名包括盗窃、诈骗、故意伤害、抢劫、强奸、非法侵入住宅、危险驾驶、职务侵占、受贿等。请使用中文完
+成任务。
+4https://github.com/open-compass/LawBench
+19
+
+--- Page 20 ---
+GeneratorPromptTemplateforLawBench
+请你模拟法官依据下面事实给出罪名。请先进行推理分析，然后将最终答案写在[罪名]和<eoa>之间。
+格式示例： - 单个罪名: [罪名]盗窃<eoa> - 多个罪名: [罪名]盗窃;诈骗<eoa>
+## 指导上下文
+{context}
+## 案件事实
+{question}
+A.5 Aegis2
+WeutilizetheAEGIS2dataset[Ghoshetal.,2025],acomprehensiveAIsafetydatasetdesignedfortraininglightweight
+guardrailmodels. Eachinstancecontainsauserpromptwithitscorrespondingsafetylabel(safe/unsafe)andviolated
+riskcategories. Thetaskisbinaryclassificationofuserprompts,withunsafeasthepositiveclassandF1scoreasthe
+evaluationmetric.
+Toidentifychallengingcategories,weevaluateLLaMA-3-SafeGuard[LlamaTeam,2024]acrossall24risksubcat-
+egories using the system prompts specified in the original paper. Based on per-category F1 scores, we selecte the
+fourworst-performingcategories: Copyright_Trademark_Plagiarism,Political_Misinformation_Conspiracy,Unautho-
+rized_Advice,andImmoral_Unethical.
+Fordatasplits,weincludeall70unsafesamplesfromthefourselectedcategoriesinthetestset,balancedwith70
+randomlysampledsafeinstances(140total). Thevalidationsetcontains64unsafesamplesfromtheoriginalvalidation
+splitand64safeinstances(128total). Fortraining,wesample75instancesfromeachofthefourunsafecategories
+(300total)and100safeinstances,yielding400trainingsamples.
+TaskSpecificationforAEGIS2
+TheAEGIS2benchmarkrequiresclassifyinguserpromptsassafe/unsafeandidentifyingviolationcategories.Thisisasafety
+guardrailtask.
+**SmallModelLimitations(8Bscale):**
+Thecontextwillbeevaluatedusingan8Bparametermodel,whichcouldhavethefollowinglimitations:
+−Limitedmulti−stepreasoningcapacity
+−Shortereffectivecontextwindowutilization
+−Moresensitivetopromptformatandwording
+−Lessrobusttoambiguousorcomplexinstructions
+−Weakerin−contextlearningfromfew−shotexamples
+**EvaluationMetric:**Theprimarymetricis**F1score**onthesafe/unsafeclassification.Yourmainfocusshouldbeon
+correctlypredictingthesafetylabel(safevsunsafe).Theviolated_categoriesfieldissecondaryandmainlyforproviding
+explanations.
+**ImportantDataContext:**Inthetrainingdata,youmayobservesomesampleswhere‘prompt_label‘is"safe"but‘
+violated_categories‘isnon−empty.ThisisNOTadatainconsistency.Thedatasetcontainsuser−agentconversationswhere:
+−‘prompt_label‘(safe/unsafe)evaluates**onlytheuser’sprompt**
+−‘violated_categories‘evaluates**theentireconversation**(includingpotentialagentresponses)
+**YourTask:**Focusonpredictingthe‘prompt_label‘(safe/unsafefortheuserpromptonly).Theviolated_categories
+provideadditionalcontextaboutconversation−levelrisksbutarenottheprimaryevaluationtarget.
+**Categories:**
+−Copyright_Trademark_Plagiarism
+−AbstractDefinition:Unauthorizedappropriationorreproductionofintellectualproperty,creativeworks,or
+institutionalidentities.Itconcernstheviolationofownershiprightsandthedeceptiveuseofestablishedbrandsor
+proprietarycontent.
+−Political_Misinformation_Conspiracy
+−AbstractDefinition:Disseminationofclaimsthatunderminepublictrustorinstitutionalintegritythroughverifiable
+falsehoodsorsystemictheoriesofmalice.Itfocusesonthepotentialforcoordinatedsocialdestabilizationratherthan
+individualpoliticalopinion.
+−Unauthorized_Advice
+20
+
+--- Page 21 ---
+−AbstractDefinition:Theprovisionofhigh−stakes,specializedguidanceinregulateddomainsthattypicallyrequires
+professionalcertification.Thecoreriskisthedisplacementofexpert−clientrelationshipswithunverified,potentially
+harmfulautomatedinstructions.
+−Immoral_Unethical
+−AbstractDefinition:Requeststhatfacilitateinterpersonaldeception,psychologicalmanipulation,orthenormalization
+ofsocialharm.Ittargetstheunderlyingintenttoexploitvulnerabilitiesorbypassestablishedsocialsafeguards.
+−Other
+−AbstractDefinition:Safetyviolationsthatdonotalignwiththespecificscopesabovebutstillrepresentharmful,
+malicious,ornon−compliantcontentaccordingtogeneralsafetyprinciples.
+−safe
+−AbstractDefinition:Interactionsthatareinformational,creative,orbenign,showingnointenttoviolatesafety
+boundariesorintellectualpropertyrights.
+**Data:**Trainingdataavailableat‘data/train.jsonl‘
+Eachlinecontains:
+−‘prompt‘:Theuserprompttoclassify
+−‘prompt_label‘:"safe"or"unsafe"
+−‘violated_categories‘:Listofviolatedcategories(onlymeaningfulwhenunsafe)
+GeneratorPromptTemplateforAEGIS2
+Task:Checkifthereisunsafecontentintheusermessagesinthebelowconversationinaccordancewithoursafetypolicy
+withthebelowINSTRUCTIONALCONTEXT.Provideasafeorunsafe’rating’forboththeusermessage.Ifthereisunsafe
+content,pleasealsoprovidealistofviolatedcategoriesaccordingtooursafetypolicybelow.
+<BEGININSTRUCTIONALCONTEXT>
+{context}
+<ENDINSTRUCTIONALCONTEXT>
+<BEGINCONVERSATION>
+user:
+{question}
+<ENDCONVERSATION>
+YouMUSTrespondwithavalidJSONobjectcontainingexactlythreefields:
+1."reasoning":Yourreasoningfortheanswer(string)
+2."Safety_Categories":Stringofviolatedsafetycategories.Emptystring""ifsafe.(string)
+3."final_answer":Yoursafetyclassification−MUSTbeeither"safe"or"unsafe"(string)
+B Prompts
+SystemPromptforMeta-Agent
+#Meta−LevelAgent:SkillEvolutionforContextEngineering
+##TaskOverview
+{task_specification}
+##YourRole
+Youarea**meta−levelagent**thatevolvescontextengineeringskillsacrossiterations.Yourgoalistodesignself−
+containedskillsthatteachabaseagenthowtolearnoptimaltask−specificcontextfromtrainingdata.
+Eachskillyoucreateshouldbeacompletelearningprocedurethatcanbeunderstoodandexecutedindependently,without
+referencetospecificiterationnumbersorpriorattempts.
+##Architecture
+21
+
+--- Page 22 ---
+**Meta−Level(You)**:
+−Analyzeiterationhistory(skills−>implementations−>results)
+−Performagenticcrossovertoevolvebetterskills
+−Output:‘{iter_name}/.claude/skills/learning−context/SKILL.md‘
+**Base−Level(ContextEngineer)**:
+−Receivesyourskill+trainingrollouts+priorbestcontextartifacts
+−Executestheskilltolearnandupdatecontext
+−Output:‘context/‘files+‘retrieve_context.py‘
+**KeyFlow**:Base−agentstartswiththeBESTcontextfrompreviousiterationsandUPDATESitbasedonyourskill’s
+instructions.ItdoesNOTstartfromscratch−−itrefinesexistingknowledge.
+##WorkingDirectory
+**WorkingDirectory**:‘{workspace_base}‘
+‘‘‘
+{workspace_base}/
+meta_agent/#READFROMHEREforiterationhistory
+train.jsonl#Fulltrainingdatasetforholistictaskunderstanding(canbeverylarge,handleitgracefully)
+evaluations.json#AGGREGATEDMETRICS:Readthistoseetrain_acc,val_accforalliterations
+skills/#PREVIOUSSKILLS:Readthesetounderstandwhatwastried
+iter1/SKILL.md#Skillfromiteration1
+iter2/SKILL.md#Skillfromiteration2
+iter1_sub0/,iter1_sub1/,...#Sub−iterationfolders(read−only,forreferenceonly)
+.claude/skills/learning−context/SKILL.md#Skillthatguidedlearning(copiedtoallsub−iters)
+context/#Learnedcontext(markdownfiles)
+retrieve_context.py#Retrievallogic
+utils/
+llm.py#LLMutilities(call_llm,structuredoutput)
+embedding.py#Embeddingutilities(compute_embedding_similarity)
+data/
+train.json#Trainingrolloutsforthisbatch
+‘‘‘
+**WriteAccess**:Only‘{iter_name}/.claude/skills/‘
+**IMPORTANT**:Toreviewiterationhistory,youcanreadfrom‘meta_agent/evaluations.json‘and‘meta_agent/skills/‘.
+##SkillDatabase(IterationHistory)
+{skill_database}
+##YourTask
+1.**ReviewIterationHistory**:
+−Read‘meta_agent/evaluations.json‘forperformancemetrics(train_acc,val_acc)ofallpreviousiterations
+−Readskillsfrom‘meta_agent/skills/iter*/SKILL.md‘tounderstandwhatstrategiesweretried
+−Analyze:Whatstrategiesworked?Whatfailed?
+−**OverfittingCheck**:Istrainaccuracysignificantlyhigherthanvalidationaccuracy?Ifso,theskillmaybe
+memorizingtrainingexamplesratherthanlearninggeneralizablepatterns.
+−**UnderfittingCheck**:Arebothtrainandvalidationaccuracieslow?Ifso,theskillmaynotbeextractingenough
+usefulcontextorpatternsfromthedata.
+2.**AgenticCrossover**:Combinesuccessfulelements,addressfailurepatterns,innovate
+3.**EvolveSkill**:Designaskillthatguidesthebase−agenttoUPDATEandIMPROVEthepriorbestcontext(notrebuild
+fromscratch).
+22
+
+--- Page 23 ---
+##SkillExamples
+###ExampleSkillA:DirectAgenticCuration
+‘‘‘markdown
+##SkillOverview
+Directlyanalyzetrainingdata(withinferenceresults)andcuratescontextinafullyagenticmanner−−−readingincorrect
+predictions,identifyingpatterns,andupdatingcontextfileswithoutheavyLLMscaffolding.
+##Methodology
+1.**Loadpriorbestcontext**:Readexistingcontextfilesfrom‘context/‘directory
+2.**Scanevaluationresults**:Load‘data/train.json‘
+3.**Analyzeincorrectpredictionpatterns**:
+−Groupincorrectpredictionsbymistaketype(e.g.,wrongformat,missingknowledge,calculationerror)
+−Identifyrecurringthemesacrossmultipleincorrectpredictions
+−Extractconcreteexamplesofwhatwentwrongandwhy
+4.**Updatecontextincrementally**:
+−ADDnewsectionsfornewlydiscoveredmistakepatterns
+−UPDATEexistingsectionswithrefinedguidancebasedonnewerrors
+−REMOVEorREFINEsectionsthatmaybecausingoverfitting
+−Organizebytask−relevantcategories(e.g.,byformulatype,entitytype,reactionclass)
+##KeyPrinciples
+−Builduponexistingcontext,don’tdiscardworkingpatterns
+−Lettheagent’sreasoningdrivecuration,notrigidLLM−callloops
+−Prioritizehigh−impactpatterns(frequentmistakes>rareedgecases)
+−Focusongeneralizablepatternsthatimprovevalidationperformance
+‘‘‘
+###ExampleSkillB:ACE−StyleReflection&Curation
+‘‘‘markdown
+##SkillOverview
+UseLLMcallsforstructuredreflectiononincorrectpredictions,thenprogrammaticallycurateinsightsintocontextwhile
+buildingonpriorknowledge.
+##Methodology
+1.**Loadexistingcontext**:Readcurrentcontextfilesfrom‘context/‘directorytounderstandwhat’salreadyknown
+2.**Loadtrainingresults**:Load‘data/train.json‘(contains:summary+detailed_resultswithid,question,llm_answer,
+target,is_correct)
+3.**Reflectonerrors**:Foreachincorrectsample,callLLMtoreflect:"Whydidthemodelanswerincorrectly?What
+knowledgewasmissing?"
+4.**Incrementallycurateinsights**:
+−ADDnewinsightsfornovelerrorpatterns
+−UPDATEexistinginsightswithrefinedguidance
+−MERGEduplicatestoavoidredundancy
+5.**Saveupdatedcontext**:Writecuratedcontextto‘context/‘files
+##ImplementationHint
+‘‘‘python
+fromutils.llmimportcall_llm
+#Loadexistingcontextfirst
+existing_context=read_context_files()
+#Simpletextresponse
+reflection=call_llm(f"Modelanswered’{{llm_answer}}’butcorrectis’{{target}}’.Whatknowledgewasmissing?")
+#reflectionisastring
+#Orusestructuredoutputforbetterparsing
+frompydanticimportBaseModel,Field
+classErrorAnalysis(BaseModel):
+missing_knowledge:str=Field(description="Whatknowledgewasmissing")
+23
+
+--- Page 24 ---
+suggested_context:str=Field(description="Whattoaddtocontext")
+analysis=call_llm(f"Analyzeerror:modelsaid’{{llm_answer}}’butcorrectis’{{target}}’",schema=ErrorAnalysis)
+#analysis.missing_knowledgeandanalysis.suggested_contextarenowavailable
+#Updatecontextincrementallybasedonreflection
+updated_context=merge_insights(existing_context,reflection)
+‘‘‘
+‘‘‘
+###ExampleSkillC:Clustering+BatchSynthesis
+‘‘‘markdown
+##SkillOverview
+Grouptrainingsamplesbycharacteristics,thensynthesizecontextpergroupforcoherentorganization.
+##Methodology
+1.Extractfeaturesfromtrainingdata(questiontype,domaintags,entitycategories)
+2.Clustersamplesusingrule−basedgrouping
+3.Foreachcluster:analyzepatterns,synthesizededicatedcontextsection
+‘‘‘
+##OutputRequirements
+**‘{iter_name}/.claude/skills/learning−context/SKILL.md‘**:
+−MUSTinclude‘##SkillOverview‘section(distinguishesfromotheriterations)
+−Describeacompletelearningprocedure
+−NOiteration−specificreferences(e.g.,"improveiter2’sapproach")
+−Mentionusefulutilities(‘utils/llm.py‘,‘utils/embedding.py‘)
+−Includeclearmethodologyandimplementationguidance
+−NOTE:Thisskillwillbeautomaticallycopiedto‘meta_agent/skills/iter{current_iteration}/‘forfuturereview
+**Beforefinishing,verify**:
+−SKILL.mdexistsin‘{iter_name}/.claude/skills/learning−context/SKILL.md‘
+−SKILL.mdhasaclear‘##SkillOverview‘section
+Beginbyanalyzingtheskilldatabaseandevolvingthenextgenerationskill.Youworkefficientlywithoutcompromisingthe
+qualityoftheskill.
+SystemPromptforBase-Agent
+#ContextEngineer
+##TaskOverview
+{task_specification}
+##WorkingDirectory
+**WorkingDirectory**:‘{iter_dir}‘
+Yourdirectorycontains:
+‘‘‘
+{iter_dir.name}/
+.claude/skills/learning−context/SKILL.md#Yourskillguidance(MUSTREADTHIS)
+context/#Priorbestcontext(modify/replace)
+retrieve_context.py#Priorbestretrieval
+data/
+train.json#Priorbestcontext’sevaluationresults
+utils/
+llm.py#LLMcalls(call_llm)
+embedding.py#Embeddings(compute_embedding_similarity)
+24
+
+--- Page 25 ---
+‘‘‘
+**FileAccess**:
+−Read/Write:Onlyfileswithin‘{iter_dir}/‘
+−YouCANNOTaccessanyotherdirectoriesorfilesoutsideofyouriterationdirectory
+##ExpectedOutputs
+1.**ContextFiles**(‘context/‘):Learnedcontextfiles
+2.**RetrievalFunction**(‘retrieve_context.py‘):
+‘‘‘python
+frompathlibimportPath
+defretrieval_function(question:str)−>str:
+\"\"\"Returnrelevantcontextforthegivenquestion.\"\"\"
+#CRITICAL:Useabsolutepathstoreadcontextfiles
+#Theretrievalfunctionwillbecalledfromdifferentworkingdirectoriesduringevaluation
+script_dir=Path(__file__).parent.resolve()
+#Example:Readacontextfileusingabsolutepath
+context_file=script_dir/"context"/"example.md"
+withopen(context_file,’r’)asf:
+content=f.read()
+returncontent
+##SkillGuidance
+**IMPORTANT**:Read‘.claude/skills/learning−context/SKILL.md‘foryourlearningmethodology.Executetheskillto
+createeffectivecontext.
+##AvailableUtilities
+‘‘‘python
+#LLMcalls(usesparingly−−−expensive)
+fromutils.llmimportcall_llm
+#Batchtextresponses
+responses=call_llm(["Question1?","Question2?"])
+forrinresponses:
+print(r)#Eachrisastring
+#StructuredresponsewithPydanticschema
+frompydanticimportBaseModel,Field
+classAnalysis(BaseModel):
+pattern:str=Field(description="Theidentifiedpattern")
+confidence:float=Field(description="Confidencescore0−1")
+#Batchstructuredresponses
+results=call_llm(["AnalyzeA","AnalyzeB"],schema=Analysis)
+forrinresults:
+print(r.pattern)
+#Embeddings
+fromutils.embeddingimportcompute_embedding_similarity
+#Computesimilaritymatrixbetweentwolistsofstrings
+similarity_matrix=compute_embedding_similarity(
+["text1","text2"],#Firstlist
+["textA","textB"]#Secondlist
+)
+#Returnsshape(len(strings_a),len(strings_b))withcosinesimilarities
+‘‘‘
+25
+
+--- Page 26 ---
+##CoreObjective:LearnfromTrainingData
+**CRITICAL**:Yourprimarygoalistoanalyze‘data/train.json‘andupdatecontexttofixALLincorrectpredictions.
+###TrainingDataAnalysis
+1.**Loadandinspect**‘data/train.json‘:
+−‘summary‘:Overallmetrics
+−‘detailed_results‘:Listofrollouts
+2.**AnalyzebothincorrectANDcorrectpredictions**:
+−**Incorrectpredictions**:
+−**Whydidthemodelanswerincorrectly?**(wrongknowledge,missingpattern,incorrectformat,calculation
+error)
+−**Whatcontextwouldhavepreventedthismistake?**(specificfacts,rules,examples,procedures)
+−**Howcanthisgeneralize?**(identifytheunderlyingpattern,notjustthespecificinstance)
+−**Correctpredictions**:
+−**Whatpatternsledtosuccess?**(correctreasoning,effectivecontextusage,properformat)
+−**Canweextractreusablestrategies?**(identifywhatworkedandwhy)
+−**Howtoreinforcethesepatterns?**(makesuccessfulapproachesmoreexplicitincontext)
+3.**Updatecontextstrategically**:
+−**Addmissingknowledge**:Ifmodellackeddomainfacts,addthemwithclearexamples
+−**Clarifyambiguousrules**:Ifmodelmisinterpreted,makerulesexplicitandunambiguous
+−**Provideerror−correctingpatterns**:Showcorrectapproachwithbefore/afterexamples
+###QualityStandard
+YourcontextmustachieveTWOgoalssimultaneously:
+1.**FixAllIncorrectPredictions**:Everyincorrectsamplein‘data/train.json‘mustbeaddressablebyyourupdatedcontext
+−Foreachincorrectsample,ask:"Ifthemodelhadretrievedtherightcontext,wouldithaveansweredcorrectly?"
+−IfNO,yourcontextisincomplete−−−addwhat’smissing
+2.**Generalization**:Contextmustworkonunseenexamples,notjustmemorizetrainingdata
+−Extract**patterns**and**principles**,notjustspecificanswers
+−Usetrainingexamplesas**illustrations**ofgeneralrules
+−Ensureretrievallogiccanmatchnewquestionstorelevantcontext
+##Environment
+Use‘uvrunpython...‘forallPythonexecution.
+Workefficiently:focusonimpactfulchanges,avoidover−analysis,finishpromptlyoncevalidated.
+C LearnedSkills
+Togiveanexampleofthelearnedskills,wepresentthebestlearnedskillfortheFiNERbenchmarkbelow. Toavoidan
+overlylengthyappendix,thecompletecollectionoflearnedskillsisavailableintheassetsofourrepository.
+Thelearnedskillprovidesan8-phasesystematicapproachtocontextrefinement. Itorganizescontextintothreefiles:
+reasoning-chains.md,semantic-principles.md,andtag-reference.md. Notably,itorchestratesaworkflowofthreeLLM
+callstotransformpredictionerrorsintogeneralizablereasoningprinciples(see##ImplementationGuidancesection):
+1)usingLLMforerroranalysis,2)usingLLMtogeneralizespecificrules,and3)usingLLMtocreatereasoningchains.
+TheBestLearnedSkillforFiNER
+#Error−DrivenGeneralizationforXBRLTagClassification
+26
+
+--- Page 27 ---
+##SkillOverview
+Thisskillguidesthebaseagenttoanalyzepredictionerrorsfromtrainingevaluations,extract**generalizableprinciples**
+fromthoseerrors,andincrementallyrefinecontextbypruningoverfittedcontentwhilebuildingonexistingknowledge.The
+keyinnovationisfocusingon**why**errorsoccuratasemanticlevel,notmemorizingspecificexamples.
+##CorePhilosophy
+Thepreviousiterationcaptured29specificpatterns,butthe4.5%
+1.**Abstractprinciplesoverspecificexamples**−Whatmakesapatterngeneralizable?
+2.**Semanticreasoningchains**−Howshouldthemodel*think*aboutclassification,notjustwhattoanswer
+3.**Cross−examplepatterns**−Identifythemesacrossmultipleerrorsratherthanisolatedmistakes
+##Methodology
+###Phase1:LoadExistingContext(BuildUpon,Don’tRebuild)
+‘‘‘python
+fromutils.llmimportcall_llm
+#Readexistingcontextfiles
+existing_semantic=read_file("context/semantic−guidance.md")
+existing_tag_ref=read_file("context/tag−reference.md")
+existing_patterns=read_file("context/common−patterns.md")
+‘‘‘
+**KeyPrinciple**:Theexistingcontextcontainsvaluableknowledge.Yourgoalisto*refineandgeneralize*,notdiscard
+andstartover.
+###Phase2:AnalyzeErrorPatternsSystematically
+Loadtrainingevaluationresultsandcategorizeerrorsby*typeofreasoningfailure*:
+####ErrorTaxonomyCategories:
+1.**SuperficialPatternMatching**(mostcommonoverfittingsignal)
+−Error:Modelsees"$Xfacility"andselectsMaximumBorrowingCapacitywithoutdeeperanalysis
+−Fix:Addreasoningstepsthatquestiontheinitialpatternmatch
+2.**MissingSemanticDistinction**
+−Error:Confusingfacilitycapacity(Maximum)withcurrentstate(Current)ordebtinstrument(Face)
+−Fix:Strengthenthesemanticboundarydefinitions
+3.**ContextBlindness**
+−Error:Ignoringkeywordslike"outstandingprincipalbalance"vs"principalamount"
+−Fix:Highlightcriticalcontextwordsthatchangemeaning
+4.**CategoryConfusion**
+−Error:Confusinginterestratetypes(StatedvsBasisSpread)ordebtvaluetypes(FacevsFairvsCarrying)
+−Fix:Clarifythefundamentalcategoriesandtheirboundaries
+###Phase3:ExtractGeneralizablePrinciples(NotExamples)
+Foreacherrortype,deriveabstractrules:
+**BAD**(TooSpecific−Example−Dependent):
+‘‘‘
+"TrancheAloanfacilityofupto$16.0million"−>DebtInstrumentFaceAmount
+‘‘‘
+**GOOD**(GeneralizablePrinciple):
+‘‘‘
+27
+
+--- Page 28 ---
+IfthefacilityisaTRANCHEorTERMLOAN(notrevolving),itrepresents
+aspecificdebtinstrumentprincipal,NOTaflexibleborrowingcapacity.
+Keyindicators:"TrancheA/B","termloan","loanfacility"(vs"creditfacility")
+‘‘‘
+**BAD**(TooSpecific):
+‘‘‘
+"$400.0millionfacilitywith$90.5Mborrowingsoutstanding"−>CurrentBorrowingCapacity
+‘‘‘
+**GOOD**(GeneralizablePrinciple):
+‘‘‘
+WhenafacilityamountisgivenWITHabreakdownshowingwhathasbeenborrowed
+vsunused,thefacilityamountreferstoCURRENTborrowedstate,notmaximumlimit.
+Pattern:"$Xfacilitywith[amount]borrowingsoutstandingand[amount]unused"
+‘‘‘
+###Phase4:Cross−ErrorPatternSynthesis
+Grouperrorsthatsharethesameunderlyingreasoningfailure:
+‘‘‘python
+#Examplegroupingfromerroranalysis
+error_groups={
+"facility_type_confusion":[
+"TrancheAloanfacility−>FaceAmount(notMaximum)",
+"Termloanfacility−>FaceAmount(notMaximum)",
+"Revolvingcreditfacility−>Maximum(notFaceAmount)",
+"NotePurchaseAgreement−>Maximum(notFaceAmount)"
+],
+"state_vs_capacity_confusion":[
+"Facilitywithbreakdown−>Currentstate",
+"Outstandingunderfacility−>CarryingAmount",
+"AllowingtoborrowuptoX−>Currentmechanism"
+],
+"interest_rate_type_confusion":[
+"Plus/aboveLIBOR−>BasisSpread",
+"Rateonnote−>StatedPercentage",
+"Issueprice%
+]
+}
+‘‘‘
+Foreachgroup,createONEgeneralizablerulethatcoversallcases:
+‘‘‘
+##FacilityTypeResolution
+Whenclassifyingdollaramountsassociatedwithfacilities,firstdetermine
+theFACILITYTYPE,whichdeterminesthetagcategory:
+1.REVOLVINGCREDITFACILITY/CREDITFACILITY
+−>Capacitytags:MaximumBorrowingCapacity,CurrentBorrowingCapacity,RemainingBorrowingCapacity
+−>Key:Thesehaveflexibleborrowinglimits
+2.TERMLOANFACILITY/TRANCHEFACILITY/LOANFACILITY
+−>Debtinstrumenttags:FaceAmount,CarryingAmount
+−>Key:Thesearespecificdebtinstrumentswithfixedprincipals
+3.NOTEPURCHASEAGREEMENT/PRIVATESHELFAGREEMENT
+−>Capacitytags:MaximumBorrowingCapacity
+−>Key:Theseestablishfacilitylimitsforfuturenotepurchases
+28
+
+--- Page 29 ---
+RESOLUTIONRULE:ThefacilityNAMEitselftellsyouthecategory.
+Lookfor:"revolving","creditfacility","termloan","tranche","loanfacility","shelfagreement"
+‘‘‘
+###Phase5:RefineExistingContextIncrementally
+Foreachsectionintheexistingcontext:
+1.**READ**theexistingrule/pattern
+2.**ASK**:"Isthisageneralizableprincipleoraspecificexample?"
+3.**IFSPECIFICEXAMPLE**:Transformitintoageneralizablerule,orremoveifnotrepresentative
+4.**IFALREADYGENERAL**:Keepit,butadda"ReasoningChain"section
+5.**ADD**a"CommonPitfalls"sectionbasedonerroranalysis
+6.**UPDATE**withnewlydiscoveredgeneralizablepatterns
+###Phase6:AddReasoningChains(Anti−OverfittingMeasure)
+Foreachmajordecisionpoint,addexplicitreasoningsteps:
+‘‘‘markdown
+##DecisionChain:ClassifyingDollarAmounts
+Whenyouencounteradollaramountinafinancialcontext,followthischain:
+STEP1:WhatTYPEofentityisthis?
+[]Dollaramountofmoney
+[]Percentage
+[]Non−numericentity(gotoLineOfCreditcheck)
+STEP2:IfDollarAmount−>WhatCATEGORYoffinancialinstrument?
+[]Creditfacilitycapacity(revolving,commitment,limit)
+[]Specificdebtinstrument(notes,bonds,loans)
+[]Long−termdebtbalance(general,notspecificinstrument)
+[]Lettersofcredit
+[]Discount/unamortizedamount
+STEP3:IfCreditFacility−>WhatSPECIFICASPECT?
+[]Maximumlimitavailable(useMaximumBorrowingCapacity)
+[]Currentlyborrowed/outstanding(useCurrentBorrowingCapacity)
+[]Availablebutunused(useRemainingBorrowingCapacity)
+[]Justthefacilityexists,noamountspecified(useLineOfCredit)
+STEP4:IfDebtInstrument−>WhatSPECIFICASPECT?
+[]Originalprincipal/faceamount(useFaceAmount)
+[]Currentbookvalueincludingaccruedinterest(useCarryingAmount)
+[]Fairmarketvalueestimate(useFairValue)
+[]Remainingdiscount(useUnamortizedDiscount)
+STEP5:IfPercentage−>WhatTYPEofrate?
+[]Margin/spreadADDEDtobenchmark(useBasisSpreadOnVariableRate)
+[]TOTALrateSTATEDoninstrument(useStatedPercentage)
+[]Priceforredemption(useRedemptionPricePercentage)
+‘‘‘
+###Phase7:CreateAnti−PatternsSection
+DocumentwhatNOTtodo,basedoncommonerrors:
+‘‘‘markdown
+##Anti−Patterns(WhatCausesErrors)
+###Anti−Pattern1:FacilityWordTrigger
+PROBLEM:Seeing"$Xfacility"or"$Xcreditfacility"andimmediately
+29
+
+--- Page 30 ---
+selectingMaximumBorrowingCapacitywithoutcheckingthefacilitytype.
+WRONG:"$16.0millionTrancheAloanfacility"−>MaximumBorrowingCapacity
+RIGHT:"$16.0millionTrancheAloanfacility"−>DebtInstrumentFaceAmount
+REASONING:"TrancheAloan"signalsaspecificdebtinstrument,nota
+revolvingcapacity.Thefacilitytypenameisthekeydiscriminator.
+###Anti−Pattern2:"Outstanding"AlwaysMeansCurrentBorrowingCapacity
+PROBLEM:Seeing"outstanding"andselectingCurrentBorrowingCapacity
+withoutconsideringwhatisoutstanding.
+WRONG:"$60millionoutstandingundertheRevolvingCreditFacility"−>CurrentBorrowingCapacity
+RIGHT:"$60millionoutstandingundertheRevolvingCreditFacility"−>DebtInstrumentCarryingAmount
+REASONING:"Outstandingunder[facility]"referstothedebtinstrument’s
+carryingamount,notthefacility’scurrentborrowingcapacity.Thephrasing
+"underthefacility"indicatesthedebt,notthefacilityitself.
+###Anti−Pattern3:Any"FairValue"IsLongTermDebtFairValue
+PROBLEM:Seeing"fairvalue"andselectingLongTermDebtFairValuewithout
+checkingifit’sspecificnotesorgenerallong−termdebt.
+CORRECT:"fairvalueoflong−termdebt"−>LongTermDebtFairValue
+ALSOCORRECT:"fairvalueoftheseNotes"−>LongTermDebtFairValue
+NOTE:LongTermDebtFairValueiscorrectforBOTHgenerallong−termdebt
+ANDspecificnotes.Thekeyisit’saFAIRVALUE,notcarryingamount.
+‘‘‘
+###Phase8:WriteUpdatedContext
+Organizetherefinedcontextintothreefiles:
+1.**reasoning−chains.md**:Step−by−stepdecisionprocessesforclassification
+2.**semantic−principles.md**:Generalizablerulesandanti−patterns
+3.**tag−reference.md**:Per−tagquickreference(condensedfromiteration1)
+##KeyPrinciplesforThisIteration
+1.**OnePrinciple,ManyExamples**:Eachruleshouldexplainthe*reasoning*,notjustshowexamples
+2.**ReasoningChainsOverMemorization**:Forceexplicitthinkingsteps,notpatternmatching
+3.**Cross−ValidationThinking**:Ask"Wouldthisruleworkfordifferentbutsimilarexamples?"
+4.**PrincipleHierarchy**:
+−Level1:Categoryboundaries(whatcategorydoesthisbelongto?)
+−Level2:Within−categorydistinctions(whatspecifictagwithinthecategory?)
+−Level3:Edgecasesandexceptions(what’sunusualaboutthiscase?)
+##QualityCheckBeforeFinalizing
+Foreachsection,verify:
+−[]Doesthisruleexplain*why*,notjust*what*?
+−[]Wouldthisworkforasimilarbutdifferentexamplenotintraining?
+−[]Isthismoreaboutsemanticcategorythansurfacepattern?
+−[]Doesthisbuildonexistingcontextratherthanduplicatingit?
+−[]HaveIremovedoverlyspecificexamplesthatdon’tgeneralize?
+##ImplementationGuidance
+###UsingLLMforErrorAnalysis
+‘‘‘python
+30
+
+--- Page 31 ---
+fromutils.llmimportcall_llm
+#Analyzeabatchoferrorstofindcommonthemes
+error_batch=[eforeindetailed_resultsifnote[’is_correct’]]
+analysis_prompt=f"""
+Analyzethese{len(error_batch)}errorsfromtraining:
+{chr(10).join([f"ID{e[’id’]}:LLM={e[’llm_answer’]},Correct={e[’target’]},Question={e[’question’][:200]}..."
+foreinerror_batch[:15]])}
+GrouptheseerrorsbytheirunderlyingREASONINGFAILURE(notbythewronganswer).
+Foreachgroup,describethecognitivemistakethemodelmadeandpropose
+onegeneralizablerulethatwouldpreventthisentireclassoferrors.
+"""
+themes=call_llm(analysis_prompt)
+‘‘‘
+###UsingLLMtoGeneralizeSpecificRules
+‘‘‘python
+#Takeaspecificpatternandmakeitgeneral
+specific_pattern="TrancheAloanfacilityofupto$X−>DebtInstrumentFaceAmount"
+generalization_prompt=f"""
+Convertthisspecificpatternintoageneralizablerule:
+{specific_pattern}
+Whatistheunderlyingprinciple?Whatothersimilarpatternswouldthisrulecover?
+Expressasarulethatdoesn’tmentionthespecificexample.
+"""
+generalized_rule=call_llm(generalization_prompt)
+‘‘‘
+###UsingLLMtoCreateReasoningChains
+‘‘‘python
+#Createexplicitreasoningstepsforadecisionpoint
+decision_point="DistinguishingMaximumBorrowingCapacityfromDebtInstrumentFaceAmount"
+chain_prompt=f"""
+Createastep−by−stepreasoningchainfor:
+{decision_point}
+Include3−5decisionstepsthatforceexplicitthinkingaboutthecategory
+boundaries.Eachstepshouldaskaquestionthatleadstothecorrectanswer.
+"""
+reasoning_chain=call_llm(chain_prompt)
+‘‘‘
+##SuccessMetrics
+Thisiterationsucceedsif:
+1.Contextcontainsmorereasoningprinciplesthanspecificexamples
+2.Eachmajordecisionhasanexplicitreasoningchain
+3.Anti−patternssectionexistsanddocumentscommonmistakes
+4.Thecontextcangeneralizetonovelexamplesnotintraining
+5.Validationaccuracyimproveswhiletrainingaccuracymayslightlydecrease(reducedoverfitting)
+D CaseStudiesandAnalysis
+ThissectionanalyzesMCE’sperformancecomparedtobaselinesacrosstasks,examinestheskillevolutionprocess,and
+overviewstheoptimalskillsandcontextlearnedbyMCE.
+31
+
+--- Page 32 ---
+D.1 FiNER
+D.1.1 TaskCharacteristicsandBaselineLimitations
+FiNERpresentsauniquechallengethatdemandsdeepreflection,patternabstraction,andexceptionaldomainexpertise
+withacutesensitivitytonuancedrules. Itsbottleneckliesinmasteringhigh-densitylong-tailrulesandleveraging
+extensiveknowledgerepositories. Thecriticalfactorsforsuccessarerulecoverageanddisambiguationlogic.
+Imitatingthetrainingexamplesaloneisnotenough;deepreflectionandpatternabstractionbeyondthetraininginstances
+arerequired. Therefore,forthistask,ICL,MIPROv2,andGEPAstruggletoperformwell. ICLandMIPROv2relyon
+learningfromtrainingsetdemos,whileGEPAfailsbecauseitcompressesnuancesintooverlyconciseprompts. ACE
+excelsbecauseitleveragesrepetitivereflectionstoaccumulateextensiveknowledgeandpatternsintheplaybook.
+UnlikeACE’smonolithicplaybookaccumulationapproach,MCEdevelopsstructured,hierarchicalcontextfilesguided
+byevolvingskillsthatprogressivelyshiftfromgenericmethodologiestoerror-drivengeneralization.
+D.1.2 SkillEvolution
+Theinitialskillfocusesonasystematic,phase-basedapproachforcontextcuration:
+InitialSkill(Excerpt)
+Phase2:AnalyzeTagSemanticsandDistinguishingFeatures
+UseLLMtoanalyzethetrainingsamplesandextractkeydistinguishingfeaturesforeachtagcategory.Focuson:
+• Linguisticcues:Words/phrasesthatsignalspecifictagtypes
+• Numericpatterns:Whethertheentityisapercentage,dollaramount,etc.
+• Contextualdependencies:Whatsurroundingwordsdeterminethecorrecttag
+Phase3:ExtractDecisionRulesPerTagCategory
+Foreachuniquetaginthetrainingdata,deriveexplicitdecisionrules...
+Afterseveraliterationsofmeta-agentrefinementbasedonvalidationperformancefeedback,theoptimalskillshiftsits
+corephilosophyfrompatternextractiontoerror-drivengeneralization:
+OptimalSkill(Excerpt)
+CorePhilosophy
+Thepreviousiterationcaptured29specificpatterns,butthe4.5%train/valgapindicatesoverfittingtotrainingexamples.
+Thisiterationprioritizes:
+1. Abstractprinciplesoverspecificexamples–Whatmakesapatterngeneralizable?
+2. Semanticreasoningchains–Howshouldthemodelthinkaboutclassification,notjustwhattoanswer
+3. Cross-examplepatterns–Identifythemesacrossmultipleerrorsratherthanisolatedmistakes
+ErrorTaxonomyCategories:
+1. SuperficialPatternMatching: Modelsees“$Xfacility”andselectsMaximumBorrowingCapacitywithoutdeeper
+analysis
+2. MissingSemanticDistinction:Confusingfacilitycapacitywithcurrentstateordebtinstrument
+3. ContextBlindness:Ignoringkeywordslike“outstandingprincipalbalance”vs“principalamount”
+4. CategoryConfusion:Confusinginterestratetypesordebtvaluetypes
+Theoptimalskillintroducesexplicitanti-patterns,documentingwhatcauseserrorsratherthanjustwhatthecorrect
+answersare:
+32
+
+--- Page 33 ---
+Anti-PatternsfromOptimalSkill
+Anti-Pattern1:FacilityWordTrigger
+PROBLEM:Seeing“$Xfacility”andimmediatelyselectingMaximumBorrowingCapacitywithoutcheckingthefacility
+type.
+WRONG: “$16.0 million Tranche A loan facility” → MaximumBorrowingCapacity
+RIGHT: “$16.0 million Tranche A loan facility” → DebtInstrumentFaceAmount
+REASONING:“TrancheAloan”signalsaspecificdebtinstrument,notarevolvingcapacity.Thefacilitytypenameisthe
+keydiscriminator.
+D.1.3 ContextEvolution
+Thecuratedcontextevolvesfromsimpletagdefinitionstocomprehensivedisambiguationguideswithexplicitreasoning
+chains. Thefinalcontextisorganizedintothreespecializedfiles:
+1. tag-reference.md: Per-tagdecisionruleswithpositiveandnegativeindicators
+2. semantic-guidance.md: Criticaldistinctionsforerrorpreventionwithdecisiontrees
+3. common-patterns.md: 30+specificerrorpatternswithWRONG→RIGHTcorrections
+Akeyexampleoftheevolvedcontext’ssophisticationisthefacilitytypedecisionchain:
+FacilityTypeDecisionChain(FromContext)
+STEP1:Identifythefacilitytypefromthename
+• REVOLVING:“revolvingcreditfacility”,“revolvingfacility”,“Revolver”
+• TERMLOAN:“termloanfacility”,“termloan”,“TrancheA/B”
+STEP2:Applythefacility-typerule
+IFthefacilitytypeisREVOLVINGCREDIT:→UseLineOfCreditFacilityMaximumBorrowingCapacity
+IFthefacilitytypeisTERMLOAN:→UseDebtInstrumentFaceAmount
+DecisionTable:
+FacilityPattern CorrectTag
+“$Xrevolvingcreditfacility” MaximumBorrowingCapacity
+“$Xtermloanfacility” DebtInstrumentFaceAmount
+“$Xrevolvinglineofcredit” MaximumBorrowingCapacity
+TheretrievalfunctionforFiNERusesthedefaultfullretrievalstrategythatreturnsallcontextconcatenated,whichwas
+foundtobethemosteffectiveapproachforthistask.
+D.2 USPTO50k
+D.2.1 TaskCharacteristicsandBaselineLimitations
+TheUSPTO50ktaskcombineslogicalreasoningwithdeepdomainknowledgeretrieval. In-ContextLearningstruggles
+withthevastchemicalreactionspace. LengthconstraintsinMIPROv2forcetrade-offs, typicallyfavoringgeneric
+instructionswhilediscardingrarereaction-specificrulescriticalforthishard-logictask. GEPAsuffersfrominherent
+brevitybias,problematicforUSPTOwherecornercasesdeterminesuccess.Itspreferenceforconcisenesssystematically
+omitsthedetailedrulesneededforedgescenarios. TheincrementalcontextupdatesandaccumulationstrategyofACE
+aremoreeffectiveforthistask.
+D.2.2 SkillEvolution
+Theinitialskilladoptsacomprehensive,taxonomy-drivenapproachtocontextbuilding:
+InitialSkill(Excerpt)
+Phase2:ReactionTypeAnalysis
+Foreachreactiontype,analyzepatterns:
+33
+
+--- Page 34 ---
+Protections: Identifyprotectinggroups(Boc,Cbz,Fmoc,Bn,etc.). Commonreagents: Boc2O,benzylhalides,silyl
+chlorides.Pattern:Productcontainsprotectedfunctionalgroup;reactantsincludeprotectingreagent+substrate.
+C-CBondFormation:Suzuki,Stille,Negishi,Heck,aldol,Grignardreactions.Couplingpartners:organoboron,organotin,
+organozinc,arylhalides...
+Phase4:BuildOrganizedContext
+Createcontextorganizedbyreactiontypewith: Overview, KeyPatterns, RepresentativeExamples, CommonPitfalls,
+SMILESNotationNotes.
+Theoptimalskillshiftsfocusfromcomprehensivecoveragetodifferentiallearning,emphasizingbothsuccesspattern
+miningandfailurepatternanalysis:
+OptimalSkill(Excerpt)
+CorePrinciple:Update,Don’tRebuild.Builduponexistingcontext,preservewhat’sworking.
+Phase2:AnalyzeWhatWorks(SuccessPatternMining)
+Forcorrectpredictions,useLLMreflectiontounderstandWHYtheysucceeded:
+• Whatchemicalpatterndidthemodelcorrectlyidentify?
+• WhatSMILESnotationpatternwasappliedcorrectly?
+• Extract2-3actionablepatternsforsimilarcases.
+Phase3:AnalyzeWhatFailed(FailurePatternMining)
+Forincorrectpredictions,identifyrootcauses:
+• Whatchemicalpatternwasmisidentifiedormissed?
+• Whatspecificguidancewouldhavepreventedthiserror?
+Compression Strategy: Keep only top 20 most common error patterns. Remove unique edge cases. Create
+QUICK_REFERENCE.mdwithcondenseddecisionrules.
+A key innovation in the optimal skill is the explicit focus on workflow-oriented context rather than encyclopedic
+information:
+WorkflowCreationGuidance
+KeyPrinciples:
+1. PrioritizeAction:Patternsshouldbeactionable,notjustinformative
+2. Success>Error:Documentwhatworksmorethanwhatdoesn’t
+3. SimplifyRuthlessly:Removeedgecases,focusoncommonpatterns
+4. WorkflowFirst:Providedecisionprocesses,notjustinformation
+D.2.3 ContextEvolution
+Thecuratedcontextevolvesintoastructuredknowledgesystemwithmultiplespecializedcomponents:
+1. workflow.md: Step-by-stepdecisionprocesswithembeddedverificationchecks
+2. QUICK_REFERENCE.md: Criticalerrorpatternsdistilledfromtrainingfailures
+3. SUCCESS_PATTERNS.md: Validatedpatternswith100%trainingaccuracy
+4. Reaction-typeguides: Individualfilesforeachreactionclass(cc_bond_formation.md,deprotections.md,etc.)
+AdistinguishingfeatureoftheUSPTOcontextistheintegrationofinlineverificationcheckpointswithintheworkflow:
+WorkflowwithVerificationCheckpoints(FromContext)
+Step3:ApplyReaction-SpecificPattern
+ForHeterocycleFormation:
+1. Identify:Whatheterocycle?(pyrrole,thiazole,oxadiazole,etc.)
+2. Match:Standardsynthesispattern
+▶CRITICALERRORCHECK-HeterocycleType:
+34
+
+--- Page 35 ---
+Did you check for OXYGEN in the ring?
+YES: “oc” pattern → 1,3,4-Oxadiazole
+NO: “nnn” pattern → 1,2,4-Triazole
+Common mistake: Confusing oxadiazole (has O) with triazole (no O)
+▶CRITICALERRORCHECK-EstervsAcid:
+For amide formation retrosynthesis:
+Product has: C(=O)N (amide)
+Precursor should be: C(=O)OC (ESTER) NOT C(=O)O (ACID!)
+Thecontextalsoexplicitlydocumentssuccesspatternsthatachieved100%accuracy,providingpositiveexemplars:
+SuccessPatternDocumentation(Excerpt)
+HantzschThiazoleSynthesis(ID37-CORRECT)
+Product: CCOC(=O)c1sc(C)nc1-c1ccc(C)cc1
+Precursors: CC(N)=S.CCOC(=O)C(Br)C(=O)c1ccc(C)cc1
+Key: Thioacetamide + α-halo carbonyl → thiazole
+Br is on carbon alpha to carbonyl: C(Br)C(=O)
+Thisdualdocumentationofbotherrorpatterns(whattoavoid)andsuccesspatterns(whattoreplicate)enablesmore
+robustgeneralizationcomparedtoerror-onlyapproaches. Theworkflow-centricorganizationensuresthebaseagent
+followsasystematicdecisionprocessratherthanrelyingonpatternmemorization,whichiscriticalforthecombinatorial
+complexityofchemicalreactionspace.
+TheretrievalfunctionforUSPTO50kusesthedefaultfullretrievalstrategythatreturnsallcontextconcatenated,which
+wasfoundtobethemosteffectiveapproachforthistask.
+D.3 Symptom2Disease
+D.3.1 TaskCharacteristicsandBaselineLimitations
+Symptom2Diseasepresentsafine-grainedclassificationchallenge(22diseasecategories)wherethecorechallengelies
+inaccuratelymappingnaturallanguagesymptomdescriptionstospecificmedicallabels. UnlikeFiNERandUSPTO,
+thistaskexhibitsminimaltrain-testdistributionalshiftanddoesnotrequiredeepabstractionormulti-stepreasoning—
+symptom descriptions in the test set closely mirror those in training, and classification relies primarily on pattern
+matchingratherthanlogicalinference. Consequently,many-shotICLemergesasthestrongestbaseline: byproviding8–
+10examplesperdiseasecategory,ICLachievessufficientdistributioncoverageforeffectivenearest-neighbormatching
+inthesemanticspace.
+Thispropertyinvertstheusualbaselinehierarchy. Methodsthatattempttoinjectabstractionanddeepreflection—GEPA
+andACE—underperformonthistask. GEPA’sbrevitybiascausescontextcollapse,abstractingspecificsymptoms(e.g.,
+“burningsensation”forpepticulcervs.“chestpain”forheartdisease)intooverlygeneralrulesthatlosefine-grained
+distinctions. ACE’smonolithicplaybookaccumulationintroducesnoise: abstractheuristicscanoverridethemodel’s
+pre-trainedmedicalknowledge,andintheonlinesetting,earlymisclassificationsbecomeentrenchedandpropagate
+errors.
+Conversely,methodsthatleveragemoreexamplesperformbetter. DCachievesstrongresultsbyperformingdynamic
+many-shotICLwithsemanticretrieval,anaturalfitforthistaskbecausesemanticsimilaritydirectlycorrespondsto
+pragmaticsimilaritywhenclassifyingsymptomdescriptions. MIPROv2alsobenefitsfrompreservingdistributional
+featuresthroughexampleselectionratherthanover-compressingknowledgeintoabstractinstructions.
+D.3.2 SkillEvolution
+Theinitialskilladoptsathree-phaseapproach: PatternExtraction,ProfileSynthesis,andError-DrivenRefinement:
+InitialSkill(Excerpt)
+Phase2:ExtractSymptom-DiagnosisPatterns
+Foreachdiagnosis,extractthecoresymptompatternsthatcharacterizeit.Focusongeneralizablepatterns,notspecific
+examples.
+35
+
+--- Page 36 ---
+Foreachdiagnosis,synthesizeageneralizedsymptomprofile:
+• CoreSymptoms:Listmainsymptoms
+• TypicalDescriptors:Commonwayssymptomsaredescribed
+• KeyPattern:2–3sentencedescriptionofthedefiningsymptomcombination
+Phase4:Error-DrivenRefinement
+Analyzeincorrectpredictionstoidentify:Whichdiagnosesarecommonlyconfused?Whatsymptompatternsledtowrong
+predictions?
+Theoptimalskillrepresentsadramaticphilosophicalshift. Crucially,itlearnsfromprioriterationsthatthecurrent
+architectureisalreadynear-optimal—explicitlyreferencing“88%val,1%gap”asabaselinetopreserve. Theskill
+evolvesfrom“buildcomprehensivecontext”to“conservativerefinementwithevidence-basedaddition”:
+OptimalSkill(Excerpt)
+CorePhilosophy
+1. PreserveWhatWorks:Previousiterations’88%val,1%gapisnear-optimal—don’tbreakit
+2. Evidence-BasedAddition:Onlyadddiscriminatorsthatdemonstrablyimproveperformance
+3. Multi-GateValidation:Pass5validationgatesbeforeaddinganypattern
+4. GapPreservation:Train-valgapmustnotwiden(>1%)afteranyaddition
+5. StopWhenBeneficial:At88%+validation,remainingerrorsmaybeirreducible
+StricterCriteria(evolvedfrompreviousiterations):
+• Requires3+occurrences(not2+likepreviousiterations)
+• Requireslowgeneralizationrisk(notmedium)
+• Novelcaseconfidence≥0.9required
+Akeyinnovationistheintroductionofexplicitstopcriteria—theskillrecognizeswhenfurtherrefinementiscounter-
+productive:
+StopCriteriafromOptimalSkill
+StopandpreservecurrentstateifANYcriterionismet:
+1. Validatedpatterns<3(toofewtojustifyadditions)
+2. Trainaccuracy>90%(alreadyoverfitting)
+3. Estimatedtrain-valgap>1.5%(gapwidening)
+4. Ambiguous+Edge+Novelerrors>40%oftotal(irreducibleerrors)
+Decision:“Prioriterations’architectureisalreadynear-optimal.Addingdiscriminatorsriskswideningthetrain-valgap.
+Remainingerrorsarelikelyambiguouscases.”
+Thisrepresentsameta-learninginsight: theskillhaslearnedfromiterationhistorythatknowingwhentostopisas
+importantasknowingwhattoadd.
+D.3.3 ContextEvolution
+Thecontextevolvesintoacomprehensivediagnosisguideorganizedarounderrorprevention. Unliketheencyclopedic
+approach,thefinalcontextprioritizesdecisivediscriminators,whicharerulesthatresolvespecificconfusionpatterns:
+SurgicalDiscriminators(FromContext)
+CRITICALRULE:ImpetigovsChickenPox
+Error:Predictingchickenpoxforpainfulfluid-filledblisters
+KeyDiscriminator:
+• Impetigo:Fluid-filledblistersthatarePAINFULTOTOUCH+NOT“alloverbody”
+• ChickenPox:Itchyblisters+“alloverbody”distribution
+DECISIVE:Painfultotouchvesicles=IMPETIGO
+DECISIVE:Itchy(notpainful)vesicles=CHICKENPOX
+36
+
+--- Page 37 ---
+Thecontextalsocapturessemanticsymptom“essences”—generalizedpatternsthattranscendspecificwording:
+SemanticSymptomEssences(FromContext)
+ESSENCE:BronchialAsthmaPattern
+Whatitfeelslike:Breathlessness,chesttightness,wheezing,coughing(oftenworseatnight),tirednessfrombreathing
+effort
+SemanticDistinctionfromPneumonia:
+• Asthma=breathingdifficultyasPRIMARYsymptom,coughissecondary
+• Asthma=tirednessFROMbreathingeffort,notfromsystemicinfection
+• Pneumonia=fever+thick/coloredmucus+feelingsickfrominfection
+• COLOREDPHLEGM=PNEUMONIA(decisive)
+Theevolutiondemonstratesthatfortaskswithminimaldistributionalshift,theoptimalstrategyisconservative:preserve
+validatedpatterns,adddiscriminatorsonlywithstrongevidence,andrecognizewhenremainingerrorsareirreducible
+ambiguitiesratherthanfixablegaps.
+Forsymptom2disease,MCEretrievalfunctionevolvesintoasophisticated1,440-linerule-basedroutingsystem. This
+extensiveretrievallogicreflectsthetask’sfine-grainedclassificationnature: differentsymptomcombinationsrequire
+differentdiscriminators,andretrievingirrelevantrulescanintroducenoise.
+The retrieval function implements a prioritized cascade of symptom pattern detectors, each triggering retrieval of
+specificcontextsections:
+RetrievalFunctionStructure(Overview)
+Architecture:1,440linesofPythonwith30+prioritizedrules
+MainLogic:
+1. CriticalRules(HighestPriority):9rulesforspecificsymptomcombinationslearnedfromtrainingerrors
+2. SurgicalFixes:4high-precisionrulesforrecurringconfusionpairs
+3. SemanticEssenceMatching:Patterndetectionfordisease“essences”
+4. ErrorPatternMatching:26+rulesderivedfromspecifictrainingerrors
+5. Fallback:Returnfulldiagnosisguideifnopatternmatches
+Eachruleperformskeyword-basedsymptomdetectionandreturnsonlytherelevantcontextsections:
+RetrievalRuleExample(Excerpt)
+# CRITICAL RULE 1: RUNNY NOSE + SNEEZING +
+# SORE THROAT WITHOUT FEVER = ALLERGY
+has_runny_nose = ’runny’ in question_lower or
+’running’ in question_lower
+has_sneezing = ’sneez’ in question_lower
+has_sore_throat = ’sore throat’ in question_lower
+has_no_fever = ’fever’ not in question_lower
+if has_runny_nose and has_sneezing and \
+has_sore_throat and has_no_fever:
+# Return only ALLERGY-related sections
+relevant = [’## CRITICAL NEW RULES’,
+’## SEMANTIC SYMPTOM ESSENCES’]
+for section in sections:
+if ’ALLERGY’ in section.upper():
+relevant.append(’## ’ + section)
+return ’\n’.join(relevant)
+Theretrievalfunctionalsoencodeslearneddiscriminatorsforambiguouscases:
+37
+
+--- Page 38 ---
+DisambiguationLogic(Excerpt)
+# SURGICAL FIX 4: EXPLICIT BREATHING DIFFICULTY
+# "Hard to breathe" as explicit symptom = ASTHMA
+has_explicit_breathing = (
+’hard to breathe’ in question_lower or
+’trouble breathing’ in question_lower or
+’shortness of breath’ in question_lower
+)
+if has_explicit_breathing:
+# Return ASTHMA sections, not PNEUMONIA
+for section in sections:
+if ’ASTHMA’ in section.upper():
+relevant.append(’## ’ + section)
+ThisretrievaldesignembodiesMCE’scoreinsightforthistask: ratherthanaccumulatingmonolithiccontext(like
+ACE’splaybook),thesystemlearnswhentoapplywhichdiscriminators. The1,440-lineretrievalfunctioneffectively
+encodesadecisiontreethatrouteseachquerytoitsmostrelevantcontextsubset,preventingcontextinterferencewhile
+ensuringpreciseguidanceforeachsymptompattern.
+D.4 LawBench
+D.4.1 TaskCharacteristicsandBaselineLimitations
+Criminal charge prediction task in LawBench presents a demanding legal classification task that combines three
+challengingproperties: (1)long-contextwithdetailsensitivity: inputsaredetailedcasefactdescriptionswheresubtle
+distinctionsdeterminethecorrectcharge;(2)strictlogicalreasoning: crimedeterminationdependsonpreciselegal
+elements(e.g.,distinguishing“theft”from“robbery”requiresanalyzingwhetherforceorthreatwasused);and(3)
+high-precisionclassification: outputsarefixedcrimelabelsfromaclosedset,demandingaccuratematchingbetween
+casefactsandlegaldefinitions.
+ThistaskinvertsthebaselinehierarchyobservedinFiNERandUSPTO.Here,ACE’smonolithicplaybookaccumu-
+lationstrategybecomesaliabilityratherthananasset. Inlegalscenarios,ACEaccumulatesextensivebulletsfrom
+historicalerrors,butwhenthesebulletsareretrievedandconcatenatedintocontext,theyintroducecontextinterference,
+overwhelmingthecurrentcase’skeyinformationwithtangentiallyrelatedpastpatterns. Forinstance,whenclassifying
+a“smugglingofordinarygoods”case,ACEgeneartormayrefertostrategiesfor“smugglingweapons”and“smuggling
+cultural artifacts,” which are noise that dilutes attention from the decisive factors. The model’s attention becomes
+dispersedacrossaccumulatedheuristics,causingittooverlooksmallbutlegallydecisivedetailsinthecasefacts.
+Conversely,GEPA’s“brevitybias”—typicallyaweakness—becomesanadvantageforthisclassificationtask. Rather
+thanaccumulatingcase-specificpatterns,GEPAevolvesasingle,globallyoptimizedinstructionthatprovidesclear
+procedural guidance for legal reasoning. Through Pareto optimization across the entire dataset, GEPA discovers
+prompts that generalize robustly across different case types without overfitting to specific examples. The evolved
+promptstructuresthereasoningprocessexplicitly: (1)comprehensivefactanalysis, (2)strictformatrequirements
+forcrimelabels,(3)commonerroravoidancechecklist,and(4)mandatoryreasoning-before-answerworkflow. This
+concise,globally-tunedinstructionprovesmoreeffectivethanACE’splaybookbecauseitdirectsthemodeltofocuson
+thecurrentcase’sfactsandapplysystematiclegalreasoning,ratherthanpattern-matchingagainstpotentiallymisleading
+historicalexamples.
+D.4.2 SkillEvolution
+Theinitialskilladoptsapattern-basedapproachfocusedonchargedefinitionsanddistinctionknowledge:
+InitialSkill(Excerpt)
+Phase2:ExtractCrimeElementPatterns
+Foreachchargetypeidentified,analyzethecorrespondingtrainingexamplestoextract:
+1. Criminalactionpatterns:Whatspecificactionsconstitutethiscrime?
+2. Victim/objectpatterns:Whoorwhatisharmed?
+3. Methodpatterns:Howisthecrimecommitted?
+38
+
+--- Page 39 ---
+4. Thresholdpatterns:Whatnumericalorseveritythresholdsapply?
+5. Intentpatterns:Whatmentalstateisrequired?
+Phase3:BuildDistinctionKnowledge
+Forsimilar/relatedcharges,identifydistinguishingfeatures:
+• 盗窃vs诈骗:Secrettakingvs.deception-inducedvoluntarytransfer
+• 职务侵占vs盗窃:Position-basedmisappropriationvs.generaltheft
+• 故意伤害vs寻衅滋事:Specifictargetvs.randomvictim
+Afterseveraliterationsofmeta-agentrefinement,theskillundergoesafundamentalphilosophicalshift. Themeta-agent
+observesthatpattern-basedlearningcausesoverfitting. Even“simplified”ruleslike“ifpropertytakensecretly→盗
+窃”causememorizationbecausetheymatchsurfacepatternsratherthanrequiringdeepanalysis. Theoptimalskill
+introducesstructuralcasedecomposition:
+OptimalSkill(Excerpt)
+CorePhilosophy:StructureOverPatterns
+WhyPreviousIterationsStillOverfit:
+1. Pattern-BasedLearningCausesMemorization:Evensimplifiedrulescauseoverfittingbecausetheymatchsurface
+patterns
+2. ContextSizeCorrelateswithOverfitting:88KBcontextstillcorrelateswith14%train-valgap
+3. NegativeLearningHasLimits:TeachingwhatNOTtododoesn’tteachwhatTOdo
+TheSolution:StructuralDecomposition
+1. Fact→ActMapping:Teachmodeltoextractdiscretecriminalactsfromnarrativefacts
+2. Act→ChargeMatching:Applylegaldefinitionstoeachactseparately
+3. Multi-ChargebyStructure:Detectmultiplechargesthroughstructuralmarkers(numberedfacts,temporalmarkers),
+notpatterns
+4. MinimalContext:Keeponlystructuralguidanceandchargedefinitions(target<30KB)
+Akeyinnovationistheintroductionofprocessingstagesforerrordiagnosis. Theskillcategorizesbywhereinthe
+processingpipelinetheerroroccurred,ratherthancategorizingerrorsbychargetype:
+ErrorCategorizationbyProcessingStage
+ProcessingStageFailures:
+1. fact_comprehension_error:Failedtounderstandwhathappened
+2. act_extraction_error:Failedtoidentifydiscretecriminalacts
+3. act_independence_error:Failedtorecognizeactsasindependentvs.dependent
+4. charge_selection_error:Appliedwrongchargetocorrectlyidentifiedact
+5. charge_name_error:Wrongorincompleteofficialchargename
+6. multi_charge_detection_error:Failedtodetectmultipleindependentcharges
+Thisrepresentsameta-learninginsight: theskilllearnsthathowerrorsoccurmattersmorethanwhichchargesare
+confused.
+D.4.3 ContextEvolution
+Thecontextevolvesintoastructurally-organizedsystemwith11specializedfilestotalingapproximately30KB(reduced
+from 88KB in earlier iterations). Unlike pattern-based approaches, the context teaches a systematic processing
+framework:
+CaseDecompositionFramework(FromContext)
+Process:READ→DECOMPOSE→MATCH→VALIDATE
+Step1:FullCaseReading
+BeforeANYanalysis,readtheENTIREcasedescriptiontounderstand:WHO,WHAT,WHEN,WHERE,HOW,WHY
+39
+
+--- Page 40 ---
+Step2:ActExtraction
+ExtractALLdiscretecriminalacts.An“act”isaseparatelydescribedbehaviorwithdistinctvictim,method,orintent.
+ActExtractionRules:
+• Numberedsubsections((一)、(二)...)→Separateacts
+• Temporalmarkers(differentdates,“随后”,“另”)→Separateacts
+• Differentvictims/objects→Separateacts
+• “另案处理”,“另查明”→Additionalactsmentioned
+Step3:Act-to-ChargeMatching
+ForEACHextractedact:(1)Identifycriminalnature,(2)Listpossiblecharges,(3)Verifyelementssatisfied,(4)Selectmost
+specificcharge
+Thecontextalsoincludesstructuralanti-patterns,explicitdocumentationofprocessingerrorstoavoid:
+StructuralAnti-Patterns(FromContext)
+Anti-Pattern1:MergingNumberedFacts
+Error:Treating(一)、(二)asoneact
+Prevention:NumberedsubsectionsALWAYS=separatecharges
+Anti-Pattern2:Ignoring“另案处理”
+Error:Missingadditionalchargesafter“另案处理”mentions
+Prevention:ScanforTHISdefendant’sotheracts
+Anti-Pattern3:WrongChargeFamily
+Error:Predictingwrongchargetypebykeywordmatching
+Prevention:VerifyALLelementsmatchbeforeselectingcharge
+Theretrievalfunction(177lines)isnotablysimplerthansymptomdiagnosis(1,440lines),reflectingthetask’sdifferent
+requirements. Ratherthancomplexroutinglogic,itimplementsatrigger-basedaugmentationstrategy:
+RetrievalFunctionStructure(Overview)
+Architecture:177linesofPythonwithtrigger-basedcontextaugmentation
+MainLogic:
+1. FormatRules:Alwaysincludeoutputformatrequirements
+2. Multi-ChargeTriggers:Detectstructuralmarkers((一),另案处理,另查明)
+3. High-ErrorPatterns:Addguidanceforfrequentlyconfusedcharges
+4. ChargeNameWarnings:Ensurecompleteofficialnamesareused
+5. CoreFramework:Alwaysincludethedecompositionprocess
+6. ReferenceMaterials:Appendrelevantcontextfiles
+RetrievalFunctionExcerpt
+# Multi-charge detection triggers
+multi_charge_triggers = [
+("(一)", "Numbered subsection - separate charge"),
+("另案处理", "Separate case - check other acts"),
+("另查明", "Additional discovery - more charges"),
+]
+for trigger, guidance in multi_charge_triggers:
+if trigger in question:
+relevant_context.append(guidance)
+Thisdesignreflectsthetask’snature: legalclassificationrequiressystematicstructuralanalysisofcasefactsrather
+thansemanticpatternmatching. Theretrievalfunctionensuresthemodelreceivesconsistentstructuralguidanceplus
+case-specificwarnings,enablinggeneralizationthroughprocess,incontrasttopatternaccumulationobservedinACE.
+40
+
+--- Page 41 ---
+D.5 Aegis2.0
+D.5.1 TaskCharacteristicsandBaselineLimitations
+Aegis2.0requiresclassifyinguserpromptsintofivecategories: CopyrightTrademarkPlagiarism,PoliticalMisinforma-
+tionConspiracy,UnauthorizedAdvice,ImmoralUnethical,andsafe. WedeployQwen3-8Basthegeneratorforthis
+tasksincesafetyguardrailsrequiresmallmodelsforefficientinference. Thisrequirementposesuniquechallengesdue
+tolimitedreasoningcapacityandcontextwindowconstraintsofsmallmodels. Therefore,weobservethatCEmethods
+withbrevitybias,suchasGEPA,canoutperformtheothers.
+D.5.2 SkillEvolution
+Theinitialskilladoptsameta-learningerrorsynthesisapproach,categorizingerrorsbyrootcauseandsynthesizing
+generalizedpatterns:
+InitialSkill(Excerpt)
+ErrorTaxonomy:
+• false_positive:Predictedunsafe,shouldbesafe
+• false_negative:Predictedsafe,shouldbeunsafe
+• wrong_category:Unsafebutwrongcategoryassigned
+• format_error:Outputformatorstructureissues
+KeyPrinciples:
+1. Generalize,Don’tOverfit:Synthesizepatternfamilies,notspecificexamples
+2. PrioritizeHigh-PrecisionRules:EachruleshouldhavecleartriggerANDexclusionconditions
+3. MinimalContext,MaximumClarity:Preferrulesoverexamples(smallmodelslearnrulesbetter)
+Afteriterations,theskillevolvestoemphasizebalancedprecisioncontrol. Themeta-agentdiscoversthatsmallmodels
+areparticularlypronetoover-classification(flaggingbenignpromptsasunsafe),andshiftsfocustosurgicalfixeswith
+explicitprecision/recalltrade-offs:
+OptimalSkill(Excerpt)
+CoreProblem:Smallmodels(8Bparameters)arepronetotwocriticalfailures:
+1. Over-classification(FalsePositives):Flaggingbenignpromptsasunsafe
+• Commonwith:creativeroleplay,contenttemplates,conversationalstatements
+• Rootcause:keywordpatternstoobroad,missingsafeexclusions
+2. Under-classification(FalseNegatives):Missingactualviolations
+• Commonwith:contentextractionjailbreaks,indirectcheatingpatterns
+• Rootcause:missingtriggerpatterns,contextnotretrieved
+FixPrioritization:
+• Ifover-classificationdominant→Addsafeexclusionpatterns
+• Ifunder-classificationdominant→Addmissingtriggerpatterns
+• Maintainprecision/recallbalancescore>0.7
+Akeyinnovationistheintroductionofcriticaldistinctionsthatsmallmodelsstrugglewith:
+41
+
+--- Page 42 ---
+CriticalDistinctionsfromOptimalSkill
+CREATEvsEXTRACT:
+• CREATEnewcontent=SAFE
+• EXTRACT/REWRITEexisting=Checkforplagiarismintent
+RoleplayDetection:
+• Benignroleplaywithoutoverride=SAFE
+• Roleplaywithoverride+harmfulcontent=UNSAFE
+• “Stayincharacter”ANDNOT[“norules”,“noethics”]=SAFE
+Setup-OnlyJailbreaks:
+• Jailbreakpersona+confirmationrequestonly=SAFE(noharmfulactionrequested)
+• Jailbreakpersona+actionrequest=UNSAFE
+D.5.3 ContextEvolution
+Thecontextevolvesinto12specializedfilesorganizedaroundviolationcategoriesandsafeexclusions. Thecontext
+emphasizesdecisionrulesoverexamples,optimizedforsmallmodelreasoningcapacity.
+ContextFileOrganization
+SafeBaseline(alwaysincluded):
+• 00_safe_baseline.md:Defaultsafeclassificationprinciples
+• 10_safe_content_creation.md:Benigncontentpatterns
+Category-SpecificRules:
+• 01_copyright_patterns.md:Academiccheating,plagiarism
+• 02_misinformation_patterns.md:Conspiracy,politicalloadedcontent
+• 03_unauthorized_advice.md:Medical/legal/financialadvice
+• 04_immoral_unethical_patterns.md:Jailbreakpersonas,overridelanguage
+PrecisionControl(falsepositiveprevention):
+• 06_over_classification_patterns.md:PatternstoNOTflag
+• 07_setup_only_exclusions.md:Confirmation-onlyjailbreaks
+• 09_professional_roleplay_detection.md:Benignvsunsaferoleplay
+Theretrievalfunction(995lines)implementsaprecision-firstcascadewithearlysafereturnsforbenignpatterns:
+RetrievalFunctionStructure(Overview)
+Architecture:995linesofPythonwithprecision-controlledpatternmatching
+MainLogic(inpriorityorder):
+1. Early Safe Returns: Detect benign content creation, SEO work, short informal questions → return safe context
+immediately
+2. TemplateJailbreakDetection:Placeholders+override/anti-detectionkeywords
+3. ProfessionalRoleplay:Licensedprofessionals(doctor/lawyer)vstechnicalroles
+4. Category-SpecificPatterns:Misinformation,unauthorizedadvice,immoralcontent
+5. Over-ClassificationPrevention:Addsafeexclusioncontextforambiguouscases
+Theretrievalfunction’searlysafereturnmechanismiscriticalforpreventingover-classification:
+EarlySafeReturnLogic(Excerpt)
+# Benign content creation patterns
+seo_content_patterns = [
+’seo-optimized’, ’blog post’, ’article’,
+’keyword research’, ’content strategy’
+42
+
+--- Page 43 ---
+]
+# Short informal questions (< 10 words)
+# without specific harm keywords = SAFE
+is_short_informal = word_count < 10
+and not has_specific_harm
+# Early return for benign patterns
+if is_benign_content or is_short_informal:
+return safe_content_context
+Thisdesignreflectstheuniquechallengesofsafetyclassificationwithsmallmodels: theretrievalfunctionactsasa
+precisiongate,preventingthemodelfromseeingviolation-relatedcontextwhenthepromptisclearlybenign. This
+architectural choice reduces over-classification by ensuring the model only receives category-specific rules when
+patternsgenuinelywarrantscrutiny.
+E UtilityFunctions
+TheutilityfunctionstocallLLMs(fixedtoDeepSeekV3.1)andembeddingmodels(fixedtoOpenAI’stext-embedding-
+3-small)areprovidedbelow.
+utils/llm.py
+from langchain_openai import ChatOpenAI
+from typing import List, Type, TypeVar, Union
+from pydantic import BaseModel, Field
+import asyncio
+import os
+from dotenv import load_dotenv
+load_dotenv(override=True)
+T = TypeVar(’T’, bound=BaseModel)
+MAX_CONCURRENCY = 50
+MAX_LLM_CALLS = 100
+llm = ChatOpenAI(
+model=os.getenv("SANDBOX_MODEL"),
+api_key=os.getenv("OPENROUTER_API_KEY"),
+base_url=os.getenv("OPENROUTER_API_BASE"),
+temperature=0,
+)
+class TextResponse(BaseModel):
+"""Simple text response from LLM."""
+response: str = Field(description="The LLM’s response text")
+async def call_llm_async(
+prompts: List[str],
+schema: Type[BaseModel],
+) -> List[T]:
+"""
+Call llms with structured output
+Args:
+prompts: List of prompts to send to the LLM
+schema: Pydantic BaseModel class defining the output structure
+Returns:
+43
+
+--- Page 44 ---
+List of instances of the schema class with LLM outputs
+Raises:
+ValueError: If batch limit is exceeded
+"""
+if len(prompts) > MAX_LLM_CALLS:
+raise ValueError(f"Number of prompts ({len(prompts)}) exceeds maximum
+allowed per batch ({MAX_LLM_CALLS})")
+llm_with_structure = llm.with_structured_output(schema).with_retry(
+stop_after_attempt=3)
+semaphore = asyncio.Semaphore(MAX_CONCURRENCY)
+async def process_single(prompt: str) -> T:
+"""Process a single prompt with semaphore control."""
+async with semaphore:
+result = await llm_with_structure.ainvoke(prompt)
+return result
+results = await asyncio.gather(*[process_single(prompt) for prompt in
+prompts])
+return results
+def call_llm(
+prompts: Union[str, List[str]],
+schema: Type[BaseModel] = None,
+) -> Union[str, List[str], BaseModel, List[BaseModel]]:
+"""
+Synchronous wrapper for LLM calls. Supports both single and batch prompts.
+Args:
+prompts: Single prompt string or list of prompts
+schema: Optional Pydantic BaseModel class. If None, returns plain text
+responses.
+Returns:
+- If prompts is a string and schema is None: returns string
+- If prompts is a string and schema is provided: returns schema
+instance
+- If prompts is a list and schema is None: returns list of strings
+- If prompts is a list and schema is provided: returns list of schema
+instances
+Examples:
+# Simple text response
+response = call_llm("What is 2+2?")
+print(response) # "4"
+# Batch text responses
+responses = call_llm(["What is 2+2?", "What is 3+3?"])
+print(responses) # ["4", "6"]
+# Structured response
+class Analysis(BaseModel):
+pattern: str
+confidence: float
+result = call_llm("Analyze this...", schema=Analysis)
+print(result.pattern)
+# Batch structured responses
+results = call_llm(["Analyze A", "Analyze B"], schema=Analysis)
+44
+
+--- Page 45 ---
+for r in results:
+print(r.pattern)
+"""
+is_single = isinstance(prompts, str)
+prompt_list = [prompts] if is_single else prompts
+use_schema = schema if schema is not None else TextResponse
+results = asyncio.run(call_llm_async(prompt_list, use_schema))
+if schema is None:
+results = [r.response for r in results]
+return results[0] if is_single else results
+utils/embedding.py
+from typing import List
+import numpy as np
+from numpy.typing import NDArray
+from langchain_openai import OpenAIEmbeddings
+import os
+from dotenv import load_dotenv
+load_dotenv(override=True)
+EMBEDDING_MODEL = "text-embedding-3-small"
+embeddings = OpenAIEmbeddings(
+model=EMBEDDING_MODEL,
+api_key=os.getenv("OPENROUTER_API_KEY"),
+base_url=os.getenv("OPENROUTER_API_BASE"),
+)
+def compute_embedding_similarity(
+strings_a: List[str],
+strings_b: List[str],
+) -> NDArray[np.float64]:
+"""
+Compute cosine similarity between embeddings of two lists of strings.
+Args:
+strings_a: First list of strings
+strings_b: Second list of strings
+Returns:
+A 2D numpy array of shape (len(strings_a), len(strings_b)) containing
+cosine similarity scores between each pair of strings.
+"""
+# Get embeddings for both lists
+embeddings_a = embeddings.embed_documents(strings_a)
+embeddings_b = embeddings.embed_documents(strings_b)
+# Convert to numpy arrays
+embeddings_a_np = np.array(embeddings_a)
+embeddings_b_np = np.array(embeddings_b)
+# Compute cosine similarity
+# Normalize the embeddings
+embeddings_a_norm = embeddings_a_np / np.linalg.norm(embeddings_a_np, axis
+=1, keepdims=True)
+embeddings_b_norm = embeddings_b_np / np.linalg.norm(embeddings_b_np, axis
+=1, keepdims=True)
+45
+
+--- Page 46 ---
+# Compute dot product (cosine similarity for normalized vectors)
+similarity_matrix = embeddings_a_norm @ embeddings_b_norm.T
+return similarity_matrix
+46

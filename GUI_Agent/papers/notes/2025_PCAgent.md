@@ -89,7 +89,7 @@ PC-Agent 由三个核心设计组成。第一，**Active Perception Module (APM)
 ### Position in Survey
 
 - **Corresponding survey section/category**:
-  > ⚠️ NEEDS YOUR INPUT: 属于 GUI Agent Survey 中 **Section 3（Task Automation Pipeline）→ 3.2 Decision Making（多智能体）** 与 **3.1 Perception（APM）** 的交叉。Progress Agent 对 Cross_Topic/gui-agent-x-memory.md 的 A-1/A-2 缺口有直接参照意义——PA 是"有限 session 内记忆"的具体实现，但与跨任务持久化记忆有本质差距，可作为 Gap Analysis 的"现有局部方案"引用。
+  > ⚠️ NEEDS YOUR INPUT: 属于 GUI Agent Survey 中 **Section 3（Task Automation Pipeline）→ 3.2 Decision Making（多智能体）** 与 **3.1 Perception（APM）** 的交叉。Progress Agent 对 Cross_Topic/gap-tracker.md 中的 A-1/A-2 缺口有直接参照意义——PA 是“有限 session 内记忆”的具体实现，但与跨任务持久化记忆有本质差距，可作为 Gap Analysis 的“现有局部方案”引用。
 - **Role**: Background reference（PC 场景多智能体基线）/ Contrastive baseline（与具备持久化记忆的未来方案对比）
 
 ### Gap Signals (extracted from this paper)
@@ -129,4 +129,3 @@ PC-Agent 由三个核心设计组成。第一，**Active Perception Module (APM)
 > "Agent-S (Agashe et al., 2024) combines online search and local memory for experience-augmented planning. … However, these methods lack fine-grained perception and operation ability of on-screen text … Moreover, they generally overlook the complex dependencies between subtasks." (Section 1, p.2)
 
 > "Currently, the best performing model remains the closed-source GPT-4o. However, there is still significant room for improving the efficiency of completing complex tasks by invoking closed-source models. And the privacy and security issues associated with closed-source models also deserve attention." (Limitations, p.8)
-

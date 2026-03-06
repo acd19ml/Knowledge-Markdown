@@ -1,0 +1,1224 @@
+--- Page 1 ---
+Spatio-Temporal Token Pruning for Efficient High-Resolution
+GUI Agents
+ZhouXu BowenZhou QiWang
+TsinghuaUniversity TsinghuaUniversity XidianUniversity
+Shenzhen,China Shenzhen,China Xi’an,China
+xu-z25@mails.tsinghua.edu.cn zhoubw25@mails.tsinghua.edu.cn qiwang0720@stu.xdu.edu.cn
+ShuwenFeng JingyuXiao∗
+TsinghuaUniversity TheChineseUniversityofHongKong
+Shenzhen,China HongKong,China
+fsw25@mails.tsinghua.edu.cn jyxiao@link.cuhk.edu.hk
+Abstract ACMReferenceFormat:
+Pure-visionGUIagentsprovideuniversalinteractioncapabilities ZhouXu,BowenZhou,QiWang,ShuwenFeng,andJingyuXiao.2018.
+Spatio-TemporalTokenPruningforEfficientHigh-ResolutionGUIAgents.
+butsufferfromsevereefficiencybottlenecksduetothemassive
+InProceedingsofMakesuretoenterthecorrectconferencetitlefromyour
+spatiotemporalredundancyinherentinhigh-resolutionscreenshots
+rightsconfirmationemail(Conferenceacronym’XX).ACM,NewYork,NY,
+andhistoricaltrajectories.Weidentifytwocriticalmisalignmentsin
+USA,18pages.https://doi.org/XXXXXXX.XXXXXXX
+existingcompressionparadigms:thetemporalmismatch,whereuni-
+formhistoryencodingdivergesfromtheagent’s“fadingmemory”
+attentionpattern,andthespatialtopologyconflict,whereunstruc- 1 Introduction
+turedpruningcompromisesthegridintegrityrequiredforprecise TheevolutionofMultimodalLargeLanguageModels(MLLMs)has
+coordinategrounding,inducingspatialhallucinations.Toaddress fundamentallyreshapedthelandscapeofGraphicalUserInterface
+thesechallenges,weintroduceGUIPruner,atraining-freeframe-
+(GUI)agents.TraditionalGUIagents[4,5,9,31,32]typicallyrely
+work tailored for high-resolution GUI navigation. It synergizes on textual representations such as HTML or accessibility trees,
+Temporal-AdaptiveResolution(TAR),whicheliminateshistori-
+whichareoftenplaguedbynoise,excessivesequencelengths,and
+calredundancyviadecay-basedresizing,andStratifiedStructure-
+therequirementforintrusivesystem-levelpermissions[8,56].In
+awarePruning(SSP),whichprioritizesinteractiveforegrounds
+contrast,pure-vision-basedGUIagents[8,15,40,41,50,55]act
+andsemanticanchorswhilesafeguardinggloballayout.Extensive bydirectlyanalyzingscreenshots,effectivelymimickinghuman
+evaluationsacrossdiversebenchmarksdemonstratethatGUIPruner interaction.Thisparadigmshiftempowersagentswithrobustuni-
+consistentlyachievesstate-of-the-artperformance,effectivelypre- versalityacrossdiverseapplicationsandplatforms.
+ventingthecollapseobservedinlarge-scalemodelsunderhigh Despitethepromisinguniversalityofvision-basedGUIagents,
+compression. Notably, onQwen2-VL-2B,our methoddelivers a theirefficiencyisseverelyconstrainedbythespatiotemporalredun-
+3.4×reductioninFLOPsanda3.3×speedupinvisionencoding
+dancyinherentincontextualmodeling.Weanalyzeelementand
+latencywhileretainingover94%oftheoriginalperformance,en-
+historycontextstouncovertwocriticalchallengesthatexisting
+ablingreal-time,high-precisionnavigationwithminimalresource methodsfailtoaddress.1)Themismatchbetweenhighhistori-
+consumption. calresolutionandlowattention.AsillustratedinFigure1(Top),
+conventionalmethodstypicallyenforceuniformhigh-resolution
+CCSConcepts
+encodingacrosstheentirehistory,disregardingthetemporaldy-
+•Computingmethodologies→Artificialintelligence. namicsofagentperception.Ouranalysis,however,revealsadistinct
+“TemporalDecay”pattern:attentionisheavilyconcentratedon
+Keywords recentframes(the“RecencyEffect”)whiledistanthistoryreceives
+negligibleweight.Consequently,theprevailing“highresolution,
+GUIAgents,TokenCompression,MLLMs
+lowattention”configurationincursmassivecomputationalwaste,
+asdistantframesnecessitateonlysemanticoutlinesratherthan
+∗JingyuXiaoisthecorrespondingauthor.
+pixel-levelfidelity.2)Theconflictbetweentokensparsityand
+spatialtopology.GUIscreenshotsarehighlysparse,withback-
+Permissiontomakedigitalorhardcopiesofallorpartofthisworkforpersonalor
+groundtokensoftendominatingthevisualcontext,accountingfor
+classroomuseisgrantedwithoutfeeprovidedthatcopiesarenotmadeordistributed
+forprofitorcommercialadvantageandthatcopiesbearthisnoticeandthefullcitation over60%.Whiletheoreticallycompressible,specificbackground
+onthefirstpage.Copyrightsforcomponentsofthisworkownedbyothersthanthe regions (e.g., layout boundaries)serve asessential semantican-
+author(s)mustbehonored.Abstractingwithcreditispermitted.Tocopyotherwise,or
+chors.Existinggeneral-purposecompressionmethods[1,7,24,53]
+republish,topostonserversortoredistributetolists,requirespriorspecificpermission
+and/orafee.Requestpermissionsfrompermissions@acm.org. oftenemployunstructuredpruningstrategies(Figure1,TopRight).
+Conferenceacronym’XX,Woodstock,NY Suchdestructiveoperationscausetwomajorissues:theydisrupt
+©2018Copyrightheldbytheowner/author(s).PublicationrightslicensedtoACM.
+theinherent2Dgridstructurerequiredforaccuratecoordinates
+ACMISBN978-1-4503-XXXX-X/2018/06
+https://doi.org/XXXXXXX.XXXXXXX
+grounding,inducingsevere“spatialhallucinations”,andthey
+6202
+beF
+62
+]VC.sc[
+1v53232.2062:viXra
+
+--- Page 2 ---
+Conferenceacronym’XX,June03–05,2018,Woodstock,NY ZhouXu,BowenZhou,QiWang,ShuwenFeng,andJingyuXiao
+(Qwen2-VL-2B[42]andQwen2.5-VL-7B[2]),ourresultsconfirm
+itssuperiorrobustness.Notably,onthechallengingMind2Web,
+GUIPrunerconsistentlymaintainsSOTAperformanceacrossvary-
+ingcompressionratiosandeffectivelymitigatesthecatastrophiccol-
+lapseobservedinQwen2.5-VL-7B.Intermsofefficiency,itachieves
+a3.4×FLOPsreductionand3.3×encoderspeeduponQwen2-VL-
+2B,enablingreal-time,high-resolutionnavigationwithminimal
+resourceconsumption.
+Themaincontributionsaresummarizedasfollows:
+• WedissectthespatiotemporalredundancyinGUIagents,identi-
+fying“TemporalDecay”inhistoryandthe“Sparsity-Topology
+Conflict”inthecurrentframeascriticalbottlenecks.Thisanaly-
+sisuncoversthefundamentallimitationsofuniformcompression
+paradigmsincoordinate-sensitivegroundingtasks.
+• WeproposeGUIPruner,aplug-and-playvisualcompression
+Figure1:Paradigmcomparisonofvisualencodingandprun- framework.BysynergizingTemporal-AdaptiveResolution
+ing.Incontrasttoconventionalpipelines(Top)thatincur (TAR)andStratifiedStructure-awarePruning(SSP),ourap-
+highredundancyviauniformencodinganddisrupttopology
+proachdynamicallyalignsvisualencodingwiththeagent’sspa-
+viaunstructuredpruning,GUIPruner(Bottom)implements
+tiotemporalcognitivepatterns,eliminatingredundancywithout
+efficient source-level reduction and structured, topology-
+requiringparameterupdates.
+preservingcompression,ensuringhigh-precisiongrounding • GUIPrunerconsistentlyachievesstate-of-the-artperformance
+withminimaltokenconsumption.
+across diverse benchmarks, effectively mitigating the perfor-
+mancecollapseobservedinlarge-scale(7B)models.Empirically,
+indiscriminatelydiscardstructurallymeaningfulregions,leading it delivers a 3.4× FLOPs reduction and a 3.3× speedup on
+todegradedreasoningandpotentialtaskfailures. Qwen2-VL-2B,enablingefficientreal-timedeployment.
+Toaddressthesechallenges,weproposeGUIPruner,aframe-
+worktailoredforhigh-resolutionGUInavigation.Theframework
+2 RelatedWork
+synergizestwomodulesTemporal-AdaptiveResolution(TAR)
+andStratifiedStructure-awarePruning(SSP)toefficientlycom- GUIAgents.ThedevelopmentofGUIagents[30,43]hastran-
+presshistoricalandelementcontexts,respectively.First,tomitigate sitioned from pipeline-based systems relying on auxiliary tools
+historicalredundancy,weproposeTAR,aglobal-to-localresource (e.g., Accessibility Trees, OCR) [20, 25, 44, 45, 51, 52] to end-to-
+schedulingmechanism.Departingfrompriorworksthattreathis- endmultimodalmodelstrainedonvisualcorpora.Whileremoving
+toricalframesindependently[6,29],TARmimicsthebiological dependenciesoninaccessiblemetadata[40,50],thesemodelsin-
+“fadingmemory”byimposingaholistictokenbudgetdistributed curhighcomputationalcostsduetothenecessityofprocessing
+acrossthetemporaldimension.AsdepictedinFigure1(Bottom high-resolutioninputsandlonginteractionhistories.Tomitigate
+Left),weemployalineardecayschemetoallocatetokenquotas, thisburden,recentstudieshaveexploredvariousefficiencymecha-
+ensuringresolutionmonotonicallyattenuateswithtemporaldis- nisms.OdysseyAgent[29]proposesahistoryresamplingmodule
+tance.Crucially,thispre-computationresizingsuppressestoken tocompresspastscreenshots,thoughthisintroducesadditional
+generationatthesource,directlycurtailingthevisionencoder’s learnableparameters.Iris[14]andShowUI[26]attempttofilter
+computationaloverhead.Thismechanismeffectivelyeliminates redundantbackgroundsusinglow-levelvisualcues;however,Iris
+pixel-levelredundancyindistanthistorywhilepreservinghigh- isrestrictedtocurrent-frameinputs,whileShowUIsuffersfrom
+fidelitydetailsfortheimmediatecontext.Second,toreconcilethe notableperformancedegradationduringinference.Similarly,Sim-
+trade-offbetweentokensparsityandspatialtopology,wepropose pAgent[6]andGUI-Rise[28]employconsistency-guidedtraining
+SSP,whichoperateswithintheshallowlayersoftheMLLM.In- orreinforcementlearningtosummarizehistoricalinteractions.In
+steadofunstructuredpruningthatdisruptsspatialgrids(Figure1, contrast,weproposeatraining-freevisualcompressionframework
+TopRight),SSPemploysaStratifiedBudgetAllocationStrategyto explicitlydesignedtopreserveGUIstructuralintegrity,achieving
+hierarchicallypartitionthevisualcontext.Itprioritizes:(1)preserv- highefficiencywithoutparameterupdates.
+inghigh-resolutionfeaturesofinteractiveforegroundtargets(e.g., VisualTokenPruning.MultimodalLargeLanguageModels
+buttons,inputbox);(2)retainingsemanticallysalientbackground (MLLMs)arecrucialforhandlingcomplexreal-worldtasks(e.g.,
+regionsviaattentionranking;and(3)dedicatingtheresidualbudget imageunderstanding[27],codegeneration[11,38,47?–49],struc-
+toUniformGridSampling(UGS)(Figure1,BottomRight).UGSacts turalvisualdesign[37],testingagents[39]),yetprocessinghigh-
+asastructuralsafeguard,maintainingacoarse-grainedperception resolutionimagesimposesaheavycomputationalburden.While
+ofthegloballayouttoprevent“spatialhallucinations”. someapproaches[10,18,21,23,54]compresstokensusinglearn-
+WevalidatetheeffectivenessofGUIPrunerthroughrigorous ablequeries(whichrequireextratraining),theresearchfocushas
+benchmarkingagainststate-of-the-arttraining-freemethods.Eval- shiftedtowardtraining-freepruningmethodsthatworkdirectly
+uated across four diverse datasets (AITW [34], Mind2Web [13], duringinference.State-of-the-artmethodsgenerallyoptimizetoken
+GUI-Odyssey[29],AndroidControl[22])andvaryingmodelscales selectionthroughdifferentstrategies:FastV [7]filtersouttokens
+
+--- Page 3 ---
+Spatio-TemporalTokenPruningforEfficientHigh-ResolutionGUIAgents Conferenceacronym’XX,June03–05,2018,Woodstock,NY
+withlowattentionscoresinshallowlayers.Incontrast,DivPrune[1]
+formulatespruningasaMax-MinDiversityProblem(MMDP)[35]
+to select the most diverse subset of tokens. Similarly, methods
+likeMoB[24]andCDPruner [53]furtherrefinethisbyaligning
+tokenswithtextpromptsorusingDeterminantalPointProcesses
+(DPP)[19].However,thesegeneralmethodsareprimarilydesigned
+fornaturalimages.Theyoftenfailtopreservethedenseandstruc-
+turedlayoutstypicalofGraphicalUserInterfaces(GUIs).Toaddress
+this,weproposeaspecializedcompressionmethodthateffectively
+capturestheuniquestructuralcharacteristicsofGUIs,resolving
+thelimitationsofexistingapproaches.
+3 Preliminary
+3.1 ProblemFormulation
+Figure2:(a)Cross-attentionweightsexhibitapronounced
+WeformalizetheinteractionbetweentheGUIagentandthedigital Temporal Decay, consistent with the “Recency Effect” in
+environmentasanautoregressivetrajectorygenerationprocess. workingmemory.(b)Backgroundtokensdominatethevisual
+GivenaglobaluserinstructionI,theagentoperateswithinadis- contextacrossfourdatasets,indicatingsignificantspatial
+cretetimehorizontoautonomouslyaccomplishthetask.Ateach redundancy.(c)Heatmapsrevealthatspecificbackgroundre-
+time step𝑡, the agent’s policy 𝜋 integrates a multimodal input gions(redboxes)retainhighattentionasessentialsemantic
+streamconsistingofthestaticinstructionI,thecurrentvisual anchors,cautioningagainstindiscriminatepruning.
+state𝑋 𝑡,andaretrospectivecontextH𝑡 topredictthesubsequent
+action𝑎 𝑡 (e.g.,preciseclickcoordinates).Formally,thehistoryH𝑡
+comprisesasequenceofinterleavedpastobservationsandactions, resolution,lowattention”configurationresultsinseverecomputa-
+denotedasH𝑡 ={(𝑋 𝑡−𝑘 ,𝑎 𝑡−𝑘)}𝑇 𝑘=1 ,where𝑇 representsthemaxi- tionalwaste.ThisobservationinspiresourDynamicResolution
+mumtemporalwindowsize.Whilethishistoricaltrajectorypro- Strategy,whichadaptivelydecaystheinputresolutionasthetime
+videsessentialcontextualcuesfortrackingexecutionprogress,it lagincreases,eliminatingpixel-levelredundancywhilemimicking
+simultaneouslyinducesamassiveaccumulationofvisualtokens, biologicalmemorymechanisms.
+whichsignificantlyimpedesefficientreal-timeinference.
+Observation1:MLLMs’attentionoverGUIhistoriesdecays
+3.2 RedundancyofHistoricalVisualTokens
+sharplyovertime,makinguniformhigh-resolutionencoding
+DuringGUIactionprediction,incorporatinghistoricalinformation ofdistantframesinefficient.
+iscrucialfortheagenttocomprehendthecurrenttask,particularly
+withincomplexgraphicalinterfaceswherehistoricalcontextaids
+3.3 RedundancyofCurrentFrame
+inmakingrobustdecisions.Priorresearch,suchasSimpAgent[6],
+indicatesthatwhilethecurrentobservationisthedominantfactor Toinvestigatethepotentialforcompressingthecurrentframe,we
+foractionprediction,theinclusionofhistoricalobservationsfurther firstconductaquantitativeanalysisofvisualtokencomposition
+improvesmodels’performance.However,thisimprovementcomes inhigh-resolutionGUIscreenshots.AsillustratedinFigure2(b),
+atasignificantcomputationalcost,ashistoricalcontextintroduces duetotheinherentsparsityofGUIlayouts,backgroundtokenspre-
+alargenumberofadditionalvisualtokens,therebysubstantially dominantlyoccupythevisualcontext(oftenexceeding60%),while
+increasinginferenceoverhead. foregroundtokensrepresentinginteractiveelementsconstituteonly
+Historicalinformationfunctionsanalogouslytotaskworking aminorfraction.Thisextremeimbalancerevealssubstantialcompu-
+memory.HumanVisualWorkingMemory(VWM)exhibitsasig- tationalredundancy.However,thisdoesnotimplythatbackground
+nificant“RecencyEffect”[57],wherecleardetailsareretainedfor tokenscanbeindiscriminatelydiscarded.Byvisualizingtheatten-
+recentscenes,whileonlyfuzzysemanticoutlinesarepreservedfor tiondistribution(asshowninFigure2(c)),weobservethatspecific
+distantmemories.ToinvestigatewhetherMultimodalLargeLan- backgroundregions,particularlythoselayoutreferences,retain
+guageModels(MLLMs)possesssimilarcharacteristics,wevisualize highattentionscores,suggestingthatnaivebackgroundremoval
+theCross-Attentionweightsdistributionoftheagentregarding risksstrippingawayessentialsemanticcontext.
+historicalframesduringmulti-stepdecision-makingprocesses(as Crucially,wemustaddressthestringentspatialrequirementsof
+showninFigure2(a)). GUItasks.Unlikegeneralvisualquestionanswering,GUIagents
+WeobserveapronouncedTemporalDecayphenomenon:the typicallyneedtooutputprecisepixelcoordinates(𝑥,𝑦),whichheav-
+agent’sattentionisheavilyconcentratedonthemostrecent1∼2 ilydependentsontheintegrityof2Dspatialpositionalencodings.
+framestocapturetheimmediateinteractionstate.Conversely,as Existingresearch[26]indicatesthatunstructuredtokenpruning
+thetimelagincreases,theattentionweightsassignedtohistorical disrupts the original grid integrity of the image. This topologi-
+framesgraduallydiminish.However,existingGUIagentsoverlook caldegradationimpairstheagent’sperceptionofrelativeelement
+thispattern,enforcingauniformhigh-resolutionencodingforall positions,therebyinducing“spatialhallucinations”incoordinate
+historicalframesregardlessoftheirtemporaldistance.The“high prediction.Consequently,aneffectivecompressionstrategymust
+
+--- Page 4 ---
+Conferenceacronym’XX,June03–05,2018,Woodstock,NY ZhouXu,BowenZhou,QiWang,ShuwenFeng,andJingyuXiao
+Figure3:OverviewoftheGUIPrunerframework.Theframeworkaddressesspatiotemporalredundancythroughtwosynergistic
+modules:(Left)Temporal-AdaptiveResolution(TAR)mimicsbiologicalfadingmemorybyassigningdecayingresolutionbudgets
+tohistoricalframesbasedontemporaldistance,eliminatingredundancyindistantcontext.(Right)StratifiedStructure-aware
+Pruning(SSP)operatesonthecurrentframewithinshallowLLMlayers.Itpreservestopologicalintegritybyhierarchically
+retaininginteractiveforegroundtokens(𝑆 ),semanticbackgroundanchors(𝑆 ),andauniformstructuralgrid(𝑆 ),effectively
+𝑓𝑔 𝑏𝑔 𝑢𝑛𝑖
+compressingvisualtokenswithoutinducingspatialhallucinations.
+satisfytworequirements:itshoulddrasticallyreducebackground todynamicallyallocateresolutionforhistoricalframes.Unlikeprior
+redundancywhilestrictlypreservingthetopologicalstructureof worksthattreathistoryframesindependently,ourmethodadopts
+thespatialgridtoensureaccurategrounding. aglobal-to-localresourceschedulingmechanism.Itfirstimposes
+aholisticconstraintonthetotalcomputationalbudgetandthen
+Observation 2: Current GUI frames exhibit extreme back- distributesthisbudgetacrossthetemporaldimension,mimicking
+thebiological“fadingmemory”whereinformationdensitydecays
+groundredundancy,yetnaivetokenpruningrisksdisrupting
+astimegoesby.
+spatialstructureandinducing“spatialhallucinations,”high-
+GlobalBudgetFormulation.Formally,letthehistorycontext
+lightingtheneedfortopology-preservingcompression.
+attimestep𝑡 bedenotedasH𝑡 = {𝑋 𝑡−1 ,𝑋 𝑡−2 ,...,𝑋 𝑡−𝑇},where
+𝑋
+𝑡−𝑘
+representstheframewithatemporallag𝑘.Tostrictlycontrol
+4 Methodology
+thecomputationaloverhead,weintroduceaglobalhyperparameter
+4.1 Overview 𝜆 ∈ (0,1],termedtheHistoryTokenRetentionRatio.Giventhe
+Inthissection,wedetailourproposedframework,GUIPruner,as s si t z a e n , d a a s r s d um to i k n e g n u c n o if u o n r t m p r e e r s f o r l a u m ti e on 𝑁 𝐻 𝑜𝑟𝑖 × 𝑔 𝑊 = ) 𝐻 , 𝑃 t 𝑊 2 he ( t w o h ta e l r a e ll 𝑃 ow is a t b h l e et p o a k t e ch n
+showninFigure3.Weintroducetwonovelmechanisms:Temporal-
+budget𝑁 𝑏𝑢𝑑𝑔𝑒𝑡 fortheentirehistorysequenceisconstrainedby:
+AdaptiveResolution(TAR,§4.2)foreliminatingpixel-levelre-
+dundancyinhistoricalcontexts,andStratifiedStructure-aware 𝑁 𝑏𝑢𝑑𝑔𝑒𝑡 =⌊𝑇 ×𝑁 𝑜𝑟𝑖𝑔×𝜆⌋, (1)
+Pruning(SSP,§4.3)forefficient,topology-preservingencodingof
+whichensuresthattheagent’smemoryfootprintisboundedbya
+thecurrentinteractivestate. user-definedratio𝜆,regardlessofthehistorylength𝑇.
+Temporal-decayTokenAllocation.Wedistributetheglobal
+4.2 Temporal-AdaptiveResolution
+budget𝑁 𝑏𝑢𝑑𝑔𝑒𝑡viaaLinearDecaySchedulegovernedbyaretention
+ToaddressthetemporalredundancyidentifiedinSection3.2,we factor𝛾 ∈ (0,1].Formally,wedefinetheunnormalizedimportance
+proposetheTemporal-AdaptiveResolution(TAR)mechanism weight𝑤
+𝑘
+(interpolatingfrom1downto𝛾)andthefinalallocated
+
+--- Page 5 ---
+Spatio-TemporalTokenPruningforEfficientHigh-ResolutionGUIAgents Conferenceacronym’XX,June03–05,2018,Woodstock,NY
+tokenquota𝑛 𝑘 as: attentionranking:
+𝑤 𝑘 =𝛾+(1−𝛾) 𝑇 𝑇 − − 𝑘 1 , 𝑛 𝑘 =𝑁 𝑏𝑢𝑑𝑔𝑒𝑡 · (cid:205)𝑇 𝑤 𝑘 𝑤 . (2) S𝑏𝑔 =TopK(T𝑏𝑔 ,⌊|T𝑏𝑔|×(𝜇·𝜌)⌋). (5)
+𝑗=1 𝑗
+Thispreservessemanticcontextsvitalforreasoning,evenifthey
+Thisstrategysmoothlyattenuatesresolutionfordistantframes, arenotdirectinteractiontargets.
+allocatinghigherfidelitytorecentobservationswhilepreserving (3)TopologicalStructureCompletion.Toavertthe“spatial
+minimalcontextvia𝛾.
+collapse”causedbyunstructuredpruning,weallocatetheresidual
+ResolutionMapping.Tostrictlyenforcetheallocatedtoken budget𝐾 𝑟𝑒𝑠 =𝐾 𝑡𝑜𝑡𝑎𝑙−(|S𝑓𝑔|+|S𝑏𝑔|)tosafeguardglobalstructure.
+budget𝑛 𝑘,wemapthediscretequotabacktothecontinuousspatial WeapplyUniformGridSampling(UGS)ontheremainingtokens
+domain.GiventhatthetokencountinViTs[16]scalesquadratically T𝑟𝑒𝑚𝑎𝑖𝑛 =T \(S𝑓𝑔∪S𝑏𝑔):
+withimageresolution,wederivethescalingfactor𝑠 𝑘 forframe
+𝑋 𝑡−𝑘 as: S𝑢𝑛𝑖 =UGS(T𝑟𝑒𝑚𝑎𝑖𝑛 ,𝐾 𝑟𝑒𝑠). (6)
+√︂ 𝑛
+𝑠 𝑘 = 𝑁 𝑘 . (3) Thismechanismmaintainsacoarse-grainedrepresentationofthe
+𝑜𝑟𝑖𝑔
+globallayoutandrelativepositioning,effectivelypreventingspatial
+Accordingly,theframe𝑋
+𝑡−𝑘
+isresizedto(𝑠
+𝑘
+𝐻,𝑠
+𝑘
+𝑊)viabilinear
+hallucinationsduringcoordinategrounding.
+interpolation.Thissimpleprojectionensurestheactualcompu- Outcome.ThefinalcompressedsequenceT𝑓𝑖𝑛𝑎𝑙 =S𝑓𝑔∪S𝑏𝑔∪
+tational cost aligns with our schedule without introducing any S𝑢𝑛𝑖 reducescomputationaloverheadindeeplayerswhilerigor-
+learnableparameters. ouslypreservingthe2Dspatialintegrityrequiredforprecisenaviga-
+tion.Tointuitivelyillustratethismechanism,weprovideadetailed
+4.3 StratifiedStructure-awarePruning
+visualizationoftheSSPprocessinAppendixC.
+Toreconciletheefficiencybottleneckofhigh-resolutioninputswith
+5 Experiments
+thestricttopologicalrequirementsofGUIgrounding,wepropose
+StratifiedStructure-awarePruning(SSP).Implementedwithin
+5.1 ExperimentalSetup
+theshallowlayersoftheMLLM,SSPservesasanearly-stagestruc-
+BaseModels.Toevaluatethescalabilityandeffectivenessofour
+turalsievethatrefinesvisualrepresentationsbeforetheypropagate
+proposedframework,weemployQwen2-VL-2B[42]andQwen2.5-
+todeeperreasoningblocks.Unlikepriormethods[1,7,24,53]rely-
+VL-7B[2]asourfoundationalMultimodalLargeLanguageModels
+ingsolelyonattentionscores(whichdegradespatialgrids)orstatic
+(MLLMs).Toalignthesegeneral-purposemodelswiththespecific
+priors(whichneglectsemanticcontext),SSPdynamicallybalances
+input-outputmodalitiesofGUInavigationtasks,weperformsu-
+foregroundregionscontaininginteractiveelements,background
+pervisedfine-tuningonthetargetdatasets.Duringinference,we
+regionswithsemanticsalience,andglobaltopologyunderastrict
+configurethesamplingtemperatureto0.01forQwen2-VL-2Band
+tokenbudget.
+ImportanceEstimationandPartitioning.Giventhevisual
+10−6forQwen2.5-VL-7B.Regardingthespecifichyperparameters
+tokensequenceT derivedfromthecurrentframe,wefirstpartition
+ofourmethod,weset𝛾 =0.2and𝜌 =0.3.Comprehensiveimple-
+itintoaforegroundsetT𝑓𝑔andabackgroundsetT𝑏𝑔viaedgedetec- mentationdetailsregardingthefine-tuningprocessandadditional
+tion.Wethenderiveanimportancescore𝑠 𝑖 foreachtoken𝑡 𝑖 using experimentalsettingsareprovidedinAppendixA.4.
+Datasets.Wevalidatetherobustnessofourmethodacrossfour
+aggregatedattentionweightsfromtheshallowtransformerlayers.
+diversebenchmarks,allcharacterizedbylong-horizoninteractions
+Bycouplingexplicitstructuralpriorswithimplicitattention-based
+and sequential visual history. These datasets span distinct GUI
+saliency,thisstepensuresthatthepruningpolicyisconditioned
+ecosystems:GUI-Odyssey,AndroidControl,andAITWrepresent
+onboththeprecisegeometricboundariesofinteractiveelements
+theextensiveMobiledomain,whileMind2Webservesasarigorous
+andtheirsemanticrelevance.
+StratifiedRetentionPolicy.WeintroducetheCurrentToken benchmarkfortheWebdomain.
+RetentionRatio𝜇 ∈ (0,1]toimposeaglobalconstraintontoken
+ComparativeMethods.Webenchmarkagainststate-of-the-
+usage.Thetotaltokenbudgetisdefinedas𝐾
+𝑡𝑜𝑡𝑎𝑙
+=⌊|T|×𝜇⌋.To arttraining-freebaselinesspanningdiversepruningcriteriaand
+executionstages.WeevaluatePre-LLMmethods,specificallyDi-
+optimizethetrade-offbetweencompressionandstructuralintegrity,
+vPrune[1]andCDPruner[53],whichreducetokenspriortomodel
+weallocatethisbudgetacrossthreehierarchicallevels:
+(1)ForegroundSaliencePreservation.Sinceforegroundre- input.ForIn-LLMmethods,weincludeFastV[7]andMoB[24],
+whichperformpruningduringtheinferenceprocess.
+gionstypicallyencapsulatedirectinteractiontargets,weprioritize
+thehighest-attentiontokenswithinT𝑓𝑔.Weranktokensbytheir
+5.2 ResearchQuestions
+score𝑠
+𝑖
+andretainthetop𝜇fraction:
+• RQ1(Performance&Scalability):CanGUIPrunereffectively
+S𝑓𝑔 =TopK(T𝑓𝑔 ,⌊|T𝑓𝑔|×𝜇⌋). (4)
+compressvisualtokenswhilepreservingorevenenhancingnav-
+Thisensuresthathigh-resolutionfeaturesofcriticalinteractive igationperformanceacrossdiverseGUIdomains(Mobile,Web)
+componentsarefullypreserved. andvaryingmodelscales?
+(2)BackgroundSemanticRetention.Toretainessentialcon- • RQ2(Efficiency):Whatarethetangiblecomputationalbenefits
+textualcues,weintroduceabackgroundsaliencyfactor𝜌 ∈ (0,1]. ofGUIPruneraboutFLOPsreduction,inferenceacceleration,and
+Weselectthetop𝜇·𝜌fractionofbackgroundtokensT𝑏𝑔basedon GPUmemoryoverheadcomparedtoSOTApruningbaselines?
+
+--- Page 6 ---
+Conferenceacronym’XX,June03–05,2018,Woodstock,NY ZhouXu,BowenZhou,QiWang,ShuwenFeng,andJingyuXiao
+Table1:PerformancebenchmarkingonGUInavigationtasks.WeevaluateQwen2-VL-2BandQwen2.5-VL-7Bacrossthree
+pruningsettings.Abbreviations:“GUI-Ody”(GUI-Odyssey),“M2Web”(Mind2Web),and“AndCtrl”(AndroidControl).
+Qwen2-VL-2B Qwen2.5-VL-7B
+Method
+AITW M2Web GUI-Ody AndCtrl AITW M2Web GUI-Ody AndCtrl
+UpperBound(FullTokens)
+OriginalModel 69.5 34.5 71.8 66.9 71.2 35.2 78.4 71.6
+SettingI:RetainHistory40%/Current75%
+FastV(ECCV’24) 66.2 33.4 67.3 66.3 67.9 34.3 73.5 70.8
+DivPrune(CVPR’25) 65.3 22.8 67.1 65.6 23.2 7.7 13.6 29.4
+CDPruner(NeurIPS’25) 64.3 18.3 65.1 61.8 23.0 6.8 13.8 29.2
+MoB(NeurIPS’25) 66.5 21.0 66.8 65.0 68.8 32.7 74.0 71.1
+GUIPruner 67.5 33.6 68.1 66.4 69.4 34.7 74.4 71.3
+SettingII:RetainHistory20%/Current75%
+FastV(ECCV’24) 64.2 32.4 64.9 65.4 66.6 33.6 70.3 70.0
+DivPrune(CVPR’25) 63.7 21.8 64.0 64.4 20.3 6.3 11.6 24.4
+CDPruner(NeurIPS’25) 63.2 18.0 63.1 60.6 20.7 6.7 11.3 24.5
+MoB(NeurIPS’25) 64.9 20.3 64.2 64.0 66.7 31.9 70.4 70.4
+GUIPruner 66.3 32.9 66.3 65.9 67.9 34.1 73.0 70.9
+SettingIII:RetainHistory10%/Current75%
+FastV(ECCV’24) 62.7 31.6 62.4 64.4 65.7 33.1 67.7 69.2
+DivPrune(CVPR’25) 63.0 21.0 61.2 63.6 19.7 6.6 11.5 24.2
+CDPruner(NeurIPS’25) 61.7 17.1 60.2 59.7 19.6 6.2 11.4 24.1
+MoB(NeurIPS’25) 63.8 19.0 60.8 62.8 65.1 30.6 68.1 69.6
+GUIPruner 65.3 31.8 63.8 65.6 66.8 32.8 70.1 70.0
+• RQ3(ComponentAttribution):Howdotheindividualcompo- thatcombiningpixel-levelhistorydownsamplingwithstructure-
+nents:specificallyTemporal-AdaptiveResolution(TAR)forhis- awarepruningoffersthemostrobustinformationretentionfor
+toryandStratifiedStructure-awarePruning(SSP)forthecurrent MLLMswithlimitedcapacity.
+frame—contributetotheoverallrobustnessofthesystem? MitigatingDistributionShiftonLarge-ScaleModels.On
+• RQ4(HyperparameterSensitivity):Howdocriticalhyper- Qwen2.5-VL-7B,baselineslikeDivPruneandCDPrunersufferfrom
+parameters(e.g.,temporaldecayfactor𝛾,backgroundsaliency catastrophicperformancecollapse,notablyonMind2Web(plum-
+factor𝜌,andpruninglayerdepth𝐿)influencethetrade-offbe- metingto7.7%and6.8%).Weattributethisfailuretotheiraggres-
+tweencompressionrateandgroundingaccuracy? sivepre-LLMpruning,whichdiscardstokenspriortoinput,sev-
+eringspatiotemporaldependenciesestablishedduringfine-tuning.
+Incontrast,ourapproachcircumventsthiscollapse(recovering
+34.7%onMind2Web)viaadecoupleddesign:historyisspatially
+5.3 OverallPerformanceandScalability(RQ1)
+downsampledtopreservegloballayout,whilethecurrentframe
+WeevaluateourframeworkonQwen2-VL-2BandQwen2.5-VL-7B isprunedwithinshallowlayers.Thisensuresthemodelinitially
+acrossfourbenchmarksunderthreehistoryretentionsettings(10%, perceivesthecompletevisualcontext,maintainingalignmentwith
+20%,40%,seeTable1).Recognizingthecriticalroleofthecurrent thefine-tuneddistributionbeforereducingredundancy,thereby
+observation,wefixitstokenretentionratioat75%.Ourresults safeguardingearly-stagefeatureextraction.
+demonstrateconsistentsuperiorityoverstate-of-the-artbaselines, ResiliencetoHigh-ResolutionSparsity.Mind2Web,distin-
+exhibitingrobustscalabilityandadaptability. guishedbyhigh-resolutionviewportsandsparseinteractiveele-
+UniversalEffectivenessonLightweightModels.OnQwen2- ments,exposestheinherentlimitationsofmetric-basedpruning.
+VL-2B,GUIPrunerachievescomprehensivedominanceacrossall AsevidencedinTable1,diversityorcoverage-basedmethods(e.g.,
+datasets.Notably,onthechallengingMind2Webbenchmark(Set- CDPruner,MoB)failtoidentifyeffectivetokensinsparsegrids,
+tingI),ourmethodattains33.6%accuracy,significantlyoutperform- yieldingperformanceinferiortoattention-basedapproaches.Wein-
+ingdiversity-basedbaselineslikeDivPrune(22.8%)andeffectively corporateattentionpriorstocapturesemanticrelevance,yetunlike
+matchingtheuncompressedupperbound(34.5%).Thisconfirms FastV’sunstructuredfiltering,werigorouslyenforcetopological
+
+--- Page 7 ---
+Spatio-TemporalTokenPruningforEfficientHigh-ResolutionGUIAgents Conferenceacronym’XX,June03–05,2018,Woodstock,NY
+gridintegrity.Thisstrictconstraintprovesessentialforprevent- ResilienceofSSP.Weassessedcurrentframecompressionby
+ingspatialmisalignmentduringprecisecoordinategroundingin retainingthefullhistorycontextandvaryingthecurrentframe
+high-resolutionGUIs,whereunstructuredselectiontypicallyfails. retentionratio𝜇 across{45%,60%,75%}(Figure4,right).Results
+demonstratethatSSPconsistentlyoutperformsallbaselinesacross
+5.4 EfficiencyAnalysis(RQ2)
+compression levels. On the challenging Mind2Web benchmark,
+Webenchmarkcomputationaloverheadagainststate-of-the-art weobservetwodistinctfailuremodesinbaselines.Metric-based
+pruningmethodsusingQwen2-VL-2BonasingleNVIDIARTX pruners(e.g.,MoB,CDPruner,DivPrune)sufferfromcatastrophic
+4090,configuredwith𝑁 =4historyframesonAITW.Asdetailed performancecollapse,withaccuracylanguishingbelow25%.While
+inTable2,withretentionrates𝜆 =0.1and𝜇 =0.75,ourmethod FastVmaintainsarelativelystableperformancecurvesimilarto
+achievesa3.4×reductionintotalFLOPs(aggregatedacrossvi- ours,itconsistentlylagsbehindSSP,particularlyinthelow-retention
+sionencoding,prefill,anddecodingphases).Thistheoreticalreduc- regime(45%)wherethegapwidens.Incontrast,SSPachievesthe
+tiontranslatesintotangibleacceleration:wespeeduptheVision besttrade-off,maintaininghighaccuracyevenunderaggressive
+EncoderandPrefillstagesby3.3×and1.9×,respectively,effec- compression.Thisconfirmsthatexplicitlypreservingbothfore-
+tivelydismantlingthevisualencodingbottleneck.Additionally,our ground salience and the global topological grid is essential for
+approachdemonstratesexceptionalresourceefficiency,capping precisecoordinategroundinginhigh-resolutionGUIs.
+peak GPU memory at just 5.9 GB, thereby establishing a supe-
+5.5.2 TARandSSPDeepDive. UsingQwen2-VL-2BonAITWand
+riorefficiency-performancetrade-off.Theefficiencyanalysisfor
+GUI-Odyssey,wevalidateTAR’sadaptivedecayagainstuniform
+Qwen2.5-VL-7BisprovidedintheAppendixE.
+scalingandestablishthenecessityofSSP’stopologicalgridover
+randomsampling.
+Table 2: Efficiency comparison on Qwen2-VL-2B (AITW
+EffectivenessofStructuralComponents.Weisolatethecon-
+dataset,4historyframes,RTX4090).Wereportthenum-
+tributions of the “fading memory” mechanism in TAR and the
+beroftokens,FLOPs,Encoderlatency,Prefilllatency,and
+topological completion in SSP. (1) Adaptive vs. Uniform History
+GPUmemoryusage.Boldindicatesthebestperformance.
+Resolution. To validate the efficacy of our temporal decay strat-
+egy,webenchmarkTARagainstaUniformScalingbaseline,which
+FLOPs EncoderTime PrefillTime GPUMemory
+Method #Token distributesthehistorybudgetequidistantlyacrossallpastframes.
+(T) (ms) (ms) (MB)
+AsdetailedinTable3,ouradaptivestrategyconsistentlyoutper-
+Qwen2-VL-2B 1320 11.5 87.9 47.5 8956
+FastV 310 8.7(×1.3) 87.9(×1.0) 28.6(×1.6) 6798 formstheuniformbaselineacrossvaryingretentionratios(𝜆 ∈
+DivPrune 310 8.5(×1.4) 87.9(×1.0) 27.5(×1.7) 6180 {10%,20%,40%}).Thisconfirmsthatallocatinghigherresolutionto
+CDPruner 310 8.5(×1.4) 87.9(×1.0) 27.4(×1.7) 6180
+MoB 310 8.7(×1.3) 87.9(×1.0) 28.1(×1.6) 6734 recentframeseffectivelyalignswiththe“recencybias”inherentin
+GUIPruner 310 3.4(×3.4) 26.6(×3.3) 24.1(×1.9) 5902 GUIinteractions,whereasuniformallocationinefficientlyexpends
+computationalresourcesondistant,stalecontexts.(2)UniformGrid
+vs.RandomSampling.Toassessthenecessityoftopologicalcomple-
+5.5 AblationStudy(RQ3) tioninSSP,wereplacetheresidualUniformGridSampling(UGS)
+withrandomsamplingwhilemaintainingidenticalforegroundand
+5.5.1 DecoupledAnalysisofTARandSSP. Tometiculouslydissect
+backgroundretention.Resultsacrosscurrentframeretentionratios
+theindividualcontributionsofourTemporal-AdaptiveResolution
+(𝜇 ∈{45%,60%,75%})inTable4demonstratetheclearsuperiority
+(TAR)andStratifiedStructure-awarePruning(SSP)modules,we
+ofUGS.Thisverifiesthatpreservingadeterministic,coarse-grained
+conductdecoupledexperimentsusingtheQwen2-VL-2Bmodel.
+spatialskeletonisindispensableforpreventinggroundinghallu-
+The2Bmodelwasselectedtoisolatetheefficacyofourcompres-
+cinations,whereasunstructuredrandomsamplingfailstouphold
+sionstrategiesfromthepre-trainingdistributionshiftsobserved
+globallayoutintegrity.
+inlarger7Bmodels.Weevaluateourapproachontworepresenta-
+tivebenchmarks:AITW(mobile)andMind2Web(web).Thefour
+5.6 ParameterStudy(RQ4)
+linechartsinFigure4visualizetheperformancetrajectoriesunder
+varyingcompressionintensities. UsingQwen2-VL-2BonAITW,weanalyzethesensitivityofthe
+RobustnessofTAR.Weevaluatedtheefficacyofhistorycom- temporaldecayfactor𝛾,thebackgroundsaliencyfactor𝜌,andthe
+pressionbyfixingthecurrentframeretentionat100%andvarying pruninglayerdepth𝐿.
+thehistoryretentionratio𝜆across{10%,20%,40%}(Figure4,left). HyperparameterSensitivity(𝛾,𝜌).Theresultsarevisualized
+EmpiricalresultsdemonstratethatTARconsistentlydeliverssu- inFigure5,whichpresentsperformancecurvesacrossthreedistinct
+periorperformanceacrosstheentirecompressionspectrum.No- compressionrates.
+tably,atamoderateretentionratioof40%,ourmethodachieves (1)TemporalDecayFactor𝛾.Withcurrentframeretentionfixedat
+near-losslessperformanceontheAITWbenchmark,closelyap- 100%,wevary𝛾,thecoefficientgoverningdecaysteepness(𝛾 =1.0
+proximatingtheuncompressedupperbound.Moreintriguingly, signifies uniformity). As shown in Figure 5 (Left), performance
+onMind2Web,TARevensurpassestheoriginalperformanceof peaksat𝛾 = 0.2andmonotonicallydegradesas𝛾 → 1.0.This
+theuncompressedmodel.Thissuggeststhatour“fadingmemory” confirmsthatprioritizingimmediatehistoryissuperiortoauni-
+mechanismnotonlypreservesessentialtemporaldependencies formdistribution,aligningwiththeagent’srelianceonhigh-fidelity
+butalsoeffectivelyfiltersoutirrelevanthistoricalnoisethatmay recentcontext.(2)BackgroundSaliencyFactor𝜌.Conversely,with
+otherwisedistracttheagent. historyframesfullyretainedtoisolatespatialeffects,weanalyze𝜌,
+
+--- Page 8 ---
+Conferenceacronym’XX,June03–05,2018,Woodstock,NY ZhouXu,BowenZhou,QiWang,ShuwenFeng,andJingyuXiao
+  
+  
+     
+  
+  
+  
+               
+ + L V W R U \  5 H W H Q W L R Q  5 D W L R
+     5 6  S H W 6
+ $ , 7 :
+ 4 Z H Q   9 /   %   
+  
+ ) D V W 9     ' L Y 3 U X Q H
+ 0 R %   
+ & ' 3 U X Q H U   
+ * 8 , 3 U X Q H U
+  
+               
+ + L V W R U \  5 H W H Q W L R Q  5 D W L R
+     5 6  S H W 6
+ 0 L Q G  : H E
+ 4 Z H Q   9 /   %   
+  
+ ) D V W 9     ' L Y 3 U X Q H   
+ 0 R %   
+ & ' 3 U X Q H U   
+ * 8 , 3 U X Q H U
+  
+               
+ & X U U H Q W  5 H W H Q W L R Q  5 D W L R
+     5 6  S H W 6
+ $ , 7 :
+ 4 Z H Q   9 /   %   
+  
+ ) D V W 9     ' L Y 3 U X Q H
+ 0 R %   
+ & ' 3 U X Q H U   
+ * 8 , 3 U X Q H U
+  
+               
+ & X U U H Q W  5 H W H Q W L R Q  5 D W L R
+     5 6  S H W 6
+ 0 L Q G  : H E
+ 4 Z H Q   9 /   %
+ ) D V W 9  ' L Y 3 U X Q H
+ 0 R %
+ & ' 3 U X Q H U
+ * 8 , 3 U X Q H U
+Figure4:DecoupledsensitivityanalysisofTARandSSPonQwen2-VL-2B.Left:Evaluationof TARundervaryinghistory
+retention ratios (𝜏) on AITW and Mind2Web. Right: Evaluation of SSP under varying current frame retention ratios (𝜅).
+GUIPrunerconsistentlydemonstratessuperiorrobustnessoverbaselines,particularlyinhigh-compressionregimes.
+Table3:Historytokenallocationablation.Wecompareour   
+proposeddecay-basedstrategy(TAR)againstauniformallo-
+  
+cationbaselineacrossvaryinghistorybudgets."Rel."denotes   
+performancerelativetothefull-contextupperbound.
+  
+  
+Method AITW GUI-Ody Avg. Rel.   
+Qwen2-VL-2B UpperBound(FullTokens)                                        
+ 7 H P S R U D O  ' H F D \  ) D F W R U 
+Vanilla 69.5 71.8 70.6 100%
+Qwen2-VL-2B RetainHistory40%/Current100%
+TARw/Uniform 68.4 70.2 69.3 98.2%
+TAR(Ours) 69.4 70.6 70.0 99.2%
+Qwen2-VL-2B RetainHistory20%/Current100%
+TARw/Uniform 67.0 67.4 67.2 95.2%
+TAR(Ours) 67.9 68.7 68.3 96.7%
+Qwen2-VL-2B RetainHistory10%/Current100%
+TARw/Uniform 66.2 64.6 65.4 92.6%
+TAR(Ours) 66.9 66.0 66.5 94.2%
+Table4:Comparisonofspatialsamplingstrategiesforcur-
+rentframepruning.WeassessSSPwithuniformgridsam-
+plingversusrandomsampling.
+Method AITW GUI-Ody Avg. Rel.
+Qwen2-VL-2B UpperBound(FullTokens)
+Vanilla 69.5 71.8 70.6 100%
+Qwen2-VL-2B RetainHistory100%/Current75%
+SSPw/Random 66.5 69.4 68.0 96.3%
+SSP(Ours) 67.7 69.8 68.8 97.4%
+Qwen2-VL-2B RetainHistory100%/Current60%
+SSPw/Random 64.9 66.1 65.5 92.8%
+SSP(Ours) 66.3 66.7 66.5 94.2%
+Qwen2-VL-2B RetainHistory100%/Current45%
+SSPw/Random 60.8 60.8 60.8 86.1%
+SSP(Ours) 61.7 61.4 61.6 87.3%
+whichmodulatesthetrade-offbetweenlocalsaliencyandglobal
+     5 6  S H W 6
+ 4 Z H Q   9 /   %   
+  
+  
+  
+  
+  
+ 5 H W D L Q  + L V W R U \       
+ 5 H W D L Q  + L V W R U \       
+ 5 H W D L Q  + L V W R U \       
+                                          
+ % D F N J U R X Q G  6 D O L H Q F \  ) D F W R U 
+     5 6  S H W 6
+ 4 Z H Q   9 /   %
+ 5 H W D L Q  & X U U H Q W    
+ 5 H W D L Q  & X U U H Q W    
+ 5 H W D L Q  & X U U H Q W    
+Figure5:HyperparametersensitivityanalysisonAITW.We
+evaluatetheStepSRundervaryingcompressionintensities:
+theimpactofthetemporaldecayfactor𝛾 inTAR,andthe
+impactofthebackgroundsaliencyfactor𝜌inSSP.
+structure.Figure5(Right)revealsadistinctpeakat𝜌 =0.3.Devia-
+tionscausedegradation:higher𝜌sacrificeslayoutintegrity,while
+lower 𝜌 captures insufficient semantic context, verifying that a
+balancedallocationiscritical.
+PruningLayerDepth(𝐿).Withretentionratiosfixedat𝜆 =
+0.1 and 𝜇 = 0.75, we systematically investigate the efficiency-
+performancetrade-offbyvaryingthepruninglayerinsertiondepth
+𝐿.AsshowninTable5,resultsrevealadistinctnon-monotonic
+trend.Pruningattheearlieststage(𝐿 =1)precipitatesaperfor-
+mancecollapse(12.4%StepSR)accompaniedbyananomaloussurge
+inFLOPs(3.79T).Weattributethistotheimmatureattentionpat-
+ternsinthefirstlayer,whichfailtoreliablydistinguishinteractive
+semanticregions.Thisleadstoseveregroundinghallucinationsand
+outputformattingerrors,triggeringverbose,incorrectgeneration
+thatparadoxicallyinflatesthetotalcomputationalcost.Incontrast,
+Layer2emergesastheoptimaloperatingpoint,achievingpeak
+performance(65.3%)whileminimizingcomputationaloverhead
+(3.39T).Beyondthispoint(𝐿>2),performancegraduallydegrades,
+andFLOPslinearlyincreaseasadditionalshallowlayersexpend
+resourcesonthefulltokensequencebeforepruningoccurs.Quali-
+tativevisualizationsofattentionmapsandextendedanalysisare
+providedinAppendixD.
+6 Conclusion
+Inthispaper,weintroduceanoveltraining-freevisualtokencom-
+pressionframeworktailoredforhigh-resolutionGUInavigation
+agents.Specifically,wedecouplespatiotemporalredundancyre-
+ductionintotwosynergisticmodules:Temporal-AdaptiveResolu-
+tion(TAR),whichdynamicallyassignsresolutiontocapturethe
+
+--- Page 9 ---
+Spatio-TemporalTokenPruningforEfficientHigh-ResolutionGUIAgents Conferenceacronym’XX,June03–05,2018,Woodstock,NY
+Table5:Parameterstudyonthepruninglayerdepth(𝐿)for
+[12] TriDao.2023.Flashattention-2:Fasterattentionwithbetterparallelismandwork
+SSP. We analyze the trade-off between navigation perfor- partitioning.arXivpreprintarXiv:2307.08691(2023).
+mance(StepSR)andcomputationalcost(FLOPs)byvarying [13] XiangDeng,YuGu,BoyuanZheng,ShijieChen,SamStevens,BoshiWang,
+HuanSun,andYuSu.2023.Mind2web:Towardsageneralistagentfortheweb.
+thelayerindexwherepruningisexecuted.
+AdvancesinNeuralInformationProcessingSystems36(2023),28091–28114.
+[14] ZhiqiGe,JunchengLi,XingleiPang,MingheGao,KaihangPan,WangLin,Hao
+Fei,WenqiaoZhang,SiliangTang,andYuetingZhuang.2025.Iris:Breakinggui
+𝐿 1 2 4 8 16 complexitywithadaptivefocusandself-refining.InProceedingsoftheIEEE/CVF
+InternationalConferenceonComputerVision.24559–24568.
+StepSR 12.4 65.3 64.4 61.1 60.6 [15] BoyuGou,RuohanWang,BoyuanZheng,YananXie,ChengChang,YihengShu,
+HuanSun,andYuSu.2024.Navigatingthedigitalworldashumansdo:Universal
+FLOPs(T) 3.79 3.39 3.45 3.48 3.53 visualgroundingforguiagents.arXivpreprintarXiv:2410.05243(2024).
+[16] KaiHan,YunheWang,HantingChen,XinghaoChen,JianyuanGuo,Zhenhua
+Liu,YehuiTang,AnXiao,ChunjingXu,YixingXu,etal.2022.Asurveyonvision
+transformer.IEEEtransactionsonpatternanalysisandmachineintelligence45,1
+(2022),87–110.
+“recencybias”ofinteractions,andStratifiedStructure-awarePrun- [17] EdwardJHu,YelongShen,PhillipWallis,ZeyuanAllen-Zhu,YuanzhiLi,Shean
+ing(SSP).SSPemploysastratifiedbudgetallocationstrategythat Wang,LuWang,WeizhuChen,etal.2022.Lora:Low-rankadaptationoflarge
+languagemodels.ICLR1,2(2022),3.
+prioritizeshigh-attentionforegroundandbackgroundsemantics [18] WenboHu,YifanXu,YiLi,WeiyueLi,ZeyuanChen,andZhuowenTu.2024.
+whilerigorouslysafeguardingtheglobaltopologicallayoutthrough Bliva:Asimplemultimodalllmforbetterhandlingoftext-richvisualquestions.
+InProceedingsoftheAAAIConferenceonArtificialIntelligence,Vol.38.2256–2264.
+uniformgridsampling.Extensiveexperimentsonrepresentative
+[19] AlexKuleszaandBenTaskar.2012.DeterminantalPointProcessesforMachine
+benchmarksdemonstratethatourmethodachievesstate-of-the-art Learning. FoundationsandTrends®inMachineLearning5,2–3(Dec.2012),
+performanceacrossQwenarchitectures,effectivelypreventingthe 123–286. doi:10.1561/2200000044
+[20] HaoLi,QiLv,RuiShao,XiangDeng,YinchuanLi,JianyeHao,andLiqiangNie.
+catastrophicperformancecollapseobservedinmetric-basedbase-
+2025.Star:Learningdiverserobotskillabstractionsthroughrotation-augmented
+linesonsparse,high-resolutionscreens.Efficiencyanalysisfurther vectorquantization.arXivpreprintarXiv:2506.03863(2025).
+confirmsthatourapproachsignificantlyreducesVisionEncoder [21] JunnanLi,DongxuLi,SilvioSavarese,andStevenHoi.2023.Blip-2:Bootstrapping
+language-imagepre-trainingwithfrozenimageencodersandlargelanguage
+latencyandFLOPswhilemaintainingsuperiorgroundingaccuracy, models.InInternationalconferenceonmachinelearning.PMLR,19730–19742.
+offeringascalablesolutionthatfacilitatesthepracticaldeployment [22] WeiLi,WilliamBishop,AliceLi,ChrisRawles,FolawiyoCampbell-Ajala,Divya
+Tyamagundlu,andOrianaRiva.2024.Ontheeffectsofdatascaleoncomputer
+ofreal-timeMLLMsinresource-constrainededgeapplications. controlagents.arXive-prints(2024),arXiv–2406.
+[23] YanweiLi,ChengyaoWang,andJiayaJia.2024.Llama-vid:Animageisworth
+References 2tokensinlargelanguagemodels.InEuropeanConferenceonComputerVision.
+Springer,323–340.
+[1] SaeedRanjbarAlvar,GursimranSingh,MohammadAkbari,andYongZhang. [24] YangfuLi,HongjianZhan,TianyiChen,QiLiu,andYueLu.2025.Why1+1<1
+2025. Divprune:Diversity-basedvisualtokenpruningforlargemultimodal inVisualTokenPruning:BeyondNaiveIntegrationviaMulti-ObjectiveBalanced
+models.InProceedingsoftheComputerVisionandPatternRecognitionConference. Covering.arXivpreprintarXiv:2505.10118(2025).
+9392–9401. [25] ZaijingLi,YuquanXie,RuiShao,GongweiChen,DongmeiJiang,andLiqiang
+[2] ShuaiBai,KeqinChen,XuejingLiu,JialinWang,WenbinGe,SiboSong,Kai Nie.2024.Optimus-1:Hybridmultimodalmemoryempoweredagentsexcelin
+Dang,PengWang,ShijieWang,JunTang,etal.2025. Qwen2.5-vltechnical long-horizontasks.Advancesinneuralinformationprocessingsystems37(2024),
+report.arXivpreprintarXiv:2502.13923(2025). 49881–49913.
+[3] JohnCanny.2009.Acomputationalapproachtoedgedetection.IEEETransactions [26] KevinQinghongLin,LinjieLi,DifeiGao,ZhengyuanYang,ShiweiWu,Zechen
+onpatternanalysisandmachineintelligence6(2009),679–698. Bai,StanWeixianLei,LijuanWang,andMikeZhengShou.2025.Showui:One
+[4] HyungjooChae,NamyoungKim,KaiTzu-iunnOng,MinjuGwak,Gwanwoo vision-language-actionmodelforguivisualagent.InProceedingsoftheComputer
+Song,JihoonKim,SunghwanKim,DonghaLee,andJinyoungYeo.2024.Web VisionandPatternRecognitionConference.19498–19508.
+agentswithworldmodels:Learningandleveragingenvironmentdynamicsin [27] JunliangLiu,JingyuXiao,WenxinTang,WenxuanWang,ZhixianWang,Minrui
+webnavigation.arXivpreprintarXiv:2410.13232(2024). Zhang,andShuangheYu.2025.BenchmarkingMLLM-basedWebUnderstanding:
+[5] AdaChen,YongjiangWu,JunyuanZhang,JingyuXiao,ShuYang,Jen-tseHuang, Reasoning,RobustnessandSafety.arXivpreprintarXiv:2509.21782(2025).
+KunWang,WenxuanWang,andShuaiWang.2025.ASurveyontheSafetyand [28] TaoLiu,ChongyuWang,RongjieLi,YingchenYu,XumingHe,andBaiSong.2025.
+SecurityThreatsofComputer-UsingAgents:JARVISorUltron?arXivpreprint GUI-Rise:StructuredReasoningandHistorySummarizationforGUINavigation.
+arXiv:2505.10924(2025). arXivpreprintarXiv:2510.27210(2025).
+[6] GongweiChen,XuruiZhou,RuiShao,YiboLyu,KaiwenZhou,ShuaiWang, [29] QuanfengLu,WenqiShao,ZitaoLiu,LingxiaoDu,FanqingMeng,BoxuanLi,
+WentaoLi,YinchuanLi,ZhongangQi,andLiqiangNie.2025. Lessismore: BotongChen,SiyuanHuang,KaipengZhang,andPingLuo.2025.GUIOdyssey:
+Empoweringguiagentwithcontext-awaresimplification.InProceedingsofthe Acomprehensivedatasetforcross-appGUInavigationonmobiledevices.In
+IEEE/CVFInternationalConferenceonComputerVision.5901–5911. ProceedingsoftheIEEE/CVFInternationalConferenceonComputerVision.22404–
+[7] LiangChen,HaozheZhao,TianyuLiu,ShuaiBai,JunyangLin,ChangZhou,and 22414.
+BaobaoChang.2024.Animageisworth1/2tokensafterlayer2:Plug-and-play [30] DangNguyen,JianChen,YuWang,GangWu,NamyongPark,ZhengmianHu,
+inferenceaccelerationforlargevision-languagemodels.InEuropeanConference HanjiaLyu,JundaWu,RyanAponte,YuXia,etal.2025.Guiagents:Asurvey.In
+onComputerVision.Springer,19–35. FindingsoftheAssociationforComputationalLinguistics:ACL2025.22522–22538.
+[8] KanzhiCheng,QiushiSun,YougangChu,FangzhiXu,LiYanTao,JianbingZhang, [31] AjayPatel,MarkusHofmarcher,ClaudiuLeoveanu-Condrei,Marius-Constantin
+andZhiyongWu.2024.Seeclick:Harnessingguigroundingforadvancedvisual Dinu,ChrisCallison-Burch,andSeppHochreiter.2024.Largelanguagemodels
+guiagents.InProceedingsofthe62ndAnnualMeetingoftheAssociationfor canself-improveatwebagenttasks.arXivpreprintarXiv:2405.20309(2024).
+ComputationalLinguistics(Volume1:LongPapers).9313–9332. [32] ZehanQi,XiaoLiu,IatLongIong,HanyuLai,XueqiaoSun,WenyiZhao,Yu
+[9] FilipposChristianos,GeorgiosPapoudakis,MatthieuZimmer,ThomasCoste, Yang,XinyueYang,JiadaiSun,ShuntianYao,etal.2024. Webrl:Trainingllm
+ZhihaoWu,JingxuanChen,KhyatiKhandelwal,JamesDoran,XidongFeng, webagentsviaself-evolvingonlinecurriculumreinforcementlearning.arXiv
+JiachengLiu,etal.2023. Pangu-agent:Afine-tunablegeneralistagentwith preprintarXiv:2411.02337(2024).
+structuredreasoning.arXivpreprintarXiv:2312.14878(2023). [33] JeffRasley,SamyamRajbhandari,OlatunjiRuwase,andYuxiongHe.2020.Deep-
+[10] WenliangDai,JunnanLi,DongxuLi,AnthonyTiong,JunqiZhao,Weisheng speed:Systemoptimizationsenabletrainingdeeplearningmodelswithover
+Wang,BoyangLi,PascaleNFung,andStevenHoi.2023.Instructblip:Towards 100billionparameters.InProceedingsofthe26thACMSIGKDDinternational
+general-purposevision-languagemodelswithinstructiontuning.Advancesin conferenceonknowledgediscovery&datamining.3505–3506.
+neuralinformationprocessingsystems36(2023),49250–49267. [34] ChristopherRawles,AliceLi,DanielRodriguez,OrianaRiva,andTimothyLilli-
+[11] TruongHaiDang,JingyuXiao,andYintongHuo.2025. EnvisioningFuture crap.2023.Androidinthewild:Alarge-scaledatasetforandroiddevicecontrol.
+InteractiveWebDevelopment:EditingWebpagewithNaturalLanguage.In2025 AdvancesinNeuralInformationProcessingSystems36(2023),59708–59728.
+2ndIEEE/ACMInternationalConferenceonAI-poweredSoftware(AIware).IEEE, [35] MauricioGCResende,RafaelMartí,MicaelGallego,andAbrahamDuarte.2010.
+61–66. GRASPandpathrelinkingforthemax–mindiversityproblem. Computers&
+
+--- Page 10 ---
+Conferenceacronym’XX,June03–05,2018,Woodstock,NY ZhouXu,BowenZhou,QiWang,ShuwenFeng,andJingyuXiao
+OperationsResearch37,3(2010),498–508. doi:10.1523/JNEUROSCI.2899-13.2014
+[36] AliMReza.2004.Realizationofthecontrastlimitedadaptivehistogramequaliza-
+tion(CLAHE)forreal-timeimageenhancement.JournalofVLSIsignalprocessing
+systemsforsignal,imageandvideotechnology38,1(2004),35–44.
+Appendices
+[37] WenxinTang,JingyuXiao,WenxuanJiang,XiXiao,YuhangWang,XuxinTang,
+QingLi,YueheMa,JunliangLiu,ShisongTang,etal.2025.SlideCoder:Layout-
+awareRAG-enhancedHierarchicalSlideGenerationfromDesign.arXivpreprint A Detailsofexperimentalsetup
+arXiv:2506.07964(2025).
+A.1 ModelArchitectureDetails
+[38] YuxuanWan,YiDong,JingyuXiao,YintongHuo,WenxuanWang,andMichaelR
+Lyu.2024.Mrweb:Anexplorationofgeneratingmulti-pageresource-awareweb
+codefromuidesigns.arXivpreprintarXiv:2412.15310(2024). Wenowdetailthearchitecturalspecificsofthefoundationmodels
+[39] YuxuanWan,TingshuoLiang,JiakaiXu,JingyuXiao,YintongHuo,andMichaelR employedinourframework:Qwen2-VLandQwen2.5-VL.
+L
+M
+y
+u
+u
+l
+.
+ti
+2
+-
+0
+A
+2
+g
+5
+e
+.
+n
+A
+t
+u
+T
+t
+e
+o
+s
+m
+t-
+a
+D
+t
+r
+ic
+iv
+a
+e
+ll
+n
+y
+D
+G
+e
+e
+v
+n
+e
+e
+l
+r
+o
+a
+p
+t
+m
+in
+e
+g
+n
+W
+t.
+e
+a
+b
+rX
+A
+i
+p
+v
+p
+p
+li
+r
+c
+e
+a
+p
+t
+r
+i
+i
+o
+n
+n
+t
+s
+a
+f
+r
+r
+X
+o
+i
+m
+v:2
+R
+5
+e
+0
+q
+9.
+u
+2
+i
+5
+r
+2
+e
+9
+m
+7
+e
+(
+n
+2
+t
+0
+s
+2
+V
+5)
+i
+.
+a Qwen2-VL[42].Qwen2-VLintroducesaNaiveDynamicReso-
+[40] JunyangWang,HaiyangXu,HaitaoJia,XiZhang,MingYan,WeizhouShen,Ji lutionmechanism,enablingtheprocessingofimageswitharbitrary
+Zhang,FeiHuang,andJitaoSang.2024.Mobile-agent-v2:Mobiledeviceoperation aspectratiosbyconvertingthemintovariable-lengthsequencesof
+assistantwitheffectivenavigationviamulti-agentcollaboration.Advancesin
+NeuralInformationProcessingSystems37(2024),2686–2710. patcheswithoutpadding.Tocapturethespatialstructureofthese
+[41] JunyangWang,HaiyangXu,JiaboYe,MingYan,WeizhouShen,JiZhang,Fei dynamicsequences,itemploysMultimodalRotaryPositionalEm-
+Huang,andJitaoSang.2024.Mobile-agent:Autonomousmulti-modalmobile beddings(M-RoPE),whichdecomposepositionalinformationinto
+deviceagentwithvisualperception.arXivpreprintarXiv:2401.16158(2024).
+[42] PengWang,ShuaiBai,SinanTan,ShijieWang,ZhihaoFan,JinzeBai,Keqin temporal,vertical,andhorizontalcomponents.Visualfeaturesare
+Chen,XuejingLiu,JialinWang,WenbinGe,etal.2024.Qwen2-vl:Enhancing extractedviaaViT-basedencoderandcompressedbyafactorof
+vision-languagemodel’sperceptionoftheworldatanyresolution.arXivpreprint
+arXiv:2409.12191(2024).
+fourusinga2×2poolinglayerbeforeinjectionintotheQwen2
+[43] ShuaiWang,WeiwenLiu,JingxuanChen,YuqiZhou,WeinanGan,Xingshan languagebackbone.
+Zeng,YuhanChe,ShuaiYu,XinlongHao,KunShao,etal.2024.Guiagentswith Qwen2.5-VL[2].BuildingupontheQwen2.5languagemodel,
+foundationmodels:Acomprehensivesurvey. arXivpreprintarXiv:2411.04890
+thisiterationextendsthedynamicprocessingparadigmtothetem-
+(2024).
+[44] ZihaoWang,ShaofeiCai,AnjiLiu,YonggangJin,JinbingHou,BoweiZhang, poraldimension,supportingnativedynamicframeratesforefficient
+HaoweiLin,ZhaofengHe,ZilongZheng,YaodongYang,etal.2024. Jarvis-1: videocomprehension.WhileretainingtheM-RoPEmechanismand
+Open-worldmulti-taskagentswithmemory-augmentedmultimodallanguage
+models.IEEETransactionsonPatternAnalysisandMachineIntelligence(2024). theC-Former-freearchitectureofitspredecessor,Qwen2.5-VLin-
+[45] ZoraZhiruoWang,JiayuanMao,DanielFried,andGrahamNeubig.2024.Agent tegratesoptimizedSwiGLUactivationsandRMSNormtoensure
+workflowmemory.arXivpreprintarXiv:2409.07429(2024).
+numerical stability for long-context multimodal reasoning. The
+[46] ZhiyongWu,ZhenyuWu,FangzhiXu,YianWang,QiushiSun,ChengyouJia,
+KanzhiCheng,ZichenDing,LihengChen,PaulPuLiang,etal.2024.Os-atlas:A architectureisspecificallytunedforfine-grainedvisualgrounding,
+foundationactionmodelforgeneralistguiagents.arXivpreprintarXiv:2410.23218
+enablingprecisecoordinateextractionandstructureddataparsing.
+(2024).
+[47] JingyuXiao,JiantongQin,ShuoqiLi,ManHoLam,YuxuanWan,JentseHuang,
+YintongHuo,andMichaelR.Lyu.2026.ComUICoder:Component-basedReusable A.2 DatasetDetailsandPreprocessing
+UICodeGenerationforComplexWebsitesviaSemanticSegmentationand
+Element-wiseFeedback. arXiv:2602.19276[cs.SE] https://arxiv.org/abs/2602.
+Weevaluateourframeworkacrossfourdiversebenchmarkscover-
+19276
+[48] JingyuXiao,MingWang,ManHoLam,YuxuanWan,JunliangLiu,Yintong ingmobileandwebenvironments.Below,wedetailthespecificcon-
+Huo,andMichaelRLyu.2025.Designbench:Acomprehensivebenchmarkfor figurations,splittingprotocols,andactionspacesforeachdataset.
+mllm-basedfront-endcodegeneration.arXivpreprintarXiv:2506.06251(2025).
+AndroidInTheWild(AITW)[34].Asalarge-scalerepos-
+[49] JingyuXiao,ZhongyiZhang,YuxuanWan,YintongHuo,YangLiu,andMichaelR
+Lyu.2025.EfficientUICoder:EfficientMLLM-basedUICodeGenerationviaInput itoryforsmartphonenavigation,AITWcontainsapproximately
+andOutputTokenCompression.arXivpreprintarXiv:2509.12159(2025).
+30kdistinctinstructionsand715kexecutiontrajectories.Acritical
+[50] YihengXu,ZekunWang,JunliWang,DunjieLu,TianbaoXie,AmritaSaha,
+DoyenSahoo,TaoYu,andCaimingXiong.2024. Aguvis:Unifiedpurevision limitationoftheoriginaldatasetpartitionisthepotentialfordata
+agentsforautonomousguiinteraction.arXivpreprintarXiv:2412.04454(2024). leakage,arisingfromoverlappinginstructionsandhighlycorrelated
+[51] ShunyuYao,JeffreyZhao,DianYu,NanDu,IzhakShafran,KarthikRNarasimhan,
+trajectoriesacrosstrainingandtestsets.Toensurearigorousand
+andYuanCao.2022.React:Synergizingreasoningandactinginlanguagemodels.
+InTheeleventhinternationalconferenceonlearningrepresentations. unbiasedevaluation,westrictlyadheretotheinstruction-wisesplit
+[52] ChiZhang,ZhaoYang,JiaxuanLiu,YandaLi,YuchengHan,XinChen,Zebiao protocolproposedbySeeClick[8],whichisolatesuniqueinstruc-
+Huang,BinFu,andGangYu.2025.Appagent:Multimodalagentsassmartphone
+users.InProceedingsofthe2025CHIConferenceonHumanFactorsinComputing tionstopreventoverfitting.Ourdataprocessingpipelinemirrors
+Systems.1–20. thesettingsestablishedinSeeClick.Theagentoperateswithinade-
+[53] QizheZhang,MengzhenLiu,LichenLi,MingLu,YuanZhang,JunwenPan, finedactionspacecomprising12primitives:Click,Type,Select,
+QiShe,andShanghangZhang.2025. BeyondAttentionorSimilarity:Max-
+imizingConditionalDiversityforTokenPruninginMLLMs. arXivpreprint Scroll Up/Down/Left/Right,Press Back,Press Home,Press
+arXiv:2506.10967(2025). Enter,Status Task Complete,andStatus Task Impossible.
+[54] RenshanZhang,RuiShao,GongweiChen,MiaoZhang,KaiwenZhou,WeiliGuan, GUI-Odyssey [29]. This dataset serves as a comprehensive
+andLiqiangNie.2025.Falcon:Resolvingvisualredundancyandfragmentation
+inhigh-resolutionmultimodallargelanguagemodelsviavisualregisters.In benchmarkforcross-applicationnavigation,featuring7,735episodes
+ProceedingsoftheIEEE/CVFInternationalConferenceonComputerVision.23530–
+collectedacrosssixdistinctmobiledevicestotestgeneralization
+23540.
+acrosshardwarevariations.Wealignourdatapreprocessingand
+[55] ZhuoshengZhangandAstonZhang.2024.Youonlylookatscreens:Multimodal
+chain-of-actionagents.InFindingsoftheAssociationforComputationalLinguistics: evaluationmetricsstrictlywiththeoriginalGUI-Odysseyproto-
+ACL2024.3132–3149.
+cols.However,consideringthelong-horizonnatureofthisbench-
+[56] BoyuanZheng,BoyuGou,JihyungKil,HuanSun,andYuSu.2024.Gpt-4v(ision)
+isageneralistwebagent,ifgrounded.arXivpreprintarXiv:2401.01614(2024). mark—characterizedbyanaverageof15stepsperepisode[6]—we
+[57] Nahid Zokaei, Sanjay Manohar, Masud Husain, and Eva Fere- conductourevaluationonarandomlysampledsubsetcompris-
+does. 2014. Causal Evidence for a Privileged Working Memory
+State in Early Visual Cortex. Journal of Neuroscience 34, 1 (2014), ingone-thirdofthetestsettobalancecomputationalefficiency
+158–162. arXiv:https://www.jneurosci.org/content/34/1/158.full.pdf with evaluation rigor. The supported action space consists of 9
+
+--- Page 11 ---
+Spatio-TemporalTokenPruningforEfficientHigh-ResolutionGUIAgents Conferenceacronym’XX,June03–05,2018,Woodstock,NY
+distinctoperations:Click,Scroll,Long Press,Type,Complete, theretainedtokensofferhighcoverageoftheimagecontentwhile
+Impossible,Home,Back,andRecent. remainingstrictlyrelevanttotheuser’squery.
+AndroidControl[22].Designedtoassesstaskcomplexityhan- MoB[24].MoBprovidesarigoroustheoreticalgroundingfor
+dling,AndroidControlencompasses14,548uniquetasksdistributed tokenpruningbymodelingitasabi-objective𝜖-coveringproblem
+across833Androidapplications.Itdistinguishesitselfbyprovid- basedontheHausdorffdistance.Itidentifiesanintrinsictrade-
+ingbothhigh-level(abstract)andlow-level(step-by-step)instruc- offbetweentwocompetingobjectives:promptalignmentandvi-
+tions.Forthisbenchmark,wefollowthepreprocessingandeval- sualpreservation.Toresolvethis,MoBderivesaclosed-formerror
+uationstandardssetbyOS-Atlas[46].Theactionspaceincludes boundandemploysagreedyradius-tradingalgorithmtooptimize
+9primitives:Click,Scroll,Long Press,Type,Navigate Home, thebudgetallocationdynamically.Thismethodensuresthatthe
+Navigate Back,Open App,Wait,andTerminate. selectedtokensformacomprehensivecoveroftheoriginalfeature
+Mind2Web[13].Mind2Webfeaturesover2,000tasksacross137 manifold,effectivelybalancingthereconstructionofvisualdetails
+websites,providingrawHTMLobservationsinitiallytailoredfor withtheextractionofinstruction-relevantfeaturesunderstrict
+text-basedagents.TobridgethemodalitygapforVision-Language budgetconstraints.
+Models (VLMs), we render these observations into screenshots
+accompaniedbyboundingboxesforinteractiveelements.Since A.4 ImplementationDetails
+processingfull-pagescreenshots(whichcanreachresolutionslike
+HardwareSetup.Fine-tuningwasperformedonacomputational
+1920×12000)iscomputationallyprohibitiveforcurrentVLMs,we
+nodeequippedwithfourNVIDIAA100GPUs(80GB),leveraging
+adopttheviewportnormalizationstrategyfromSeeClick.Specifi-
+DeepSpeedZeRO-2[33]andFlashAttention-2[12]withbfloat16
+cally,wecroptheviewaroundthetargetelementandstandardize
+precision.Incontrast,allinferenceandefficiencyevaluationswere
+theresolutionto1920×1080.TheactionspaceforMind2Webis
+conductedonasingleNVIDIARTX4090(24GB)toassessperfor-
+streamlinedto2coreactions:ClickandType.
+manceonconsumer-gradehardware.
+BaseModels.WeemployQwen2-VL-2BandQwen2.5-VL-
+A.3 Comparisonmethods 7Basourfoundationalbackbones.Thesemodelswereselectedfor
+theirstate-of-the-artvisualunderstandingcapabilitiesanddynamic
+Tostrictlyevaluatetheeffectivenessofourproposedframework,we
+resolutionsupport.
+compareitagainstfourstate-of-the-art,training-freevisualtoken
+VisualInputConfiguration.Tobalancethetrade-offbetween
+pruningmethods.Thesebaselinesspandistinctpruningparadigms,
+temporal context and visual resolution under GPU constraints,
+rangingfromattention-basedfilteringtoadvancedmetric-based
+we follow the visual input configuration set by SimpAgent [6].
+optimization.
+FastV[7].Asapioneerinattention-guidedcompression,FastV ForAITWandGUI-Odyssey,weincorporate4historicalframes.
+Furthermore,weapplyagloballow-resolutionsetting,wherethe
+identifiesthe“inefficientattention”phenomenonwheredeeplayers
+longestedgeofallinputimagesisuniformlyrescaledto512pixels.
+inMLLMsexhibitsparseattentiontowardsvisualtokens.Operating
+Conversely,forAndroidControlandMind2Web,wherediscerning
+onthehypothesisthattokensreceivinglowattentionscorescon-
+fine-grainedUIelementsiscritical,weprioritizevisualfidelityover
+tributeminimallytosemanticreasoning,FastVemploysastraight-
+sequencelength,retaining2high-resolutionhistoricalframes.
+forwardfiltrationstrategy.Specifically,itdiscardsvisualtokens
+Fine-tuningStrategy.Toalignthegeneral-purposeMLLMs
+withthelowestaggregatedvisual-textattentionscoresafterthe
+withthespecificactionformattingrequirementsofeachdataset,
+secondtransformerlayer.Thisinference-timepruningmechanism
+weperformedSupervisedFine-Tuning(SFT)usingLow-RankAdap-
+acceleratescomputationbutassumesthatattentionmagnitudeis
+tation(LoRA)[17].WeappliedLoRAadaptersexclusivelytothe
+thesoleindicatoroftokenimportance.
+DivPrune[1].Distinctfromattention-centricapproaches,Di- languagemodelcomponents(linearlayersintheattentionmech-
+anism)witharank𝑟 = 8andascalingfactor𝛼 = 16.Crucially,
+vPruneaddressesvisualredundancythroughthelensofgeometric
+sinceourprimaryobjectiveduringthisstageisformatadaptation
+diversity.ItformulatesthetokenselectionprocessasaMax-Min
+ratherthaninjectingnewknowledge,westandardizedthetraining
+DiversityProblem(MMDP).Ratherthanrelyingonsemanticalign-
+durationto2epochsacrossalldatasetstopreventoverfittingand
+ment,DivPruneaimstomaximizetheminimumpairwisedistance
+preservethepre-trainedmodel’sgeneralizationabilities.
+amongtheretainedtokens.Byenforcingspatialseparationinthe
+featurespace,itseekstopreserveasubsetoftokensthataremaxi-
+A.4.1 HyperparameterSettings. Wetailoredtheoptimizationset-
+mallydistinctfromoneanother,therebyensuringbroadcoverageof
+tings(BatchSizeandLearningRate)foreachbenchmarktoaccom-
+thevisualfieldandmitigatingtheriskofrepresentationalcollapse.
+modatevaryingimageresolutionsanddatasetcomplexities.The
+CDPruner[53].Thismethodarguesthatrelyingsolelyonvi-
+configurationsonour4×A100clusterweresetasfollows:
+sualsimilarityorattentionscoresleadstosuboptimalinstruction
+adherence.CDPrunerintroducestheconceptof“ConditionalDi- • AITW:Weemployedalearningrateof3e-5.Theper-device
+versity”tobridgethisgap.Itreformulatesthepruningtaskusinga batchsizewassetto8withagradientaccumulationstepof
+DeterminantalPointProcess(DPP),aprobabilisticframeworkused 1,resultinginaglobalbatchsizeof32.
+tomodelrepulsionbetweenitems.Byconstructingakernelthat • Mind2Web:Giventhehighresolutionofwebscreenshots,
+conditionsvisualsimilarityonthespecifictextualinstruction,CD- weusedalearningrateof5e-4.Wereducedtheper-device
+Prunerselectsasubsetoftokensthatmaximizesthedeterminant batchsizeto2withagradientaccumulationstepof1,result-
+ofthekernelmatrix.Thisapproachstatisticallyguaranteesthat inginaglobalbatchsizeof8.
+
+--- Page 12 ---
+Conferenceacronym’XX,June03–05,2018,Woodstock,NY ZhouXu,BowenZhou,QiWang,ShuwenFeng,andJingyuXiao
+• GUI-Odyssey:Weutilizedalearningrateof3e-5.Theper- Algorithm1Temporal-AdaptiveResolution(TAR)
+devicebatchsizewassetto4with4gradientaccumulation 1: Input:HistorycontextH𝑡 ={𝑋 𝑡−1 ,...,𝑋 𝑡−𝑇},Originaltoken
+steps,yieldingaglobaleffectivebatchsizeof64. count𝑁 𝑜𝑟𝑖𝑔,Historyretentionratio𝜆,Decayfactor𝛾.
+• AndroidControl:Tohandlethetaskcomplexity,weem-
+2:
+Output:ResizedhistoryframesH
+𝑡
+′.
+ployedahigherlearningrateof3e-4.Weusedaper-device Phase1:CalculateGlobalBudget
+3:
+batchsizeof2combinedwith16gradientaccumulationsteps, 4: 𝑁 𝑏𝑢𝑑𝑔𝑒𝑡 ← ⌊𝑇 ×𝑁 𝑜𝑟𝑖𝑔×𝜆⌋
+resultinginaglobalbatchsizeof128. 5: Initializetotalweightsum𝑊 𝑠𝑢𝑚 ←0
+A.4.2 PromptConstruction. Toenablethemodeltoreasonabout 6: Initializeemptylistforweightsw← []
+Phase2:ComputeLinearDecayWeights
+sequentialinteractions,weorganizetheinputdataasaninterleaved 7:
+sequenceofhistoricalscreenshotsandpastactions,culminatingin 8:
+for𝑘 =1to𝑇 do
+thecurrentobservationandthenaturallanguageinstruction.We 9: 𝑤 𝑘 ← 𝛾 + (1−𝛾)𝑇 𝑇 − − 𝑘 1 {Higher weight for recent frames
+adoptastructuredpromptformatwhereactionsareparsedintoa
+(𝑘 →1)}
+JSON-compatiblestringcontainingtheaction_typeandspecific 10: Append𝑤 𝑘 tow
+arguments. 11:
+𝑊
+𝑠𝑢𝑚
+←𝑊 𝑠𝑢𝑚+𝑤
+𝑘
+endfor
+Thespecifictemplateforinstructionfine-tuningisillustratedin 12:
+Box1. 13: Phase3:AllocateandResize
+14: H 𝑡 ′ ←∅
+15:
+for𝑘 =1to𝑇 do
+Box1:InstructionPromptTemplate 16: 𝑛 𝑘 ←𝑁 𝑏𝑢𝑑𝑔𝑒𝑡 · 𝑊 𝑤 𝑠𝑢 𝑘 𝑚 {Tokenquotaforframe𝑡−𝑘}
+"Please generate the next move according to the 17: 𝑠 𝑘 ← √︃ 𝑁 𝑛 𝑜𝑟 𝑘 𝑖𝑔 {Derivespatialscalingfactor}
+instruction, previous actions, previous ui screenshot 18: 𝑋 𝑡 ′ −𝑘 ←Resize(𝑋 𝑡−𝑘 ,𝑠 𝑘){Bilinearinterpolation}
+and current ui screenshot. 19: Add𝑋 𝑡 ′ −𝑘 toH 𝑡 ′
+Instruction: What time is it in Paris?. endfor
+20:
+Image_0: <image>
+21:
+returnH
+𝑡
+′
+Step_0: {\"action_type\": Scroll Down}.
+Image_1: <image>
+Step_1: {\"action_type\": Click, \"click_point\":
+(545,748)}. Transformer’spatchgridviamax-pooling,assigningatokentoT𝑓𝑔
+Image_2: <image> ifitscorrespondingpatchcontainsanyvalidstructuraledge.
+Step_2: {\"action_type\": Press Home}.
+Image_3: <image> B DetailedAlgorithms
+Step_3: {\"action_type\": Click, \"click_point\":
+Inthissection,weprovidethepseudocodeforthetwocorecom-
+(608,669)}.
+ponentsofourGUIPrunerframework:theTemporal-Adaptive
+Image_4: <image>"
+Resolution(TAR)mechanism(Algorithm1)andtheStratified
+Structure-awarePruning(SSP)strategy(Algorithm2).Theseal-
+gorithmsdetailtheproceduralimplementationoftheglobal-to-local
+resourceschedulingandthetopology-preservingtokenselection
+A.4.3 EdgeDetection. Toefficientlycategorizevisualtokensinto
+describedinthemaintext.
+foreground (T𝑓𝑔) and background (T𝑏𝑔) sets, we employ a light-
+weight,training-freedetectionpipelinetailoredforGUIelements. C SSPVisualization
+Theprocedureconsistsofthreestages:
+1.Preprocessing.TheinputRGBimageisconvertedtograyscale Figure6illustratesthehierarchicaltokenselectionprocessofour
+andsmoothedusingaGaussianfilter(5×5kernel)tosuppress
+SSPmoduleonaMind2Websample,utilizingtheQwen2.5-VL-7B
+backbone.Weconfigurethecurrentframeretentionrateat𝜇=0.45
+sensornoise.Crucially,tohandlevaryingcontrastlevelsacrossdif-
+andthebackgroundsaliencyfactorat𝜌 =0.3.Thevisualization
+ferentapplications,weapplyContrastLimitedAdaptiveHistogram
+demonstratesthethree-stagestratification:(1)Foregroundtokens
+Equalization(CLAHE)[36]toenhancelocalboundarydefinitions
+(Red)representinginteractiveprimitives(e.g.,inputfields,buttons)
+beforedetection.
+2.Multi-scaleEdgeExtraction.WeutilizetheCanny[3]edge
+areprioritized;(2)Backgroundtokens(Green)areselectedbased
+on saliency scores to capture local context; (3) Uniform Grid
+detectorwithdual-thresholdhysteresis.Toensurerobustness,we
+tokens (Blue) fill the remaining budget to preserve the global
+computeedgesattwosensitivitylevelsandmergetheresultsvia
+topologicallayout.
+a bitwise OR operation. Subsequently, a morphological closing
+operation(usinga3×3rectangularkernel)isappliedtobridge
+D AnalysisofPruningDepth
+disconnectededgefragmentsandensurestructuralcontinuityof
+UIwidgets. Inthemaintext,weidentifiedacritical"performancecollapse"
+3.TokenMasking.Validcontoursarefilteredbasedonarea atpruningdepth𝐿=1(12.4%StepSR)andanoptimaloperating
+andaspectratioconstraintstoeliminatepixel-levelartifacts.The pointatLayer2(𝐿 =2).Toelucidatethemechanismgoverning
+resultingbinaryoccupancymaskisthendownsampledtotheVision thisnon-monotonictrend,wevisualizetheattentionheatmapsof
+
+--- Page 13 ---
+Spatio-TemporalTokenPruningforEfficientHigh-ResolutionGUIAgents Conferenceacronym’XX,June03–05,2018,Woodstock,NY
+Algorithm2StratifiedStructure-awarePruning(SSP) Table 6: Efficiency comparison on Qwen2.5-VL-7B (AITW
+dataset,4historyframes,RTX4090).Wereportthenumber
+1:
+Input:VisualtokensequenceT,Globalretentionratio𝜇,Back-
+oftokens,FLOPs,Encoderlatency,Prefilllatency,andGPU
+groundsaliencyfactor𝜌.
+memoryusage.Boldindicatesthebestperformance.
+2:
+Output:CompressedtokensequenceT𝑓𝑖𝑛𝑎𝑙.
+Phase1:PartitionandEstimation
+3:
+4: T𝑓𝑔 ,T𝑏𝑔 ←EdgeDetectionPartition(T) Method #Token FL (T O ) Ps Enco ( d m er s) Time Prefi (m ll s T ) ime GPU (M M B em ) ory
+5: Computeimportancescores{𝑠 𝑖}forall𝑡 𝑖 ∈ T usingshallow Qwen2.5-VL-7B 1320 27.5 308.7 156.3 18004
+layerattention. FastV 310 13.8(×2.0) 308.7(×1.0) 59.1(×2.6) 17680
+Phase2:DetermineBudgetConstraints DivPrune 310 12.7(×2.2) 308.7(×1.0) 53.6(×2.9) 16616
+6:
+CDPruner 310 12.7(×2.2) 308.7(×1.0) 53.8(×2.9) 16614
+7: 𝐾 𝑡𝑜𝑡𝑎𝑙 ← ⌊|T|×𝜇⌋ MoB 310 13.8(×2.0) 308.7(×1.0) 58.4(×2.7) 16768
+8: Phase3:HierarchicalRetention GUIPruner 310 8.9(×3.1) 97.7(×3.2) 52.8(×3.0) 16386
+⊲ForegroundSaliencePreservation
+9:
+10: 𝐾 𝑓𝑔 ← ⌊|T𝑓𝑔|×𝜇⌋
+11: S𝑓𝑔 ←TopK(T𝑓𝑔 ,𝐾 𝑓𝑔 ,key=𝑠 𝑖)
+Layers4–16:ContextualDiffusion.Contrarytotheassump-
+⊲BackgroundSemanticRetention tionthatdeeperlayersyieldsuperiorpruningmasks,ourvisualiza-
+12:
+13: 𝐾 𝑏𝑔 ← ⌊|T𝑏𝑔|×(𝜇·𝜌)⌋ tions(Columns3–5)revealatrendofcontextualdiffusion.
+14: S𝑏𝑔 ←TopK(T𝑏𝑔 ,𝐾 𝑏𝑔 ,key=𝑠 𝑖) • StartingfromLayer4,theattentionfocusbeginstoexpand
+15: ⊲TopologicalStructureCompletion fromtheprecisesearchbartoencompassthebroaderglobal
+16: 𝐾 𝑟𝑒𝑠 ←𝐾 𝑡𝑜𝑡𝑎𝑙 −(|S𝑓𝑔|+|S𝑏𝑔|) context(e.g.,thecontentresultsbelowthebar).
+17: T𝑟𝑒𝑚𝑎𝑖𝑛 ←T \(S𝑓𝑔∪S𝑏𝑔) Whilethisexpansionreflectsthemodel’sefforttounderstandthe
+18: S𝑢𝑛𝑖 ← UniformGridSampling(T𝑟𝑒𝑚𝑎𝑖𝑛 ,𝐾 𝑟𝑒𝑠) {Safeguard globalpagesemantics,itisdetrimentaltothespecifictaskofdis-
+globallayout} criminative pruning. By assigning high importance scores to a
+Phase4:FinalAggregation
+19: largerareaofthescreen,theprunerbecomeslessselective,retain-
+20: T𝑓𝑖𝑛𝑎𝑙 ←S𝑓𝑔∪S𝑏𝑔∪S𝑢𝑛𝑖 ingredundantbackgroundtokensthatdonotcontributetothe
+21:
+returnT𝑓𝑖𝑛𝑎𝑙
+immediateinteraction.Thislossoffine-grainedprecision,coupled
+withtheincreasedcomputationaloverheadofprocessingmorelay-
+ers,accountsforthegradualdegradationinnavigationperformance
+atdeeperlayers.
+theLargeLanguageModel(LLM)acrossvaryingencoderdepths
+(𝐿 ∈ {1,2,4,8,16}). Figure 7 illustrates these dynamics for two
+E EfficiencyAnalysis
+query-drivenscenarioswheretheinteractiontargetisthesearch
+bar. Tovalidatethescalabilityofourframework,weconductedasys-
+Layer1:SpatialMisalignment.Asobservedinthefirstcolumn tematicbenchmarkingofcomputationaloverheadusingQwen2.5-
+ofFigure7,theattentiondistributionat𝐿=1exhibitsseverespatial VL-7BontheAITWbenchmarkwith𝑁 = 4historyframes.As
+misalignment.Althoughtheattentionisnotgloballydispersed,it detailedinTable6,withretentionratessetto𝜆=0.1and𝜇=0.75,
+failstoaccuratelylocalizethetask-relevantregion. ourmethodachievesa3.1×reductioninFLOPscomparedtothe
+• Instead of focusing on the search bar required by the in- originalmodel.Crucially,thistheoreticalgaintranslatesintotangi-
+blespeedups:weacceleratetheVisionEncoderandPrefillstages
+struction,theattentionhotspots(red/yellowregions)land
+by3.2×and3.0×,respectively,effectivelydismantlingthevisual
+onirrelevantlocalfeaturesorperipheraledges.
+encodingbottleneckthatconstrainspriorbaselines.Beyondlatency,
+ThisphenomenonconfirmsthatatLayer1,thevisualtokenshave
+ourapproachdemonstratesexceptionalresourceefficiency,capping
+notyeteffectivelyintegratedwiththetextualinstructiontoguide
+peakGPUmemoryusageatjust16.4GB.Consequently,GUIPruner
+localization.Consequently,pruningbasedonthismisalignedmap
+establishesasuperiorefficiency-performancetrade-offcompared
+indiscriminatelydiscardsthecriticalsearchbartokenswhileretain-
+tocompetingmethodsevenonlarger-scalebackbones.
+ingirrelevantnoise,directlyleadingtotheperformancecollapse
+observedinourexperiments. F QualitativeAnalysis
+Layer 2: Precise Target Alignment (The Sweet Spot). A
+Wevisualizetheretainedvisualtokenstoqualitativelybenchmark
+distinct correction occurs at Layer 2. The attention mechanism
+GUIPruneragainststate-of-the-artbaselines(FastV,DivPrune,CD-
+successfullyfusestheinstructionwithvisualfeatures,correcting
+Pruner,andMoB).ExperimentsareconductedusingtheQwen2.5-
+thespatialdeviation.
+VL-7B backbone on AITW (Figure 8) and Mind2Web (Figure 9)
+• Asshowninthesecondcolumn,theattentionfocusshifts datasets,withretentionratessetto𝜆=0.2(history)and𝜇=0.45
+decisivelytocoverthesearchbar,aligningperfectlywith
+(current).
+theinteractiontarget. StructuralIntegrityinHistory.Forthehistorycolumns(left),
+ThispreciselocalizationallowstheSSPmoduletoretainexactly baselinemethodsproducehighlyfragmentedrepresentations.This
+thetokensrepresentingtheinteractivecomponentwhilefiltering spatialdisruptionseverstheconnectionbetweenrelatedUIele-
+outtherest.Thishigh"signal-to-noise"ratiointokenselection ments(e.g.,abuttonanditslabel).Incontrast,GUIPrunerpreserves
+explainswhy𝐿=2achievesthepeaksuccessrateof65.3%. globalstructuralintegrity.Byemployingaholisticdownsampling
+
+--- Page 14 ---
+Conferenceacronym’XX,June03–05,2018,Woodstock,NY ZhouXu,BowenZhou,QiWang,ShuwenFeng,andJingyuXiao
+G Limitations
+strategyratherthansparsetokenselection,ourmethodmaintains
+thesemanticlayout.Thisensuresrobustsequentialreasoning,even While GUIPruner establishes a new state-of-the-art in efficient
+athighcompressionrates. visualnavigation,itoperateswithintheconstraintsoftheinforma-
+BalancedCoverageinCurrentObservations.CurrentFrame
+tionbottleneck.Asindicatedbyourablationanalysis,thereexists
+(Right):Unlikebaselinesthatover-emphasizesalientregionsat
+atheoreticallowerboundtotokenreduction;applyingpruningat
+thecostofglobalcontext,ourStratifiedStructure-awarePruning extremelyshallowlayersorenforcingaggressivecompressionra-
+(SSP)balancesdetailedforegroundswithastructuredbackground. tiosinevitablyrisksdiscardingfine-grainedvisualcuesessentialfor
+Itprioritizesactionabletokensviaedgepriorswhilemaintaininga pixel-levelgrounding.Consequently,performancedegradationis
+uniformgridfortheremainingareas.Thisstrategypreventslayout unavoidablewhenpushingcompressionbeyondthePareto-optimal
+fragmentation,ensuringthevisionencoderretainstheglobalspatial frontier.Futureworkimpliesexploringmoreadaptive,instance-
+integrityessentialforprecisecoordinategrounding. awaremechanismstofurtheroptimizethistrade-offinhighlycom-
+plexvisualscenarios.
+
+--- Page 15 ---
+Spatio-TemporalTokenPruningforEfficientHigh-ResolutionGUIAgents Conferenceacronym’XX,June03–05,2018,Woodstock,NY
+Figure6:VisualizingtheSSPProcess.Astep-by-stepbreakdownoftokenretention.ThemethodprogressivelylayersForeground
+(Red),Saliency-basedBackground(Green),andUniformGrid(Blue)tokens.Thisguaranteesthatbothfine-grainedinteractive
+elementsandthecoarse-grainedgloballayoutarepreservedfortheVLM.
+
+--- Page 16 ---
+Conferenceacronym’XX,June03–05,2018,Woodstock,NY ZhouXu,BowenZhou,QiWang,ShuwenFeng,andJingyuXiao
+Figure7:EvolutionofLLMAttentionDynamicsacrossPruningDepths.TheheatmapsillustratetheLLM’svisualattentionfor
+search-relatedqueries.(L1)Attentionismisaligned,failingtocoverthetargetsearchbar.(L2)Attentionispreciselyfocusedon
+thesearchbar,providingthemostaccuratesignalfortokenpruning.(L4–L16)Attentionprogressivelyexpandstotheglobal
+context,reducingtheselectivityrequiredforefficientpruning.
+
+--- Page 17 ---
+Spatio-TemporalTokenPruningforEfficientHigh-ResolutionGUIAgents Conferenceacronym’XX,June03–05,2018,Woodstock,NY
+Figure8:VisualizationonAITW(MobileGUI).Qualitativecomparisondemonstratingthatbaselinesproducefragmented,
+spatiallydisjointpatterns.Incontrast,GUIPrunerpreservesthegloballayoutintegrityofhistoryframesandenforcesa
+uniform,structure-awaretopologyforthecurrentframe.
+
+--- Page 18 ---
+Conferenceacronym’XX,June03–05,2018,Woodstock,NY ZhouXu,BowenZhou,QiWang,ShuwenFeng,andJingyuXiao
+Figure9:VisualizationonMind2Web(WebGUI).QualitativecomparisondemonstratingthatGUIPrunereffectivelypreserves
+thegloballayoutofhistoricalwebpageswhilepreciselyhighlightinginteractiveelementsinthecurrentframe,mitigatingthe
+spatialfragmentationobservedinbaselines.

@@ -1,0 +1,1150 @@
+--- Page 1 ---
+SKILLRL: Evolving Agents via Recursive Skill-Augmented
+Reinforcement Learning
+PengXia1* JianwenChen1* HanyangWang12* JiaqiLiu1 KaideZeng1 YuWang3 SiweiHan1
+YiyangZhou1 XujiangZhao4 HaifengChen4 ZeyuZheng5 CihangXie6 HuaxiuYao1
+Abstract
+Memory Skills
+LargeLanguageModel(LLM)agentshaveshown Base Environment Trajectory Expert
+stunningresultsincomplextasks,yettheyoften Model
+Discard Evolve
+operate in isolation, failing to learn from past (a)
+Higher Performance
+experiences. Existing memory-based methods
+Faster Convergence
+primarilystorerawtrajectories,whichareoften
+redundantandnoise-heavy. Thispreventsagents
+from extracting high-level, reusable behavioral
+patternsthatareessentialforgeneralization. In
+this paper, we propose SKILLRL, a framework
+thatbridgesthegapbetweenrawexperienceand
+policyimprovementthroughautomaticskilldis- (b)
+covery and recursive evolution. Our approach Figure1. (a)OverviewoftheSKILLRLpipeline. Unlikeprevi-
+introducesanexperience-baseddistillationmech- ousmethods(graydashedlines)thatstorerawtrajectoriesand
+discardfailures,SKILLRLemploysanexperience-baseddistilla-
+anismtobuildahierarchicalskilllibrarySKILL-
+tionmechanismtotransformdiverseexperiencesintostructured
+BANK,anadaptiveretrievalstrategyforgeneral
+skills. (b) Performance on ALFWorld validation set (Shridhar
+andtask-specificheuristics,andarecursiveevolu- etal.).SKILLRLachievesfasterconvergenceandsuperiorsuccess
+tion mechanism that allows the skill library to ratescomparedtovanillaGRPOandmemory-augmentedRL.
+co-evolve with the agent’s policy during rein-
+forcement learning. These innovations signifi- byinteractingwithcomplexenvironmentsthroughnatural
+cantlyreducethetokenfootprintwhileenhancing language. Despitetheseadvances,eachtaskexecutionre-
+reasoningutility. ExperimentalresultsonALF- mainslargelyepisodic. CurrentLLMagentsoperateiniso-
+World, WebShop and seven search-augmented lation,unabletolearnfrompastsuccessesorfailures(Zhang
+tasksdemonstratethatSKILLRLachievesstate- etal.,2025b), whichsignificantlyhinderstheirevolution.
+of-the-art performance, outperforming strong Consequently,afundamentalchallengeremains: howcan
+baselinesover15.3%andmaintainingrobustness agents efficiently learn from experience and transfer that
+astaskcomplexityincreases. Codeisavailableat knowledgetoothertasks?
+thishttps://github.com/aiming-lab/SkillRL.
+Theexistingmemory-basedmethodsforLLMagentspri-
+marilyinvolvesavingrawtrajectoriesdirectlyintoexternal
+1.Introduction databasesduringthesamplingprocesstoserveasreferences
+forsimilarfuturetasks(Shinnetal.,2023;Zhaoetal.,2024).
+Large language model (LLM) agents (Yao et al., 2022b;
+Whileintuitive,theserawtrajectoriesareoftenlengthyand
+Shinn et al., 2023) have demonstrated remarkable capa-
+containsignificantredundancyandnoise(Chhikaraetal.,
+bilities across various sophisticated tasks, such as web
+2025),makingitdifficultforthemodeltoextractcriticalin-
+navigation (Google, 2025; OpenAI, 2025c) and deep re-
+formation. Recentworkhasattemptedtocompresstrajecto-
+search(OpenAI,2025b;Google,2024;Teametal.,2025),
+riesandupdatethememorybankviaonlinetraining(Zhang
+1UNC-Chapel Hill 2University of Chicago 3University of etal.,2025b;2026),improvingmemoryefficiency. How-
+California San Diego 4NEC Labs America 5University of Cal- ever,thesemethodsmerelymimicpastsolutionsandthey
+ifornia Berkeley 6University of California Santa Cruz. Cor-
+fail to distill core principles or adapt the agent’s internal
+respondence to: Peng Xia <pxia@cs.unc.edu>, Huaxiu Yao
+policytoleveragememoryforguideddecision-making. As
+<huaxiu@cs.unc.edu>.
+depictedinthedashedflowofFigure1(a),suchapproaches
+Preprint.February10,2026. oftenstrugglewiththetrade-offbetweeninformationden-
+1
+6202
+beF
+9
+]GL.sc[
+1v43280.2062:viXra
+
+--- Page 2 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+sityandnoise,leadingtosub-optimalperformanceoreven a state o ∈ O, selects an action a ∈ A, and receives
+t t
+degradationasshowninFigure1(b). a reward r and next observation o . A trajectory τ =
+t t+1
+(o ,a ,r ,...,o ,a ,r )capturesoneepisodeofinterac-
+Wearguethattheseapproachesmissacrucialinsight: effec- 0 0 0 T T T
+tion. Tasksarespecifiedbynaturallanguagedescriptionsd.
+tiveexperiencetransferrequiresabstraction.Humanexperts
+AnLLM-basedagentparameterizedbyθimplementsapol-
+do not memorize every action in every situation; instead,
+icy π (a |o ,d,c) where c represents additional context
+theydevelopskills(Anthropic,2024),compactandreusable θ t ≤t
+(e.g.,skills,demonstrations). Ourgoalistolearnapolicy
+strategies that capture the essence of how to accomplish (cid:104) (cid:105)
+thatmaximizesexpectedreturnmax E (cid:80)T γtr
+specificsubtasks. Inspiredbythisobservation,wepropose θ τ∼πθ t=0 t
+SKILLRL,aframeworkthatbridgesthegapbetweenraw subjecttocontextlengthconstraints|c|≤L
+max
+.
+experienceandefficientpolicyimprovementthroughauto-
+Group Relative Policy Optimization (GRPO).
+maticskilldiscoveryandrecursiveskillevolution.
+GRPO (Shao et al., 2024) is a reinforcement learn-
+SKILLRLfirstintroducesanexperience-basedskilldistil- ingmethodthatavoidstrainingacriticbyusingintra-group
+lationmechanism,whichgathersdiversetrajectoriesfrom relativerewardstooptimizethepolicy. Foreachqueryx,
+environment rollouts and applies differential processing: themodelsamplesGresponses{y(1),...,y(G)},whichare
+successfulepisodesarepreservedasdemonstrations,while scoredtoobtainrewards{R ,...,R }. GRPOcomputes
+1 G
+failedonesaresynthesizedintoconcisefailurelessonsto normalized advantages and updates the policy with a
+mitigate context noise. Secondly, we transform these ex- PPO-styleclippedobjective(Schulmanetal.,2017):
+p fe e r r e ie n n ti c a e ti s n i g nt b o e a tw h e ie e r n ar g c e h n ic e a ra l l sk s i k l i l ll li s b f r o a r ry u S ni K v I e L r L sa B l A st N ra K t , e d g i i f c - J (θ)=E (cid:34) 1 (cid:88) G min (cid:16) r A ,
+guidance and task-specific skills for task-level heuristics. GRPO x,{yi} G i i
+i=1 (1)
+Thisabstractionallowstheagenttoadaptivelyretrieverele- (cid:35)
+(cid:17)
+vantskillsduringdecision-making,significantlyreducing clip(r i ,1−ϵ,1+ϵ)A i −βD KL (π θ ∥π ref ) ,
+thetokenfootprintwhileenhancingreasoningutility. Lastly,
+SKILLRL incorporates a recursive skill evolution mecha- where r = πθ(yi|x) is the importance ratio, A =
+nismduringreinforcementlearning(RL),wheretheskill i πold(yi|x) i
+libraryistreatedasadynamiccomponentratherthanastatic Ri− std m ( e { a R n( j { } R G j j = } 1 G j ) =1) isthenormalizedadvantage,ϵ,βarehyper-
+knowledgesource. Byanalyzingfailuremodesaftereach parameters,andπ isthepolicybeforethecurrentupdate.
+old
+validation epoch to generate new skills or refine existing
+ones,ourapproachensurestheskilllibraryandtheagent’s
+policyco-evolve,maintainingrobustnessastaskcomplex- 3. SKILLRL
+ity increases. As demonstrated in Figure 1(b), SKILLRL
+In this section, as illustrated in Figure 2, we propose
+achievessubstantiallyfasterconvergenceandhigherasymp-
+toticperformance.
+SKILLRL,aframeworkdesignedtobridgethegapbetween
+rawinteractionexperienceandpolicyimprovementthrough
+TheprimarycontributionisSKILLRL,aframeworkthaten- automaticskilldiscoveryandrecursiveevolution. SKILLRL
+ablesLLMagentstobridgethegapbetweenrawexperience consists of three core components. First, we develop an
+andpolicyimprovementthroughautomaticskilldiscovery experience-basedskilldistillationmechanismtotransform
+and recursive evolution. By distilling redundant trajecto- redundanttrajectoriesintoconcise,actionableknowledge.
+riesintoahierarchicalSKILLBANK,ourmethodabstracts Second,weorganizethesedistilledexperiencesintoahierar-
+general and task-specific skills to guide decision-making chicalskilllibraryS,enablingefficientretrievalofgeneral
+efficiently. Furthermore,weintroducearecursiveevolution andtask-specificexpertise. Lastly,weintroducearecursive
+mechanismthatensurestheskilllibraryandagentpolicyco- skillevolutionmechanismthatleveragesRLtodynamically
+evolveduringreinforcementlearning. Empiricalresultson refinetheskilllibraryintandemwiththeagent’spolicy. We
+ALFWorld,WebShop,andsevensearch-augmentedbench- detailthesecomponentsasfollows:
+marksdemonstratethatSKILLRLachievesstate-of-the-art
+performancewith15.3%improvements,significantlyout- 3.1.Experience-basedSkillDistillation
+performingcurrentmemory-basedagent-tuningbaselines
+Rawtrajectoriesτ collectedfromenvironmentinteractions
+inbothtasksuccessandreasoningutility.
+areverbose,containingexploratoryactions,backtracking,
+andredundantstepsthatobscurethecriticaldecisionslead-
+2.Preliminaries ing to success or failure. To transform these experiences
+intoactionableknowledge,weemployateachermodelM
+T
+LLMAgents. Weconsideranagentoperatinginaninterac-
+todistilltrajectoriesintocompact,reusableskills.
+tiveenvironmentE. Ateachtimestept,theagentobserves
+Specifically,wefirstdeployabaseLLMagentπ inthe
+base
+2
+
+--- Page 3 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+Successful Episodes
+a a a
+1 2 ⋯ n
+Lessons from Failure
+Base Model Environment Trajectory Memory
+Cold Start Skills Take what you see
+Prioritize exploring
+General Skills unvisited nodes
+For cleaning tasks,
+Evolved Model Environment SFT Model Task-Specific Skills follow this process:
+Locate -> Obtain ->
+Clean the pool ->
+Update SkillBank Create New or Refine Place this item
+Figure2.OverviewoftheSKILLRLframework.Wecollecttrajectoriesusingabasemodel,distillthemintoahierarchicalskilllibrary,
+performcold-startSFTtoenableskillutilization,andthenconductRLtrainingwithdynamicskillevolutionbasedonvalidationfailures.
+targetenvironmentE tocollectdiversetrajectories. Unlike ciplesapplicableacrossalltasktypeswithinanenvironment.
+priorapproachesthatretainonlysuccessfulepisodes,wede- Thesetypicallyincludeexplorationstrategies(e.g.,system-
+liberatelypreservebothsuccessfultrajectoriesT+ ={τ : aticsearchpatterns,prioritizingunvisitedlocations),state
+i
+r(τ ) = 1}andfailedtrajectoriesT− = {τ : r(τ ) = 0}, management principles (e.g., verifying preconditions be-
+i i i
+wherer(τ)denotesthebinarytasksuccessindicator. Failed foreactions),andgoal-trackingheuristics(e.g.,maintaining
+trajectoriesrevealfailuremodesandboundaryconditions, progresscounters,terminatingonlyuponverifiedcomple-
+i.e.,informationdifficulttoinferfromsuccessesalone. tion). General skills provide foundational guidance that
+transfersacrossdifferenttaskcategories. 2)Task-Specific
+We apply differential processing based on trajectory out-
+SkillsS encodespecializedknowledgefortaskcategory
+comes. Forsuccessfultrajectoriesτ+ ∈T+,weextractthe k
+k. These capture domain-specific action sequences, task-
+strategicpatternsthatledtotaskcompletion:
+particular preconditions and constraints, common failure
+s+ =M T (τ+,d). (2) modesuniquetothetasktype,andoptimizedprocedures
+thatexploittaskstructure.Byorganizingtrajectoriesbytask
+The teacher model identifies critical decision points, the
+typeduringcollection,weenableextractionoffine-grained,
+reasoningbehindcorrectactions,andgeneralizablepatterns
+category-specific strategies that complement the broader
+thattransferbeyondthespecifictaskinstance.
+generalskills.
+Forfailedtrajectoriesτ− ∈T−,directinclusionincontext
+is infeasible due to their length and noise. Instead, we
+Thecompleteskilllibrary SKILLBANK isS
+g
+∪
+(cid:83)K
+k=1
+S
+k
+.
+synthesizeconcisefailurelessons:
+Each skill s ∈ SKILLBANK is structured with: a concise
+name(e.g.,systematicexploration),aprincipledescribing
+s− =M (τ−,d). (3)
+T thestrategy,andwhen to applyconditionsspecifyingap-
+Theanalysisidentifies:(1)thepointoffailure,(2)theflawed plicability. This format enables efficient retrieval while
+reasoningoraction,(3)whatshouldhavebeendone,and providingclearguidanceforapplication.
+(4)generalprinciplestopreventsimilarfailures. Thistrans-
+formsverbosefailedepisodesintocounterfactuals.
+Skill Retrieval. At inference, given a task description
+d, the agent retrieves relevant skills to augment its con-
+3.2.HierarchicalSkillLibrary(SKILLBANK) text. GeneralskillsS arealwaysincludedasfoundational
+g
+Construction guidance. Task-specific skills are retrieved via semantic
+similarity:
+FollowingthedesignprinciplesofAgentSkills(Anthropic,
+2024),weorganizethedistilledknowledgeintoahierarchi-
+calskilllibrarySKILLBANKthatenablesefficientretrieval S ret =TopK({s∈S k :sim(e d ,e s )>δ},K), (4)
+ofrelevantexpertiseduringdecision-making.
+wheree ,e areembeddingsofthetaskdescriptionandskill
+d s
+SkillOrganization. WestructureSKILLBANKintotwo respectively,δisasimilaritythreshold,andK controlsthe
+levels: 1)GeneralSkillsS captureuniversalstrategicprin- numberofretrievedskills. Thepolicythenconditionson
+g
+3
+
+--- Page 4 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+Algorithm1SKILLRL:RecursiveSkill-AugmentedRL (SFT)stage(Ouyangetal.,2022),wheretheteachermodel
+Require: Basemodelπ base ,teacherM T ,environmentE
+M
+T
+generatesN skill-augmentedreasoningtracesD
+SFT
+=
+Ensure: Trainedpolicyπ θ∗,evolvedskilllibrarySKILLBANK ∗ {(d i ,S i ,τ i ∗)}N i=1 demonstratinghowtoretrieve,interpret,
+1: ▷Experience-basedSkillDistillation andapplyskillsduringdecision-making. Thebasemodelis
+2: T+,T− ←Rollout(π base ,E) thenfine-tunedonthesedemonstrations:
+3: forallτ+ ∈T+do
+4: s+ ←M (τ+)
+T
+5: endfor
+6: forallτ− ∈T−do θ sft =argminL CE (D SFT ;θ), (6)
+θ
+7: s− ←M (τ−)
+T
+8: endfor
+9: ▷HierarchicalSkillLibraryConstruction
+where L denotes the cross-entropy loss. The resulting
+10: S ←generalskillsfromdistilledexperiences CE
+g modelπ servesasboththestartingpointforRLtraining
+11: foralltasktypekdo θsft
+12: S k ←task-specificskillsforcategoryk andthereferencepolicyπ ref forKLregularization.
+13: endfor
+(cid:83) RecursiveSkillEvolution. Astaticskilllibrarycannotan-
+1 1 4 5 : : ▷ SK R I e L c L u B rs A iv N e K S ← kill S E g v ∪ oluti k on S k viaRL ticipateallscenariostheagentwillencounter. Asthepolicy
+16: //Cold-startinitialization improvesandexploresnewstateregions,itfacessituations
+17: D SFT ←M T (E,SKILLBANK) whereexistingskillsprovideinsufficientguidance. Wein-
+18: θ←SFT(π ,D ); π ←π
+base SFT ref θ troducerecursiveskillevolutiontoaddressthislimitation.
+19: //RLwithrecursiveevolution
+Theprocessbeginswithaninitialskilllibrarycontaining
+20: forepoch=1toN do
+21: foralltaskddo baselinetask-actionprinciples.
+22: S
+ret
+←Retrieve(d,SKILLBANK)
+After each validation epoch, we monitor the success rate
+23: Sample{τ(i)}G ∼π (·|d,S ,S )
+i=1 θ g ret Acc(C) for each task category C. To ensure targeted
+24: Compute{R }G andupdateθviaGRPO
+i i=1 growth,theevolutionistriggeredonlyforcategorieswhere
+25: endfor
+26: ifvalidationepochthen Acc(C)<δ. WethencollectfailedtrajectoriesT v − al ={τ j :
+27: T− ←failedvalidationtrajectories r(τ )=0}M usingadiversity-awarestratifiedsampling
+val j j=1
+28: S new ←M T (T v − al ,SKILLBANK) strategy: trajectoriesaregroupedbycategory,prioritizedby
+29: SKILLBANK←SKILLBANK∪S
+new theseverityoffailure(negativerewards),andselectedvia
+30: endif
+round-robinsamplingtomaintaincategoricalentropy. Then
+31: endfor
+32: returnπ
+θ
+,SKILLBANK wewillanalyzethesesamplestoidentifygaps:
+theretrievedskills: S new =M T (T v − al ,SKILLBANK). (7)
+a ∼π (a |o ,d,S ,S ). (5)
+t θ t ≤t g ret
+Theteachermodelispromptedto: (1)identifyfailurepat-
+Notably,skilldistillationachieves10–20×tokencompres- ternsnotaddressedbycurrentskills,(2)proposenewskills
+sioncomparedtorawtrajectorieswhileenhancingrather tocoverthesegaps,and(3)suggestrefinementstoexisting
+thandegradingtheutilityoftheoriginalexperience. This skillsthatprovedineffective. Thelibraryisthenupdated:
+compressionallowstheagenttoleveragerichexperiential SKILLBANK ← SKILLBANK∪S
+new
+.
+knowledgewithinlimitedcontextwindows.
+Thiscreatesavirtuouscycle: astheagentimproves,iten-
+countersnewchallenges,whichdriveskilllibraryexpansion,
+3.3.RecursiveSkillEvolution
+whichenablesfurtherimprovement.
+Astaticskilllibrarycannotanticipateallscenariostheagent
+RL-based Policy Optimization. We optimize the skill-
+willencounter. Asthepolicyimprovesandexploresnew
+augmentedpolicyusingGRPO.Foreachtaskwithdescrip-
+stateregions,itfacessituationswhereexistingskillsprovide
+tiond,theagentfirstretrievesrelevantskillsandthensam-
+insufficientguidance. Weintroducerecursiveskillevolution
+plesGcompletetrajectories{τ(1),...,τ(G)}fromthecur-
+during reinforcement learning to address this limitation,
+rentpolicyπ . Eachtrajectoryτ(i)receivesabinaryreward
+enablingtheskilllibraryandagentpolicytoco-evolve. θ
+R =r(τ(i))∈{0,1}indicatingtasksuccessfulness. The
+i
+Cold-StartInitialization. BeforeRLtraining,weaddress normalizedadvantageforeachtrajectoryiscomputedas:
+a critical challenge: the base agent has not learned how
+to effectively utilize skills. Simply providing skills to an
+unchangedmodelyieldslimitedbenefit(Guoetal.,2025). A = R i −mean({R j }G j=1 ) . (8)
+We therefore perform a cold-start supervised fine-tuning i std({R }G )
+j j=1
+4
+
+--- Page 5 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+Thepolicyisupdatedaccordingto: and GRPO (Shao et al., 2024) that optimize policies via
+advantage estimation over trajectory groups. Finally, we
+(cid:34) G
+1 (cid:88) (cid:16) compare against memory-augmented RL-based methods,
+J(θ)=E min ρ A ,
+d,{τ(i)} G i i suchasEvolveR(Wuetal.,2025),MemRL(Zhangetal.,
+i=1 (cid:35) (9) 2026), and the combination of Mem0+GRPO and Sim-
+(cid:17)
+pleMem (Liu et al., 2026)+GRPO, which integrate per-
+clip(ρ ,1−ϵ,1+ϵ)A −βD (π ∥π ) ,
+i i KL θ ref
+sistent memory mechanisms directly into the reinforce-
+ment learning optimization process to handle long-term
+where ρ =
+πθ(τ(i)|d,Sg,Sret)
+is the importance ratio com- dependencies. For search-augmented QA, we compare
+puted ov i er th π e old s ( k τ i ( l i l ) - |d a , u S g g m ,Sr e et n ) ted context. The KL penalty SKILLRL with R1-Instruct, Search-o1 (Li et al., 2025),
+anchoredtoπ = π ensuresthatRLoptimizationpre- Search-R1(Jinetal.,2025),ZeroSearch(Sunetal.,2025),
+ref θsft
+servesthelearnedskillutilizationcapabilitieswhileimprov- andStepSearch(Zhengetal.,2025).
+ingtaskperformance. Thecompletetrainingprocedureis
+Implementation Details. We use Qwen2.5-7B-
+summarizedinAlgorithm1.
+Instruct (Bai et al., 2023) as our base model and
+OpenAIo3(OpenAI,2025a)astheteachermodelforskill
+4.Experiments distillationandSFTdatageneration. ForRLtraining,we
+useGRPOwithlearningrate1×10−6,batchsize16,group
+We evaluate SKILLRL on nine challenging benchmarks
+size8,and4gradientaccumulationsteps. WesetK =6for
+forLLMagents: ALFWorld,WebShop,andsevensearch-
+task-specificskillretrievalandδ = 0.4forthecollection
+augmentedQAtasks. Ourexperimentsaddressthefollow-
+of failed trajectories. For more detailed information on
+ing questions: 1) How does SKILLRL compare to state-
+traininghyperparameters,pleaseseeAppendixB.1.
+of-the-art methods? 2) What is the contribution of each
+component? 3) How does the skill library evolve during
+4.2.MainResults
+training? 4)Doesskillsacceleratemodelconvergence?
+ComparisonwithBaselines. WecompareSKILLRLwith
+4.1.ExperimentalSetup baselinemethodsacrosstwobenchmarksasshowninTa-
+ble1. Ourmethodconsistentlyoutperformsallbaselines,
+Environments. ALFWorld(Shridharetal.) isatext-based
+withkeyobservationsasfollows:
+gamealignedwiththeALFREDembodiedAIbenchmark.
+Agentsmustcompletehouseholdtasksbynavigatingand 1)SignificantGainsoverPrompt-basedMethods. SKILLRL
+interactingwithobjectsthroughtextcommands. WebShop achievesa89.9%successrateonALFWorldand72.7%on
+(Yaoetal.,2022a)simulateswebshopping.Agentsnavigate WebShop,outperformingthebestprompt-basedbaselines
+arealisticwebinterfacetofindandpurchaseproductsmatch- byalargemargin. Thisgapsuggeststhatwhilein-context
+ing user specifications. In addition, we also evaluate the learningcanleveragepastexperiences,itoftenfailstodistill
+performanceofSKILLRLonsearch-augmentedQAtasks, actionable knowledge from verbose trajectories or funda-
+includingsingle-hopQAdatasets(NQ(Kwiatkowskietal., mentallyadapttheagent’spolicy.
+2019),TriviaQA(Joshietal.,2017),andPopQA(Mallen
+2) Superiority over Vanilla RL. RL training brings sub-
+etal.,2023))andmulti-hopQAdatasets(HotpotQA(Yang
+stantial gains, yet SKILLRL consistently surpasses stan-
+et al., 2018), 2Wiki (Ho et al., 2020), MuSiQue (Trivedi
+dardRLbaselines. ComparedtoPPO,RLOO,andGRPO,
+etal.,2022),andBamboogle(Pressetal.,2023)).
+SKILLRLachievesthebestoverallperformance. Notably,
+Baselines. WecompareSKILLRLagainstfourcategories since SKILLRL utilizes GRPO as its base optimizer, the
+of competitive methods. First, we include closed-source 12.3% absolute improvement over GRPO on ALFWorld
+LLMs, specifically GPT-4o (OpenAI, 2024) and Gemini- (from77.6%to89.9%)isdirectlyattributabletoourskill-
+2.5-Pro(Comanicietal.,2025),whichrepresentthestate-of- augmentationmechanismratherthanalgorithmicvariance.
+the-artingeneral-purposereasoningandinstructionfollow- In complex subtasks like Cool and Pick2, SKILLRL out-
+ing. Second,weevaluateprompt-basedagenticormemory- performsGRPOby23.0%and22.8%respectively,proving
+basedmethods,includingReAct(Yaoetal.,2022b)andRe- thatstructuredskillpriorseffectivelyaccelerateandenhance
+flexion(Shinnetal.,2023),whichrelyonin-contextprompt- policylearninginsparse-rewardenvironments.
+ing for multi-step reasoning, as well as Mem0 (Chhikara
+3)AdvantageoverMemory-AugmentedRL.SKILLRLsub-
+etal.,2025),ExpeL(Zhaoetal.,2024),andMemP(Fang
+stantially outperforms existing memory-augmented RL
+etal.,2025),whichutilizeexternalmemoryorexperience
+frameworks,whichdifferinhowtheymanageandupdate
+poolstoguidebehaviorwithoutparameterupdates. Third,
+experience. MemRL, which uses RL solely to update its
+weconsiderRL-basedmethods,includinggroup-basedon-
+memorybankwhilekeepingthepolicyfrozen,failstoadapt
+lineRLalgorithmssuchasRLOO(Ahmadianetal.,2024)
+5
+
+--- Page 6 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+Table1.PerformanceonALFWorldandWebShop.ForALFWorld,wereporttheaveragesuccessrate(%)foreachsubtaskaswellas
+theoverallresult. ForWebShop,wereportboththeaveragescoreandtheaveragesuccessrate(%). ∗ denotestheresultsreplicated
+from(Fengetal.,2025).Thebestresultsandsecondbestresultsarehighlightedin red and blue,respectively.
+ALFWorld WebShop
+Method
+Pick Look Clean Heat Cool Pick2 All Score Succ.
+Closed-sourceLLMs
+GPT-4o 75.3 60.8 31.2 56.7 21.6 49.8 48.0 31.8 23.7
+Gemini-2.5-Pro 92.8 63.3 62.1 69.0 26.6 58.7 60.3 42.5 35.9
+Qwen2.5-7B-Instruct
+Qwen2.5 33.4 21.6 19.3 6.90 2.80 3.20 14.8 26.4 7.80
+Prompt-basedAgenticorMemory-basedMethods
+ReAct∗ 48.5 35.4 34.3 13.2 18.2 17.6 31.2 46.2 19.5
+Reflexion∗ 62.0 41.6 44.9 30.9 36.3 23.8 42.7 58.1 28.8
+Mem0 54.0 55.0 26.9 36.4 20.8 7.69 33.6 23.9 2.00
+ExpeL 21.0 67.0 55.0 52.0 71.0 6.00 46.3 30.9 11.2
+MemP 54.3 38.5 48.1 56.2 32.0 16.7 41.4 25.3 6.40
+SimpleMem 64.5 33.3 20.0 12.5 33.3 3.84 29.7 33.2 8.59
+RL-basedMethods
+RLOO∗ 87.6 78.2 87.3 81.3 71.9 48.9 75.5 80.3 65.7
+GRPO∗ 90.8 66.1 89.3 74.7 72.5 64.7 77.6 79.3 66.1
+Memory-AugmentedRL-basedMethods
+MemRL 62.8 38.5 22.2 12.5 8.00 0.00 21.4 29.5 9.20
+EvolveR 64.9 33.3 46.4 13.3 33.3 33.3 43.8 42.5 17.6
+Mem0+GRPO 78.1 54.8 56.1 31.0 65.0 26.9 54.7 58.1 37.5
+SimpleMem+GRPO 89.5 36.3 60.0 50.0 64.9 26.3 62.5 67.8 46.9
+SKILLRL 97.9 71.4 90.0 90.0 95.5 87.5 89.9 85.2 72.7
+to complex environments, yielding only 21.4% on ALF- Table2,SKILLRLachievesastate-of-the-artaveragescore
+World. EvolveR,whichjointlyupdatesthepolicyandmem- of47.1%,significantlyoutperformingSearch-R1(38.5%)
+orybank,showsimprovement(43.8%)butremainslimited abd EvolveR (43.1%). Key observations include: 1) Su-
+by its reliance on rough trajectory storage. To provide a periormulti-hopReasoning: SKILLRLexcelsincomplex
+morecompetitivebaseline,weimplementedMem0+GRPO, taskslikeBamboogle,surpassingEvolveRby19.4%. This
+which combines a state-of-the-art prompt-based memory demonstratesthathierarchicalskillseffectivelyguidemulti-
+mechanism with an optimized policy model. While this stepinformationsynthesis. 2)Stronggeneralization: De-
+hybridapproachimprovesperformanceto54.7%onALF- spite being trained on limited datasets (NQ, HotpotQA),
+Worldand37.5%onWebShop,itstilltrailsSKILLRLby SKILLRLmaintainscompetitiveperformanceonOODtasks
+a wide margin (about 35.2% absolute success rate gap). likeTriviaQAand2Wiki,confirmingthatdistilledsearch
+Theseresultsvalidateourcorehypothesis: effectiveexpe- strategiesaretask-agnostic.
+rience transfer requires high-level skill abstraction and a
+co-evolvinglibraryratherthansimpletrajectorycompres- 4.3.Analysis
+sionorprompt-basedmemoryretrieval.
+Inthissection,weprovidedetailedanalysisofeachmod-
+Comparison with Closed-Source Models. Remarkably, ule’seffectivenessandtheskillevolutiondynamics.
+SKILLRLwithQwen2.5-7B-Instructsignificantlyoutper-
+AblationStudies. Weconductablationexperimentstoeval-
+formsmuchlargerclosed-sourcemodels,asshowninTa-
+uateeachcomponent’scontribution,withresultsinTable3.
+ble1.OnALFWorld,ourmethodexceedsGPT-4o(OpenAI,
+Accordingtotheresults: (1)Removinghierarchicalstruc-
+2024)by41.9%andGemini-2.5-Pro(Comanicietal.,2025)
+ture(i.e.,task-specificskillsonly)decreasesperformance
+by29.6%. Thisdemonstratesthateffectiveskilllearning
+by13.1%onALFWorldand11.3%onWebShop,indicating
+can compensate for model scale, enabling smaller open-
+universalstrategicprinciplesprovideessentialfoundational
+sourcemodelstoachievesuperiortaskperformancethrough
+guidance. (2) Replacing the skill library with raw trajec-
+structuredexperientialknowledge.
+tories causes the largest degradation (up to 25%), which
+Performance on Search-Augmented QA. As shown in
+6
+
+--- Page 7 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+Table2. Performanceonsearch-augmentedQAtasks. SKILLRL istrainedonNQandHotpotQA.† and⋆ indicatein-domainand
+out-of-domaindatasets,respectively.∗denotestheresultsreplicatedfrom(Sunetal.,2025).
+Single-HopQA Multi-HopQA
+Method Avg.
+NQ† TriviaQA⋆ PopQA⋆ HotpotQA† 2Wiki⋆ MuSiQue⋆ Bamboogle⋆
+Qwen2.5-7B-Instruct
+Qwen2.5∗ 11.6 35.6 1.20 16.4 22.2 4.80 14.4 15.2
+CoT∗ 12.8 35.6 3.80 16.2 22.6 6.60 24.0 17.4
+RAG∗ 27.4 58.2 17.8 25.8 23.2 9.40 16.8 25.5
+Search-o1∗ 19.4 40.6 11.4 17.0 27.0 8.60 30.4 22.1
+R1-Instruct 21.0 44.9 17.1 20.8 27.5 6.00 19.2 22.4
+Search-R1 39.3 61.0 39.7 37.0 40.1 14.6 36.8 38.5
+ZeroSearch 43.6 61.8 51.5 34.6 35.2 18.4 27.8 39.1
+StepSearch - - - 38.6 36.6 22.6 40.0 -
+EvolveR 43.5 63.4 44.6 38.2 42.0 15.6 54.4 43.1
+SKILLRL 45.9 63.3 45.9 43.2 40.3 20.2 73.8 47.1
+Table3.Ablationstudyresults.Wereportaveragesuccessrate(%)
+onALFWorldandWebShop.
+120
+Method ALFWorld WebShop
+SKILLRL 89.9 72.7 100
+SkillLibraryAblations 80 w/oHierarchicalStructure 76.8 61.4
+w/oSkillLibrary(RawTrajectories) 61.7 50.2 60
+TrainingPipelineAblations
+w/oCold-StartSFT 65.2 46.5
+40
+w/oDynamicEvolution 84.4 70.3
+20
+directlysupportsourmotivationthatabstractionissuperior 0 0 20 40 60 80 100 120 140 150
+Training Steps
+tomemorization. Rawexperiencesintroducesignificantre-
+dundancyandnoisethathindereffectiveknowledgetransfer.
+(3) Cold-start SFT proves critical (20% drop without it),
+confirmingthatthebasemodelrequiresaninitialexplicit
+demonstrationphasetolearnhowtoadaptivelyretrieveand
+utilize the abstracted skills before entering the RL stage.
+(4)Dynamicevolutioncontributesa5.5%improvementby
+ensuring the skill library is a dynamic component rather
+thanastaticdatabase. Thisco-evolutionallowstheagentto
+iterativelyrefineitsinternalpolicybyaddressingemergent
+failuremodesthatwerenotcoveredbytheinitialskillset.
+Per-TaskAnalysisonALFWorld. Table1breaksdown
+ALFWorldperformancebytasktype. Thelargestgainsare
+onPickTwo(+23%),Cool(+22%)andHeat(+15%),which
+areamongthemostchallengingtasksrequiringmulti-step
+planningandstatetracking. Task-specificskillsareparticu-
+larlyvaluablehere,capturingstrategieslike“whenpicking
+twoobjects,verifythefirstissecuredbeforesearchingfor
+thesecond”thataddresscommonfailuremodes.
+SkillLibraryGrowth. Figure3showshowtheskilllibrary
+evolves during training. The initial skill library contains
+55skills(12general,43task-specific). Throughdynamic
+evolution, this grows to 100 skills by the end of training
+(Step 150). The growth is predominantly driven by task-
+specific skills (increasing from 43 to 80), while general
+sllikS
+fo
+rebmuN
+Skill Library Evolution
+Total Skills Heat
+General Cool
+Pick Pick2
+Look Mistakes
+Clean 100
+94
+88
+83
+77 71
+66
+60 55
+Figure3. EvolutionofskilllibrarysizeduringRLtraining. Dy-
+namicskillevolutionaddsskillsatvalidationcheckpoints.
+skillsshowasteadierincrease(from12to20). Notably,we
+observeabalancedexpansionacrossvarioustaskcategories,
+ensuringtheagentdevelopsspecializedexpertiseforeach
+environment rollout. This overall expansion reflects the
+agent’sincreasingabilitytorefineitsrepertoireandtackle
+diversescenarioswithinspecifictasktypes.
+ContextEfficiency. Toevaluatetheimpactofskillabstrac-
+tiononinferenceoverhead,wecomparetheaverageprompt
+length of SKILLRL with a memory-augmented baseline
+usingrawtrajectories(Qwen2.5-7BwithRawMemory)in
+Figure 4. The results reveal that while the raw memory
+approachsuffersfromahighandfluctuatingtokenfootprint
+(averaging∼1,450tokens), SKILLRLmaintainsasignifi-
+cantlyleanerprompt(averaging<1,300tokens),achieving
+approximatelya10.3%reductionincontextlength. Thisef-
+ficiencystemsfromourdistillationmechanism,whichcom-
+pressesverboseenvironmentinteractionsintohigh-density,
+actionableskills. Notably,SKILLRLrequireslesscontext
+than the memory-based baseline to achieve superior per-
+formance, demonstrating that skillabstraction effectively
+mitigatesthecontext-bloatproblemcommonintraditional
+memory-basedagents.
+7
+
+--- Page 8 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+Figure5.SuccessrateonALFWorldvalidationset.Therecursive
+Figure4.Comparisonofpromptlength(tokens)betweenrawmem-
+skillevolutionsignificantlyacceleratesconvergenceandenhances
+oryretrievalandourdistilledskillabstraction. SKILLRLconsis-
+theoverallperformanceceiling.
+tentlyreducescontextoverheadwhilemaintainingreasoningutility.
+Evolution Dynamics. Figure 5 illustrates the reinforce- ningduringinteraction,whileReflexion(Shinnetal.,2023)
+mentlearningtrainingcurveswithandwithouttherecur- introducesverbalreinforcementthroughself-reflectionon
+sive skill evolution mechanism. We observe that while pastfailures. FrameworkslikeAutoGen(Wuetal.,2024)
+SKILLRL without evolution shows steady improvement, andCAMEL(Lietal.,2023)demonstrategeneral-purpose
+SKILLRL with skill evolution exhibits a notably higher multi-agentcapabilities,featuringautomatedorchestration
+learningrateandsuperiorasymptoticperformance. Specifi- anddiversetoolintegration. Whileinitialeffortsfocusedon
+cally,SKILLRLachievesasuccessrateofover80%within constrainedtaskslikecodingorbasicarithmetic,theseap-
+60 training steps, whereas the baseline requires approxi- proachesprimarilyrelyonin-contextlearning(ICL)(Dong
+mately 90 steps to reach a lower peak. This acceleration etal.,2024).However,theseagentsstruggletoscaleastasks
+inconvergencesuggeststhatthedynamicintroductionof becomemorecomplex,astheytreateveryinteractionasan
+newskillsandrefinementofexistingoneseffectivelypro- isolated event and must start each new task from scratch
+videtheagentwithtimelystrategicguidancetoovercome withoutanypriorknowledge.
+localoptima. Furthermore,thehigherperformanceceiling
+MemoryMechanismsinAgents. Toovercomethelimita-
+validates that the co-evolution of the skill library and the
+tionsoffinitecontextwindowsandtheinabilityofagentsto
+policy allows the agent to adapt to increasingly complex
+learnfromexperience,externalmemoryarchitectureshave
+taskscenariosthatstaticmemorymethodsfailtoresolve.
+become a cornerstone of agent design (Hu et al., 2025;
+QualitativeAnalysis. TofurtherinvestigatehowSKILLRL Wang, 2025). Early systems primarily utilized a static
+utilizesthelearnedknowledge,wevisualizethereasoning RAG paradigm or stored raw trajectories as few-shot ex-
+processonALFWorldandWebShopinFigure6. Thecase amples (Wang et al.; Chhikara et al., 2025; Zhang et al.,
+studiesdemonstratethatourtrainedagentcaneffectively 2025a;Wangetal.,2024). However, rawtrajectoriesare
+retrieveandexecuterelevantskillsfromthe SKILLBANK oftentoken-heavyandcontainsignificantredundancyand
+to guide its decision-making. For instance, in the Web- noise,whichcanleadtoperformancedegradation. Current
+Shop task, the agent invokes general strategies like “Pri- research has moved toward self-improving memory, dis-
+oritizeCoreKeywords”alongsidetask-specificheuristics tillinginteractionsintohigher-levelinsightsorprocedural
+“FocusKeyQuery”toensuretheproductmeetsallconstraints tips (Wang & Chen, 2025; Tang et al., 2025; Fang et al.,
+withinalimitedbudget. Similarly,inALFWorld,theagent 2025; Zhao et al., 2024; Ouyang et al., 2025; Wei et al.,
+coordinateshierarchicalskills,i.e.,using“ProgressiveGoal 2025). Whilesomerecentworkexploresupdatingmemory
+Decomposition”forhigh-levelplanningand“NoAppliance banksviaonlinetrainingtoimproveefficiency(Zhangetal.,
+BeforeObject”toavoidcommonlogicalpitfalls. Thisseam- 2025b;2026),manyexistingmethodsstillstruggletodis-
+lessintegrationofgeneralandspecificskillsconfirmsthat tinguishhigh-valueexperiencesfromnoiseorfailtodistill
+theagentdoesnotmerelymemorizetrajectories,butrather coreprinciplesthatcanguideinternaldecision-making.
+developsastructuredunderstandingoftasklogic,allowing
+EvolutionofAgenticSkillsandReinforcementLearning.
+formorerobustandefficientproblem-solving.
+Thedevelopmentofagenticskills(Anthropic,2024),which
+are compact, reusable strategies that capture the essence
+5.RelatedWork of subtasks, is increasingly viewed through the lens of
+Continual Learning (CL) and RL. Traditional CL (Parisi
+LLM Agents. The emergence of capable LLMs has
+etal.,2019)focusesonknowledgepreservationinprede-
+catalyzed rapid development in autonomous agent sys-
+finedtasks,butself-evolvingagents(Gaoetal.,2025;Xia
+tems(Weietal.,2026).ReAct(Yaoetal.,2022b)interleaves
+etal.,2025;Liuetal.,2025)aimforactiveskillacquisition
+reasoningandacting,enablingchain-of-thoughtstyleplan-
+inopen-endedenvironments(Fangetal.,2025;Wangetal.,
+8
+
+--- Page 9 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+WebShop ALFWorld
+Task: I need a women's long sleeve button-down shirt in navy blue, size large, Task: heat some egg and put it in countertop.
+machine washable, price lower than $40.00
+--- Retrieved Skills --- --- Retrieved Skills ---
+Detected Task Type: apparel Detected Task Type: heat
+[General Skills] … [Task-Specific Skills] [General Skills] … [Task-Specific Skills]
+------ ------
+Step 1 Step 1
+Observation: WebShop homepage. Search bar available. Observation: You are in the middle of a room. Looking quickly around you…
+<think>Following skill [gen_001] 'Prioritize Core Keywords' and [app_001] 'Focus Key <think>Per [gen_010] 'Progressive Goal Decomposition': sub-goals are … Per [hea_004]
+Query': I should include product type + must-have attributes. My query should be …</think> 'No Appliance Before Object': I must NOT go to microwave first. Per [hea_001]
+<…action>search[women long sleeve button down shirt navy blue machine …]</action> 'Secure Exact Target First': find the egg. It's food — check fridge and
+countertops.</think>
+Step 9 <a…ction>go to countertop 1</action>
+Observation: Product page updated: Color = Navy Blue, Size = L. Price: $29.99
+Step 8
+<think>Applying skill [app_004] 'Check Variant Price': price for Navy Blue / L is $29.99,
+Observation: You arrive at countertop 1
+which is under the $40 budget. Also per [app_005] 'Confirm Hidden Specs': … $29.99 <
+$40. Per skill [gen_013] 'Purchase Decisively', I should buy now.</think> <think>Per [hea_005]: place the heated egg directly.</think>
+<action>click[Buy Now]</action> <action>put egg 1 in/on countertop 1</action>
+Figure6.CasestudiesofSKILLRLonWebShopandALFWorld.Theexamplesillustratehowtheagentadaptivelyretrievesandintegrates
+GeneralSkillsandTask-SpecificSkillswithinitsreasoningprocesstoachievepreciseandefficienttaskexecution.
+2025). WhileRLiswidelyusedtoalignLLMs(Schulman 2024.
+et al., 2017; Ouyang et al., 2022), or improve reasoning
+Anthropic. The claude 3 model family: Opus, son-
+via rule-based verifiers (Shao et al., 2024), applying it to
+net,haiku,2024. URLhttps://www.anthropic.
+agentic skills remains challenging due to sparse rewards
+com/news/claude-3-family.
+andlonghorizons. Unlikepreviousmemory-augmentedRL
+whichtreatsmemoryasastaticorauxiliarysource,recent
+Bai,J.,Bai,S.,Chu,Y.,Cui,Z.,Dang,K.,Deng,X.,Fan,
+trendssuggestthatthekeytoefficientexperiencetransfer
+Y., Ge, W., Han, Y., Huang, F., et al. Qwen technical
+liesinabstraction(Wuetal.,2025). Ourworkbuildsonthis
+report. arXivpreprintarXiv:2309.16609,2023.
+by treating the skill library as a dynamic component that
+co-evolves with the agent’s policy, utilizing RL to refine Chhikara,P.,Khant,D.,Aryan,S.,Singh,T.,andYadav,D.
+structuredskillsthroughrecursivefailureanalysis. Mem0:Buildingproduction-readyaiagentswithscalable
+long-term memory. arXiv preprint arXiv:2504.19413,
+6.Conclusion 2025.
+WeintroducedSKILLRL,aframeworkforskill-augmented Comanici, G., Bieber, E., Schaekermann, M., Pasupat, I.,
+reinforcement learning in LLM agents. By distilling raw Sachdeva,N.,Dhillon,I.,Blistein,M.,Ram,O.,Zhang,
+trajectoriesintocompact,reusableskillsandenablingdy- D., Rosen, E., et al. Gemini 2.5: Pushing the frontier
+namicskillevolutionduringtraining, SKILLRL achieves with advanced reasoning, multimodality, long context,
+state-of-the-artperformanceonALFWorldandWebShop andnextgenerationagenticcapabilities. arXivpreprint
+whileusingsubstantiallylesscontextthanmemory-based arXiv:2507.06261,2025.
+approaches. Our work demonstrates that the abstraction
+Dong, Q., Li, L., Dai, D., Zheng, C., Ma, J., Li, R., Xia,
+fromexperiencetoskillisapowerfulprincipleforbuilding
+H., Xu, J., Wu, Z., Chang, B., et al. A survey on in-
+capable,sample-efficientagents.
+contextlearning. InProceedingsofthe2024conference
+onempiricalmethodsinnaturallanguageprocessing,pp.
+Acknowledgement
+1107–1128,2024.
+ThisworkwaspartiallysupportedbytheAmazonResearch
+Fang, R., Liang, Y., Wang, X., Wu, J., Qiao, S., Xie,
+Award,theCiscoFacultyResearchAward,NECLaborato-
+P., Huang, F., Chen, H., and Zhang, N. Memp:
+riesAmericaResearchGrant,andCoefficientGiving.
+Exploring agent procedural memory. arXiv preprint
+arXiv:2508.06433,2025.
+References
+Feng, L., Xue, Z., Liu, T., and An, B. Group-in-group
+Ahmadian,A.,Cremer,C.,Galle´,M.,Fadaee,M.,Kreutzer, policyoptimizationforllmagenttraining. arXivpreprint
+J.,Pietquin,O.,U¨stu¨n,A.,andHooker,S. Backtobasics: arXiv:2505.10978,2025.
+Revisitingreinforce-styleoptimizationforlearningfrom
+human feedback in llms. In Proceedings of the 62nd Gao,H.-a.,Geng,J.,Hua,W.,Hu,M.,Juan,X.,Liu,H.,Liu,
+Annual Meeting of the Association for Computational S.,Qiu,J.,Qi,X.,Wu,Y.,etal. Asurveyofself-evolving
+Linguistics(Volume1: LongPapers),pp.12248–12267, agents: On path to artificial super intelligence. arXiv
+preprintarXiv:2507.21046,2025.
+9
+
+--- Page 10 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+Google. Try deep research and our new ex- Liu,J.,Su,Y.,Xia,P.,Han,S.,Zheng,Z.,Xie,C.,Ding,M.,
+perimental model in gemini, your ai assistant, andYao,H. Simplemem: Efficientlifelongmemoryfor
+2024. URL https://blog.google/products/ llmagents. arXivpreprintarXiv:2601.02553,2026.
+gemini/google-gemini-deep-research/.
+Mallen,A.,Asai,A.,Zhong,V.,Das,R.,Khashabi,D.,and
+Google. Introducing the gemini 2.5 computer Hajishirzi,H. Whennottotrustlanguagemodels: Inves-
+use model, 2025. URL https://blog. tigatingeffectivenessofparametricandnon-parametric
+google/technology/google-deepmind/ memories. InProceedingsofthe61stAnnualMeetingof
+gemini-computer-use-model/. theAssociationforComputationalLinguistics(Volume1:
+LongPapers),pp.9802–9822,2023.
+Guo,D.,Yang,D.,Zhang,H.,Song,J.,Zhang,R.,Xu,R.,
+OpenAI. Gpt-4osystemcard,2024. https://openai.
+Zhu,Q.,Ma,S.,Wang,P.,Bi,X.,etal. Deepseek-r1: In-
+com/index/gpt-4o-system-card/.
+centivizingreasoningcapabilityinllmsviareinforcement
+learning. arXivpreprintarXiv:2501.12948,2025. OpenAI. Introducing o3 and o4-mini,
+2025a. https://openai.com/index/
+Ho, X., Nguyen, A.-K.D., Sugawara, S., andAizawa, A.
+introducing-o3-and-o4-mini/.
+Constructingamulti-hopqadatasetforcomprehensive
+evaluationofreasoningsteps. InProceedingsofthe28th OpenAI. Openai deep research system card,
+InternationalConferenceonComputationalLinguistics, 2025b. URL https://openai.com/index/
+pp.6609–6625,2020. introducing-deep-research/.
+OpenAI. Openai computer-using agent, 2025c.
+Hu,Y.,Liu,S.,Yue,Y.,Zhang,G.,Liu,B.,Zhu,F.,Lin,J.,
+URL https://openai.com/index/
+Guo,H.,Dou,S.,Xi,Z.,etal. Memoryintheageofai
+computer-using-agent/.
+agents. arXivpreprintarXiv:2512.13564,2025.
+Ouyang,L.,Wu,J.,Jiang,X.,Almeida,D.,Wainwright,C.,
+Jin, B., Zeng, H., Yue, Z., Yoon, J., Arik, S., Wang, D.,
+Mishkin,P.,Zhang,C.,Agarwal,S.,Slama,K.,Ray,A.,
+Zamani, H., and Han, J. Search-r1: Training llms to
+et al. Training language models to follow instructions
+reasonandleveragesearchengineswithreinforcement
+withhumanfeedback. Advancesinneuralinformation
+learning. arXivpreprintarXiv:2503.09516,2025.
+processingsystems,35:27730–27744,2022.
+Joshi,M.,Choi,E.,Weld,D.S.,andZettlemoyer,L. Trivi-
+Ouyang, S., Yan, J., Hsu, I., Chen, Y., Jiang, K., Wang,
+aqa: Alargescaledistantlysupervisedchallengedataset
+Z.,Han,R.,Le,L.T.,Daruki,S.,Tang,X.,etal. Rea-
+forreadingcomprehension. InProceedingsofthe55th
+soningbank: Scalingagentself-evolvingwithreasoning
+Annual Meeting of the Association for Computational
+memory. arXivpreprintarXiv:2509.25140,2025.
+Linguistics (Volume 1: Long Papers), pp. 1601–1611,
+2017. Parisi,G.I.,Kemker,R.,Part,J.L.,Kanan,C.,andWermter,
+S. Continuallifelonglearningwithneuralnetworks: A
+Kwiatkowski, T., Palomaki, J., Redfield, O., Collins, M., review. Neuralnetworks,113:54–71,2019.
+Parikh,A.,Alberti,C.,Epstein,D.,Polosukhin,I.,Devlin,
+Press,O.,Zhang,M.,Min,S.,Schmidt,L.,Smith,N.A.,
+J.,Lee,K.,etal.Naturalquestions:abenchmarkforques-
+andLewis, M. Measuringandnarrowingthecomposi-
+tionansweringresearch. TransactionsoftheAssociation
+tionalitygapinlanguagemodels. InFindingsoftheAs-
+forComputationalLinguistics,7:453–466,2019.
+sociationforComputationalLinguistics: EMNLP2023,
+Li,G.,Hammoud,H.,Itani,H.,Khizbullin,D.,andGhanem, pp.5687–5711,2023.
+B. Camel:Communicativeagentsfor”mind”exploration
+Schulman, J., Wolski, F., Dhariwal, P., Radford, A., and
+of large language model society. Advances in Neural
+Klimov, O. Proximal policy optimization algorithms.
+InformationProcessingSystems,36:51991–52008,2023.
+arXivpreprintarXiv:1707.06347,2017.
+Li,X.,Dong,G.,Jin,J.,Zhang,Y.,Zhou,Y.,Zhu,Y.,Zhang, Shao,Z.,Wang,P.,Zhu,Q.,Xu,R.,Song,J.,Bi,X.,Zhang,
+P., and Dou, Z. Search-o1: Agentic search-enhanced H.,Zhang,M.,Li,Y.,Wu,Y.,etal. Deepseekmath: Push-
+largereasoningmodels.arXivpreprintarXiv:2501.05366, ingthelimitsofmathematicalreasoninginopenlanguage
+2025. models. arXivpreprintarXiv:2402.03300,2024.
+Liu,J.,Xiong,K.,Xia,P.,Zhou,Y.,Ji,H.,Feng,L.,Han, Shinn,N.,Cassano,F.,Gopinath,A.,Narasimhan,K.,and
+S., Ding, M., and Yao, H. Agent0-vl: Exploring self- Yao, S. Reflexion: Language agents with verbal rein-
+evolvingagentfortool-integratedvision-languagereason- forcement learning. Advances in Neural Information
+ing. arXivpreprintarXiv:2511.19900,2025. ProcessingSystems,36:8634–8652,2023.
+10
+
+--- Page 11 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+Shridhar,M.,Yuan,X.,Cote,M.-A.,Bisk,Y.,Trischler,A., Wu,Q.,Bansal,G.,Zhang,J.,Wu,Y.,Li,B.,Zhu,E.,Jiang,
+andHausknecht,M. Alfworld: Aligningtextandembod- L.,Zhang,X.,Zhang,S.,Liu,J.,etal.Autogen:Enabling
+iedenvironmentsforinteractivelearning.InInternational next-genllmapplicationsviamulti-agentconversations.
+ConferenceonLearningRepresentations. InFirstConferenceonLanguageModeling,2024.
+Sun,H.,Qiao,Z.,Guo,J.,Fan,X.,Hou,Y.,Jiang,Y.,Xie, Wu,R.,Wang,X.,Mei,J.,Cai,P.,Fu,D.,Yang,C.,Wen,L.,
+P., Zhang, Y., Huang, F., and Zhou, J. Zerosearch: In- Yang,X.,Shen,Y.,Wang,Y.,etal.Evolver:Self-evolving
+centivizethesearchcapabilityofllmswithoutsearching. llmagentsthroughanexperience-drivenlifecycle. arXiv
+arXivpreprintarXiv:2505.04588,2025. preprintarXiv:2510.16079,2025.
+Tang,X.,Qin,T.,Peng,T.,Zhou,Z.,Shao,D.,Du,T.,Wei, Xia, P., Zeng, K., Liu, J., Qin, C., Wu, F., Zhou, Y.,
+X.,Xia,P.,Wu,F.,Zhu,H.,etal. Agentkb: Leveraging Xiong,C.,andYao,H. Agent0:Unleashingself-evolving
+cross-domain experience for agentic problem solving. agentsfromzerodataviatool-integratedreasoning.arXiv
+arXivpreprintarXiv:2507.06229,2025. preprintarXiv:2511.16043,2025.
+Team,T.D.,Li,B.,Zhang,B.,Zhang,D.,Huang,F.,Li,G., Yang,Z.,Qi,P.,Zhang,S.,Bengio,Y.,Cohen,W.,Salakhut-
+Chen,G.,Yin,H.,Wu,J.,Zhou,J.,etal. Tongyideepre- dinov,R.,andManning,C.D. Hotpotqa: Adatasetfor
+searchtechnicalreport. arXivpreprintarXiv:2510.24701, diverse, explainable multi-hop question answering. In
+2025. Proceedingsofthe2018conferenceonempiricalmethods
+innaturallanguageprocessing,pp.2369–2380,2018.
+Trivedi,H.,Balasubramanian,N.,Khot,T.,andSabharwal,
+A. Musique: Multihop questions via single-hop ques- Yao, S., Chen, H., Yang, J., and Narasimhan, K. Web-
+tion composition. Transactions of the Association for shop: Towardsscalablereal-worldwebinteractionwith
+ComputationalLinguistics,10:539–554,2022. groundedlanguageagents. AdvancesinNeuralInforma-
+tionProcessingSystems,35:20744–20757,2022a.
+Wang,G.,Xie,Y.,Jiang,Y.,Mandlekar,A.,Xiao,C.,Zhu,
+Y.,Fan,L.,andAnandkumar,A.Voyager:Anopen-ended Yao,S.,Zhao,J.,Yu,D.,Du,N.,Shafran,I.,Narasimhan,
+embodied agent with large language models. Transac- K. R., and Cao, Y. React: Synergizing reasoning and
+tionsonMachineLearningResearch. actinginlanguagemodels. InTheeleventhinternational
+conferenceonlearningrepresentations,2022b.
+Wang,Y. FromStaticParameterstoUpdatableMemory:
+Enabling Large Language Model Agents to Remember, Zhang,G.,Fu,M.,Wan,G.,Yu,M.,Wang,K.,andYan,S.
+Adapt,andLearn. PhDthesis,UniversityofCalifornia, G-memory: Tracinghierarchicalmemoryformulti-agent
+SanDiego,2025. systems. arXivpreprintarXiv:2506.07398,2025a.
+Wang,Y.andChen,X. Mirix: Multi-agentmemorysystem Zhang,G.,Ren,H.,Zhan,C.,Zhou,Z.,Wang,J.,Zhu,H.,
+forllm-basedagents. arXivpreprintarXiv:2507.07957, Zhou,W.,andYan,S. Memevolve: Meta-evolutionof
+2025. agentmemorysystems.arXivpreprintarXiv:2512.18746,
+2025b.
+Wang, Y., Takanobu, R., Liang, Z., Mao, Y., Hu, Y.,
+McAuley, J., and Wu, X. Mem-{\alpha}: Learning Zhang, S., Wang, J., Zhou, R., Liao, J., Feng, Y., Zhang,
+memoryconstructionviareinforcementlearning. arXiv W., Wen, Y., Li, Z., Xiong, F., Qi, Y., et al. Memrl:
+preprintarXiv:2509.25911,2025. Self-evolvingagentsviaruntimereinforcementlearning
+onepisodicmemory. arXivpreprintarXiv:2601.03192,
+Wang, Z. Z., Mao, J., Fried, D., and Neubig, G. Agent
+2026.
+workflow memory. arXiv preprint arXiv:2409.07429,
+2024. Zhao,A.,Huang,D.,Xu,Q.,Lin,M.,Liu,Y.-J.,andHuang,
+G. Expel: Llmagentsareexperientiallearners. InPro-
+Wei,T.,Sachdeva,N.,Coleman,B.,He,Z.,Bei,Y.,Ning,
+ceedings of the AAAI Conference on Artificial Intelli-
+X.,Ai,M.,Li,Y.,He,J.,Chi,E.H.,etal. Evo-memory:
+gence,volume38,pp.19632–19642,2024.
+Benchmarking llm agent test-time learning with self-
+evolving memory. arXiv preprint arXiv:2511.20857, Zheng, X., An, K., Wang, Z., Wang, Y., and Wu, Y.
+2025. Stepsearch: Igniting llms search ability via step-wise
+proximalpolicyoptimization. InProceedingsofthe2025
+Wei,T.,Li,T.-W.,Liu,Z.,Ning,X.,Yang,Z.,Zou,J.,Zeng,
+ConferenceonEmpiricalMethodsinNaturalLanguage
+Z.,Qiu,R.,Lin,X.,Fu,D.,etal. Agenticreasoningfor
+Processing,pp.21816–21841,2025.
+largelanguagemodels. arXivpreprintarXiv:2601.12538,
+2026.
+11
+
+--- Page 12 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+Appendix
+A.Prompts
+Inthissection,weprovidethefullprompttemplatesusedthroughoutthedifferentphasesofourframework. Thesetemplates
+aredesignedtoensureconsistentagentbehaviorandstructureddatagenerationacrossvariousenvironments.
+A.1.AgentExecutionPrompts
+Thefollowingpromptsareusedduringtheonlineinferencephase. Thesetemplatesprovidetheagentwiththecurrenttask
+description,ahistoryofpreviousinteractions,andasetofretrievedskills(experiences)toguideitsdecision-makingprocess.
+ThepromptsexplicitlyenforceaChain-of-Thought(CoT)reasoningstepbeforeactionselection.
+PromptA.1:ALFWorldAgentExecutionwithSkills
+SystemPrompt:
+YouareanexpertagentoperatingintheALFREDEmbodiedEnvironment.Yourtaskisto:{task description}
+##RetrievedRelevantExperience
+{retrieved memories}
+##CurrentProgress
+Priortothisstep,youhavealreadytaken{step count}step(s). Belowarethemostrecent{history length}observations
+andthecorrespondingactionsyoutook:{action history}
+Youarenowatstep{current step}andyourcurrentobservationis:{current observation}
+Youradmissibleactionsofthecurrentsituationare:[{admissible actions}].
+Nowit’syourturntotakeanaction.Youshouldfirstreasonstep-by-stepaboutthecurrentsituation.ThisreasoningprocessMUST
+beenclosedwithin<think> </think>tags.Onceyou’vefinishedyourreasoning,youshouldchooseanadmissibleactionfor
+currentstepandpresentitwithin<action> </action>tags.
+PromptA.2:WebShopAgentExecutionwithSkills
+SystemPrompt:
+YouareanexpertautonomousagentoperatingintheWebShope-commerceenvironment.Yourtaskisto:{task description}.
+##RetrievedRelevantExperience
+{retrieved memories}
+##CurrentProgress
+Priortothisstep,youhavealreadytaken{step count}step(s). Belowarethemostrecent{history length}observations
+andthecorrespondingactionsyoutook:{action history}
+Youarenowatstep{current step}andyourcurrentobservationis:{current observation}
+Youradmissibleactionsofthecurrentsituationare:[{available actions}].
+Nowit’syourturntotakeoneactionforthecurrentstep.Youshouldfirstreasonstep-by-stepaboutthecurrentsituation,thenthink
+carefullywhichadmissibleactionbestadvancestheshoppinggoal. ThisreasoningprocessMUSTbeenclosedwithin<think>
+</think>tags.Onceyou’vefinishedyourreasoning,youshouldchooseanadmissibleactionforcurrentstepandpresentitwithin
+<action> </action>tags.
+A.2.SkillGenerationandDistillationPrompts
+Thesepromptsareutilizedduringtheskilldiscoveryandlibraryinitializationphases. Theyguideahigh-capabilityteacher
+modeltoanalyzeinteractiontrajectories,identifyfailuremodes,anddistillreusable,actionableskillsintoastructuredJSON
+format.
+12
+
+--- Page 13 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+PromptB.1:DynamicSkillDiscoveryfromFailures
+Analyzethesefailed{env description}agenttrajectoriesandsuggestNEWskillstoadd.
+FAILEDTRAJECTORIES:{failure examples}
+EXISTINGSKILLTITLES:{existing titles}
+Generate1-3NEWactionableskillsthatwouldhelpavoidthesefailures. Eachskillmusthave: skill id,title(3-5words),
+principle(1-2sentences),when to apply.Theskill idshouldbeuniqueandfollowthepattern:”dyn 001”,”dyn 002”,
+etc.
+ReturnONLYaJSONarrayofskills,noothertext.
+PromptB.2:InitialSkillDistillation(ALFWorld)
+Youareanexpertatdistillingagentbehaviorpatternsintoconcise,actionableskills.Analyzethesesuccessfulandfailedtrajectories
+fromanembodiedAIagentoperatinginhouseholdenvironments(ALFWorld).
+SUCCESSFULTRAJECTORIES:{success patterns}
+FAILEDTRAJECTORIES:{failure patterns}
+Generate8-12GENERALSKILLSthatapplyacrossALLtasktypes.Theseshouldbe:1.Concise;2.Actionable;3.Transferable;
+4.Failure-aware.Focuson:Navigation,objectmanipulation,statetracking,errorrecovery,andcontainerinteractionrules.
+ReturnONLYtheJSONarray,noothertext.
+PromptB.3:InitialSkillDistillation(WebShop)
+Youareanexpertatdistillingagentbehaviorpatternsintoconcise,actionableskills.Analyzethesesuccessfulandfailedtrajectories
+fromanAIagentoperatinginanonlineshoppingenvironment(WebShop).
+SUCCESSFULTRAJECTORIES:{success patterns}
+FAILEDTRAJECTORIES:{failure patterns}
+Generate10-15GENERALSKILLS.Focuson:Searchqueryformulation,productselectionheuristics,optionconfiguration(size,
+color,etc.),constraintverification,navigationpatterns,andpricehandling.
+ReturnONLYtheJSONarray,noothertext.
+A.3.Cold-startTrajectoryGenerationPrompts
+Tobridgethegapbetweenabasemodelandthetargetperformance,weusethefollowingpromptstogeneratehigh-quality
+synthetictrajectoriesforSupervisedFine-Tuning(SFT).Thesepromptsinstructtheteachermodeltosolvetaskswhile
+explicitlydemonstratingtheapplicationofspecificskills,therebyprovidingaclearlearningsignalforthestudentmodel.
+PromptC.1:SyntheticTrajectoryGeneration(ALFWorld)
+YouareanexpertagentintheALFREDembodiedenvironment.Youwillbegivenataskandrelevantskillstoapply.Yourgoalisto
+generateasuccessfultrajectorythatdemonstratesproperuseoftheseskills.
+Youshouldgenerateastep-by-steptrajectorythat:
+1.Usestheprovidedskillsappropriately;
+2.Takesrealisticactionsintheenvironment;
+3.Completesthetasksuccessfully;
+4.Demonstratesgoodplanningandsystematicexploration.
+Foreachstep,youshould:
+•Thinkthroughthecurrentsituationusing<think></think>tags.
+•Chooseanappropriateactionusing<action></action>tags.
+•Theactionshouldbeasimplecommandlike”gotocabinet1”,”opendrawer2”,”takeapple1”,”putapple1in/oncountertop1”.
+Generateacompletetrajectoryfromstarttofinish.Stopwhenthetaskiscomplete.
+13
+
+--- Page 14 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+PromptC.2:SyntheticTrajectoryGeneration(WebShop)
+YouareanexpertshoppingagentintheWebShope-commerceenvironment.Youwillbegivenashoppingtaskandrelevantskillsto
+apply.Yourgoalistogenerateasuccessfultrajectorythatdemonstratesproperuseoftheseskills.
+Youshouldgenerateastep-by-steptrajectorythat:
+1.Usestheprovidedskillsappropriately;
+2.TakesrealisticactionsintheWebShopenvironment;
+3.Successfullyfindsandpurchasestherequestedproduct;
+4.Demonstratesgoodsearchstrategiesandproductevaluation.
+Foreachstep,youshould:
+•Thinkthroughthecurrentsituationusing<think></think>tags.
+•Chooseanappropriateactionusing<action></action>tags.
+•Actionscanbe:search[query],click[element],orbuy now.
+Generateacompletetrajectoryfromstarttofinish.Stopwhenthepurchaseiscomplete.
+B.AdditionalExperimentalDetails
+B.1.Hyperparameters
+Table4.HyperparametersforSKILLRL.
+Hyperparameter Value
+Cold-StartSFT
+Learningrate 1×10−4
+Batchsize 16
+Epochs 3
+SFTexamples 7,500(AlfWorld)/2,400(WebShop)
+RLTraining
+Learningrate 1×10−6
+Batchsize 64
+KLlossCoef 0.01
+InvalidActionPenaltyCoef 0.1
+MaxPromptLength 6,000
+MaxResponseLength 1,024
+Epoch 150
+SkillRetrieval
+Top-Kretrieval 6
+Validationinterval 5Steps
+UpdateThresholdδ 0.4
+Maxfailuresanalyzed 10(SR<0.4)/5(SR>0.4)
+Maxnewskillsperevolution 3
+B.2.ComputeResources
+Allexperimentswereconductedonaclusterwith8NVIDIAH10080GBGPUs. Trainingtimes:
+• Trajectorycollection: 3hours
+• Skilldistillation: 0.5hours
+• Cold-startSFT:2hour
+• RLtraining: 24hours
+14
+
+--- Page 15 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+Table5.ExampledistilledskillsfromSKILLBANKforALFWorld(Shridharetal.).Thistablesummarizesgeneralpatternsandapplication
+logicderivedfromrawtrajectories.
+ID SkillTitle Principle(ActionablePattern) WhentoApply
+GeneralExploration&AcquisitionSkills
+gen 001 SystematicExploration Searcheveryplausiblesurfaceorcontainerexactlyoncebefore Anytime the goal count is not
+revisiting;prioritizeunseenlocations. met and unexplored areas re-
+main.
+gen 002 ImmediateAcquisition Assoonasarequiredobjectbecomesvisibleandreachable, Upon first visual confirmation
+takeitimmediately. ofagoal-relevantobject.
+gen 003 DestinationFirstPolicy Afterpickingupagoalobject,navigatedirectlytotheknown Holdinganygoalobjectwhile
+targetreceptacleandplaceit. targetlocationisidentified.
+State-Changing&SpatialRelationSkills
+gen 005 Use State-Changing Acquiretheobject,thenimmediatelyusethenearestsuitable After picking up an object re-
+ToolsEarly appliance(heat/cool/clean)beforeplacement. quiring temperature or cleanli-
+nesschange.
+gen 006 Establish Spatial Rela- Firstlocatethereferenceobject,adjustitsstateifneeded,then Tasks containing prepositions
+tions searchorplaceinthespecifiedregion. like“under”,“inside”,or“on”.
+Reliability&ErrorRecovery
+gen 014 LoopEscapeTrigger Ifthelast3–5actionsdonotchangethestate, switchtoan After several consecutive no-
+untriedsearchbranchoractiontype. progressobservations.
+gen 015 Pre-Action Sanity Confirmprerequisites(handfree,capacity,power)beforeexe- Right before issuing any com-
+Check cutingmanipulativecommands. mandthatcouldlegallyfail.
+Table6.CommonAgentFailuresandMitigationStrategiesforALFWorld.
+ID FailureDescription RootCause(Whyithappens) Mitigation(Howtoavoid)
+err 001 RedundantRevisit Lacksexplicitmemoryofexploredareas;strat- Maintainanexplorationmap;prioritizeunvis-
+egydegeneratesintolocalloops. itedcandidates.
+err 006 SkippingStateChanges Conflatesobjectpresencewithgoalsatisfac- Integrate state precondition checks into the
+tion;omitscleanliness/tempchecks. plannerbeforeplacement.
+Totalwall-clocktime: approximately30hoursperexperiment.
+C.IllustrationofSkillLibrary
+In this section, we provide some example catalog of distilled skills and error taxonomies for both the ALFWorld and
+WebShop environments. Tables 5 and 7 detail the general skills distilled for embodied manipulation and web-based
+shopping,respectively,highlightingtheactionableprinciplesrequiredforsystematicexplorationandconstraintsatisfaction.
+Furthermore,weprovideastructuredanalysisoffailurecasesinTable6andTable8,whichcategorizescommonmistakes,
+rangingfromspatialreasoningloopsinALFWorldtoprice-shiftoversightsinWebShop,alongsidetheirrootcausesand
+proposedmitigationstrategies.
+15
+
+--- Page 16 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+Table7.ExampledistilledskillsforWebShopNavigation(Yaoetal.,2022a).Theseskillsrepresentthestrategicpatternsusedbythe
+agenttohandlelarge-scaleproductsearchandconstraintsatisfaction.
+ID SkillTitle Principle(ActionablePattern) WhentoApply
+Search&QueryEngineering
+gen 001 PrioritizeCoreKeywords Includeproducttype,1-2functionalattributes,andhard Beforeissuingthefirstsearchorre-
+constraints;omitsecondarydescriptors. finingover-specificqueries.
+gen 002 IterativeRefinement Adjustkeywordsorapplysitefiltersinsteadofrepeat- Whenresultsareirrelevantorrepeat
+ingthesamefailedquery. despitemultiplesearches.
+ProductEvaluation&Verification
+gen 003 ScanBeforeYouClick Readtitles,thumbnails,andpricesinresultstoensure Onsearchresultspageswhenchoos-
+plausibilitybeforeopeningalink. ingthenextproducttoinspect.
+gen 004 VerifyEarly,AbortFast Immediatelycheckcategory,attributes,andpriceon Withinthefirstobservationonevery
+theproductpage;leaveifanyconstraintisviolated. productdetailpage.
+gen 006 ConfirmHiddenAttributes Open Description/Features sections to ensure non- When constraints are not evident
+visiblespecs(e.g.,material)meetconstraints. fromthetitleorvariantlist.
+Configuration&Transaction
+gen 005 SetMandatoryVariants Alwaysselectrequiredoptions(size,color,etc.)before Afterconfirmingproductmatchbut
+evaluatingpriceorpurchasing. beforeanypurchaseaction.
+gen 007 CheckVariantPricing Forpriceranges,selecttheexactvariantcombination Wheneverpricechangeswithvari-
+toverifythespecificpriceiswithinbudget. antselectionorshowsasarange.
+gen 013 PurchaseDecisively Execute’BuyNow’immediatelyonceallconstraints Aftervalidatingeveryconstrainton
+andpricesareconfirmedonavariant. thecurrentproductvariant.
+Table8.CommonFailuresinWeb-basedShoppingTasks.
+ID FailureDescription RootCause MitigationStrategy
+err 001 Missing Constraints in Omits size or price caps, leading to over- Assemble full requirement list first; ensure
+Query whelmingorirrelevantresultsets. everyhardconstraintisinthequerystring.
+err 004 PriceShiftOversight Failstonoticepricechangesafterselectinga Re-readthepriceelementaftereveryoption
+specificsizeorcolorvariant. changebeforeproceedingtocheckout.
+err 005 PrematurePurchase Clicks“BuyNow”withoutsettingmandatory Validatethateveryrequireddropdown/radio
+variants,leadingtoerrorsorwrongitems. optionisexplicitlyselectedbeforebuying.
+err 009 IgnoringStockStatus Attempts to purchase out-of-stock items by Verifythatthe’AddtoCart’buttonisenabled
+ignoringdisabledbuttonsorstocklabels. andno’OutofStock’messageispresentpost-
+selection.
+err 011 SponsoredLinkDistraction Clicks loosely matched ads, diverting the Implement ad-label detection; prioritize or-
+workflowfromorganic,suitableproducts. ganiclistingsforhigherconstraintreliability.
+16
+
+--- Page 17 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+D.AdditionalCases
+Case1: WebShopFootwear(FunctionalConstraints)
+Task:Iwantapairofmen’sblackslip-resistantworkshoes,size10,rubbersole,pricelowerthan$50.00.
+Skills [foo 002]Verifyfeaturesindescription;[foo 004]Confirmpriceaftervariantselection.
+Avoid [err 001]Omittingpricecap;[err 003]Selectingwrongproductcategory.
+AgentTrajectorywithSkill-GuidedReasoning
+Step1 Obs:WebShophomepage.
+Think:Per[gen 001],I’llincludekeyconstraints(type,function,color,price)inthequery.
+Action:search[men black slip resistant work shoes rubber sole under 50]
+Step2 Obs:Results:[1]ChefShoes$38.99;[2]KitchenShoes$42.50;[3]SteelToeBoots$55.99.
+Think:[gen 003]Item[1]isunderbudgetandmatchesfunction.Item[3]isoverbudget(skip).
+Action:click[Item 1]
+Step3 Obs:Productpage.Price:$35.99-$45.99.Colors:Black,White.Sizes:7-12.
+Think:[foo 002]Descriptionconfirmsrubbersole.NowselectingBlackandSize10[foo 003].
+Action:click[Black]→click[10]
+Step5 Obs:Selected:Black,Size10.Priceupdatedto$38.99.
+Think:[foo 004]$38.99¡$50.Allconstraints(color,size,function,price)aresatisfied.
+Action:click[Buy Now]
+Result:SUCCESS—Purchasedat$38.99.KeySkills:[foo 002](Verification),[foo 004](PriceCheck).
+Case2: Electronics(SpeakerwithAbort-and-Retry)
+Task:Ineedaportablebluetoothspeaker,waterproof,blackcolor,pricelowerthan$30.00.
+Skills [ele 001]Constraint-richsearch;[ele 004]Bailonmismatchfast;[gen 002]Iterativerefinement.
+Avoid [err 002]Overlyspecificvariantnamesinsearch;[ele 006]Avoidclickloops.
+AgentTrajectory: HandlingMissingConstraints
+Step1 Obs:WebShophomepage.
+Think:[ele 001]Packingallmandatoryattributes:portable,bluetooth,waterproof,black,¡$30.
+Action:search[portable bluetooth speaker waterproof black under 30]
+Step2 Obs:Results:[1]WaterproofSpeaker$28.99;[2]MiniLEDSpeaker$19.99;[3]20WSpeaker$35.50.
+Think:[ele 005]Item[1]matchesmostkeywordsandprice.
+Action:click[Item 1]
+Step3 Obs:Productpage(Item1).Colors:Blue,Red,Green,ArmyGreen.Blackunavailable.
+Think: [gen 004] Verify Early, Abort Fast: No black option! [ele 004] Bail immediately to find another
+candidate.
+Action:click[Back to Search]
+Step4 Obs:Backonsearchresults.
+Think:[gen 002]Iterativerefinement.Item[2]$19.99isthenextbestcandidate.
+Action:click[Item 2]
+Step5 Obs:Productpage(Item2).Colors:Black,Blue,Red.Specs:IPX5Waterproof.
+Think:[ele 002]Blackisavailable!IPX5confirmswaterproof.SelectingBlack.
+Action:click[Black]
+Step6 Obs:Blackselected.Finalprice:$19.99.
+Think:[ele 003]$19.99¡$30.Allspecs(black,portable,waterproof)verified.
+Action:click[Buy Now]
+Result:SUCCESS—Efficientlyhandledattributemismatchviaearlyexit.KeySkillsApplied:[gen 004](AbortFast),[ele 004]
+(BailonMismatch).
+17
+
+--- Page 18 ---
+SKILLRL:EvolvingAgentsviaRecursiveSkill-AugmentedReinforcementLearning
+Case1: ALFWorldCleanTask(Lettuce→Sink→Countertop)
+Task:Cleansomelettuceandputitincountertop.
+CoreSkills [cle 001]Phase-orderedplan(Locate→Clean→Place);[cle 006]Uselocationpriors(Fridgeforfood).
+MistakesAvoided [err 002]Skippingclosedcontainers;[err 003]Ignoringvisibletargetobjects.
+Step1-3 Obs:Fridge1isclosed.Action:open fridge 1→take lettuce 1
+Reasoning:Per[cle 006],foodislikelyinthefridge.[gen 002]Grablettuceimmediatelyonsight.
+Step4-6 Obs:Arriveatsinkbasin1.Action:clean lettuce 1 with sinkbasin 1
+Reasoning:Per[cle 001]Phase2:bringtowatersource.[cle 003]Gostraighttosink.
+Step7 Obs:Arriveatcountertop1.Action:put lettuce 1 in/on countertop 1
+Reasoning:Per[gen 003]DestinationFirst:placecleanedobjectimmediatelytofinish.
+Result:SUCCESS(7Steps)—Skillsused:[gen 010](Decomposition),[cle 003](SinkFirst).
+Case2: ALFWorldHeatTask(Egg→Microwave→Countertop)
+Task:Heatsomeeggandputitincountertop.
+CoreSkills [hea 001]Secureexacttargetfirst;[hea 003]Open-Place-Heatsequence;[hea 004]Noappliancebeforeobject.
+Step1-3 Obs:Countertop1(noegg)→Countertop2(eggfound).Action:take egg 1
+Reasoning:[hea 004]Avoidmicrowaveuntilobjectisheld.[hea 002]Systematicsearchofsurfaces.
+Step4-6 Obs:Microwave1isclosed.Action:open microwave 1→heat egg 1
+Reasoning:[hea 003]Correctsequence:opendoorfirst,theninitiatestatechange.
+Step7-8 Obs:Eggisheated.Action:go to countertop 1→put egg 1
+Reasoning:[hea 005]DirectPost-HeatPlacement:movetotargetwithoutdetours.
+Result:SUCCESS(8Steps)—Skillsused:[hea 001](TargetFirst),[hea 004](SequenceControl).
+Case3: ALFWorldExamineTask(Pencil⊕Desklamp→Success)
+Task:Lookatpencilunderthedesklamp.
+CoreSkills [loo 001]Seeklampsurfaces(Desk/Sidetable);[loo 002]Switchlampon;[exa 001]Pairobjectsearly
+(Target&Toolco-location).
+MistakesAvoided [err 003]Ignoringreachabletargets;[loo 005]Preventingactionloops(Toggleonlyonce).
+AgentTrajectory: High-EfficiencyCo-locationHandling
+Step1 Obs:Mid-room.Visible:desk1/2,drawer1-3,sidetable1,etc.
+Reasoning:[loo 001]Desklampsusuallysitondesks.Prioritizingdesk 1tofindbothpencilandlampinone
+go.
+Action:go to desk 1
+Step2 Obs:Ondesk 1:alarmclock1,desklamp1,pencil1.
+Reasoning: [exa 001]Successfulco-location! Bothobjectsarepresent. [exa 002]Pickuptargetfirstbefore
+interactingwiththetool.
+Action:take pencil 1 from desk 1
+Step3 Obs:Holdingpencil1.
+Reasoning:[loo 002]Togglethelampstatetosatisfythe”underlight”condition.[exa 004]Singletogglerule
+ensuresnorepeatedactions.
+Action:use desklamp 1
+Result:SUCCESS(Optimal3Steps)—Demonstratessuperiorspatialreasoningandzero-wastenavigation.KeySkills:[exa 001]
+(ObjectPairing),[loo 001](SpatialPriors).
+18

@@ -10,7 +10,7 @@
 
 ## One-line Summary
 
-MemGPT 借鉴操作系统虚拟内存分页机制，通过 LLM 自主函数调用在主上下文（Working Memory）与外部存储（Archival + Recall Storage）之间智能调度信息，在文档 QA 和多会话聊天任务中超越固定上下文窗口基线。
+MemGPT 借鉴操作系统虚拟内存分页机制，通过 LLM 自主函数调用在主上下文（Working Memory）与外部存储（Archival + Recall Storage）之间智能调度信息，在 document QA、multi-session chat 与 nested KV retrieval 上突破固定上下文基线，并且是 nested KV depth≥3 的唯一成功方法（固定上下文基线全部失败）。
 
 ## Problem Setting
 
@@ -80,8 +80,8 @@ LLM 通过**函数调用**（function calls）主动管理记忆：`archival_sto
 ### Gap Signals (extracted from this paper)
 
 - Gap signal 1: "MemGPT with GPT-3.5 has significantly degraded performance due to its limited function calling capabilities" (Section 3.2.2, p.7) → 隐含：自主记忆管理对 LLM 推理质量强依赖；在 GUI 场景中小型/边缘部署模型可能无法可靠执行记忆函数调用。
-- Gap signal 2: Archival Storage 以文本嵌入检索为核心 → 隐含：当记忆单元是截图（高维、无法直接语义检索）时，现有 MemGPT 架构不适用，需要 GUI-specific 多模态索引机制。
-- Gap signal 3: MemGPT 没有主动整合/归纳机制（不触发 Reflection）→ 隐含：与 Generative Agents 结合——先有 MemGPT 的存储管理，再加 Reflection 的经验归纳，才是完整的情节→程序记忆路径。
+- Gap signal 2: "working context is a fixed-size read/write block of unstructured text" and archival storage is "a read/write database storing arbitrary length text" (Section 2.1, p.3) → 现有记忆基底是文本；若记忆单元换成截图/UI 轨迹，需要另做多模态索引与压缩设计。
+- Gap signal 3: "The fixed-context baselines performance is capped roughly at the performance of the retriever." (Section 3.2.1, p.7) → 即使有虚拟内存式上下文管理，系统上限仍受 retrieval quality 约束，说明 memory management 之外还需要更强的 retrieval / consolidation 机制。
 
 > ⚠️ NEEDS YOUR INPUT: Gap 信号价值评估：Gap 2（多模态检索）对 A-2 直接相关，证据等级 B。Gap 3 指向 A-1/A-4 的归纳缺失，与 Generative Agents 的 gap 信号 2 联合构成 A 级证据。
 
@@ -99,7 +99,7 @@ LLM 通过**函数调用**（function calls）主动管理记忆：`archival_sto
 > ⚠️ NEEDS YOUR INPUT: 建议关联：
 > - 与 **Generative Agents**（同目录）：互补——Generative Agents 定义了记忆内容（三维检索 + 反思），MemGPT 定义了记忆管理（上下文窗口 + 外部存储分页）。GUI 场景的情节记忆方案需要两者结合。
 > - 与 **MobileGPT / AppAgent**（GUI_Agent/papers/）：对比——MobileGPT 的三层记忆（task/subtask/action）在设计思路上与 MemGPT 的分层存储类似，但缺少 MemGPT 的自主检索触发机制。
-> - 与 **Cross_Topic/gui-agent-x-memory.md §2.1**：MemGPT 的两层管理（Working + Long-term）直接对应该文件中"直接移植"方案（低改动量）。
+> - 与 **Cross_Topic/taxonomy-draft.md / gap-tracker.md**：MemGPT 的两层管理（Working + Long-term）可直接作为 A-2（GUI Episodic Memory）工程蓝图中的外部存储层参考。
 
 ## Citation Tracking
 

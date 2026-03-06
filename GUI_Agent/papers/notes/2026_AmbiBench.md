@@ -6,7 +6,7 @@
 - **Venue**: Preprint, 2026 | arXiv:2602.11750
 - **Links**: [PDF](../source_todo/AmbiBench.pdf) | Code: anonymous repository mentioned in PDF | Project: not listed in PDF
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-06
-- **Priority**: P1 | **Reading progress**: Pass 1
+- **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
 AmbiBench 把 mobile GUI agent 评测从 one-shot instruction following 改成多轮 intent alignment，提出四级 instruction clarity taxonomy 与 MUSE 自动审计框架，并显示非交互式 agent 在 Ambiguous 任务上会系统性崩溃，而支持交互的 agent 能显著受益（Abstract, Section 5.2, p.1, p.16-17）。

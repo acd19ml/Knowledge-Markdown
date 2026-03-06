@@ -60,8 +60,8 @@ The key enabler is the **simplified action space**: `tap(element)`, `long_press(
 
 ### Gap Signals (extracted from this paper)
 - Gap signal 1: "collecting a large dataset of app demonstrations for training is a formidable task. Moreover, different apps have unique GUIs with varying icon meanings and operational logic, and it remains uncertain whether these adapted models can effectively generalize to unseen apps." (Introduction, p.2) → 每次遇到新app都需要重新探索，缺乏跨app程序性知识迁移机制（对应Gap A-1）
-- Gap signal 2: The knowledge document is app-specific and constructed from a single exploration pass; there is no mechanism to update or evolve the knowledge from failed or sub-optimal deployment trajectories → 缺乏从部署失败中离线进化的机制（对应Gap A-4）
-- Gap signal 3: Knowledge document is text-only; visual appearance of UI elements (icons, screenshots) is not stored → 缺乏多模态情景记忆（对应Gap A-2）
+- Gap signal 2: "We have adopted a simplified action space for smartphone operations, which means that advanced controls such as multi-touch and irregular gestures are not supported." (Conclusion/Limitation, p.8) → 现有知识文档和动作接口仍覆盖不了更复杂的 GUI 操作形态，说明 procedure abstraction 还受 action-space 上限约束。
+- Gap signal 3: "This information is compiled into a document that records the effects of actions applied to different elements." (Section 3.3, p.5) → 记忆被压缩为元素-动作效果文档，而不是保留 richer visual episode；这为后续多模态 episodic memory 设计留下了空间。
 
 > ⚠️ NEEDS YOUR INPUT: AppAgent对研究的价值：它是Gap A-1（程序性记忆）和A-4（离线进化）最直接的对比基线。其知识文档设计思路（exploration → document → deploy）是本研究可以改进的出发点：(1) 将per-app文档升级为跨app可迁移的程序性技能库；(2) 引入离线进化机制，从历史轨迹（包括失败轨迹）中持续更新知识库；(3) 引入截图级别的多模态记忆以应对UI外观变化。
 

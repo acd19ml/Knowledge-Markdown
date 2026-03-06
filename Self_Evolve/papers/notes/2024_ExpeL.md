@@ -6,7 +6,7 @@
 - **Venue**: AAAI 2024 | arXiv:2308.10144v3 [cs.LG]
 - **Links**: [PDF](./ExpeL.pdf) | [Code](https://github.com/LeapLabTHU/ExpeL) | [Project](https://andrewzh112.github.io/expel)
 - **Citation count**: 未查询（建议补 Semantic Scholar） | **Read date**: 2026-03-05
-- **Priority**: P1 | **Reading progress**: Pass 1
+- **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
 ExpeL 通过“跨任务经验池 + insight 抽取 + 相似任务检索”在不更新模型参数的前提下提升 LLM agent 决策表现；在 FEVER transfer 上把 SR 从 ReAct 的 63% 提升到 70%，并在 ALFWorld 的多轮评估中达到 64.2%（R3），显著高于 ReAct+Reflexion 的 54.4%。

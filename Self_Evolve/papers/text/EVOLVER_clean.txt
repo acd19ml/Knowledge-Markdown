@@ -1,0 +1,1004 @@
+--- Page 1 ---
+Knowledge Lab
+EVOLVER: SELF-EVOLVING LLM AGENTS THROUGH
+AN EXPERIENCE-DRIVEN LIFECYCLE
+RongWu1,2∗,XiaomanWang3∗,JianbiaoMei1,2,PinlongCai2,DaochengFu2,4,
+ChengYang2,5,LichengWen2,7,8,XuemengYang2,YufanShen2,YuxinWang9,BotianShi2†
+1ZhejiangUniversity,2ShanghaiArtificialIntelligenceLaboratory,
+3EastChinaNormalUniversity,4FudanUniversity,5CentralSouthUniversity,
+7ShanghaiInnovationInstitute,8ShanghaiJiaoTongUniversity,
+9UniversityofScienceandTechnologyofChina
+ABSTRACT
+Current Large Language Model (LLM) agents show strong performance in tool
+use,butlackthecrucialcapabilitytosystematicallylearnfromtheirownexperi-
+ences. Whileexistingframeworksmainlyfocusonmitigatingexternalknowledge
+gaps, they fail to address a more fundamental limitation: the inability to itera-
+tively refine problem-solving strategies. In this work, we introduce EvolveR, a
+frameworkdesignedtoenableagenttoself-improvethroughacomplete,closed-
+loop experience lifecycle. This lifecycle comprises two key stages: (1) Offline
+Self-Distillation, where the agent’s interaction trajectories are synthesized into
+a structured repository of abstract, reusable strategic principles; (2) Online In-
+teraction, where the agent interacts with tasks and actively retrieves distilled
+principles to guide its decision-making, accumulating a diverse set of behav-
+ioral trajectories. This loop employs a policy reinforcement mechanism to it-
+eratively update the agent based on its performance. We demonstrate the ef-
+fectiveness of EvolveR on complex multi-hop question-answering benchmarks,
+whereitachievessuperiorperformanceoverstrongagenticbaselines. Ourwork
+presents a comprehensive blueprint for agents that learn not only from exter-
+nal data but also from the consequences of their own actions, paving the way
+for more autonomous and continuously improving systems. Code is available at
+https://github.com/Edaizi/EvolveR.
+1 INTRODUCTION
+Large Language Models (LLMs) have driven the development of autonomous agents capable of
+solvingdiversetasksthroughadvancedreasoningandtooluse[1–3]. However,asignificantlimita-
+tionemergeswhentheseagentsengageinsequentialtasks:eachinteractionistreatedindependently.
+They approach tasks as isolated episodes, suffering from operational amnesia and failing to learn
+frompastsuccessesoravoidpriormistakes[4]. Thisinabilitytoleverageexperiencefundamentally
+hinderstheirdevelopmenttowardgreaterautonomyandintelligence.
+Humans,bycontrast,learnthroughacontinuouslifecycle,leveragingbothsuccessesandfailuresto
+refinestrategiesovertime[5]. Forexample,astudentsolvingmathproblemsreflectsonrecurring
+errorsandsuccessfulapproachestoextractgeneralproblem-solvingstrategies. Thiscycleofinter-
+action, reflection, and abstraction is the cornerstone of developing expertise [6]. Endowing LLM
+agentswithacomparablelifecycleisthekeytobridgingthegapbetweenepisodicproblem-solving
+and sustainable self-improvement. While existing frameworks like Retrieval-Augmented Genera-
+tion (RAG) effectively address knowledge gaps, they fail to solve a more fundamental limitation:
+theagent’sinabilitytosystematicallylearnfromtheconsequencesofitsowninteractions[7].
+AsFigure1shows,priorworkshaveattemptedtoaddressthislimitation,butwithcriticalshortcom-
+ings.ResearchersstorenaturallanguagereflectionsacrosstaskswithapowerfulexternalLLMinan
+∗Theseauthorscontributedequally.
+†correspondingauthor
+1
+5202
+tcO
+71
+]LC.sc[
+1v97061.0152:viXra
+
+--- Page 2 ---
+Knowledge Lab
+Paradigm 1 Stateless Execution Paradigm 3 Learning via External Scribing
+Trajectory Trajectory
+Discard Summarize
+Task 1 Solution1 Task 1 Solution1
+Agent Agent Teacher Model
+Storage
+Trajectory
+Retrieve
+Task 2 Solution2 Task 2 Past Exp
+Discard Solution2 Storage
+Agent Agent External Exp
+Paradigm 2 Learning by Raw Trajectories Paradigm 4 Self-Distillation & Evolution (Ours)
+Trajectory Task 1 Online Phase Search Task 2
+Storage ExpBase
+Task 1 Solution1
+Think Generate
+Query Trajectory
+Agent
+Past Retrieve
+Trajectory Agent (Initial) Agent (Evolved)
+Task 2 Storage Updata Distill
+Solution2 ExpBase Principle
+Raw
+Agent Trajectory Solution1 Offline Phase Solution2
+Figure1: AnillustrationoffourmajorparadigmsforLLMagentlearning. (1)StatelessExecution:
+Standard agents discard experiences after each task; (2) Learning by Raw Trajectories: Agents
+retrieveraw,un-distilledpasttrajectories; (3)LearningviaExternalScribing: Agentsrelyonan
+externalteachermodeltodistillinsights;(4)EvolveR(Ours): Acomplete,self-containedlifecycle
+wheretheagentautonomouslydistillsitsownexperiencesintoprinciplesandevolvesitspolicy.
+externalmemory[8,9]. Whileresource-efficient,thisapproachtreatssuchreflectionsasatransient
+hint, leaving the agent’s intrinsic policy unchanged. On the other hand, learning by recalling raw
+casesretrievesentirepasttrajectoriestodirectlyguidedecision-making. However,thisrelianceon
+rawcasesstrugglestogeneralizeand,moreimportantly,failstoabstract. Theagentmerelymimics
+pastsolutionsinsteadofdistillingthereusablestrategicprinciplesthatmadethemsuccessful[10].
+Toovercomethesechallenges,weintroduceEvolveR,aframeworkthatenablesagentstoself-evolve
+byutilizingtheirownexperiences. EvolveRimplementsafullexperiencelifecycle,inwhichagents
+collecttrajectoriesthroughOnlineInteraction,distillthemintoalibraryofabstractstrategicprinci-
+plesduringOfflineSelf-Distillation,andsubsequentlylearntoapplytheseprinciplestonewtasks.
+Crucially, EvolveR completes the experience lifecycle with a reinforcement learning mechanism
+thatenablestheagenttoutilizeexperience. Theagentdoesnotmerelymimicitspastinteractions;
+itevolvesbasedonwhatithaslearned. EvolveRmaintainsadynamicexperiencebasewherenewly
+distilledprinciplesaresemanticallydeduplicatedandcontinuouslyevaluatedviaametricscorethat
+trackshistoricaleffectiveness.
+WedemonstrateEvolveR’seffectivenessoncomplexquestion-answeringbenchmarks,whereitsig-
+nificantlyoutperformsstrongagenticbaselines. Ourcontributionscanbesummarizedasfollows:
+• WeproposetheExperience-DrivenSelf-EvolutionParadigm,anovel,closed-looplifecycle
+for LLM agents. In contrast to agents that forget past interactions, EvolveR systematically
+integratesacompletecycleofonlineinteraction,offlineexperiencesself-distillationandpolicy
+evolution. This process enables the agent to continuously transform raw trajectories into a
+curatedrepositoryofstrategicprinciples,establishingafoundationforadaptiveagents.
+• We introduce a complete system for dynamic experiences curation. This system goes far
+beyond simple experience storage. It features: (1) a self-distillation mechanism, where the
+agentautonomouslydistillsprinciplesfrompreviousinteractions;and(2)afullmaintenance
+pipeline, including semantic deduplication, integration, and quality control guided by a dy-
+namicmetricscore.
+• WeprovideextensiveempiricalvalidationoftheEvolveRparadigmacrossmultiplemodel
+scales. OurexperimentsonadiversesuiteofcomplexQAbenchmarksdemonstratetheeffec-
+2
+
+--- Page 3 ---
+Knowledge Lab
+tiveness of our approach. Detailed ablation studies confirm that the synergy of our proposed
+curation and self-distillation mechanisms is critical to the framework’s success, revealing a
+keyinsight: whiletheself-distillationmechanismislesseffectiveonsmaller-scalemodels, it
+surpasses distillation by a stronger, external teacher model at the 3B scale, validating the
+importanceofcognitivealignment.
+2 RELATED WORK
+2.1 CONTINUALLEARNINGANDSELF-EVOLVINGAGENTS
+Continual learning (CL) aims to enable models to learn sequentially while mitigating catastrophic
+forgetting [11, 12]. While various replay-based and regularization methods have been proposed,
+mostCLparadigmsassumepredefinedtaskboundariesandfocusonknowledgepreservationrather
+than active acquisition in open-ended environments [13–16]. The pursuit of self-evolving agents
+movesbeyondtheselimitationsbyenablingsystemstogrowautonomouslyfromexperience.Frame-
+works such as Reflexion and Generative Agents explore self-improvement through self-play and
+reflective reasoning, often storing past trajectories as memory to guide future actions [4, 17–20].
+However,thesesystemseitherstoreraw,unstructureddataorrelyonmemorymechanismsthatare
+not designed for the systematic, long-term distillation and refinement of abstract strategic knowl-
+edge. Insteadofrelyingonexternaldatastreams,ouragentautonomouslygeneratesandrefinesits
+ownexperiencesthroughaniterativecycleofonlineinteractionandofflinereflection.
+2.2 LLMAGENTSANDREINFORCEMENTLEARNING
+LLMagentshavebeenwidelyexploredthroughframeworkssuchasReAct,whichinterleavesrea-
+soning and actions, and Reflecion, which improves task performance via self-reflection [4, 17].
+Whiletheseapproachesareprimarilyprompt-basedandstateless, theypreventlong-termaccumu-
+lationofstrategicknowledge. ExternalmemoryframeworkslikeExpeLaddressthislimitationby
+reusingpasttrajectories,buttheydonotenablesystematicself-improvementacrosstasks[8].While
+effective, thesemethodsoftenrelyonsimplepromptingandareinherentlystateless, limitingtheir
+abilitytointernalizeknowledgeacrosstasks. Recentworkhasincreasinglyturnedtoreinforcement
+learning(RL)totrainagentsforlong-horizon,multi-turntasks. However,applyingRLischalleng-
+ingduetosparserewardsandtheneedforstabletrainingsignals.Search-R1[21],O2-Searcher[22],
+and AutoRefine [23] all use RL to train LLMs to generate and interact with external search tools.
+While these works successfully optimize the LLM’s interaction with external factual knowledge,
+theydonotaddressthebroaderchallengeofanagent’sself-improvementthroughitsowninternal
+experience.
+3 METHOD
+In this section, we present EvolveR, a novel framework designed to enable agent self-evolution
+through a complete, closed-loop experience lifecycle. Inspired by the human cycle of work and
+reflection,ourapproachisstructuredaroundthreecore,interconnectedcomponents,asdepictedin
+Figure 2. First, in the Offline Experience Self-Distillation phase, the agent’s policy parameters
+are frozen, and it systematically distills raw trajectories into a curated base of strategic principles.
+Second, during the Online Interaction phase, the agent applies this distilled wisdom to guide its
+deliberativereasoningandaction, generatingnew, high-qualityinteractiondata. Finally, theentire
+cycleisdrivenbyaPolicyEvolutionmechanism,wherethetrajectoriescollectedonlineareusedto
+updatetheagent’spolicyparametersviareinforcementlearning,thusclosingtheloop.Thisiterative
+processallowstheagenttocontinuouslytransformitsinteractionsintoevolvingexpertise.
+3.1 PRELIMINARIES: FORMALIZINGAGENTINTERACTION
+At each state t, the agent, situated in an unknown state s , selects an action a ∈ A based on
+t t
+its policy. Our agent’s action space A is designed for complex, knowledge-intensive tasks and
+comprisesthreekeyoperations:
+3
+
+--- Page 4 ---
+Knowledge Lab
+Online Phase Search ExpBase
+Parameter Update
+Think Se A a n r a c l h y .. s . Q is u . e .. ry Search ExpBase - For P co r m i p n ar c is i o p n l q e u e 1 stions, Traj1
+Principle g b - d a a e T t t f r h a o i e p r o e l r n e c : d b ( o a C o n t o t c a h m l u o p s d n a id i r n b e i g s o s . o ) t n h , n it e e e m ds s , Score:0.7 - - - T T P h o r o o in l u c g u i s h p e t le s s Traj2
+Observe Search KB ExpBase Principle 2 Score:0.6 Traj1 Traj2
+Think
+Perceive Work .......
+Query Doc Principle N Score:0.9 Traj1 Traj2
+Merge
+Trajectory Update Score Add New Principle
+Summarize & Add Traj Principle Operation
+Organize Consolidate
+Update ExpBase Generate Traj New Principle Match No Match Distill
+Deduplicate
+Retrieve
+Similarity Threshold Update
+Top k Principles Filter
+Get Principle Self-Distill LLM Semantic Match Low-Score
+Offline Phase Update ExpBase
+Parameter Frozen
+Figure 2: Overview of the EvolveR framework’s experience lifecycle. Left: The main loop
+alternatesbetweenanOnlinePhase, wheretheagentinteractswiththeenvironmentanditspolicy
+parametersareupdatedviaRL,andanOfflinePhase,wheretheagent’sparametersarefrozenandit
+performsself-distillationandmaintainsitsExperienceBase(E). TopRight: Adetailedviewofthe
+Search ExpBaseaction,wheretheagentretrievesscoredprinciplesalongwiththeirassociated
+trajectories. BottomRight: TheUpdate ExpBaseprocess,whichinvolvessummarizingtrajec-
+toriesandapplyingasuiteofcurationoperations(distill,deduplicate,update,andfilter).
+• <search experience>: AgentqueriesitsinternalexperiencebaseE toretrieverelevantprinci-
+plesdistilledfrompasttrajectories. Environmentreturnsretrievedprinciplesasanobservation.
+• <search knowledge>: Agent queries an external knowledge base (e.g., a search engine) to
+acquirefactualinformation. Environmentreturnsretrievedinformationasanobservation.
+• <answer>: Agentoutputsitsfinalanswertotheproblemandconcludestheinteraction.
+3.2 THEEVOLVERLIFECYCLE: FROMINTERACTIONSTOPRINCIPLES
+3.2.1 OFFLINEEXPERIENCESELF-DISTILLATION
+ThecoreofEvolveRisaself-perpetuatinglifecycledesignedtotransformrawinteractiondatainto
+a strategic principle. This process is divided into two distinct, alternating phases: an offline self-
+distillationphasefordistillingtheprinciple,andanonlineinteractionphaseforapplyingtheprinci-
+pleandgatheringnewinteractiondata.
+Principle from Self-Distillation. The process begins with self-distillation. We leverage the
+agent’s own policy model π to analyze its past interaction trajectories. By adopting the persona
+θ
+of an expert through carefully designed prompts, the model reviews each trajectory and, based on
+itsoutcome,distillsthecorestrategicinsightintoaconcisenaturallanguagestatement. Thisresults
+ineitheraguidingprinciplefromasuccessoracautionaryprinciplefromafailure.
+InspiredbystructuredmemoryframeworkssuchasMem0[24]andG-Memory[25],eachprinciple
+consistsoftwocomponents:anaturallanguagedescriptionpairedwithseveralstructuredknowledge
+triples,asillustratedinFigure2. Thisself-distillationapproachenablestheagenttoautonomously
+generatereusableknowledge.
+Deduplication and Integration. To maintain a high-quality experience base (E), we do not add
+everydistilledprinciple. Instead,eachnewprincipleundergoesarigorousintegrationprocess. First,
+tohandleredundanciesarisingfromsimilartrajectories(e.g.,fromGRPOsampling),weperforma
+deduplicationstep. Weusetheagentmodelπ topair-wisecheckforsemanticequivalenceamong
+θ
+newly generated principles that originate from the same problem, keeping only one representative
+fromeachsemanticallyequivalentcluster.
+4
+
+--- Page 5 ---
+Knowledge Lab
+Second, for each uniqueprinciple, we apply a two-stage matchingprocedure: we first retrieve the
+most similar existing principles from E via embedding similarity, then prompt the agent model to
+provideabinarysemanticequivalencejudgment. Ifaprincipleisnovel,itisaddedasanewentry
+in E; otherwise, the new trajectory is merged under the existing principle, enriching it without
+introducingredundancy.
+Letp beanewcandidateprincipledistilledfromtrajectoryτ . Weupdatetheexperiencebase
+cand src
+E asfollows:
+(cid:26)
+E ∪{p } if max sim(p ,p)<θ
+E ← cand p∈E cand sim (1)
+Merge(E,p∗,τ ) otherwise
+src
+where sim(·,·) is the cosine similarity between principle, θ is a similarity threshold, and p∗ =
+sim
+argmax sim(p ,p). TheMergeoperationlinksτ toitsbestmatchp∗.
+p∈E cand src
+This two-level check ensures that E grows with novel insights while strengthening existing ones
+withnewevidence.
+QualityControlviaDynamicScoring. Astheexperiencebaseaccumulatesprinciplesovertime,
+itbecomesessentialtoevaluatetheirpracticalutilityandprioritizethemosteffectivestrategies. To
+thisend,eachprincipletracksitsusageandsuccesscounts,enablingthecomputationofanempirical
+scorethatreflectshistoricalperformance. Wequantifytheempiricalutilityofeachprincipleusinga
+metricscore,whichisupdatedas:
+c (p)+1
+s(p)= succ (2)
+c (p)+2
+use
+wherec (p)andc (p)arethesuccessandusagecountsforagivenprinciplep,s(p)isthemetric
+succ use
+score.
+Thisscoreprovidesareliablemeasureofaprinciple’shistoricaleffectiveness. Toensurethelong-
+termhealthoftheexperiencebase,weperiodicallypruneprincipleswhosescoresfallbelowathresh-
+old θ . This systematic process of distillation, integration, and quality control ensures that the
+prune
+agent’swisdomremainsacompactandhigh-qualityrepositoryofitsmosteffectivestrategies.
+3.2.2 ONLINEINTERACTION
+Theonlinephaseservesastheinteractivetestbedwheretheagentappliesitsdistilledprinciplesto
+solveproblems. Theagentoperateswithinadeliberativereasoningloop(e.g.,Think-Act-Observe),
+which enables it to engage in multi-turn, autonomous tool use. However, the core novelty of
+EvolveR’sonlinephaseisnottheloopitself, buthowtheprinciplesretrievedfromtheexperience
+base(E)fundamentallyaltertheagent’sbehaviorwithinit.
+Experience as a Strategic Principle. Unlike standard agents that must discover reasoning pat-
+terns from scratch through trial and error, an EvolveR agent is guided by a strategic wisdom
+provided by its own past experiences. At any point in its reasoning loop, the agent can issue a
+<search experience> action. The retrieved principles P do not merely provide factual informa-
+k
+tion; they offer heuristic guidance that shapes the agent’s subsequent reasoning. For instance, re-
+trievingaprinciplesuchas“Forcomparisonquestions,gatherdataonbothitemsbeforeconcluding,”
+candirectlyinfluencetheagent’sinternalmonologue(<think>)andsteeritssubsequentpotential
+<search knowledge>actions. Thismakestheagent’sexplorationmoreefficientandlessproneto
+commonpitfalls,asitlearnstofollowthewisdominitsowndistilledprinciples.
+GeneratingHigh-QualityTrajectoriesforFutureDistillation. Theultimatepurposeoftheon-
+linephase,withintheEvolveRparadigm,extendsbeyondsolvingtheimmediatetask. Itisrespon-
+sible for generating high-quality data for the next cycle of offline reflection. Because the agent’s
+actions are guided by proven principles, the resulting trajectories, τ , are not random walks but
+new
+are instead rich recordings of structured, experience-guided problem-solving. These trajectories
+capture the interplay between distilled principles, internal reasoning, and external tool use (e.g.,
+5
+
+--- Page 6 ---
+Knowledge Lab
+<search knowledge>),andserveasvaluableinputfortheofflinephase,enablingEvolveRtorefine
+existingprinciplesanddiscovermoreeffectivestrategiesinavirtuouscycle.
+3.3 POLICYEVOLUTION: CLOSINGTHELOOPWITHREINFORCEMENTLEARNING
+To enable the agent to learn from its actions and evolve its policy π , we employ a reinforcement
+θ
+learning framework. The learning process is guided by a composite reward function and a policy
+optimizationalgorithmthatleveragesthetrajectoriescollectedduringtheonlinephase.
+Reward Function. We design a composite reward function R(τ) for a given trajectory τ that
+balancestasksuccesswithproceduralcorrectness. Itisaweightedsumofanoutcomerewardanda
+formatreward: R(τ)=w R (τ)+w R (τ).
+o outcome f format
+• OutcomeRewardR ,isasparse,binaryrewardbasedonthefinalanswer’scorrectness.
+outcome
+Followingpriorwork,itisdeterminedbyanexactmatchwiththegroundtruth:
+R (τ)=EM(a ,a ) (3)
+outcome pred gold
+where a is the final answer extracted from the trajectory τ and a is the ground truth
+pred gold
+answer.
+• Format Reward R , is a dense shaping reward that evaluates the quality of the rea-
+format
+soning process. Let N (τ), N (τ) and N (τ) denote the counts of valid <think>,
+think exp know
+<search experience> and <search knowledge> actions within τ. R is composed of a
+format
+thinkscoreR ,rewardingabalancednumberofreasoningsteps,andasearchscoreR
+think search
+promotingsearchexperienceandknowledge. Thefinalformatrewardiscalculatedas:
+R (τ)+R (τ)
+R (τ)=I(τ )· think search (4)
+format complete 2
+where I(τ ) is an indicator function that is 1 only if the trajectory contains at least one
+complete
+of each required action type (<think>, any search, and <answer>), and 0 otherwise. This
+ensuresthatonlystructurallycompletetrajectoriesreceiveaformatreward.
+Policy Optimization. The policy
+π isupdatedusingthecollectedtra-
+θ
+jectories. We utilize Group Relative
+Policy Optimization (GRPO) [26],
+which balances the optimization sta-
+bilityandefficiencybyusingtheav-
+eragerewardofmultiplesampledtra-
+jectories as a baseline, thus avoiding
+theneedforalearnedvaluefunction.
+Specifically, for each input, we sam-
+ple a group of G trajectories. The
+Figure 3: Policy model update optimization algorithm of
+policyisthenoptimizedbymaximiz-
+EvolveR.
+ingthefollowingobjectivefunction:
+ 
+|τ|
+J GRPO (θ)=E τ∈D (cid:88) min (cid:16) ρ t (θ)Aˆ t ,clip(ρ t (θ),1−ϵ,1+ϵ)Aˆ t (cid:17) −βD KL [π θ ||π ref ] (5)
+t=1
+where ρ (θ) = πθ(at|ht) is the importance sampling ratio, Aˆ is the advantage estimate, and the
+t πold(at|ht) t
+finaltermisaKL-divergencepenaltytoconstrainpolicyupdates.
+Crucially,thisoptimizationprocessisdeeplyintegratedwithourexperiencelifecycle.Astheagent’s
+actions during the online phase are conditioned on the principles P retrieved from its experience
+k
+base, the trajectories collected in D are inherently experience-guided. Consequently, the GRPO
+updatedoesnotmerelylearnagenericreasoningpolicy. Instead,itexplicitlylearnsapolicyofhow
+6
+
+--- Page 7 ---
+Knowledge Lab
+to effectively utilize its own distilled wisdom to generate successful outcomes. The optimization
+process, therefore, reinforces the valuable connections between retrieving high-quality principles
+andproducinghigh-rewardtrajectories,successfullyclosingthelearningloop.
+4 EXPERIMENTS
+4.1 EXPERIMENTALIMPLEMENTATIONDETAILS
+4.1.1 TASKSANDDATASETS
+TocomprehensivelyevaluatetheEvolveRparadigm,weassessitsperformanceonsevenquestion-
+answeringbenchmarks,encompassingbothin-domainandout-of-domaindatasets. Followingprior
+work [21, 22], the in-domain datasets, whose training splits are used to build the experience base,
+include Natural Questions (NQ) [27] and the multi-hop benchmark HotpotQA [28]. The out-of-
+domaindatasets,usedexclusivelyforevaluatinggeneralization,encompassthegeneralQAbench-
+marks TriviaQA [29] and PopQA [30], as well as the more complex multi-hop challenges 2Wiki-
+MultiHopQA[31],Musique[32],andBamboogle[33].
+4.1.2 BASELINEMETHODS
+Following prior works, we compare against a comprehensive suite of baselines built upon the
+Qwen2.5foundationalmodels. Thebaselinesrepresentthreeprimaryparadigms. First,prompting-
+based methods, which require no parameter updates, include Direct Inference, Chain-of-Thought
+(CoT) [18], Retrieval-Augmented Generation (RAG) [34], and advanced variants like IRCoT [35]
+andSearch-o1[36].Second,SupervisedFine-Tuning(SFT)methodsrepresentapproachesthatlearn
+fromstaticexpertdata,includingstandardSFT[37]andRejectionSampling[38]. Finally,themost
+directcompetitorsareRLmethods,againstwhichwebenchmarkextensively. Thiscategoryispri-
+marilycomposedofSearch-R1[21],DeepSeek-R1[39],whicharealsotrainedwithtrajectory-level
+feedback. Specifically,DeepSeek-R1performsreasoningandanswerstepswithoutasearchengine,
+whereasSearch-R1incorporatesanexternallocalorwebsearchengine. Together, thesebaselines
+provideachallengingevaluationlandscapeforourproposedparadigm.
+4.1.3 EVALUATIONMETRICS
+Toensureadirectandfaircomparisonwithpriorworkinourmainresults,ourprimaryevaluation
+metric is Exact Match (EM), a strict measure that requires the predicted answer to exactly match
+thegroundtruthafterstandardnormalization. WealsoreporttheF1Scoreintheanalysisofmodel
+scales’generalizability,whichprovidesamorecomprehensiveandrobustmeasureofperformance,
+particularlysincegroundtruthsmaycontainmultiplevalidanswersoraliases.
+4.1.4 IMPLEMENTATIONDETAILS
+Our experiments are conducted on the Qwen2.5 model family. Inspired by DeepSeek-R1 [39],
+we introduce a cold-start stage to stabilize early RL training by first fine-tuning the base model
+on a small, curated dataset of CoT interaction trajectories. Following the setup of Search-R1, we
+constructthisdatasetfromapproximately700samplesfromtheNQandHotpotQAtrainingsets.We
+utilize the LLama Factory [40] to fine-tune the model with LoRA. For the agent evolution phase,
+weemployGRPOforoptimization. AteachRLstep,wesampleabatchof128prompts,generating
+G = 8 trajectories for each. The agent is then updated, again using Adam, but with a reduced
+learning rate of 1 × 10−6, a warm-up step of 20 and a mini-batch size of 128. All training is
+conductedon8A100GPUs,leveragingtheVerlframework1 forefficientimplementation. Wewill
+showmoredetailsinAppendix4.1.
+4.2 MAINRESULTS
+ThemainresultsofourevaluationarepresentedinTable1. Ouranalysisfocusesonthecomprehen-
+siveevaluationconductedontheQwen2.5-3Bmodelfamily(wewillshowmoreresultsofdifferent
+1https://github.com/volcengine/verl
+7
+
+--- Page 8 ---
+Knowledge Lab
+modelscalesinthe5.1).EvolveRachievesthehighestaveragescore(0.382)inthe3Bscale,outper-
+formingallbaselines,includingstrongRLagentslikeSearcher-R1.Thisrobustoverallperformance
+isnotdrivenbyanarrowspecialty,butbyconsistent,top-tierresultsacrossawidespectrumoftasks;
+it secures the best scores on diverse benchmarks, including the in-domain NQ, the out-of-domain
+PopQA,andtheadversarialBamboogledataset, whileremaininghighlycompetitiveonallothers.
+Thisconsistent,high-levelperformanceacrossdiversebenchmarksvalidatesthatbysystematically
+distilling, managing, and utilizing, agents can develop more generalizable and powerful problem-
+solvingstrategies.
+Table1: MainresultsonQAbenchmarks. Thebestperformanceineachcolumnissetinbold. Our
+proposedmodel,EvolveR,ishighlightedingray.
+Indomain Outofdomain
+Methods Avg.
+NQ HotpotQA TriviaQA PopQA 2wiki Musique Bamboogle
+Qwen2.5-3B
+DirectInference 0.106 0.149 0.288 0.108 0.244 0.020 0.024 0.134
+CoT 0.023 0.021 0.032 0.005 0.021 0.002 0.000 0.015
+IRCoT 0.111 0.164 0.312 0.200 0.171 0.067 0.240 0.181
+Search-o1 0.238 0.221 0.472 0.262 0.218 0.054 0.320 0.255
+RAG 0.348 0.255 0.544 0.387 0.226 0.047 0.080 0.270
+SFT 0.249 0.186 0.292 0.104 0.248 0.044 0.112 0.176
+R1-base 0.226 0.201 0.455 0.173 0.268 0.055 0.224 0.229
+R1-instruct 0.210 0.208 0.449 0.171 0.275 0.060 0.192 0.224
+RejectionSampling 0.294 0.240 0.488 0.332 0.233 0.059 0.210 0.265
+Search-R1-base 0.406 0.284 0.587 0.435 0.273 0.049 0.088 0.303
+Search-R1-instruct 0.341 0.324 0.545 0.378 0.319 0.103 0.264 0.325
+EvolveR(ours) 0.434 0.373 0.584 0.434 0.381 0.137 0.328 0.382
+5 FURTHER ANALYSIS
+5.1 ANALYSISOFMODELSCALESGENERALIZABILITY
+To validate that our EvolveR frame-
+work is a generalizable paradigm
+ratherthanamethodtailoredtoaspe-
+cificmodelsize,weevaluateditsper-
+formanceacrossaspectrumofopen-
+source model scales. As presented
+in Figure 4, we applied EvolveR to
+Qwen2.5 models of 0.5B, 1.5B, and
+3B parameters. The results reveal
+a clear and consistent positive trend:
+as the parameter count of the base
+model increases, the performance of
+the EvolveR agent improves signif-
+icantly on every benchmark. The Figure 4: Performance of EvolveR across various model
+averageperformancerisesmonotoni- scales.
+callyfrom0.150onthe0.5Bmodelto
+0.270onthe1.5Bmodel,andfurtherto0.382onthe3Bmodel. Thisscalingbehaviordemonstrates
+that our experience-driven lifecycle effectively harnesses the superior reasoning and instruction-
+following capabilities inherent in larger foundational models. It confirms that EvolveR acts as a
+synergistic layer on top of the base model, and suggests that its performance will continue to im-
+provewithfutureadvancementsintheopen-sourceLLMlandscape.
+8
+
+--- Page 9 ---
+Knowledge Lab
+Table2: Validatingtheself-distillationmechanism. WecompareourEvolveR,whichusesitsown
+modelfordistillation,againstavariantthatusesalarger,externalmodel(GPT-4o-mini).
+Indomain Outofdomain
+ModelVariant Avg.
+NQ HotpotQA TriviaQA PopQA 2wiki Musique Bamboogle
+Qwen2.5-0.5B
+EvolveR(self-distill) 0.194 0.114 0.233 0.262 0.160 0.029 0.056 0.150
+EvolveR(teacher-distill)0.281↑ 0.193↑ 0.402↑ 0.363↑ 0.202↑ 0.033↑ 0.064↑ 0.220↑
+Qwen2.5-1.5B
+EvolveR(self-distill) 0.358 0.257 0.510 0.389 0.188 0.057 0.128 0.270
+EvolveR(teacher-distill)0.352↓ 0.259↑ 0.503↓ 0.395↑ 0.207↑ 0.072↑ 0.240↑ 0.290↑
+Qwen2.5-3B
+EvolveR(self-distill) 0.434 0.373 0.584 0.434 0.381 0.137 0.328 0.382
+EvolveR(teacher-distill)0.421↓ 0.372↓ 0.583↓ 0.359↓ 0.437↑ 0.127↓ 0.288↓ 0.370↓
+5.2 ABLATIONSTUDIES: DISSECTINGTHEEVOLVERFRAMEWORK
+5.2.1 VALIDATINGTHESELF-DISTILLATIONMECHANISM
+A central claim of our work is that an agent can learn effectively through self-distillation. To rig-
+orouslyinvestigatethis,wecompareourstandardEvolveR (self-distill)againstastrong
+alternative,EvolveR(teacher-distill),whichusesthepowerfulGPT-4o-miniasanexter-
+nalmodelforexperiencedistillation.
+Theresults,presentedinTable2,revealanuanced,scale-dependentrelationship.Forsmallermodels
+likethe0.5Bvariant,thestrongerexternalteacherprovidesaclearbenefit,asthebasemodel’sown
+distillation capabilities are limited. However, as the model scales to 3B, a reversal occurs: our
+EvolveR (self-distill)(0.382avg.) outperformstheteacher-guidedvariant(0.370avg.).
+Thisisacriticalfinding,suggestingthatasanagent’sownreasoningbecomesmoresophisticated,
+principlesdistilledfromitsowninternalpolicyareultimatelymoreeffectiveduetobetter”cognitive
+alignment”. Thisvalidatesself-distillationasacore,scalingstrengthoftheEvolveRparadigm.
+5.2.2 THEROLEOFEXPERIENCERETRIEVAL
+Toquantifythedirectbenefitofprovidingtheagentwithaccesstoitsdistilledprinciplesatinference
+time. Toachievethis,wecompareourfullEvolveRmodelagainstanablatedvariant,EvolveR
+w/o exp-retrieve. It is critical to note that both models undergo the identical experience-
+drivenRLtrainingprocess. Thesoledifferenceisthatthew/o exp-retrievevariantisdenied
+accesstotheexperiencebaseduringevaluation.
+TheresultsinTable3showastarkperformancedegradationacrossallmodelscaleswhenexperience
+retrieval is disabled. For the 3B model, for instance, the average performance drops significantly
+from 0.382 to 0.340. This substantial gap underscores a key finding: an agent trained with our
+EvolveRframework,whilepowerfulonitsown,achievesitsfullpotentialonlywhenitcanaccess
+andconditionontherelevantprinciplesfromitspast. Thisdemonstratesthatexperienceretrievalis
+acriticalandindispensablecomponentoftheEvolveRparadigmforoptimalperformance.
+6 CONCLUSION
+Inthiswork,weintroducedEvolveR,anovelparadigmforself-evolvingLLMagentscenteredon
+a complete, closed-loop experience lifecycle. Our extensive experiments demonstrate the effec-
+tivenessofthisapproach, showingthatEvolveRconsistentlyandsignificantlyoutperformsawide
+range of strong baseline methods on a comprehensive suite of QA benchmarks. Furthermore, our
+detailed ablation studies rigorously validate the core tenets of our framework, confirming the sig-
+nificant value of the agent’s self-distilled experiences and demonstrating the high efficacy of the
+self-distillation mechanism itself. While the quality of distilled principles is inherently tied to the
+basemodel’scapabilities,pointingtopromisingfuturework,EvolveRprovidesaconcreteblueprint
+9
+
+--- Page 10 ---
+Knowledge Lab
+Table3:Investigatingtheroleofexperienceretrievalatinferencetime.Thew/o exp-retrieve
+variantusesthesamemodelbutisnotallowedtoaccesstheexperiencebaseduringevaluation.
+Indomain Outofdomain
+ModelVariant Avg.
+NQ HotpotQA TriviaQA PopQA 2wiki Musique Bamboogle
+Qwen2.5-0.5B
+EvolveR 0.194 0.114 0.233 0.262 0.160 0.029 0.056 0.150
+EvolveRw/oexp-retrieve0.085↓ 0.065↓ 0.137↓ 0.150↓ 0.082↓ 0.013↓ 0.016↓ 0.078↓
+Qwen2.5-1.5B
+EvolveR 0.358 0.257 0.510 0.389 0.188 0.057 0.128 0.270
+EvolveRw/oexp-retrieve0.136↓ 0.112↓ 0.218↓ 0.160↓ 0.136↓ 0.019↓ 0.080↓ 0.123↓
+Qwen2.5-3B
+EvolveR 0.434 0.373 0.584 0.434 0.381 0.137 0.328 0.382
+EvolveRw/oexp-retrieve0.405↓ 0.343↓ 0.569↓ 0.392↓ 0.334↓ 0.100↓ 0.240↓ 0.340↓
+foragentsthatlearnfromtheconsequencesoftheirownexperiences,shiftingthefocusfrommerely
+accessingknowledgetoactivelybuildingandevolvingexpertise.
+10
+
+--- Page 11 ---
+Knowledge Lab
+REFERENCES
+[1] Yongliang Shen, Kaitao Song, Xu Tan, Dongsheng Li, Weiming Lu, and Yueting Zhuang.
+Hugginggpt: Solvingaitaskswithchatgptanditsfriendsinhuggingface. AdvancesinNeural
+InformationProcessingSystems,36:38154–38180,2023.
+[2] Junyu Luo, Weizhi Zhang, Ye Yuan, Yusheng Zhao, Junwei Yang, Yiyang Gu, Bohan Wu,
+Binqi Chen, Ziyue Qiao, Qingqing Long, Rongcheng Tu, Xiao Luo, Wei Ju, Zhiping Xiao,
+Yifan Wang, Meng Xiao, Chenwu Liu, Jingyang Yuan, Shichang Zhang, Yiqiao Jin, Fan
+Zhang, Xian Wu, Hanqing Zhao, Dacheng Tao, Philip S. Yu, and Ming Zhang. Large lan-
+guage model agent: A survey on methodology, applications and challenges, 2025. URL
+https://arxiv.org/abs/2503.21460.
+[3] HuanangGao, JiayiGeng, WenyueHua, MengkangHu, XinzheJuan, HongzhangLiu, Shi-
+longLiu, JiahaoQiu, XuanQi, YiranWu, HongruWang, HanXiao, YuhangZhou, Shaokun
+Zhang,JiayiZhang,JinyuXiang,YixiongFang,QiwenZhao,DongruiLiu,QihanRen,Cheng
+Qian, Zhenhailong Wang, Minda Hu, Huazheng Wang, Qingyun Wu, Heng Ji, and Mengdi
+Wang. Asurveyofself-evolvingagents: Onpathtoartificialsuperintelligence, 2025. URL
+https://arxiv.org/abs/2507.21046.
+[4] Shunyu Yao, Jeffrey Zhao, Dian Yu, Nan Du, Izhak Shafran, Karthik Narasimhan, and Yuan
+Cao. React: Synergizing reasoning and acting in language models, 2023. URL https:
+//arxiv.org/abs/2210.03629.
+[5] TimoFlesch,JanBalaguer,RonaldDekker,HamedNili,andChristopherSummerfield. Com-
+paringcontinualtasklearninginmindsandmachines. ProceedingsoftheNationalAcademy
+ofSciences,115(44):E10313–E10322,2018.
+[6] JohnRAnderson. Problemsolvingandlearning. Americanpsychologist,48(1):35,1993.
+[7] Sikuan Yan, Xiufeng Yang, Zuchao Huang, Ercong Nie, Zifeng Ding, Zonggen Li, Xiaowen
+Ma, Hinrich Schu¨tze, Volker Tresp, and Yunpu Ma. Memory-r1: Enhancing large language
+model agents to manage and utilize memories via reinforcement learning. arXiv preprint
+arXiv:2508.19828,2025.
+[8] AndrewZhao,DanielHuang,QuentinXu,MatthieuLin,Yong-JinLiu,andGaoHuang. Ex-
+pel: Llmagentsareexperientiallearners,2024. URLhttps://arxiv.org/abs/2308.
+10144.
+[9] Huichi Zhou, Yihang Chen, Siyuan Guo, Xue Yan, Kin Hei Lee, Zihan Wang, Ka Yiu Lee,
+Guchun Zhang, Kun Shao, Linyi Yang, and Jun Wang. Memento: Fine-tuning llm agents
+withoutfine-tuningllms,2025. URLhttps://arxiv.org/abs/2508.16153.
+[10] Liting Chen, Lu Wang, Hang Dong, Yali Du, Jie Yan, Fangkai Yang, Shuang Li, Pu Zhao,
+Si Qin, Saravan Rajmohan, et al. Introspective tips: Large language model for in-context
+decisionmaking. arXivpreprintarXiv:2305.11598,2023.
+[11] GermanIParisi,RonaldKemker,JoseLPart,ChristopherKanan,andStefanWermter. Con-
+tinuallifelonglearningwithneuralnetworks: Areview. Neuralnetworks,113:54–71,2019.
+[12] Liyuan Wang, Xingxing Zhang, Hang Su, and Jun Zhu. A comprehensive survey of contin-
+ual learning: Theory, method and application, 2024. URL https://arxiv.org/abs/
+2302.00487.
+[13] James Kirkpatrick, Razvan Pascanu, Neil Rabinowitz, Joel Veness, Guillaume Desjardins,
+Andrei A. Rusu, Kieran Milan, John Quan, Tiago Ramalho, Agnieszka Grabska-Barwinska,
+DemisHassabis,ClaudiaClopath,DharshanKumaran,andRaiaHadsell. Overcomingcatas-
+trophic forgetting in neural networks. Proceedings of the National Academy of Sciences,
+114(13):3521–3526, March 2017. ISSN 1091-6490. doi: 10.1073/pnas.1611835114. URL
+http://dx.doi.org/10.1073/pnas.1611835114.
+[14] XuanwenDing,JieZhou,LiangDou,QinChen,YuanbinWu,ChengcaiChen,andLiangHe.
+Boosting large language models with continual learning for aspect-based sentiment analysis,
+2024. URLhttps://arxiv.org/abs/2405.05496.
+11
+
+--- Page 12 ---
+Knowledge Lab
+[15] TianyuHuai,JieZhou,YuxuanCai,QinChen,WenWu,XingjiaoWu,XipengQiu,andLiang
+He. Task-corememorymanagementandconsolidationforlong-termcontinuallearning,2025.
+URLhttps://arxiv.org/abs/2505.09952.
+[16] TianyuHuai, JieZhou, XingjiaoWu, QinChen, QingchunBai, ZeZhou, andLiangHe. Cl-
+moe: Enhancing multimodal large language model with dual momentum mixture-of-experts
+forcontinualvisualquestionanswering,2025. URLhttps://arxiv.org/abs/2503.
+00413.
+[17] NoahShinn,FedericoCassano,EdwardBerman,AshwinGopinath,KarthikNarasimhan,and
+Shunyu Yao. Reflexion: Language agents with verbal reinforcement learning, 2023. URL
+https://arxiv.org/abs/2303.11366.
+[18] Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Fei Xia, Ed Chi, Quoc V Le,
+Denny Zhou, et al. Chain-of-thought prompting elicits reasoning in large language models.
+Advancesinneuralinformationprocessingsystems,35:24824–24837,2022.
+[19] Shunyu Yao, Dian Yu, Jeffrey Zhao, Izhak Shafran, Tom Griffiths, Yuan Cao, and Karthik
+Narasimhan. Treeofthoughts: Deliberateproblemsolvingwithlargelanguagemodels. Ad-
+vancesinneuralinformationprocessingsystems,36:11809–11822,2023.
+[20] MaciejBesta,NilsBlach,AlesKubicek,RobertGerstenberger,MichalPodstawski,LukasGi-
+aninazzi,JoannaGajda,TomaszLehmann,HubertNiewiadomski,PiotrNyczyk,etal. Graph
+of thoughts: Solving elaborate problems with large language models. In Proceedings of the
+AAAIconferenceonartificialintelligence,volume38,pages17682–17690,2024.
+[21] Bowen Jin, Hansi Zeng, Zhenrui Yue, Jinsung Yoon, Sercan Arik, Dong Wang, Hamed Za-
+mani, and Jiawei Han. Search-r1: Training llms to reason and leverage search engines with
+reinforcementlearning,2025. URLhttps://arxiv.org/abs/2503.09516.
+[22] JianbiaoMei, TaoHu, DaochengFu, LichengWen, XuemengYang, RongWu, PinlongCai,
+Xinyu Cai, Xing Gao, Yu Yang, Chengjun Xie, Botian Shi, Yong Liu, and Yu Qiao. O2-
+searcher: A searching-based agent model for open-domain open-ended question answering,
+2025. URLhttps://arxiv.org/abs/2505.16582.
+[23] YaoruiShi,SihangLi,ChangWu,ZhiyuanLiu,JunfengFang,HengxingCai,AnZhang,and
+XiangWang. Searchandrefineduringthink: Autonomousretrieval-augmentedreasoningof
+llms,2025. URLhttps://arxiv.org/abs/2505.11277.
+[24] Prateek Chhikara, Dev Khant, Saket Aryan, Taranjeet Singh, and Deshraj Yadav. Mem0:
+Building production-ready ai agents with scalable long-term memory, 2025. URL https:
+//arxiv.org/abs/2504.19413.
+[25] Guibin Zhang, Muxin Fu, Guancheng Wan, Miao Yu, Kun Wang, and Shuicheng Yan.
+G-memory: Tracing hierarchical memory for multi-agent systems, 2025. URL https:
+//arxiv.org/abs/2506.07398.
+[26] Zhihong Shao, Peiyi Wang, Qihao Zhu, Runxin Xu, Junxiao Song, Xiao Bi, Haowei Zhang,
+MingchuanZhang,Y.K.Li,Y.Wu,andDayaGuo.Deepseekmath:Pushingthelimitsofmath-
+ematical reasoning in open language models, 2024. URL https://arxiv.org/abs/
+2402.03300.
+[27] Tom Kwiatkowski, Jennimaria Palomaki, Olivia Redfield, Michael Collins, Ankur Parikh,
+Chris Alberti, Danielle Epstein, Illia Polosukhin, Jacob Devlin, Kenton Lee, et al. Natural
+questions: abenchmarkforquestionansweringresearch. TransactionsoftheAssociationfor
+ComputationalLinguistics,7:453–466,2019.
+[28] ZhilinYang,PengQi,SaizhengZhang,YoshuaBengio,WilliamWCohen,RuslanSalakhut-
+dinov, and Christopher D Manning. Hotpotqa: A dataset for diverse, explainable multi-hop
+questionanswering. arXivpreprintarXiv:1809.09600,2018.
+[29] Mandar Joshi, Eunsol Choi, Daniel S Weld, and Luke Zettlemoyer. Triviaqa: A large
+scale distantly supervised challenge dataset for reading comprehension. arXiv preprint
+arXiv:1705.03551,2017.
+12
+
+--- Page 13 ---
+Knowledge Lab
+[30] Alex Mallen, Akari Asai, Victor Zhong, Rajarshi Das, Daniel Khashabi, and Hannaneh Ha-
+jishirzi. When not to trust language models: Investigating effectiveness of parametric and
+non-parametricmemories. arXivpreprintarXiv:2212.10511,2022.
+[31] Xanh Ho, Anh-Khoa Duong Nguyen, Saku Sugawara, and Akiko Aizawa. Constructing
+a multi-hop qa dataset for comprehensive evaluation of reasoning steps. arXiv preprint
+arXiv:2011.01060,2020.
+[32] Harsh Trivedi, Niranjan Balasubramanian, Tushar Khot, and Ashish Sabharwal. Musique:
+Multihopquestionsviasingle-hopquestioncomposition. TransactionsoftheAssociationfor
+ComputationalLinguistics,10:539–554,2022.
+[33] Ofir Press, Muru Zhang, Sewon Min, Ludwig Schmidt, Noah A Smith, and Mike Lewis.
+Measuring and narrowing the compositionality gap in language models. arXiv preprint
+arXiv:2210.03350,2022.
+[34] Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir Karpukhin, Na-
+man Goyal, Heinrich Ku¨ttler, Mike Lewis, Wen-tau Yih, Tim Rockta¨schel, et al. Retrieval-
+augmentedgenerationforknowledge-intensivenlptasks. Advancesinneuralinformationpro-
+cessingsystems,33:9459–9474,2020.
+[35] HarshTrivedi, NiranjanBalasubramanian, TusharKhot, andAshishSabharwal. Interleaving
+retrievalwithchain-of-thoughtreasoningforknowledge-intensivemulti-stepquestions. arXiv
+preprintarXiv:2212.10509,2022.
+[36] XiaoxiLi,GuantingDong,JiajieJin,YuyaoZhang,YujiaZhou,YutaoZhu,PeitianZhang,and
+ZhichengDou. Search-o1: Agenticsearch-enhancedlargereasoningmodels. arXivpreprint
+arXiv:2501.05366,2025.
+[37] HyungWonChung,LeHou,ShayneLongpre,BarretZoph,YiTay,WilliamFedus,Yunxuan
+Li,XuezhiWang,MostafaDehghani,SiddharthaBrahma,etal. Scalinginstruction-finetuned
+languagemodels. JournalofMachineLearningResearch,25(70):1–53,2024.
+[38] Janice Ahn, Rishu Verma, Renze Lou, Di Liu, Rui Zhang, and Wenpeng Yin. Large
+language models for mathematical reasoning: Progresses and challenges. arXiv preprint
+arXiv:2402.00157,2024.
+[39] DayaGuo,DejianYang,HaoweiZhang,JunxiaoSong,RuoyuZhang,RunxinXu,QihaoZhu,
+Shirong Ma, Peiyi Wang, Xiao Bi, et al. Deepseek-r1: Incentivizing reasoning capability in
+llmsviareinforcementlearning. arXivpreprintarXiv:2501.12948,2025.
+[40] Yaowei Zheng, Richong Zhang, Junhao Zhang, YeYanhan YeYanhan, and Zheyan Luo. Lla-
+maFactory: Unifiedefficientfine-tuningof100+languagemodels. InYixinCao,YangFeng,
+and Deyi Xiong, editors, Proceedings of the 62nd Annual Meeting of the Association for
+Computational Linguistics (Volume 3: System Demonstrations), pages 400–410, Bangkok,
+Thailand, August 2024. Association for Computational Linguistics. doi: 10.18653/v1/2024.
+acl-demos.38. URLhttps://aclanthology.org/2024.acl-demos.38.
+[41] Qwen, :, An Yang, Baosong Yang, Beichen Zhang, Binyuan Hui, Bo Zheng, Bowen Yu,
+Chengyuan Li, Dayiheng Liu, Fei Huang, Haoran Wei, Huan Lin, Jian Yang, Jianhong Tu,
+JianweiZhang,JianxinYang,JiaxiYang,JingrenZhou,JunyangLin,KaiDang,KemingLu,
+KeqinBao,KexinYang,LeYu,MeiLi,MingfengXue,PeiZhang,QinZhu,RuiMen,Runji
+Lin,TianhaoLi,TianyiTang,TingyuXia,XingzhangRen,XuanchengRen,YangFan,Yang
+Su,YichangZhang,YuWan,YuqiongLiu,ZeyuCui,ZhenruZhang,andZihanQiu. Qwen2.5
+technicalreport,2025. URLhttps://arxiv.org/abs/2412.15115.
+[42] Jianlv Chen, Shitao Xiao, Peitian Zhang, Kun Luo, Defu Lian, and Zheng Liu. Bge m3-
+embedding:Multi-lingual,multi-functionality,multi-granularitytextembeddingsthroughself-
+knowledgedistillation. arXivpreprintarXiv:2402.03216,2024.
+13
+
+--- Page 14 ---
+Knowledge Lab
+A APPENDIX
+A.1 EXPERIMENTALIMPLEMENTATIONDETAILS
+Weprovideacomprehensivelistofhyperparametersandimplementationdetailsusedinourexperi-
+mentstoensurefullreproducibility.
+GeneralSetup. Acrossallexperiments,weusemodelsfromtheQwen2.5family[41]withtheir
+corresponding tokenizers. The maximum sequence length is set to 8192 tokens for all inputs, and
+themaximumresponsesequencelengthissetto1024tokens.TheGPT-4o-minimodelisusedasthe
+teachermodelinthecorrespondingablationstudy. WeuseBGE-M3[42]asourembeddingmodel.
+Cold-start Stage. This SFT stage is conducted for 3 epochs using the Adam optimizer, with an
+initiallearningrateof1×10−4,awarm-upratioof0.1,andabatchsizeof16.
+Online Interaction Phase. For each <search knowledge> action, we retrieve the top-k = 3
+d
+documents from the external knowledge base, following the prior work [21]. Similarly, for each
+<search experience>action,weretrievethetop-k =3principlesfromtheexperiencebaseE.
+e
+OfflineDistillPhase. Theself-distillmechanismutilizestheagent’sownpolicymodelπ todis-
+θ
+tillprinciples. Thetemperatureissetto1duringthisphase. Forthededuplicationandintegration
+process, we first use a semantic similarity pre-filter with a threshold of θ = 0.85 before pass-
+sim
+ing candidates to the LLM-based equivalence check. The periodic principle sweep removes any
+principlefromE whosemetric scorefallsbelowthepruningthresholdofθ =0.3.
+prune
+RewardFunctionDetails. AsdescribedintheSection3.3, theFormatRewardisanaverageof
+athinkscoreandasearchscore. Wedetailtheirspecificcalculationhere. ThethinkscoreR is
+think
+determinedbyadiscretemappingbasedonthenumberof<think>actions,N :itscalesfrom0.2
+think
+(forN = 1)toamaximumof1.0(forN = 6),andiscappedat0.5forexcessivereasoning
+think think
+(N > 8)toencourageconciseness. ThesearchscoreR isthesumofadiversityscoreand
+think search
+aquantitybonus. Thediversityscoreis0.5ifboth<search experience>and<search knowledge>
+are used, 0.2 if only one type is used, and 0 otherwise. A quantity bonus of 0.1 is added for each
+additionalsearchactionbeyondthefirst,uptoamaximumbonusof0.5(foratotalof6searches).
+PolicyOptimization. Thecompositerewardfunctionisweightedwithw =1.0fortheoutcome
+o
+reward and w = 0.1 for the format reward. For the GRPO objective function (Equation 5), the
+f
+clipping parameter is set to ϵ = 0.2 and the KL-divergence coefficient is β = 0.001. During the
+trainingprocedure,weadoptvLLMtoaccelerateLLMrollouts. Thetensorparallelsizeissetto1,
+and the GPU memory utilization ratio is set at 0.6. For rollout sampling, we use a temperature of
+1.0andatop-pvalueof0.95.
+A.2 PROMPTDETAILS
+A.2.1 COLDSTARTPROMPT
+ThePromptinTableA.2.4isusedduringthecold-startstagetogeneratetheinitialtrajectoriesfor
+SFT. This prompt guides a powerful LLM (we used GPT-4o) to act as an expert problem-solver,
+producingasmalldatasetwithrightformattrajectoriestocoldstart.
+A.2.2 SYSTEMPROMPT
+ThePromptinTableA.2.4isthesystempromptusedbytheEvolveRagentduringtheonlineinterac-
+tionphase.Itdefinestheagent’scoreidentity,itsavailableactions(<think>,<search knowledge>,
+<search experience>,<answer>),andtheoverallformatforitsreasoningprocess.
+A.2.3 DISTILLPRINCIPLEPROMPT
+The Prompt in Table A.2.4 and Table A.2.4 are used during the offline experience self-distillation
+phasetoenabletheagent’sself-distillationmechanism. Basedontheoutcomeofatrajectory, one
+14
+
+--- Page 15 ---
+Knowledge Lab
+oftwodistinctpromptsisusedtoguidetheagent’sownmodel(π )todistillaprinciple. Thefirst
+θ
+Promptisforsuccessfultrajectories, focusingonextractingaguidingprinciple. Thesecondisfor
+failedtrajectories,aimedatformulatingacautionaryprinciple.
+A.2.4 JUDGESAMEPRINCIPLEPROMPT
+ThePromptinTableA.2.4isacrucialcomponentofthededuplicationandintegrationprocesswithin
+theofflineexperienceself-distillation. Ittaskstheagent’sownmodel(π )withactingasasemantic
+θ
+judge. Given two principles (a newly distilled candidate and a retrieved existing similar one), the
+modelisaskedtodetermineiftheyaresemanticallyequivalent. Thebinary”yes/no”outputofthis
+Promptisusedtodecidewhethertomergeanewexperienceorcreateanewprinciple.
+Table4: SystempromptforLLMagents
+Answerthegivenquestion.
+Youmustconductreasoninginside<think>and</think>firsteverytimeyougetnewinformation
+orgetnewexperienceprinciples.
+After reasoning, you can search for past experiences by <search experience> query
+</search experience>togetrelevantpastexperienceprinciples(maybeguildingorwarningprin-
+ciples)anditwillreturnthetopsearchedresultsbetween<experience>and</experience>.
+Youcanusetheseprincipleswhichyouthinkishelpfultohelpyouanswerthequestion.
+Ifyoufindyoulacksomeknowledge,youcancallasearchengineby<search knowledge>query
+</search knowledge>anditwillreturnthetopsearchedresultsbetween<information>and</in-
+formation>.
+Youcansearchknowledgeandexperienceasmanytimesasyourwant.
+Ifyoufindnofurtherexternalknowledgeneeded,youcandirectlyprovidetheanswerinside<an-
+swer>and</answer>,withoutdetailedillustrations.
+Forexample,<answer>Beijing</answer>
+User:{question}
+A.3 EXPLORINGTHEINFLUENCEOFEXPERIENCEINTERNALIZATION
+Inourproposedframework,allretrievedinformation(bothfromtheexternalknowledgebase(<in-
+formation>) and our internal experience base (<experience>)) is treated as context, with loss
+masked during the model update phase. A natural question arises from this design: while it is
+sensibletoavoidlearningthecontentoftransientexternaldocuments,couldtheagentbenefitfrom
+directly‘absorbing‘itsowndistilledwisdomintoitsparameters?
+Toexplorethis,weconductedasupplementaryexperimentontheQwen2.5-3Bmodel. Wecreated
+avariant,EvolveR w/ exp-absorb,whereweselectivelyunmaskedthelossfortheretrieved
+<experience>tokens,allowingthelearningsignaltoflowthroughthem. Ourhypothesiswasthat
+thismightenabletheagenttointernalizethestrategiclogicofitsprinciples.Theresults,presentedin
+Table9,wereinsightful. TheEvolveR w/ exp-absorbvariantexhibitedaslightperformance
+degradationcomparedtoourstandardapproach. Wepositthatthisisduetothechallengeofnoise
+inthetrainingsignal. Inourcurrentimplementation,theagentretrievesasetoftop-k principlesat
+eachstep.Notalloftheseprinciplesmaybeperfectlyrelevanttotheimmediatecontext.Bydirectly
+internalizingallretrievedprincipleswithoutadynamicqualityfilter,theagentrisksbeingupdated
+with noisy or even counter-productive signals. This finding suggests that for direct internalization
+tobeeffective,itmayrequiremoresophisticatedmechanisms,suchasanauxiliarymodeltoweigh
+therelevanceofeachprinciplebeforeabsorption. Webelievethatdevelopingsuchmechanismsis
+a promising future direction towards achieving a fully autonomous cycle of self-exploration, self-
+distillation,andself-absorption.
+A.4 CASESTUDYOFEVOLVER
+WeprovideadetailrolloutcaseofEvolveRinTableA.4
+15
+
+--- Page 16 ---
+Knowledge Lab
+Table5: Promptforcoldstart.
+Youareatop-notchintelligentreasoningexpert,adeptatrestoringsolutionpathsfromgivenanswers
+and documents in reverse. Your task is to simulate a full reasoning trajectory for answering the
+questionbelow,basedontheprovideddocumentsandanswer. Youmustreasonstep-by-stepasif
+youdonotyetknowthefinalanswer,eventhoughitisgivenforsupervision.
+In <think> blocks, do not reference or confirm the final answer directly. Instead, reason like a
+human—understandthetask, recallpriorknowledge, evaluatetheneedforexperienceorexternal
+information,andgraduallyinfertheanswer.
+The reasoning trajectory must follow the **exact format below**. If the retrieved **experience
+aloneissufficienttoanswerthequestion**,youmayskipthe<search knowledge>and<informa-
+tion>steps.
+OutputFormat:
+<think>...</think>
+<search experience>
+-Retrieve2–3relevantabstractexperienceprinciples,usingstructuredtripleformat.
+-Foreachprinciple,addashortdescriptionofitspurpose.
+</search experience>
+<think>Explainwhatyouplantodoafterretrievingexperience. Decidewhetheryoustillneedto
+retrieveknowledge.</think>
+[IFexperienceisenough:]
+<think>
+-Listtheprinciplesyouareapplying,includetheirtripleformanddescription.
+-Explainbrieflyhoweachprinciplecontributestoyourreasoning.
+-Continuewithreasoningbasedontheseprinciplesandconcludewithyourfinaljudgment.
+</think>
+<answer>...</answer>
+[ELSE:]
+<search knowledge>
+-Generateoneormorenaturallanguagesearchqueriesthatwouldhelpretrievetheprovideddocu-
+ments.
+</search knowledge>
+<information>
+{relevant document}
+</information>
+<think>Reflectonretrievedinformation.</think>
+<think>
+-Listtheprinciplesyouareapplying,includetheirtripleformanddescription.
+-Explainhoweachprincipleguidesthereasoningprocessusingtheretrievedinformation.
+-Summarizeyourreasoningpathandjustifytheanswer.
+</think>
+<Answer>...</Answer>
+Inputs:
+Query:{query}
+RelevantDocuments:{relevant document}
+Answer:{answer}
+Pleasebegingeneratingthereasoningtrajectory.
+A.5 LIMITATIONANDBROADERIMPACT
+Weacknowledgeseverallimitationsandbroaderimplicationsofourwork. Theefficacyofourself-
+distillation mechanism is inherently bounded by the capabilities of the agent’s own model; a less
+capablemodelmaystruggletodistillhigh-qualityprinciples,thuslimitingitsevolutionaryceiling.
+Further research across a broader range of tasks, such as embodied interaction or creative gener-
+ation, is necessary to fully delineate the boundaries and applicability of the EvolveR paradigm.
+16
+
+--- Page 17 ---
+Knowledge Lab
+Table6: Promptforsummarizingasuccessfulinteractiontrajectory.
+Youareanexpertinanalyzinginteractionlogstodistillgeneralizablewisdom.
+Analyzethefollowingsuccessfulinteractiontrajectory.Yourgoalistoextracta”GuidingPrinciple”
+fromit.
+A”GuidingPrinciple”hastwoparts:
+1.Aconcise,one-sentencenaturallanguagedescription.Thisisthecoreadvice.
+2.Astructuredrepresentationofthekeystepsorlogic,asalistofsimple(subject,predicate,object)
+triplets.
+[TrajectoryLog]:
+{{trajectory log}}
+FinalOutcome:SUCCESS
+YourTask:
+Basedonthetrajectory,generatetheGuidingPrinciple.
+First,onanewline,write{DESCRIPTION PART SEPARATOR}.
+Then,writetheone-sentencedescriptionofthepitfall.
+Then,onanewline,write{STRUCTURED PART SEPARATOR}.
+Finally,providethestructuredtripletsdescribingthefailurepatterninavalidJSONlistformat.
+[Example]:
+{DESCRIPTION PART SEPARATOR}
+Whenafiledownloadfailswitha404error,donotimmediatelyretrythedownload;instead,verify
+thesourceURL’svalidityfirst.
+{STRUCTURED PART SEPARATOR}
+[
+(file download, results_in, 404 error),
+(immediate_retry, is, ineffective),
+(correct_action, is, verify URL)
+]
+[Output]:
+Whileourcurationmechanismsmitigateexperiencebasegrowth,ensuringcomputationalefficiency
+for truly lifelong learning agents also remains an open challenge. Looking forward, the broader
+impactofthisparadigmissignificant. Ontheonehand,EvolveRrepresentsacrucialsteptowards
+moreautonomousandpersonalizedagents. Theexplicitnatureofitsdistilledprinciplesalsooffers
+a promising avenue for improving interpretability and steerability. On the other hand, this auton-
+omy raises critical safety considerations. An agent that evolves its own principles could develop
+undesirablestrategiesifnotguidedbyarobust,value-alignedrewardfunction,necessitatingfurther
+researchintoalignmenttechniquesforsuchself-evolvingsystems.
+17
+
+--- Page 18 ---
+Knowledge Lab
+Table7: Promptforsummarizingafailedinteractiontrajectory.
+Youareanexpertinanalyzinginteractionlogstofindtherootcauseoffailures.
+Analyzethefollowingfailedinteractiontrajectory. Yourgoalistoextracta”CautionaryPrinciple”
+fromit.
+A”CautionaryPrinciple”hastwoparts:
+1.Aconcise,one-sentencedescriptionofthekeymistaketoavoidandunderwhatcircumstances.
+2. Astructuredrepresentationofthefailurepattern,asalistofsimple(subject,predicate,object)
+triplets.
+[TrajectoryLog]:
+{{trajectory log}}
+FinalOutcome:FAILURE
+YourTask:
+Basedonthetrajectory,generatetheCautionaryPrinciple.
+First,onanewline,write{DESCRIPTION PART SEPARATOR}.
+Then,writetheone-sentencedescriptionofthepitfall.
+Then,onanewline,write{STRUCTURED PART SEPARATOR}.
+Finally,providethestructuredtripletsdescribingthefailurepatterninavalidJSONlistformat.
+[Example]:
+{DESCRIPTION PART SEPARATOR}
+Whenafiledownloadfailswitha404error,donotimmediatelyretrythedownload;instead,verify
+thesourceURL’svalidityfirst.
+{STRUCTURED PART SEPARATOR}
+[
+(file download, results_in, 404 error),
+(immediate_retry, is, ineffective),
+(correct_action, is, verify URL)
+]
+[Output]:
+Table8: PromptforPrincipleSimilarityAnalysis.
+Youareasemanticanalysisexpert.Determineiftwoprinciplesdescribethesamecoreidea,evenif
+theyusedifferentwords.
+PrincipleA:“{summary}”
+PrincipleB:“{existing principle description}”
+DoPrincipleAandPrincipleBdescribethesameessentialadviceorwarning?
+Pleaseanswerwithonly“Yes”or“No”.
+Table 9: Ablation study on the experience internalization mechanism. EvolveR w/o exp-absorb
+treatsprinciplesasexternalcontextbymaskinggradientsduringbackpropagation.
+Indomain Outofdomain
+ModelVariant Avg.
+NQ HotpotQA TriviaQA PopQA 2wiki Musique Bamboogle
+EvolveR 0.434 0.373 0.584 0.434 0.381 0.137 0.328 0.382
+EvolveRwexp-absorb0.433↓ 0.369↓ 0.583↓ 0.435↑ 0.376↓ 0.124↓ 0.280↓ 0.371↓
+18
+
+--- Page 19 ---
+Knowledge Lab
+Table10: ArolloutcaseofEvolveR
+System:System Prompt
+Question:whowasthepinkertondetectiveagency’sfirstfemaledetective?
+GroundTruth:KateWarne
+EvolveR:<think>IneedtodeterminewhowasthefirstfemaledetectiveemployedbythePinker-
+tonDetectiveAgency.Thisrequiresidentifyingthehistoricalcontextandanynotablefemalefigures
+associatedwiththisagency.Basedonpriorreasoningexperience,Ianticipatesomepotentiallyuse-
+fulprinciples:-Principle1: (HistoricalAgency,FirstFemaleEmployee,FemaleDetective)-This
+principle helps identify the first female to hold a specific role within a historical organization. -
+Principle 2: (Organization, Historical Role, Notable Individual) - This principle assists in link-
+ing an organization to a notable individual who played a significant role in its history.</think>
+<search experience>- Principle 1: (Historical Agency, First Female Employee, Female Detec-
+tive) - This principle helps identify the first female to hold a specific role within a historical or-
+ganization. - Principle 2: (Organization, Historical Role, Notable Individual) - This principle
+assists in linking an organization to a notable individual who played a significant role in its his-
+tory.</search experience>
+Env: <experience>[Principle 0], type: guiding, metric score: 0.67, description: To identify the
+firstwomantoholdaspecificsignificantpositionwithinanorganizationorentity,connectthehis-
+torical narrative context and mention which event or timeline may signify the position in ques-
+tion...<experience>
+EvolveR:<think>Basedontheexperienceprinciples,Iplantoapplytheprinciplesrelatedtoiden-
+tifyingthefirstfemaleemployeeinahistoricalorganizationandlinkingthistonotablefigures. I
+willalsoconsiderusinghistoricaldocumentsorspecifictimelinestoconfirmtheanswer.</think>
+<search knowledge>-Query: whowasthefirstfemaledetectiveemployedbythePinkertonDe-
+tectiveAgency?</search knowledge>
+Env: <information>Doc 1(Title: ”Kate Warne”)... Doc 2(Title: ”Private investigator”) ... Doc
+3(Title:”KateWarne”)...</information>
+EvolveR:<think>Basedontheretrieveddocuments,Ineedtodeterminewhowasthefirstfemale
+detectiveemployedbythePinkertonDetectiveAgency. Iwillapplytheprinciplestoconnectthe
+historical context and notable figures mentioned. - Principle 1: (Historical Agency, First Female
+Employee, Female Detective) - This principle helps identify the first female detective within the
+PinkertonDetectiveAgency.-Principle2:(Organization,HistoricalRole,NotableIndividual)-This
+principlelinksthePinkertonDetectiveAgencytoKateWarneasthefirstfemaledetective.</think>
+<search knowledge>-Query: whowasthefirstfemaledetectiveemployedbythePinkertonDe-
+tectiveAgency?</search knowledge>
+Env: <information>Doc 1(Title: ”Kate Warne”) ... Doc 2(Title: ”Private investigator”) ... Doc
+3(Title:”KateWarne”)...</information>
+EvolveR:<think>Basedontheretrieveddocuments, KateWarneisidentifiedasthefirstfemale
+detectiveemployedbythePinkertonDetectiveAgency. Thisalignswiththehistoricalcontextand
+the principles applied. - Principle 1: (Historical Agency, First Female Employee, Female De-
+tective) - This principle confirms Kate Warne as the first female detective within the Pinkerton
+Detective Agency. - Principle 2: (Organization, Historical Role, Notable Individual) - This prin-
+ciple links Kate Warne to her role as the first female detective in the agency’s history.</think>
+<search knowledge>-Query: whowasthefirstfemaledetectiveemployedbythePinkertonDe-
+tectiveAgency?</search knowledge>
+Env: <information>Doc 1(Title: ”Kate Warne”) ... Doc 2(Title: ”Private investigator”) ... Doc
+3(Title:”KateWarne”)...</information>
+EvolveR:<think>Basedontheretrieveddocuments,KateWarneisconfirmedasthefirstfemale
+detectiveemployedbythePinkertonDetectiveAgency.Theinformationalignswithbothhistorical
+documentationandtheapplicationofprinciplesregardingnotablefiguresinorganizationalhistory.-
+Principle1:(HistoricalAgency,FirstFemaleEmployee,FemaleDetective)-Thisprincipleconfirms
+Kate Warne as the first female detective within the Pinkerton Detective Agency. - Principle 2:
+(Organization,HistoricalRole,NotableIndividual)-ThisprinciplelinksKateWarnetoherroleas
+thefirstfemaledetectiveintheagency’shistory.</think>
+<answer>KateWarne</answer>
+19

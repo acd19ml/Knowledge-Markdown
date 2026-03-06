@@ -1,0 +1,1489 @@
+--- Page 1 ---
+MAGNET: Towards Adaptive GUI Agents with Memory-Driven
+Knowledge Evolution
+LiboSun1*,JiwenZhang1*,SiyuanWang3,ZhongyuWei1,2†
+1FudanUniversity,Shanghai,China
+2ShanghaiInnovationInstitute,Shanghai,China
+3UniversityofSouthernCalifornia,LosAngeles,USA
+{lbsun23,jiwenzhang21}@m.fudan.edu.cn;sw_641@usc.edu; zywei@fudan.edu.cn
+Abstract
+Mobile GUI agents powered by large foun-
+dationmodelsenableautonomoustaskexecu-
+tion, butfrequentupdatesalteringUIappear-
+anceandreorganizingworkflowscauseagents
+trainedonhistoricaldatatofail. Despitesur-
+face changes, functional semantics and task
+intents remain fundamentally stable. Build-
+ingonthisinsight,weintroduceMAGNET,a
+memory-drivenadaptiveagentframeworkwith
+dual-levelmemory: stationarymemorylink-
+ingdiversevisualfeaturestostablefunctional
+semanticsforrobustactiongroundingandpro-
+ceduralmemorycapturingstabletaskintents
+across varying workflows. We propose a dy- Figure1: Challengesandopportunitiesinevolving
+namicmemoryevolutionmechanismcontin-
+mobileinterfaces. (Left)Twotypesofdriftsandtheir
+uouslyrefiningbothmemoriesbyprioritizing
+underlying stability: Appearance Drift vs. Semantic
+frequentlyaccessedknowledge. Onlinebench-
+Stability, Workflow Drift vs. Intent Stability. (Right)
+markAndroidWorldevaluationsshowsubstan-
+MAGNETexploitsthesestableaspectstomaintainef-
+tialimprovementsoverbaselines,whileoffline
+fectiveness,whilememory-lessagentsrelyingonfrozen
+benchmarksconfirmconsistentgainsunderdis-
+knowledgestruggletoadapt.
+tributionshifts.Theseresultsvalidatethatlever-
+agingstablestructuresacrossinterfacechanges
+improvesagentperformanceandgeneralization Mobile ecosystems are inherently dynamic. We
+inevolvingsoftwareenvironments.
+find that frequent version updates in commercial
+applicationsintroducetwoformsofdrift,asillus-
+1 Introduction
+tratedinFigure1(left). Firstly, appearancedrift
+Graphical user interfaces (GUIs) are the primary occurswhenUIelementsareredesignedwithoutal-
+medium for operating mobile devices (Shneider- teringtheirfunctions(e.g.,theicontransitionfrom
+man, 2010), yet they require users to specify ev- TwittertoX).Secondly,workflowdriftariseswhen
+erylow-levelaction(Hutchinsetal.,1986),limit- operationlogicisreorganizedacrossappversions
+ingefficiencyincomplexworkflows(Sheridanand (e.g.,thetaskof"changingthecurrencytoUSD").
+Parasuraman,2005). GUIagentspoweredbymul- However,existingspecializedmodels(Hongetal.,
+timodal large language models (MLLMs) (Wang 2024; Zhang et al., 2024b; Chen et al., 2025) are
+et al., 2024b; Liu et al., 2024; Wu et al., 2024b; trained on fixed datasets that will be outdated as
+Qinetal.,2025;Wangetal.,2025b)addressthis applicationsevolve,whichlimitsthemtogeneral-
+byautonomouslyexecutingmulti-steptasksfrom izetoevolvinginterfacestates(Wangetal.,2024c).
+naturallanguageinstructions. However,ensuring Although memory-augmented systems (Li et al.;
+theirrobustnessincontinuouslyevolvingsoftware Agashe et al., 2024; Gao et al., 2025) attempt to
+environments remains a critical challenge (Yang store reusable knowledge, they mainly focus on
+etal.,2025;Huetal.,2025;Sageretal.,2025). text-based workflow descriptions that lack multi-
+modalknowledge(Huetal.,2025),makingthem
+*Equalcontribution.
+†Correspondingauthor. vulnerabletovisualchangesinUIelements.
+6202
+naJ
+13
+]IA.sc[
+2v99191.1062:viXra
+
+--- Page 2 ---
+Figure2: MAGNETframework. Theplannerleveragesproceduralmemorytodecompose userrequestsinto
+subtasks,whiletheactorgroundseachsubtaskwithstationarymemoryofUIelements.
+Despitethesedrifts,weobservethatcertainprop- andgeneralizationoftheinitializedmemory. We
+ertiesremainconsistentacrossapplicationupdates, further assess MAGNET in the online Android-
+asillustratedinFigure1(left). Wesummarizethese World environment (Rawles et al., 2024), where
+observations as two forms of stability. Semantic thememoryiscontinuouslyupdatedthroughinter-
+stability refers to the preservation of functional actiontoenableadaptationindynamicsettings. Ex-
+meaningdespitevisualredesigns,whereupdated perimentsshowthatMAGNEToutperformszero-
+elementssupportthesameactions. Intentstability shotmemory-augmentedbaselineswhileremain-
+captures the persistence of high-level task goals ingcompetitivewithspecializedmodels.
+evenwhenworkflowsarereorganized(e.g.,chang-
+Ourprimarycontributionsare:
+ingcurrencytoUSDviadifferentnavigationpaths).
+These stable properties provide opportunities for • Weidentifyappearanceandworkflowdriftaskey
+building GUI agents that can adapt its actions to challengesinevolvingapplications,anddesign
+interfaceevolutionandcontinuetocompletetasks, MAGNET,adual-memoryframeworkleverag-
+asillustratedinFigure1(right). ingsemanticandintentstabilitytoaddressthem.
+• Weproposeadynamicmemoryevolutionmech-
+Motivatedbythis,weintroduceamemory-driven
+anism together with an automated cnstruction
+adaptiveagentframework,namelyMAGNET,that
+pipelineforcontinualmemoryoptimization.
+maintainstwomemorymodulestoleveragethese
+• Weconductextensiveexperimentsandvalidate
+stabilities. Specifically,weuseaproceduralmem-
+thatMAGNETachievessuperioradaptabilityand
+orytocaptureintentstabilitybystoringworkflow
+robustgeneralization.
+variantsforeachtaskobjective,enablingadaptation
+toreorganizedlogic. Wefurtherproposeastation- 2 MAGNETFramework
+ary memory that captures semantic stability by
+MAGNET (Figure 2) is a memory-driven agent
+linkingdiversevisualfeaturestostablefunctional
+framework for adaptation in dynamic mobile en-
+semanticsforrobustgroundingunderappearance
+vironments. Followingpriorplanner–actorframe-
+changes. To support continuous knowledge evo-
+works (Zheng et al., 2024; Zhang et al., 2024a;
+lution, we design a dynamic memory evolution
+Gou et al., 2024), we adopt a multi-agent archi-
+mechanism that updates memory and prioritizes
+tecturewithaplannerfortaskdecompositionand
+frequently accessed information. These updates
+an actor for grounded execution. Distinct from
+are extracted by using an automated conrtcution
+traditional frameworks, MAGNET augments the
+pipeline that distills element–function pairs and
+planner with a procedural memory (§2.1) to re-
+workflowtemplatesfromcompletedtasks.
+trieveabstractworkflows,andtheactorwithasta-
+WeevaluateMAGNETonthreerepresentativeof- tionary memory (§2.2) to ground actions using
+fline benchmarks (Zhang et al., 2024a; Lu et al., UI element exemplars. Upon receiving a user re-
+2024; Chai et al., 2024) to validate the reliability quest, the planner queries procedural memory to
+
+--- Page 3 ---
+retrieve relevant workflows and decomposes the clusters (Algorithm 1), where each cluster c
+i
+objectiveintosubtasks. Foreachsubtaskinvolving groupsinstructionswithsimilartaskpatterns.
+groundingoperations,theactorqueriesstationary • WorkflowAbstraction: Foreachclusterc ∈ C,
+i
+memorytoretrieveUIelementpatchesasvisualex- associated trajectories are synthesized into ab-
+emplars,enablingreliableactiongroundingdespite stract workflows by prompting the planner to
+interfacechanges. Theactoriterativelyexecutesac- distillcommonpatterns(Wuetal.,2024a;Yang
+tionsuntilsubtaskcompletion. Finally,weutilizea etal.,2024)(AppendixF.1).
+dynamicmemoryevolutionmechanism(§2.3)to
+2.2 Knowledge-groundedActorwith
+incorporatenewworkflowsandUIelementsfrom
+StationaryMemory
+successfultrajectorieswhileadjustingmemorypri-
+orities through retention-based ranking, enabling ToaddressappearancedriftcausedbyUIupdates,
+autonomousadaptationtoenvironmentupdates. wegroundtheactorwithastationarymemorythat
+associates visual representations of UI elements
+2.1 Experience-enhancedPlannerwith
+with their functional intents. The memory stores
+ProceduralMemory
+pairs⟨d ,v ⟩,whered describesanelement’sfunc-
+i i i
+To mitigate workflow drift caused by application tion(e.g.,“clickthesearchicontostartsearching”)
+updates, we equip the planner with a procedural andv isthecorrespondingvisualpatch. Thisrep-
+i
+memory that stores abstract workflows distilled resentation enables the actor to generalize across
+fromcompletedtasks. Eachworkflowconsistsof interfacevariationsbyreasoningaboutfunctional-
+ataskcategoryname(e.g.,“SearchandInstallan ityratherthanexactvisualappearance.
+App”)andasequenceofhigh-levelstepswithcat-
+When the planner generates subtasks involving
+egoricalplaceholders(e.g., [AppName], [Search-
+UIelementlocalization,thesubtaskdescriptionis
+Query]), enabling reuse across different contexts
+usedasaquerytocomputecosinesimilaritywith
+andinterfacevariations.
+functionaldescriptionsd inthememorybase. The
+i
+WhenreceivinganewinstructionI ,theplanner mostsimilarentriesareretrievedusingtheranking
+new
+computescosinesimilaritywithworkflownames mechanism(§2.3.2),andtheirvisualpatchesv are
+i
+in the memory base and retrieves the most sim- extracted as references. For grounding based on
+ilar workflows based on the ranking mechanism general MLLMs, these patches are concatenated
+(§2.3.2). Theretrievedworkflows,includingtheir intotheactor’scontext(screenshot,instruction,de-
+names and step sequences, are concatenated into scription,historicalactions,subtask),enablingro-
+theplanner’scontext,whichcomprisesthecurrent bustidentificationoftargetUIelementsdespiteap-
+screenshot,instruction,screendescription,andhis- pearancevariationsandinterfacechanges. Forspe-
+torical actions. By integrating these workflows, cializedgroundingmodelswithfixedinputformats,
+theplannergeneratessubtasksthatdecomposethe stationary memory is injected via a lightweight
+high-levelobjectiveintoexecutablesteps. adaptation: retrievedpatchesaretemplate-matched
+to the current screenshot to locate a center point,
+MemoryConstruction. Toinitializetheproce-
+aroundwhichaboundingboxenclosingthenearest
+duralmemory,weproposeathree-stageautomatic
+k iconsisdrawnasavisualhint. Thisintroduces
+constructionpipeline,detailedasfollows:
+stationarymemorywithoutmodifyingthemodel’s
+• Trajectory Collection: We collect instruction- inputformat,demonstratingtheadaptabilityofour
+trajectory pairs {(I ,π )}M from human stationarymemory.
+j j j=1
+demonstrationsorcurateddatasets,whereπ =
+j MemoryConstruction. Toinitializethestation-
+⟨aj,...,aj ⟩ represents action sequences that
+1 kj arymemory,wedesignanautomaticconstruction
+successfullycompletetasks.
+pipeline composed of three stages illustrated in
+• Task Clustering: To group tasks with sim-
+Figure3. Specifically,itinvolves:
+ilar workflows, we embed instructions using
+MiniCPM-Embedding (Hu et al., 2024b) and • TripletCollection: Screen-action-screentriplets
+constructasimilaritygraphG byconnectingin- ⟨o ,a ,o ⟩areextractedfromvarioussources
+t t t+1
+structionpairswhosecosinesimilarityexceeds includingofflineepisodicGUIdatasetsandon-
+athresholdτ. Wethenextractmaximalcliques line interaction trajectories. Each triplet com-
+C = {c ,c ,...,c } (Sun et al., 2019) as task prises consecutive screenshots captured before
+1 2 m
+
+--- Page 4 ---
+Figure3: Constructionpipelineofstationarymemory. Eachnewlygeneratedentry⟨d ,v ⟩ischeckedagainst
+i i
+thestationarymemorybyretrievingsimilarfunctionaldescriptionsandcorrespondingUIelementpatches. Ifa
+duplicateentryisdetected,itisdiscardedtoavoidredundancy.
+and after a click action, enabling inference of retrievalcountn = 0,preservingmultipleexecu-
+i
+boththevisualtargetandfunctionaloutcome. tion paths for similar tasks. During retrieval, the
+• Region Annotation: We employ Omni- ranking mechanism (§2.3.2) balances usage fre-
+ParserV2 (Yu et al., 2025) to parse screenshots quencyandrecencytoprioritizereliableworkflows
+intocandidateregionswithboundingboxes. The whiledown-weightingoutdatedones,enablingpro-
+clickedelementisidentifiedbyselectingthecan- ceduralmemorytoadapttointerfacechanges.
+didate region whose spatial layout best aligns
+withtheclickposition,andtheresultingbound- Stationary Memory When new grounding ac-
+ingboxcropstheelementpatchv . tions are observed, the system constructs ⟨d ,v ⟩
+k i i
+• FunctionDescription: WeapplyQwen2.5-VL- pairsviathe§2.2pipeline. Foreachpair,thesys-
+32B(Baietal.,2025)toinferfunctionalseman- tem queries for matching functional descriptions.
+tics d in a consistent format (Appendix F.1). If found, the new visual patch v is appended to
+i i
+Thisensureseachvisualpatchv isconsistently the existing entry’s image list with independent
+i
+pairedwithitsfunctionalintentiond . timestamp τ and retrieval metadata (n ,t ), con-
+i i i i
+solidating visual variants under shared functions
+TheUI-40KDataset. Applyingthispipelineto
+where each image independently tracks its usage
+AITZ (Zhang et al., 2024a), GUI-Odyssey (Lu
+history. Ifnomatchexists,anewentryiscreated.
+et al., 2024), and Amex (Chai et al., 2024), we
+Duringretrieval,imagesarerankedbyindividual
+construct the UI-40K dataset containing 41,009
+retentionscoresandupdatedtime.
+multimodalentries⟨o ,a ,d ,o ⟩across20,618
+t t t t+1
+unique functional intents. Beyond serving as sta-
+2.3.2 MemoryRankingforRetrieval
+tionarymemoryinMAGNET,UI-40Khasbroader
+Memoryretrievalindynamicenvironmentsmust
+potentialapplicationsincludingGUIgroundingfor
+balance contextual relevance with avoiding out-
+instruction-tuningandofflinereinforcementlearn-
+datedknowledgeasinterfacesevolve. Therefore,
+ing. WeconfirmUI-40Kwithhighqualitythrough
+we introduce a memory ranking mechanism that
+bothautomaticvalidationusingSOTAMLLMsand
+prioritizesreliableentriesbyconsideringtwosig-
+manualverification(detailedinAppendixA).
+nals: knowledge creation time (timestamp τ ),
+i
+2.3 DynamicMemoryEvolution which favors entries aligned with current appli-
+cationversions,andusagehistory,whichreflects
+To ensure memories remain effective as applica-
+empiricalutilitythroughretrievalfrequencyandre-
+tions evolve, both memory modules employ con-
+cency. Toquantifyusagehistory,thesystemmain-
+tentupdateandadaptiverankingmechanisms.
+tains a global counter C and per-entry meta-
+global
+2.3.1 MemoryContentUpdate data (last access time t and total retrieval count
+i
+ProceduralMemory Whensuccessfultasktra- n ),fromwhichaninactivitygapg = C −t
+i i global i
+jectories are obtained, the workflow abstraction is computed. Inspired by the Ebbinghaus forget-
+process(§2.1)extractsstructuredworkflows. Each tingcurve(Ebbinghaus,1885),wederiveareten-
+extracted workflow is stored as an independent tion score R = exp(−g /n ), where frequently
+i i i
+memory entry with a creation timestamp τ and accessedentriesdecaymoreslowly.
+i
+
+--- Page 5 ---
+AITZ GUI-Odyssey Amex
+Methods
+SR(%) Grd. (%) SR(%) Grd. (%) SR(%) Grd. (%)
+SpecializedModels(Parameter-tuned)
+Atlas-Pro-7B 66.64 62.18 58.82 67.00 67.45 67.78
+GUI-R1-7B 44.22 57.21 47.70 59.20 49.36 59.42
+UI-Venus-Navi-7B 60.27 70.23 65.93 74.52 63.58 79.67
+InfiGUI-R1-3B 49.49 55.34 55.51 64.98 62.00 69.98
+AgenticFrameworks(Training-free/Inference-only)
+COAT(Qwen2.5-VL-32B) 41.09 39.28 48.13 49.38 59.68 67.69
+Agent-S†(Qwen2.5-VL-32B) 42.98 42.87 49.21 50.74 58.29 69.85
+MAGNET†(Qwen2.5-VL-32B) 43.50 43.78 50.16 51.91 62.84 71.53
+MAGNET†(Gemini-2.5-Pro) 52.77 57.35 49.74 57.31 62.23 75.54
+Table 1: Offline evaluation results. We report Success Rate (SR) and Grounding Accuracy (Grd.). Methods
+are categorized into: (1) Specialized Models (parameter-tuned via SFT or RL) and (2) Agentic Frameworks
+(inference-onlyorretrieval-augmentedbasedonfrozenmodels).Methodsmarkedwith†denotememory-augmented
+frameworks. Foragenticframeworks,boldindicatesthebestperformancewithinthegroup.
+Based on these signals, we adopt a two-stage re- Method SR(%)
+trievalstrategy: thefirststageusessemanticsimi-
+M3A(Rawlesetal.,2024) 32.78
+laritytoselectthetop-N candidatesrelevanttothe
+AppAgent(Zhangetal.,2025) 34.43
+query;thesecondstageranksthesecandidatesus-
+ingtheretentionscoreR andcreationtimestamp Agent-S(Agasheetal.,2024) 40.98
+i
+τ to produce the final top-K entries. Complete MAGNET(Ours) 42.62
+i
+algorithmicdetailsareprovidedinAlgorithm2. Table2: Comparisonwithothermemory-augmented
+baselinesontheonlineAndroidWorldenvironment.
+3 Experiments
+3.1 ExperimentalSetup
+S (Agashe et al., 2024). We evaluate MAGNET
+Evaluation Benchmarks We evaluate MAG- withtworepresentativebackbones,Qwen2.5-VL-
+NET on both offline and online settings. We 32B and Gemini-2.5-Pro, covering both open-
+conduct offline evaluations using AITZ (Zhang and closed-source models with different capabil-
+etal.,2024a),GUI-Odyssey(Luetal.,2024),and ity levels. Detailed configurations are provided
+Amex (Chai et al., 2024). To assess distribution in Appendix C.2.1. For online evaluation, we
+shift generalization, we create custom splits for compare MAGNET with M3A (Rawles et al.,
+GUI-OdysseyandAmex,yieldingin-distribution 2024), memory-augmented AppAgent (Zhang
+(ID), template-shifted (TS), app-shifted (AS), et al., 2025), and Agent-S (Agashe et al., 2024).
+and domain-shifted (DS) subsets (Details in Ap- All online agents use Qwen2.5-VL-32B as the
+pendixB).Buildingonthevalidatedofflineresults, backbone (Bai et al., 2025). In the online eval-
+we further evaluate MAGNET in an online envi- uation, memory-augmented agents first perform
+ronmentAndroidWorld(Rawlesetal.,2024). Fol- self-explorationortaskexecutiontoinitializetheir
+lowingtheofficialprotocol,allmethodssharethe memory,andthenleveragetheaccumulatedmem-
+sameactionbudgetandpublicexplorationscripts. ory during the evaluation phase. Implementation
+DetailedsettingsareprovidedinAppendixC.1. detailsareprovidedinAppendixC.2.2.
+Baselines We evaluate MAGNET against two Evaluation Metrics For offline evaluation, we
+categoriesofbaselines. Forofflineevaluation,we use two step-level metrics: Success Rate (SR),
+compare with end-to-end specialized models, in- whichmeasurestheaccuracyofpredictedactions
+cludingUI-Venus-Navi-7B(Guetal.,2025),Atlas- ateachstep,andGroundingaccuracy(Grd.),which
+Pro-7B(Wuetal.,2024b),GUI-R1-7B(Luoetal., measurestheaccuracyofcoordinatepredictionfor
+2025), and InfiGUI-R1-3B (Liu et al., 2025), as click actions. Details are in Appendix C.3. For
+wellasthememory-freeCOATframework(Zhang online evaluation, we measure task completion
+etal.,2024a)andthememory-augmentedAgent- rate(SR)usingAndroidWorld’sofficialevaluation
+
+--- Page 6 ---
+Variants GUI-Odyssey Amex Backbones Avg.Performance
+Stat. Proc. SR Grd. SR Grd. Planner Actor ∆SR(%) ∆Grd.(%)
+48.13 49.38 59.68 67.69 HomogeneousConfigurations
+✓ 48.62 49.98 60.20 68.57
+QwenVL QwenVL +2.5 +3.6
+✓ 49.72 51.28 62.34 70.86
+Gemini Gemini +1.5 +2.3
+✓ ✓ 50.16 51.91 62.84 71.53 HeterogeneousConfigurations
+GPT-4o OS-Atlas +1.5 +1.5
+(a)ResultswithQwen2.5-VL-32B. QwenVL OS-Atlas +4.2 +3.4
+Gemini OS-Atlas +1.7 +2.6
+Variants GUI-Odyssey Amex
+Stat. Proc. SR Grd. SR Grd. Average +2.3 +2.7
+48.92 55.95 60.35 73.34 Table 4: Effectiveness of MAGNET across archi-
+✓ 49.35 56.55 60.52 73.60 tectures. Averageimprovements(∆)withMAGNET
+✓ 49.65 57.18 62.11 75.40 across five planner-actor configurations, categorized
+✓ ✓ 49.74 57.31 62.23 75.54 intohomogeneous(samemodelforplannerandactor)
+andheterogeneous(differentmodels). Resultsareaver-
+(b)ResultswithGemini-2.5-Pro. agedoverAITZ,GUI-Odyssey,andAmexdatasets.
+Table3: Ablationstudyonmemorycomponentsof
+MAGNET.ResultsarereportedontheIDsubsetsof
+GUI-Odyssey and Amex, where the same MLLM is pletionrate,outperformingAppAgent(34.43%)by
+usedasbothplannerandactor. Stat. andProc. denote +8.2pointsandAgent-S(40.98%)by+1.6points.
+stationaryandproceduralmemory,respectively.
+Thisperformancegapunderscorestheimportance
+ofdecouplingmemoryrepresentationsfrompage-
+specificidentifierswhilejointlymodelingUI-level
+scripts,whichassesswhetheragentssuccessfully
+andworkflow-levelknowledgeforrobusttaskcom-
+completeend-to-endtasksintheliveenvironment.
+pletionindynamicenvironments.
+3.2 MainResults
+3.3 AblationStudy
+OfflineEvaluation Table1reportsresultsonthe
+in-distributionsubsetsacrossthreedatasets. With Memorycomponenteffectiveness. Table3iso-
+Qwen2.5-VL-32B as backbone, MAGNET con- latestheeffectsofeachmemorycomponentonID
+sistently outperforms COAT and Agent-S across subsets. We evaluate four configurations: base-
+all three datasets, demonstrating the effective- line, procedural only, stationary only, and both
+ness of the proposed dual-memory design under combined. Results show both memories provide
+afixedfoundationmodel. Whilespecializedmod- consistentgains,withtheircombinationachieving
+elsachievehigherabsolutescores,MAGNETwith optimal performance. Procedural memory yields
+Gemini-2.5-Proasbackbonefurtherimprovesper- largerSRimprovements(+2.66%onAMEXwith
+formancewithouttask-specifictraining,indicating Qwen)thanstationarymemory(+0.52%),because
+thattheproposedframeworkcaneffectivelybenefit stationarymemorymainlybenefitscasesinwhich
+fromstrongerfoundationmodels. modelslackpriorcoverageofspecificUIicons,a
+conditionthatisunderrepresentedincurrentstatic
+OnlineEvaluation Table2presentsonlineeval-
+offlinebenchmarks. However,stationarymemory
+uation results on AndroidWorld. All agents em-
+shows clear value in Grd improvements (ranging
+ploy self-exploration to initialize their memory
+from+0.26%to+0.88%)andincaseswithnovel
+using three task execution episodes (detailed in
+icons(detailedinAppendixC.4).
+Appendix C.2.2). AppAgent stores UI elements
+andtheirfunctionsusingelementidentifiersfrom Robustness across architectures. Table 4
+XMLpagestructures,whileAgent-Semphasizes demonstrates the average effectiveness of MAG-
+workflow-levelmemorybutlacksgroundedUIrep- NETamongthreedatasets(detailedinC.5)across
+resentations. Incontrast,MAGNETintegratessta- five planner–actor configurations, categorized
+tionarymemorywithmultimodalgroundingofUI into Homogeneous (same model for planner and
+elements and procedural memory with reusable actor)andHeterogeneous(differentmodels)types.
+workflows,enablingtheagenttoreasonjointlyover MAGNETconsistentlyimprovesperformancewith
+interfacestructureandaction-levelexperience. As averagegainsof+2.3%SRand+2.7%Grdacross
+a result, MAGNET achieves a 42.62% task com- allconfigurations. Improvementsareparticularly
+
+--- Page 7 ---
+Iteration SR(%) Proc (%) Stat (%)
+Amex Amex
+MAGNET 31.14 100 100
+1iteration 37.70 38 27
+2iterations 39.34 32 24
+3iterations 40.98 26 18
+Table5: In-the-wildmemoryevolutiononAndroid-
+World. Proc andStat denotethepercentage
+Amex Amex
+ofretrievedproceduralandstationarymemoriesorigi-
+natingfromtheinitialAmexmemorybank.
+template- and app-shifted settings to moderate
+gainsunderdomainshifts. Incontrast,Gemini-2.5-
+Prodemonstratesmorestableimprovementsfrom
+bothmemorytypes(+0.2%to+1.4%SR),indicat-
+ing a stronger ability to integrate heterogeneous
+memory signals under distribution shifts. Over-
+all,thesetrendssuggestthatdifferentdistribution
+shiftsemphasizedifferentformsofmemoryinfor-
+Figure4: Resultsonthetemplate,app,anddomain
+mation: stationary memory being more effective
+shiftedsubsets. TheMLLMservesasboththeplanner
+whensurface-levelstructuresremaininformative,
+andtheactor. Thedashedlinesinthefigureindicatethe
+and procedural memory becoming more critical
+baselineperformance.
+whentaskobjectivesandexecutionpatternschange.
+Moreover,thereducedsensitivitytoshifttypefor
+pronounced with heterogeneous pairings (e.g., Gemini-2.5-Prosuggeststhatstrongermodelscan
+QwenVL+OS-Atlas: +4.2%SR),wheretheactor more flexibly integrate multiple memory signals.
+isaspecializedgroundingmodelthatincorporates Together,theseresultsprovideempiricalevidence
+retrieved stationary memory using the injection thatourmemorydesigncapturescomplementary
+strategydescribedin§2.2,suggestingthatmemory aspectsofpastexperience,enablingagentstoadapt
+can effectively compensate for limitations or acrossdiversegeneralizationscenarios.
+mismatches between planning and execution
+modules by providing reusable intermediate 3.5 ContinualAdaptionDiscussion
+knowledge. Even with strong homogeneous To evaluate MAGNET’s capacity for continual
+setups,memorystilloffersclearbenefits(Gemini+ learning,wewarm-starttheagentwithmemories
+Gemini: +1.5% SR), indicating that its gains are from Amex and then iteratively deploy it on An-
+not limited to weaker backbones. Overall, these droidWorldtasks. Aftereachiteration,thenewly
+results demonstrate that the proposed memory acquiredinteractiontrajectoriesandgroundingex-
+designgeneralizesacrossarchitecturalchoicesand periences are incorporated into the memory base
+supportsflexibleplanner–actordeployment. andusedtoinitializetheagentforthesubsequent
+iteration. Table 5 shows success rate rising from
+3.4 GeneralizationDiscussion
+31.14% to 40.98% over three iterations. The
+Figure 4 evaluates generalization on template- Proc andStat columnsmeasuretheper-
+Amex Amex
+shifted, app-shifted, and domain-shifted subsets, centageofretrievedmemoryentriesthatstillorig-
+where agents encounter scenarios beyond source inatefromtheinitialAmexbank(proceduraland
+memorycoverage. Despiteoperatingunderdistri- stationary,respectively). Bothproportionsdecrease
+bution shifts, memory-augmented agents outper- sharply, from 100% to 26% for procedural mem-
+formthebaselineacrossmostsettings,indicating oryandfrom100%to18%forstationarymemory,
+that external memory remains beneficial beyond indicatingthatAmex-derivedknowledgeisprogres-
+training coverage. With Qwen2.5-VL-32B, sta- sivelyreplacedbyAndroidWorld-specificexperi-
+tionarymemoryleadstomodestbutconsistentSR ences. Thistrendconfirmsthatdynamicmemory
+improvements(+0.1%to+0.9%)acrossmostshift updatemechanismeffectivelydiscardsoutdatedor
+types, while procedural memory exhibits higher lessrelevantmemoriesandadaptstonewenviron-
+variance, ranging from slight degradation under mentsthroughcontinuousonlinelearning.
+
+--- Page 8 ---
+4 RelatedWorks heterogeneoussystemcontrol,butitstext-centric
+self-directedlearningofferslimitedsupportforvi-
+4.1 MLLMAgents
+sual interface modeling. In contrast, MAGNET
+The emergent capabilities of Multimodal Large targetsGUIagentswithUI-centricactormemory
+LanguageModels(MLLMs)havemotivatedtheir and workflow-generalized planning, enabling ro-
+useascentralcontrollersthatorchestrateexternal bustadaptationindynamicinterfaces.
+components(Wuetal.,2023;Lietal.,2023;Yang
+etal.,2023;Wangetal.,2024e;Shenetal.,2024). 4.3 Memory-enhancedAgents
+TheseagentsaugmentMLLMswithmemory(Fan
+LLM agents increasingly incorporate memory to
+etal.,2024;Wangetal.,2024f),tooluse(Schick
+support long-term and complex reasoning. Early
+etal.,2023;Wangetal.,2025a),complexreason-
+work (Park et al., 2023) introduced natural lan-
+ing (Yang et al., 2023; Wang et al., 2024e) and
+guage memory streams for experience recording
+the ability of iterative learning in real environ-
+andreflection,followedbyrichermemorydesigns,
+ments(Qianetal.,2024;Xietal.,2024). Currently,
+including summarization and forgetting (Zhong
+MLLM-drivenagentsareflourishingacrossabroad
+et al., 2024), OS-inspired virtual memory man-
+spectrum of applications, ranging from general-
+agement(Packeretal.,2023),andtriplet-basedor
+purpose tasks such as image generation and edit-
+neurosymbolicrepresentationsforprecisereason-
+ing(Wangetal.,2024e)andvideogames(Wang
+ing(Modarressietal.,2023;Wangetal.,2024d).
+et al., 2023; Li et al., 2025), to domain-specific
+Hierarchicalanddynamicmemoryfurtherimprove
+areasincludinghealthcare(Lietal.,2024)ande-
+efficiency in long-horizon tasks, exemplified by
+commerce(Gongetal.,2025). Buildingonthese
+subgoal summarization in (Hu et al., 2024a) and
+advances,ourworkextendstoperceiveandoperate
+evolvingnote-likememoryin(Xuetal.,2025). At
+GUIwithindynamicmobileenvironments.
+ahigherlevel,memoryhasbeenextendedtoward
+reusablereasoningpatternsandskills: (Yangetal.,
+4.2 GUIAgents
+2024)studiedbufferedreasoningstrategiesforit-
+As a specialized instantiation of MLLM agents,
+erative problem solving, and (Wang et al., 2023)
+GUIagentsfocusoncontrollingsoftwareinterfaces
+demonstrated expandable skill libraries that sup-
+and operating systems. One line of work aims to
+portcontinuallearningininteractiveenvironments.
+constructspecialistend-to-endagents(Hongetal.,
+Morerecently,Chain-of-Memory(Gaoetal.,2025)
+2024; Xu et al., 2024; Zhang et al., 2024b) by
+proposedmodularmemoryorganizationforcross-
+fine-tuningsmallopen-sourceMLLMsontaskspe-
+application navigation and knowledge reuse. In-
+cificGUIdatasets(Dengetal.,2023;Zhangetal.,
+spired by these, we introduce a memory-driven
+2024a; Lu et al., 2024). Such methods achieve
+frameworkMAGNETtoevolveproceduralandsta-
+strongin-domainperformancewithefficientinfer-
+tionaryknowledgeaboutdynamicenvironments.
+ence,buttheirheavyrelianceonthehigh-quality
+labeled datasets (Chen et al., 2025) severely con-
+5 Conclusions
+strainstheirgeneralizationabilityonunseenappli-
+cations. Anotherlineofresearch,includingAppA- WeintroduceMAGNET,addressingtheappearance
+gent(Zhangetal.,2025;Lietal.;Jiangetal.,2025) driftandworkflowdriftchallengesinevolvingap-
+andMobileAgent(Wangetal.,2024b,a,2025c;Qin plicationsthroughdual-levelmemory: stationary
+etal.,2025),adoptsaplanner–actordecomposition, memory enables robust grounding despite inter-
+whereaplannerleveragesstrongproprietarymod- facechanges,whileproceduralmemoryadaptsto
+els(e.g.,GPT-4o(OpenAI,2024),Gemini(Gemini workflow evolution. A dynamic update mecha-
+Team, Google, 2025)) to derive operation steps, nism refines memories by prioritizing frequently
+and an actor executes actions on screens. These accessedknowledge. Comprehensiveevaluations
+frameworks typically assume actors with strong onAndroidWorldandofflinebenchmarksdemon-
+grounding capabilities, such as SeeClick (Cheng strateeffectivenessacrossdiversescenarios,with
+et al., 2024), UGround (Gou et al., 2024), and ablation studies confirming complementary ben-
+OS-Atlas (Wu et al., 2024b). While adaptable efits of both components. This work establishes
+and interpretable, they require careful system de- thatexploitingsemanticandintentstabilitybeneath
+sign. OS-Copilot (Wu et al., 2024a) further ex- surface changes enables practical deployment of
+tendsthisparadigmtoOS-levelagentsbyunifying adaptiveagentsinevolvingsoftwareecosystems.
+
+--- Page 9 ---
+Limitations GeminiTeam,Google.2025. Gemini-2.5-pro. https:
+//deepmind.google/models/gemini/pro/.
+WhileMAGNETdemonstratesrobustadaptation,
+Ming Gong, Xucheng Huang, Chenghan Yang, Xian-
+it has limitations. The framework requires suc-
+han Peng, Haoxin Wang, Yang Liu, and Ling Jiang.
+cessfultrajectoriesformemoryconstruction,mak-
+2025. Mindflow: Revolutionizing e-commerce cus-
+ing it less effective in completely novel domains tomer support with multimodal llm agents. arXiv
+where initial exploration fails. Additionally, the preprintarXiv:2507.05330.
+clustering-basedworkflowextractionmaystruggle
+BoyuGou,RuohanWang,BoyuanZheng,YananXie,
+withhighlydiversetaskstructuresthatdonotform ChengChang,YihengShu,HuanSun,andYuSu.2024.
+clearpatterns. Futureworkcouldexplorezero-shot Navigating the digital world as humans do: Univer-
+sal visual grounding for gui agents. arXiv preprint
+memoryinitializationandmoreflexibleworkflow
+arXiv:2410.05243.
+representations.
+Zhangxuan Gu, Zhengwen Zeng, Zhenyu Xu, Xin-
+granZhou,ShuhengShen,YunfeiLiu,BeitongZhou,
+References Changhua Meng, Tianyu Xia, Weizhi Chen, and 1
+others. 2025. Ui-venus technical report: Building
+SaaketAgashe,JiuzhouHan,ShuyuGan,JiachenYang, high-performance ui agents with rft. arXiv preprint
+AngLi,andXinEricWang.2024. Agents: Anopen arXiv:2508.10833.
+agentic framework that uses computers like a human.
+arXivpreprintarXiv:2410.08164. Wenyi Hong, Weihan Wang, Qingsong Lv, Jiazheng
+Xu,WenmengYu,JunhuiJi,YanWang,ZihanWang,
+ShuaiBai,KeqinChen,XuejingLiu,JialinWang,Wen-
+YuxiaoDong,MingDing,and1others.2024. Cogagent:
+binGe,SiboSong,KaiDang,PengWang,ShijieWang, Avisuallanguagemodelforguiagents. InProceedings
+Jun Tang, and 1 others. 2025. Qwen2. 5-vl technical oftheIEEE/CVFConferenceonComputerVisionand
+report. arXivpreprintarXiv:2502.13923. PatternRecognition,pages14281–14290.
+Yuxiang Chai, Siyuan Huang, Yazhe Niu, Han Xiao,
+MengkangHu,TianxingChen,QiguangChen,YaoMu,
+Liang Liu, Dingyu Zhang, Shuai Ren, and Hong-
+Wenqi Shao, and Ping Luo. 2024a. Hiagent: Hierar-
+sheng Li. 2024. Amex: Android multi-annotation
+chicalworkingmemorymanagementforsolvinglong-
+expo dataset for mobile gui agents. arXiv preprint
+horizonagenttaskswithlargelanguagemodel. arXiv
+arXiv:2407.17490.
+preprintarXiv:2408.09559.
+Wentong Chen, Junbo Cui, Jinyi Hu, Yujia Qin, Jun-
+Shengding Hu, Yuge Tu, Xu Han, Chaoqun He,
+jieFang,YueZhao,ChongyiWang,JunLiu,Guirong
+Ganqu Cui, Xiang Long, Zhi Zheng, Yewei Fang,
+Chen, Yupeng Huo, and 1 others. 2025. Guicourse:
+Yuxiang Huang, Weilin Zhao, and 1 others. 2024b.
+From general vision language model to versatile gui
+Minicpm: Unveiling the potential of small language
+agent. InProceedingsofthe63rdAnnualMeetingof
+modelswithscalabletrainingstrategies. arXivpreprint
+theAssociationforComputationalLinguistics(Volume
+arXiv:2404.06395.
+1: LongPapers),pages21936–21959.
+Xueyu Hu, Tao Xiong, Biao Yi, Zishu Wei, Ruixuan
+KanzhiCheng,QiushiSun,YougangChu,FangzhiXu,
+Xiao,YurunChen,JiashengYe,MeilingTao,Xiangxin
+Yantao Li, Jianbing Zhang, and Zhiyong Wu. 2024.
+Zhou, Ziyu Zhao, and 1 others. 2025. Os agents: A
+Seeclick: Harnessing gui grounding for advanced vi-
+survey on mllm-based agents for general computing
+sualguiagents. arXivpreprintarXiv:2401.10935.
+devicesuse. arXivpreprintarXiv:2508.04482.
+XiangDeng,YuGu,BoyuanZheng,ShijieChen,Sam
+Edwin L Hutchins, James D Hollan, and Donald A
+Stevens, Boshi Wang, Huan Sun, and Yu Su. 2023.
+Norman.1986. Directmanipulationinterfaces. InUser
+Mind2web: Towards a generalist agent for the web.
+centeredsystemdesign,pages87–124.CRCPress.
+Advances in Neural Information Processing Systems,
+36:28091–28114.
+Wenjia Jiang, Yangyang Zhuang, Chenxi Song,
+Hermann Ebbinghaus. 1885. Über das gedächt- XuYang,JoeyTianyiZhou,andChiZhang.2025. Ap-
+nis: untersuchungenzurexperimentellenpsychologie. pagentx: Evolvingguiagentsasproficientsmartphone
+Duncker&Humblot. users. arXivpreprintarXiv:2503.02268.
+YueFan,XiaojianMa,RujieWu,YuntaoDu,JiaqiLi, BinxuLi,TiankaiYan,YuantingPan,JieLuo,Ruiyang
+ZhiGao,andQingLi.2024. Videoagent: Amemory- Ji, Jiayuan Ding, Zhe Xu, Shilong Liu, Haoyu Dong,
+augmentedmultimodalagentforvideounderstanding. ZihaoLin,and1others.2024. Mmedagent: Learning
+In European Conference on Computer Vision, pages to use medical tools with multi-modal agent. arXiv
+75–92.Springer. preprintarXiv:2407.02483.
+Xinzge Gao, Chuanrui Hu, Bin Chen, and Teng ChenliangLi,HehongChen,MingYan,WeizhouShen,
+Li. 2025. Chain-of-memory: Enhancing gui agents HaiyangXu, ZhikaiWu, ZhichengZhang, Wenmeng
+for cross-application navigation. arXiv preprint Zhou,YingdaChen,ChenCheng,and1others.2023.
+arXiv:2506.18158. Modelscope-agent: Buildingyourcustomizableagent
+
+--- Page 10 ---
+systemwithopen-sourcelargelanguagemodels. arXiv 1others.2024. Androidworld: Adynamicbenchmark-
+preprintarXiv:2309.00986. ingenvironmentforautonomousagents. arXivpreprint
+arXiv:2405.14573.
+YandaLi,ChiZhang,WanqiYang,BinFu,PeiCheng,
+XinChen,LingChen,andYunchaoWei. Appagentv2: PascalJSager, BenjaminMeyer, PengYan, Rebekka
+Advancedagentforflexiblemobileinteractions,2024a. von Wartburg-Kottler, Layan Etaiwi, Aref Enayati,
+URLhttps://arxiv.org/abs/2408.11824,2. GabrielNobel,AhmedAbdulkadir,BenjaminFGrewe,
+andThiloStadelmann.2025. Acomprehensivesurvey
+ZaijingLi,YuquanXie,RuiShao,GongweiChen,Weili
+of agents for computer use: Foundations, challenges,
+Guan,DongmeiJiang,andLiqiangNie.2025. Optimus-
+andfuturedirections. arXivpreprintarXiv:2501.16150.
+3: Towardsgeneralistmultimodalminecraftagentswith
+scalabletaskexperts. arXivpreprintarXiv:2506.10357. TimoSchick,JaneDwivedi-Yu,RobertoDessì,Roberta
+Raileanu, Maria Lomeli, Eric Hambro, Luke Zettle-
+XiaoLiu,BoQin,DongzhuLiang,GuangDong,Hanyu
+moyer,NicolaCancedda,andThomasScialom.2023.
+Lai, Hanchen Zhang, Hanlin Zhao, Iat Long Iong, Ji-
+Toolformer: Languagemodelscanteachthemselvesto
+adai Sun, Jiaqi Wang, and 1 others. 2024. Autoglm:
+usetools. AdvancesinNeuralInformationProcessing
+Autonomousfoundationagentsforguis. arXivpreprint
+Systems,36:68539–68551.
+arXiv:2411.00820.
+WeizhouShen, ChenliangLi, HongzhanChen, Ming
+Yuhang Liu, Pengxiang Li, Congkai Xie, Xavier Hu,
+Yan, XiaojunQuan, HehongChen, JiZhang, andFei
+XiaotianHan,ShengyuZhang,HongxiaYang,andFei
+Huang. 2024. Small llms are weak tool learners: A
+Wu.2025. Infigui-r1:Advancingmultimodalguiagents
+from reactive actors to deliberative reasoners. arXiv multi-llmagent. arXivpreprintarXiv:2401.07324.
+preprintarXiv:2504.14239.
+Thomas B Sheridan and Raja Parasuraman. 2005.
+QuanfengLu,WenqiShao,ZitaoLiu,FanqingMeng, Human-automationinteraction. Reviewsofhumanfac-
+Boxuan Li, Botong Chen, Siyuan Huang, Kaipeng torsandergonomics,1(1):89–129.
+Zhang, Yu Qiao, and Ping Luo. 2024. Gui odyssey:
+Ben Shneiderman. 2010. Designing the user inter-
+Acomprehensivedatasetforcross-appguinavigation
+face: strategiesforeffectivehuman-computerinterac-
+onmobiledevices. arXivpreprintarXiv:2406.08451.
+tion. PearsonEducationIndia.
+RunLuo,LuWang,WanweiHe,andXiaoboXia.2025.
+YuanSun,XiaodongLi,andAndreasErnst.2019. Us-
+Gui-r1: A generalist r1-style vision-language action
+ingstatisticalmeasuresandmachinelearningforgraph
+modelforguiagents. arXivpreprintarXiv:2504.10458.
+reduction to solve maximum weight clique problems.
+Ali Modarressi, Ayyoob Imani, Mohsen Fayyaz, and IEEEtransactionsonpatternanalysisandmachinein-
+Hinrich Schütze. 2023. Ret-llm: Towards a general telligence,43(5):1746–1760.
+read-writememoryforlargelanguagemodels. arXiv
+preprintarXiv:2305.14322. ChenyuWang,WeixinLuo,SixunDong,XiaohuaXuan,
+ZhengxinLi,LinMa,andShenghuaGao.2025a. Mllm-
+OpenAI. 2024. Gpt-4o. https://openai.com/ tool: Amultimodallargelanguagemodelfortoolagent
+index/hello-gpt-4o/.
+learning. In 2025 IEEE/CVF Winter Conference on
+ApplicationsofComputerVision(WACV),pages6678–
+Charles Packer, Vivian Fang, Shishir_G Patil, Kevin
+6687.IEEE.
+Lin, Sarah Wooders, and Joseph_E Gonzalez. 2023.
+Memgpt: Towardsllmsasoperatingsystems.
+Guanzhi Wang, Yuqi Xie, Yunfan Jiang, Ajay Man-
+dlekar,ChaoweiXiao,YukeZhu,LinxiFan,andAnima
+JoonSungPark,JosephO’Brien,CarrieJunCai,Mered-
+Anandkumar.2023. Voyager: Anopen-endedembod-
+ithRingelMorris,PercyLiang,andMichaelSBernstein.
+iedagentwithlargelanguagemodels. arXivpreprint
+2023. Generativeagents: Interactivesimulacraofhu-
+arXiv:2305.16291.
+manbehavior. InProceedingsofthe36thannualacm
+symposiumonuserinterfacesoftwareandtechnology,
+Haoming Wang, Haoyang Zou, Huatong Song, Ji-
+pages1–22.
+azhan Feng, Junjie Fang, Junting Lu, Longxiang Liu,
+Chen Qian, Jiahao Li, Yufan Dang, Wei Liu, YiFei QinyuLuo,ShihaoLiang,ShijueHuang,and1others.
+Wang, Zihao Xie, Weize Chen, Cheng Yang, Yingli 2025b. Ui-tars-2technicalreport: Advancingguiagent
+Zhang,ZhiyuanLiu,and1others.2024. Iterativeexpe- withmulti-turnreinforcementlearning. arXivpreprint
+riencerefinementofsoftware-developingagents. arXiv arXiv:2509.02544.
+preprintarXiv:2405.04219.
+JunyangWang,HaiyangXu,HaitaoJia,XiZhang,Ming
+Yujia Qin, Yining Ye, Junjie Fang, Haoming Wang, Yan, Weizhou Shen, Ji Zhang, Fei Huang, and Jitao
+Shihao Liang, Shizuo Tian, Junda Zhang, Jiahao Li, Sang.2024a. Mobile-agent-v2: Mobiledeviceopera-
+YunxinLi,ShijueHuang,and1others.2025. Ui-tars: tionassistantwitheffectivenavigationviamulti-agent
+Pioneeringautomatedguiinteractionwithnativeagents. collaboration. AdvancesinNeuralInformationProcess-
+arXivpreprintarXiv:2501.12326. ingSystems,37:2686–2710.
+ChristopherRawles,SarahClinckemaillie,YifanChang, Junyang Wang, Haiyang Xu, Jiabo Ye, Ming Yan,
+JonathanWaltz,GabrielleLau,MarybethFair,AliceLi, Weizhou Shen, Ji Zhang, Fei Huang, and Jitao Sang.
+WilliamBishop,WeiLi,FolawiyoCampbell-Ajala,and 2024b. Mobile-agent: Autonomousmulti-modalmo-
+
+--- Page 11 ---
+biledeviceagentwithvisualperception. arXivpreprint and 1 others. 2025. Gui-robust: A comprehensive
+arXiv:2401.16158. dataset for testing gui agent robustness in real-world
+anomalies. arXivpreprintarXiv:2506.14477.
+LiyuanWang,XingxingZhang,HangSu,andJunZhu.
+2024c. Acomprehensivesurveyofcontinuallearning: Ling Yang, Zhaochen Yu, Tianjun Zhang, Shiyi Cao,
+Theory,methodandapplication. IEEEtransactionson MinkaiXu,WentaoZhang,JosephEGonzalez,andBin
+patternanalysisandmachineintelligence,46(8):5362– Cui.2024. Bufferofthoughts: Thought-augmentedrea-
+5383. soningwithlargelanguagemodels. AdvancesinNeural
+InformationProcessingSystems,37:113519–113544.
+SiyuanWang,ZhongyuWei,YejinChoi,andXiangRen.
+2024d. Symbolicworkingmemoryenhanceslanguage ZhengyuanYang,LinjieLi,JianfengWang,KevinLin,
+models for complex rule application. arXiv preprint EhsanAzarnasab,FaisalAhmed,ZichengLiu,CeLiu,
+arXiv:2408.13654. Michael Zeng, and Lijuan Wang. 2023. Mm-react:
+Promptingchatgptformultimodalreasoningandaction.
+Zhenhailong Wang, Haiyang Xu, Junyang Wang, arXivpreprintarXiv:2303.11381.
+XiZhang,MingYan,JiZhang,FeiHuang,andHengJi.
+2025c. Mobile-agent-e: Self-evolvingmobileassistant WenwenYu,ZhiboYang,JianqiangWan,SiboSong,
+forcomplextasks. arXivpreprintarXiv:2501.11733. JunTang,WenqingCheng,YuliangLiu,andXiangBai.
+2025. Omniparser v2: Structured-points-of-thought
+ZhenyuWang,AoxueLi,ZhenguoLi,andXihuiLiu. for unified visual text parsing and its generality to
+2024e. Genartist: Multimodalllmasanagentforuni- multimodal large language models. arXiv preprint
+fiedimagegenerationandediting. AdvancesinNeural arXiv:2502.16161.
+InformationProcessingSystems,37:128374–128395.
+ChiZhang,ZhaoYang,JiaxuanLiu,YandaLi,Yucheng
+ZihaoWang,ShaofeiCai,AnjiLiu,YonggangJin,Jin- Han,XinChen,ZebiaoHuang,BinFu,andGangYu.
+bing Hou, Bowei Zhang, Haowei Lin, Zhaofeng He, 2025. Appagent: Multimodal agents as smartphone
+Zilong Zheng, Yaodong Yang, and 1 others. 2024f. users. InProceedingsofthe2025CHIConferenceon
+Jarvis-1: Open-worldmulti-taskagentswithmemory- HumanFactorsinComputingSystems,pages1–20.
+augmentedmultimodallanguagemodels. IEEETrans-
+actionsonPatternAnalysisandMachineIntelligence. Jiwen Zhang, Jihao Wu, Yihua Teng, Minghui Liao,
+Nuo Xu, Xiao Xiao, Zhongyu Wei, and Duyu Tang.
+ChenfeiWu, ShengmingYin, WeizhenQi, Xiaodong 2024a. Androidinthezoo: Chain-of-action-thoughtfor
+Wang,ZechengTang,andNanDuan.2023. Visualchat- guiagents. arXivpreprintarXiv:2403.02713.
+gpt:Talking,drawingandeditingwithvisualfoundation
+JiwenZhang,YaqiYu,MinghuiLiao,WentaoLi,Jihao
+models. arXivpreprintarXiv:2303.04671.
+Wu,andZhongyuWei.2024b. Ui-hawk: Unleashing
+Zhiyong Wu, Chengcheng Han, Zichen Ding, Zhen- thescreenstreamunderstandingforguiagents.
+minWeng,ZhoumianzeLiu,ShunyuYao,TaoYu,and
+BoyuanZheng,BoyuGou,JihyungKil,HuanSun,and
+LingpengKong.2024a. Os-copilot: Towardsgeneralist
+YuSu.2024. Gpt-4v(ision)isageneralistwebagent,if
+computeragentswithself-improvement. arXivpreprint
+grounded. arXivpreprintarXiv:2401.01614.
+arXiv:2402.07456.
+WanjunZhong,LianghongGuo,QiqiGao,HeYe,and
+Zhiyong Wu, Zhenyu Wu, Fangzhi Xu, Yian Wang,
+Yanlin Wang. 2024. Memorybank: Enhancing large
+QiushiSun,ChengyouJia,KanzhiCheng,ZichenDing,
+languagemodelswithlong-termmemory. InProceed-
+LihengChen,PaulPuLiang,and1others.2024b. Os-
+ingsoftheAAAIConferenceonArtificialIntelligence,
+atlas: A foundation action model for generalist gui
+volume38,pages19724–19731.
+agents. arXivpreprintarXiv:2410.23218.
+Zhiheng Xi, Yiwen Ding, Wenxiang Chen, Boyang
+Hong, Honglin Guo, Junzhe Wang, Dingwen Yang,
+Chenyang Liao, Xin Guo, Wei He, and 1 others.
+2024. Agentgym:Evolvinglargelanguagemodel-based
+agents across diverse environments. arXiv preprint
+arXiv:2406.04151.
+Wujiang Xu, Kai Mei, Hang Gao, Juntao Tan, Zu-
+jie Liang, and Yongfeng Zhang. 2025. A-mem:
+Agentic memory for llm agents. arXiv preprint
+arXiv:2502.12110.
+YihengXu,ZekunWang,JunliWang,DunjieLu,Tian-
+bao Xie, Amrita Saha, Doyen Sahoo, Tao Yu, and
+Caiming Xiong. 2024. Aguvis: Unified pure vision
+agentsforautonomousguiinteraction. arXivpreprint
+arXiv:2412.04454.
+JingqiYang,ZhilongSong,JiaweiChen,MingliSong,
+ShengZhou,XiaogangOuyang,ChunChen,CanWang,
+
+--- Page 12 ---
+A ValidationofUI-40KAnnotation templates and then rephrasing them into natural
+Quality language. TocreateIDandTSsplits,weproceed
+intwosteps:
+ToensurethereliabilityofUI-40Kannotations,we
+employedahybridvalidationapproachcombining • Template-levelsplit. Werandomlysample20%
+automated SOTA MLLM prediction and manual ofalltemplates,andtreatthecorrespondingdata
+verification. astemplate-shifted(TS).
+• Instruction-levelsplit. Fortherestportion,we
+Automatic Validation. We sampled 1,000 in-
+furtherdivideinstructions: 75%areusedasthe
+stances and queried two state-of-the-art MLLMs
+sourcedataformemoryconstruction,whilethe
+(GPT-4o and Gemini-2.5-Pro) to independently
+remaining 25% form the in-distribution (ID)
+generate bounding boxes based on the tuple
+testset.
+⟨Current Screen, Click Description⟩. We calcu-
+lated the IoU between the outputs of these two ThisdesignensuresthatallTSinstructionsorigi-
+models to filter for consensus. Instances where natefromunseentemplates,whileIDinstructions
+the inter-model IoU exceeded 0.75 were treated come from seen templates. Given the large scale
+as high-confidence pseudo-ground truth (787 in- of GUI-Odyssey (over 110k images), we down-
+stances),whiletheremaining213instanceswere samplethefinalevaluationsetsto309IDsamples
+assignedtoamanualverificationset. Forthe787 and311TSsamples,yieldingarepresentativesize
+high-confidence instances, we computed the IoU comparabletootherdatasets.
+againsttheOmniParserV2annotations:
+Amex The Amex dataset instructions also fol-
+Metric Value lowcertaintemplates,similartoGUI-Odyssey,al-
+though this is not explicitly stated in the original
+MeanIoU 0.55
+paper or dataset. To address this, we manually
+MedianIoU 0.63
+classifiedtheinstructions,identifying58appsand
+IoU≥0.5 68.5%
+groupingtheminto12domains.
+IoU≥0.7 42.3%
+TheAmexsplittingstrategyisdefinedasfollows:
+Table6: AutomaticvalidationmetricsforUI-40Kanno-
+tations.
+1. Domain-level split: We select three domains
+(Sports&Fitness,Others,andWeather)asun-
+AnalysisofDiscrepancies. Althoughthemean
+seendomains,andtheepisodesfromthesedo-
+IoUis0.55,manualinspectionrevealsthatdiscrep-
+mainsformthedomain-shifted(DS)subset.
+anciesprimarilyarisefromvalidvariationsinan-
+notationgranularity(e.g.,theparsermarksalarger 2. App-level split: From each of the remaining
+clickablecontainerwhilethemodelmarksthespe- domains,werandomlychooseoneapptoform
+cificiconinside),ratherthanfunctionalerrors. the unseen-apps set, while the rest constitute
+the seen-apps set. Although unseen-apps are
+Manual Verification. For the remaining 213
+disjointfromseen-apps,theystillbelongtodo-
+caseswheremodelsdisagreed,manualreviewcon-
+mainsalreadyrepresentedinseen-apps;there-
+firmedthattheannotatedregionsweresemantically
+fore,theirdataisreferredtoastheapp-shifted
+correctregardingtheclickableelement. Thisvali-
+(AS)subset.
+dationconfirmsthehighreliabilityofUI-40Kfor
+trainingandevaluationpurposes.
+3. Instruction-level split: For each app in the
+seen-apps set, we randomly partition instruc-
+B Datasets
+tionsintosourceandin-distribution(ID)sub-
+B.1 DatasetSplitting setsusinga4:1ratio.
+AITZ The AITZ (Zhang et al., 2024a) dataset
+This yields four subsets in total: source, ID, AS,
+comespre-split. Wedirectlyusethetrainingsetas
+andDS.ThedistributionissummarizedinFigure5.
+thesourcedataformemoryconstructionandthe
+testsetasthein-distribution(ID)validationset. B.2 Statistics
+GUI-Odyssey The GUI-Odyssey dataset con- Table7summarizesthestatisticsofalldatasetsand
+structsinstructions byfirst generatingtasks from theirsubsets.
+
+--- Page 13 ---
+Figure5: Domain/AppdistributionoftheAmexdataset.
+Dataset Subset Episodes Screens tionservestovalidatereal-worldapplicability
+rather than benchmark performance optimiza-
+source 1,998 13,919
+AITZ tion.
+in-domain 506 4,724
+C.2 BaselinesDetails
+source 4,635 71,803
+Odyssey in-domain 309 4,920 C.2.1 OfflineBaselines
+template-shifted 311 4,386
+Forofflineevaluation,wecompareMAGNETwith
+source 1,794 22,639 bothspecializedmodelsandagenticframeworks.
+in-domain 448 5,563
+Amex Specialized models including UI-Venus-Navi-
+app-shifted 487 8,035
+7B (Gu et al., 2025), Atlas-Pro-7B (Wu et al.,
+domain-shifted 259 2,472
+2024b), GUI-R1-7B (Luo et al., 2025), and
+Table7: DatasetStatistics InfiGUI-R1-3B(Liuetal.,2025)areimplemented
+followingtheirrespectivepapers,includingmodel
+architectures,inputformats,andinferencesettings.
+C ExperimentDetails
+Forfaircomparisonacrossdatasets,weunifythe
+C.1 OnlineAgentConfigurations actionspacewhilepreservingeachmodel’soriginal
+Choice of Easy Split. AndroidWorld (Rawles designassumptions.
+etal.,2024)providesthreedifficultylevels: Easy
+COAT (Zhang et al., 2024a) is evaluated using
+(61tasks),Medium(36tasks),andHard(19tasks).
+theGemini-2.5-Probackbone,consistentwithits
+We evaluate on the Easy split for the following
+originalimplementation. COATdoesnotemploy
+reasons:
+explicitmemorymechanismsandservesasarepre-
+1. IterativeLearningRequirements: Ourcontin- sentativememory-freeagenticbaseline.
+uallearningapproachrequiresmultipletraining
+Agent-S (Agashe et al., 2024) is adapted to of-
+iterations(threememory-freepasses)toevolve
+fline datasets following its original framework
+memories from online experiences. The Easy
+design. Memory construction is performed us-
+split provides sufficient task diversity while
+ingdemonstrationsfromthecorrespondingoffline
+maintaining experimental tractability for this
+dataset,consistentwiththeexperience-augmented
+iterativeprocess.
+retrievalmechanismdescribedintheAgent-Spaper.
+2. Research Focus: Our primary contribution Since offline benchmarks do not support interac-
+is the memory-driven adaptation framework tive self-exploration, the Episodic Memory com-
+demonstrated through comprehensive offline ponent—which relies on online trajectory collec-
+benchmarks(AITZ,GUI-Odyssey,Amexwith tion—isomitted. Additionally,thewebknowledge
+multipledistributionshifts). Theonlineevalua- moduleisremovedtoensureafaircomparisonina
+
+--- Page 14 ---
+closed-worldofflinesetting. Allothercomponents, step Tap the search icon and enter the
+includinghierarchicalplanningandnarrativemem- company name,therebycompletingthetaskef-
+oryretrieval,areretainedwithoutmodification. fectively.
+Unlessotherwisespecified,allagenticframeworks (b) Launching Tumblr. The baseline incorrectly
+areevaluatedunderthesameactionspace. identifiesTumblrastheThreadsapp. Stationary
+memory retrieves the exact Tumblr icon (6d),
+C.2.2 OnlineBaselines
+allowingtheagenttoselectthecorrectapp.
+Forcompleteness,wedocumenthoweachonline
+(c) Opening Edmunds for Subaru’s leading
+baselinepreparesitsmemorybeforeevaluationon
+productpriceverification. AlthoughtheSub-
+theAndroidWorldEasysplit:
+aru’sleadingmodelwasalreadyidentified,the
+• AppAgent(Zhangetal.,2025): Foreachofthe baseline ignores this and reverts to searching
+24applicationscontainedintheEasyset,AppA- in the browser. Even with stationary memory,
+gentispairedwithamanualexplorationtask. It it still clicks the search bar. With procedural
+runs the task once to produce structured docu- memory,theagentinfersthatthenextstepisto
+mentationforthatapplicationandthenreusesthe openEdmunds,butincorrectlyselectsYandex
+resultingdocumentationduringinferenceonthe Navi due to the absence of visual grounding.
+downstreamtasks. Bycombiningbothmemories,MAGNETplans
+• Agent-S (Agashe et al., 2024): The agent first thecorrectactionandgroundsitvisually(6e),
+executesoneroundofgenerictaskstogetherwith successfullyopeningEdmunds.
+theofficialexplorationtaskstobuilditsinternal
+memory. Thissingle-runmemoryisthenreused C.5 DetailedArchitectureAblationResults
+forevaluationwithoutadditionalupdates. Table 8 presents the complete per-dataset results
+• MAGNET: We run three memory-free passes forthearchitectureablationstudysummarizedin
+acrossthe61taskstoharvesttrajectories, filter Table4ofthemainpaper.
+themthroughthemetabolismrule,andthencon-
+D TheUseofLargeLanguageModels
+ductthereportedevaluation. Forthecontinual-
+learning study, the initial memories are con- (LLMs)
+structedfromtheAmexdatasetandupdatedafter
+LargeLanguageModels(LLMs)wereusedtoaid
+eachfullpassovertheEasytasks.
+in the writing and polishing of the manuscript.
+Specifically, we used an LLM to assist in refin-
+C.3 EvaluationMetrics
+ingthelanguage,improvingreadability,andensur-
+SuccessRate(SR) Following(Wuetal.,2024b),
+ing clarity in various sections of the paper. The
+wecountastepassuccessfulifthepredictedaction
+modelhelpedwithtaskssuchassentencerephras-
+typeandallparametersexactlymatchtheground
+ing,grammarchecking,andenhancingtheoverall
+truth. Thesuccessrateistheaverageaccuracyun-
+flowofthetext.
+derthiscriterion. Matchingrulesdifferdepending
+ontheoutputformat(seebelow). It is important to note that the LLM was not in-
+volved in the ideation, research methodology, or
+Grounding(Grd.) Weadoptthecriterionfrom
+experimentaldesign. Allresearchconcepts,ideas,
+(Wuetal.,2024b),countingapredictionascorrect
+andanalysesweredevelopedandconductedbythe
+iftherelativedistancebetweenthepredictedand
+authors. ThecontributionsoftheLLMweresolely
+ground-truthpositionsislessthan14%.
+focusedonimprovingthelinguisticqualityofthe
+paper,withnoinvolvementinthescientificcontent
+C.4 QualitativeCaseStudies
+ordataanalysis.
+Figure6presentsthreecasestudiesshowinghow
+differentcomponentsimprovetaskexecution. Theauthorstakefullresponsibilityforthecontent
+ofthemanuscript,includinganytextgeneratedor
+(a) Searching for Google stock. The baseline
+polished by the LLM. We have ensured that the
+clicksamisleading“stack”tabthatonlyshows
+LLM-generatedtextadherestoethicalguidelines
+astockleaderboard. Withproceduralmemory,
+anddoesnotcontributetoplagiarismorscientific
+theagentrecallsthecorrectworkflowSearch
+misconduct.
+for Stock Price Trends,whichincludesthe
+
+--- Page 15 ---
+(d)Iconretrievedfromstation-
+arymemoryin6b
+(e) Icon retrieved by MAG-
+NETin6c
+(c) Verify the price of the
+(a) Search for the stock (b) Use Tumblr to share the leadingproductforSubaru
+pricetrendsofGoogle meetinglink withEdmunds
+Figure6: Casestudiesonmemorycomponents. Redboxesmarkthebaseline,cyandenoteproceduralmemory,
+orangedenotestationarymemory,andgreendenoteMAGNET.Procedural(a)andstationary(b)memoryboth
+improveoverthebaseline,whileMAGNET(c)outperformsthembycombiningboth. (d)and(e)showtheicon
+retrievalprocessfor(b)and(c),respectively.
+Backbones AITZ GUI-Odyssey Amex
+MAG.
+Planner Actor SR(%) Grd.(%) SR(%) Grd.(%) SR(%) Grd.(%)
+StandardEnd-to-EndBaselines
+Qwen2.5-VL-32B - 40.62 38.71 47.54 48.86 59.02 66.93
+Gemini-2.5-Pro - 50.14 53.21 48.27 55.18 59.76 72.68
+PairedBackboneAblation:Basevs.+MAGNET(Ours)
+× 36.92 36.54 33.84 35.30 42.17 50.16
+GPT-4o Atlas-Base-7B
+✓ 38.38 38.55 36.20 37.64 42.80 50.32
+× 42.48 41.94 38.22 39.15 46.21 54.08
+GPT-4o Gemini-2.5-Pro
+✓ 43.71 42.87 40.54 41.28 46.71 54.82
+× 34.37 34.29 32.04 33.10 39.48 47.26
+GPT-4o Qwen2.5-VL-32B
+✓ 36.15 35.82 34.29 34.64 41.72 49.28
+× 43.64 41.53 49.93 51.58 53.92 70.59
+Qwen2.5-VL-32B Atlas-Base-7B
+✓ 45.73 46.51 52.07 54.91 62.37 72.57
+× 41.09 39.28 48.13 49.38 59.68 67.69
+Qwen2.5-VL-32B Qwen2.5-VL-32B
+✓ 43.50 43.78 50.16 51.91 62.84 71.53
+× 45.31 48.48 44.54 52.10 56.31 69.42
+Gemini-2.5-Pro Atlas-Base-7B
+✓ 47.44 53.03 45.40 53.67 58.32 71.04
+× 50.87 53.88 48.92 55.95 60.35 73.34
+Gemini-2.5-Pro Gemini-2.5-Pro
+✓ 52.77 57.35 49.74 57.31 62.23 75.54
+Table8: Backbone-agnosticeffectivenessofMAGNET.Bygroupingbackbonesinpairs,thislayouthighlights
+theconsistentperformancegainacrossdifferentLLM/VLMcombinations. Boldindicatesthebetterperformance
+withineachbackbonepair.
+
+--- Page 16 ---
+E AlgorithmDetails
+Algorithm1InstructionClusteringviaMaximalCliques
+Require: Instructions{I ,I ,...,I },similaritythresholdτ
+1 2 n
+Ensure: InstructionclustersC ={c ,c ,...,c }
+1 2 k
+1: Computeembeddingse =ENCODE(I )forallinstructions
+i i
+2: InitializesimilaritygraphG =(V,∅)whereV ={I ,I ,...,I }
+1 2 n
+3: foreachpair(I ,I )wherei̸=jdo
+i j
+4: ifCOSINE(e ,e )>τ then
+i j
+5: Addedge(I ,I )toG
+i j
+6: endif
+7: endfor
+8: C =FIND_MAXIMAL_CLIQUES(G)
+9: return C
+Algorithm2MemoryRetrievalandUpdateMechanism
+Require: Queryx (naturallanguagedescriptionofnextaction)
+q
+Require: MemoryBankM={m ,m ,...,m }whereeachentrym =⟨k ,v ,τ ,t ,n ⟩contains:
+1 2 |M| i i i i i i
+1: k :retrievalkey(workflowdescriptionorUIfunction)
+i
+2: v :storedvalue(workflowtemplateorUIelementpatch)
+i
+3: τ :creationtimestamp(whenthisentrywasaddedtomemory)
+i
+4: t :lastaccesscounter(valueofC whenlastretrieved)
+i global
+5: n :totalretrievalcount(numberoftimesthisentryhasbeenretrieved)
+i
+Require: GlobalretrievalcounterC (trackstotalnumberofretrievalevents)
+global
+Require: Parameters:N (numberofcandidatestofilter),K(numberofmemoriestoretrieve)
+Ensure: RetrievedmemoriesM ,UpdatedMandC
+ret global
+6: //Stage1:SemanticFiltering
+7: Computesemanticsimilaritys =COSINE(E(x ),E(k ))forallm ∈M
+i q i i
+8: whereE(·)encodestextintoembeddingvectors
+9: C =TOP_N(M,key=s ){Selecttop-Nmostsemanticallysimilarentries}
+N i
+10: //Stage2:Dual-KeyRanking
+11: foreachm ∈C do
+i N
+12: g ←C −t {Retrievalgap:eventssincelastaccess}
+i global i
+13: R ←exp(−g /n ){retentionscore:usage-adaptivedecay}
+i i i
+14: endfor
+15: SortC by(R ,τ )indescendingorder
+N i i
+16: {Primarykey:retentionscoreR ;Secondarykey:creationtimeτ }
+i i
+17: M =TOP_K(C ){Selecttop-Kentriesaftersorting}
+ret N
+18: //Stage3:UpdateRetrievedMemories
+19: C ←C +1{Incrementglobalcounter}
+global global
+20: foreachm ∈M do
+i ret
+21: t ←C {Recordcurrentretrievalevent}
+i global
+22: n ←n +1{Incrementretrievalcount}
+i i
+23: endfor
+24: ifNewworkfloworUIelement⟨k∗,v∗⟩extractedfromsuccessfultaskthen
+25: τ∗ ←CURRENT_TIMESTAMP(){Recordcreationtime}
+26: M←M∪{⟨k∗,v∗,τ∗,C ,1⟩}
+global
+27: {Initialize:creationtimeτ∗,lastaccessC ,count1}
+global
+28: endif
+29: return M ,M,C
+ret global
+
+--- Page 17 ---
+F Prompts
+F.1 MemoryConstruction
+Extractworkflowforproceduralmemory.
+You are an expert in analyzing and abstracting user behavior on mobile devices. Given a list
+of mobile tasks, each described by a natural language instruction and its corresponding action
+sequence,extractcommonlyusedworkflowssharedacrossmultipletasks.
+Instructions:
+1. Identifyrepetitivesubsequencesofactionsthatappearintwoormoretasks.
+2. Eachextractedworkflowshouldbeausefulandreusablesubroutine,nottoospecifictoany
+onetask.
+3. Do NOT output overlapping or highly similar workflows; each should be distinct and
+meaningful.
+4. Eachworkflowmustcontainatleast3steps.
+5. Representvariableelements(suchasuserinput,contactnames,appnames)usingdescriptive
+placeholders(e.g.,[SearchQuery],[AppName],[ContactName]).
+6. Focusonsemanticrepetition,notjustliteralstringmatch.
+WorkflowExamples:
+[
+1
+{
+2
+"title": "Install: Search and Install an App",
+3
+"plan": [
+4
+"Open the App Store or App Market or Play Store.",
+5
+"Tap the search bar.",
+6
+"Type [AppName] into the input field.",
+7
+"Locate the correct app in the result list.",
+8
+"Tap the [InstallButton] to download and install."
+9
+]
+10
+},
+11
+...
+12
+]
+13
+InputMobileTasks: {tasks}
+Output: Extractallvalidreusableworkflowsfromtheinputabove,followingtherules. Output
+strictlyinJSONformatasshownintheexamples,withoutextraexplanationorcommentary.
+Restateclickactiondescriptionforstationarymemory.
+Formatthegivencontextinto: click [ui element] to [purpose]
+Requirements:
+1. ui element: concisenameordescriptionoftheclickedUIelement.
+2. purpose: clearexplanationoftheclick’sgoal.
+Examples:
+1. clicktheChromeicontosearchforinformationonline
+2. clicktheMoreInfobuttontoviewquiz-relateddetails
+3. clickthesecondsearchresulttoreadabouthikingtrails
+InputContext:
+ActionDescription: {actiondescription}
+ActionResult: {actionresult}
+Outputtheformattedactiondescriptiondirectlywithoutanyadditionaltext.
+
+--- Page 18 ---
+ActionInferencePrompt
+YouareanassistantforinferringuseractionsbasedonmobileUIscreenshots.
+Youwillbegiventwoscreenshots:
+1. BeforeAction: AscreenshotoftheUIbeforetheuserperformedtheaction.
+2. AfterAction: Ascreenshotshowingtheresultoftheaction.
+Yourtaskisto:
+GeneralAction
+• Provideaconciseactiondescriptionofwhattheuserdid. (e.g.,"type’blenderrecom-
+mendation’intothesearchbar.","stopandsetthetaskascompleted/impossible."). Start
+withverb.
+• Provideaconciseactionresultdescribingtheeffectoftheaction.
+Outputformat(strictlyJSON,noextraexplanationorformatting):
+{
+1
+"action_desc": "<description of the user action>",
+2
+"action_result": "<description of the outcome of the action>"
+3
+}
+4
+SwipeAction
+• Provideaconciseactiondescriptionofwhattheuserdid(e.g.,"scrolluponthehome
+feed").
+• Provideaconciseactionresultdescribingtheeffectoftheaction(e.g.,"Bydoingthis...").
+Outputformat(strictlyJSON,noextraexplanationorformatting):
+{
+1
+"action_desc": "<a concise description of the user action. For swipe
+2
+actions, only use direction terms: 'up', 'down', 'left', or 'right
+'>",
+"action_result": "<description of the outcome>"
+3
+}
+4
+ClickAction
+• Provideaconciseactiondescriptionofwhattheuserclicked. Startwithaverb. (e.g.,
+"clickonthesettingsiconinthetopright")
+• Provideaconciseactionresultdescribingwhathappenedaftertheclick(e.g.,"Bydoing
+this...").
+Outputformat(strictlyJSON,noextraexplanationorformatting):
+{
+1
+"action_desc": "<description of the user action. (e.g., \"click on the
+2
+settings icon in the top right\")>",
+"action_result": "<description of the outcome>"
+3
+}
+4
+ActionType{action_type}: {action_meaning}
+
+--- Page 19 ---
+F.2 GUIAgents
+Observe: Generatescreendescription.
+Youareasmartandhelpfulvisualassistantthatiswell-trainedtodescribesmartphonescreenshots.
+1. Youareprovidedwithascreenshotofthecurrentmobilephone.
+2. Youarerequiredtodescribethisscreen’smaincontentanditsfunctionality. Theoutputmust
+belessthanfivesentences.
+3. Youarerequiredtokeepthedescriptionasconciseandbriefaspossible.
+Input:
+CURRENTSCREENSHOT:{screenshot}
+YOURRESPONSE:
+Plan: Generatenextactiondescription.
+Youareasmartandhelpfulvisualassistantthatiswell-trainedtomanipulatemobilephones. Your
+taskistonavigateandtakeactiononthecurrentscreenstep-by-steptocompletetheuserrequest.
+1. Youareprovidedwithascreenshotofthecurrentmobilephone,togetherwiththetextual
+screendescription.
+2. Youareprovidedwithyourhistoryactionstodecideonyournextaction. Youcanbacktrack
+torevisethepreviousactionswhennecessary.
+3. Youareprovidedwithsomerelevantworkflowsforreference.
+4. You are required to analyze the task status and detail a reasonable future action plan to
+accomplishtheuserrequest.
+AnalysisGuidelines:
+1. Youshouldcheckwhetherthehistoricalactionshaveaccomplishedtheuserrequest.
+2. You should check the apps, icons, and buttons that are visible on the current screen and
+mightpertaintotheuserrequest.
+3. Youshouldcombinetheaboveinformationanddescribeyourfutureactionplan. Ifthegiven
+workflowsarerelevantandhelpful,youmayrefertothemforguidance.
+4. The"FutureActionPlan"mustconsistofasequenceofconcrete,low-levelactionsteps.
+OutputFormatYouarerequiredtorespondinaJSONformat,consistingof3distinctpartswith
+thefollowingkeysandcorrespondingcontent:
+[
+1
+{
+2
+"Thought": "<Analyze the logic behind your next single-step action and
+3
+your future action plan to fulfill the user request.>",
+"Future Action Plan": [
+4
+{"type": "<ACTION_TYPE>", "description": "<Natural language description
+5
+of the action>"},
+...
+6
+]
+7
+}
+8
+]
+9
+CURRENTSCREENSHOT:{screenshot}
+SCREENDESCRIPTION:{screendescription}
+HISTORYACTIONS:{historyactions}
+USERREQUEST:{userrequest}
+RELEVANTWORKFLOWS:{relevantworkflows}
+YOURRESPONSE:
+
+--- Page 20 ---
+Predict: Generatedetailedactionarguments.
+Youareasmartandhelpfulvisualassistantthatiswell-trainedtomanipulatemobilephones. Your
+taskistonavigateonthecurrentscreentocompletetheuserrequest.
+1. Youareprovidedwithascreenshotofthecurrentmobilephone.
+2. Youareprovidedwithabriefsummarizationofthescreencontent.
+3. Youareprovidedwithhistoryactionstryingtoaccomplishtheuserrequest,togetherwith
+thepreviousactionresultthatindicateshowthecurrentscreenshotisobtained.
+4. YouareprovidedwithaRelevantUIElementthatvisuallyrepresentsthemostrelevantUI
+componentforthenextaction.
+5. Youarerequiredtodecideonthenextsingle-stepvalidactiontobeconductedonthecurrent
+screensoastofulfilltheuserrequest.
+ValidActionsontheScreen: {action_space}
+Output Format: You must choose one of the valid APIs provided above and respond in the
+corresponding API call format. Your response should be strictly structured in JSON format,
+consistingofthefollowingkeysandcorrespondingcontent:
+{
+1
+"THINK": "<Analyze the logic behind your next single-step action.>",
+2
+"NEXT": "<Describe the next single-step action in words, e.g. 'click on the
+3
+.... located at ...'>",
+"ACTION": "<Specify the precise API function name without arguments, e.g.,
+4
+click_element. Leave it empty if none applies or task is complete.>",
+"ARGS": "<Specify arguments in dictionary format, e.g., {'bbox': [0,1,2,3]}.
+5
+Leave empty if not needed or task complete.>",
+"REASON": "<Explain your reasoning for choosing this action.>"
+6
+}
+7
+OutputExamples:
+{
+1
+"THINK": "...",
+2
+"NEXT": "...",
+3
+"ACTION": "click_element",
+4
+"ARGS": {"bbox": [100, 345, 219, 826]}
+5
+}
+6
+{
+1
+"THINK": "...",
+2
+"NEXT": "...",
+3
+"ACTION": "scroll",
+4
+"ARGS": {"direction": "down"}
+5
+}
+6
+{
+1
+"THINK": "...",
+2
+"NEXT": "...",
+3
+"ACTION": "press_home",
+4
+"ARGS": {}
+5
+}
+6
+Inputs:
+• CURRENTSCREENSHOT:{screenshot}
+• SCREENCONTENT:{screen_desc}
+• HISTORYACTIONS:{history_actions}
+• PREVACTIONRESULT:{prev_action_result}
+• USERREQUEST:{user_request}
+• RELEVANTUIELEMENT:{relevant_ui}
+• YOURRESPONSE:
+
+--- Page 21 ---
+PromptforOS-Atlas.
+You are a foundational action model capable of automating tasks across various digital envi-
+ronments, including desktop systems (Windows, macOS, Linux), mobile platforms (Android,
+iOS),andwebbrowsers. Youinteractwithdigitaldevicesinahuman-likemanner: byreading
+screenshots,analyzingthem,andtakingappropriateactions.
+Expertise:
+1. Grounding: Given a screenshot and description, assist users in locating elements. Infer
+best-fitelementswhenimplicit.
+2. Executable Language Grounding: Given a screenshot and task instruction, determine
+executableactionstocompletethetask.
+You are now operating in Executable Language Grounding mode. Your goal is to suggest
+executableactionsthatbestfituserneeds.
+1. BasicActions(availableacrossallplatforms):
+[
+1
+{
+2
+"name": "CLICK",
+3
+"purpose": "Click at the specified position.",
+4
+"format": "CLICK <point>[[x-axis, y-axis]]</point>",
+5
+"example": "CLICK <point>[[101, 872]]</point>"
+6
+},
+7
+{
+8
+"name": "TYPE",
+9
+"purpose": "Enter specified text at the designated location.",
+10
+"format": "TYPE [input text]",
+11
+"example": "TYPE [Shanghai shopping mall]"
+12
+},
+13
+{
+14
+"name": "SCROLL",
+15
+"purpose": "Scroll in the specified direction.",
+16
+"format": "SCROLL [direction (UP/DOWN/LEFT/RIGHT)]",
+17
+"example": "SCROLL [UP]"
+18
+}
+19
+]
+20
+2. CustomActions(environment-specific): Customactionsextendfunctionalitytohandleunseen
+oruser-definedtasks.
+{action_space}
+Instruction: In most cases, task instructions are high-level and abstract. Carefully read the
+instructionandactionhistory,thenreasontodeterminethemostappropriatenextaction.
+OutputRequirements: Youmuststrictlygeneratetwosections:
+• Thoughts: concisereasoning(max20words).
+• Actions: theactualnextone-stepaction.
+Inputs:
+• Screenshot: {screenshot}
+• Task: {user_request}
+• History: {history_actions}
+OutputFormat:
+thoughts: "<a concise description of reasoning>"
+1
+actions: "<only next one step action usage>"
+2
+Table9: PrompttemplateforOS-Atlasmodel.
+
+--- Page 22 ---
+ActionspaceforOS-Atlas.
+[
+1
+{
+2
+"name": "PRESS_ENTER",
+3
+"purpose": "Press an enter button to confirm the input, or submit the
+4
+input, or start a new line of text.",
+"format": "PRESS_ENTER",
+5
+"example": "PRESS_ENTER"
+6
+},
+7
+{
+8
+"name": "PRESS_HOME",
+9
+"purpose": "Press a home button to navigate to the home page.",
+10
+"format": "PRESS_HOME",
+11
+"example": "PRESS_HOME"
+12
+},
+13
+{
+14
+"name": "PRESS_BACK",
+15
+"purpose": "Press a back button to navigate to the previous screen.",
+16
+"format": "PRESS_BACK",
+17
+"example": "PRESS_BACK"
+18
+},
+19
+{
+20
+"name": "STOP",
+21
+"purpose": "Stop and set the state of the task.",
+22
+"format": "STOP [task_status (SUCCESS/FAILURE)]",
+23
+"example": "STOP [SUCCESS]"
+24
+}
+25
+]
+26

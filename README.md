@@ -74,8 +74,7 @@ Knowledge-Markdown/
 ├── Cross_Topic/                 # 跨综述交叉分析（核心研究工具）
 │   ├── comparison-matrix.md         # 核心矩阵：GUI Agent × Memory × Self-Evolve
 │   ├── gap-tracker.md               # 全局 Gap 分层（A/B/C 类）
-│   ├── gui-agent-x-memory.md        # GUI Agent × Agent Memory 交叉分析
-│   ├── gui-agent-x-self-evolving.md # GUI Agent × Self-Evolving 交叉分析
+│   ├── main-line.md                 # 当前主线问题定义
 │   ├── taxonomy-draft.md            # 综述分类框架草稿
 │   └── inprogress/                  # 批量同步时的中间更新草稿
 │
@@ -173,8 +172,7 @@ Knowledge-Markdown/
 |------|------|------|
 | 对比矩阵（GUI × Memory × Self-Evolve）| [Cross_Topic/comparison-matrix.md](Cross_Topic/comparison-matrix.md) | cross-domain, memory, self-evolving |
 | 全局 Gap 分层（A/B/C 类，7 个 Gap）| [Cross_Topic/gap-tracker.md](Cross_Topic/gap-tracker.md) | gap, research-direction, priority |
-| GUI Agent × Agent Memory 交叉分析 | [Cross_Topic/gui-agent-x-memory.md](Cross_Topic/gui-agent-x-memory.md) | episodic, procedural, user-centric |
-| GUI Agent × Self-Evolving 交叉分析 | [Cross_Topic/gui-agent-x-self-evolving.md](Cross_Topic/gui-agent-x-self-evolving.md) | AWM, offline-evolution, skills |
+| 主线问题定义 | [Cross_Topic/main-line.md](Cross_Topic/main-line.md) | main-line, rq, method-design |
 | 综述分类框架草稿 | [Cross_Topic/taxonomy-draft.md](Cross_Topic/taxonomy-draft.md) | taxonomy, survey-outline |
 | 批量同步中间稿 | [Cross_Topic/inprogress/](Cross_Topic/inprogress/) | sync, proposal, batch-update |
 

@@ -1,0 +1,1466 @@
+--- Page 1 ---
+Autonomous Continual Learning of Computer-Use Agents
+for Environment Adaptation
+TianciXue1 ZeyiLiao1 TiannengShi2 ZiluWang1 KaiZhang1 DawnSong2 YuSu1 HuanSun1
+Abstract 2023; Zhou et al., 2024; Zheng et al., 2024) or using a
+computer (Xie et al., 2024; Wu et al., 2024; Anthropic,
+Real-world digital environments are highly di-
+2024;Wangetal.,2025b),haveemergedasacentraland
+verseanddynamic. Thesecharacteristicscause
+highly promising research direction. With active invest-
+agents to frequently encounter unseen scenar-
+ments,generalistcomputer-useagents,suchasClaudeCom-
+ios and distribution shifts, making continual
+puterUse(Anthropic,2024;2025)andUI-TARS(Qinetal.,
+learning in specific environments essential for
+2025;Wangetal.,2025b),haveshownremarkableimprove-
+computer-use agents (CUAs). However, a key
+mentonestablishedbenchmarkslikeOSWorld(Xieetal.,
+challenge lies in obtaining high-quality and
+2024)andMind2Web(Dengetal.,2023;Xueetal.,2025).
+environment-grounded agent data without rely-
+ingoncostlyhumanannotation. Inthiswork,we However,strongbenchmarkperformancedoesnotnecessar-
+introduce ACuRL, an Autonomous Curriculum ilytranslateintorobustnessinreal-worldapplications. First,
+ReinforcementLearningframeworkthatcontinu- real-world digital environments are diverse with millions
+allyadaptsagentstospecificenvironmentswith of desktop and web applications, which renders compre-
+zero human data. The agent first explores tar- hensive coverage during training infeasible. As a result,
+get environments to acquire initial experiences. agentsfrequentlyencounterunfamiliarorcompletelynew
+During subsequent iterative training, a curricu- environmentswherethefunctionalitiesandinteractionlogic
+lum task generator leverages these experiences liebeyondtheirinternalknowledge. Forexample,Claude-
+together with feedback from the previous iter- 3.7’sperformancedropsfrom37%onOSWorldto10%on
+ation to synthesize new tasks tailored for the the later released ScienceBoard environments (Sun et al.,
+agent’scurrentcapabilities. Toprovidereliable 2025a). Second, real-world digital environments are not
+reward signals, we introduce CUAJudge, a ro- static(Panetal.,2024;Xueetal.,2025): theyevolvecon-
+bustautomaticevaluatorforCUAsthatachieves tinuously,withunderlyingfunctionalityanduserinterface
+93% agreement with human judgments. Em- beingupdatedovertime. Suchchangescausedistribution
+pirically, our method effectively enables both shiftsforagentstrainedunderstaticassumptions(Mirzadeh
+intra-environmentandcross-environmentcontin- etal.,2025). Thesechallengeshighlightcontinuallearning
+uallearning,yielding4–22%performancegains inspecifictargetenvironmentsasacentralrequirementfor
+withoutcatastrophicforgettingonexistingenvi- real-worldapplicability,whichremainsunexplored.
+ronments. Further analyses show highly sparse
+In this work, we make the first effort to fill the gap and
+updates(e.g.,20%parameters),whichhelpsex-
+introduce ACuRL (Figure 1), an autonomous curriculum
+plaintheeffectiveandrobustadaptation.Ourdata
+reinforcementlearningframeworkthateffectivelyenables
+andcodeareavailableathttps://github.c
+agentstocontinuallylearnintargetenvironmentswithout
+om/OSU-NLP-Group/ACuRL.
+any human supervision. The framework begins with the
+agentautonomouslyexploringtargetenvironmentsunder
+1.Introduction diverseweb-crawledcontextstoacquireinitialenvironment
+experiences, including the contents, interfaces, and avail-
+Driven by rapid advances in Large Language Models ablefunctionalities. Theagentisthentrainedthroughan
+(LLMs), autonomous agents capable of interacting with iterativereinforcementlearning(RL)algorithmtoprogres-
+digital worlds, such as browsing the web (Deng et al., sivelylearnenvironment-relatedknowledge. Attheendof
+eachiteration,anautomaticevaluatorwillassessthecurrent
+1TheOhioStateUniversity2UniversityofCalifornia,Berkeley.
+agent’s capabilities, and a curriculum generator uses this
+Correspondenceto:TianciXue<xue.681@osu.edu>,HuanSun
+<sun.397@osu.edu>. feedbackalongsideaccumulatedexperiencestosynthesize
+anewsetoftasks. Thedifficultylevelofthenewtasksis
+Preprint.February12,2026.
+1
+6202
+beF
+01
+]LC.sc[
+1v65301.2062:viXra
+
+--- Page 2 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+……
+Curriculum Generator
+Increases
+EASY Difficulty
+Same Skills,
+MEDIUM Different Contexts
+Environment Experience
+Decomposed into
+Collection HARD Subtasks
+State-difference outcome judgment
+CUAJudge
+Experience
+Evidence-grounded key point verification
+Key Point 1:
+Evidence (Verified)
+Key Point 2:
+Evidence (Verified)
+kcabdeeF Learning
+Iterative
+Curriculum RL
+With Zero Data
+Evaluation
+……
+Figure 1. The overview of our ACuRL framework. The agent first autonomously interacts with the environment to collect initial
+environmentexperience,andthenundergoesiterativeRLtrainingtocontinuallylearnandadapttotargetenvironmentsthroughcurriculum
+taskswithdifficultylevelstailoredtotheagent’scurrentcapabilitiesbasedonfeedbackfromCUAJudge.
+tailoredtotheagent’scurrentcapability. Toprovidereliable betweentheLLMbackboneandthevisionencoder. Specifi-
+evaluationrewardsignals,wefurtherintroduceCUAJudge, cally,parameterupdatesintheLLMbackboneareprimarily
+an automatic evaluator for CUAs, which achieves 93% concentrated in the higher layers, whereas updates in the
+agreementwithhumanjudgments. CUAJudgeperforms visionencodergraduallydiminishasdepthincreases. This
+adifferenceanalysisbetweeninitialandfinalenvironment analysishelpsexplainwhytheagentcancontinuallylearnin
+statesandverifiesthekeypointsfortaskcompletionbased targetenvironmentswhilepreservingperformanceinother
+on supporting screenshots and actions, enabling reliable environments,therebymitigatingcatastrophicforgetting.
+andinterpretableoutcomeassessment. Finally,toaddress
+the challenges of scaling RL to large-scale, realistic, and
+2.ContinualLearningofCUAs
+dynamicdigitalenvironments,weintroducealightweight
+unified environment management protocol that supports Background. We model a computer-use agent task exe-
+batchedenvironmentcreationanddeletionwithfaulttoler- cutionasaPartiallyObservableMarkovDecisionProcess
+ance.Combinedwithasynchronousenvironmentpreloading (POMDP), where S denotes the environment state space,
+andevaluation,ourdesignsignificantlyacceleratesthetrain- O the observation space, A the executable action space,
+ingprocess. T : S×A→S theenvironmenttransitionfunction,andR
+therewardfunction. Atstept,theagentreceivesapartial
+Empirical results across six representative environments
+observation o ∈ O, which may consist of a natural lan-
+demonstrate the effectiveness of our approach for both t
+guagetaskdescriptiontogetherwithobservationssuchas
+intra-environmentandcross-environmentcontinuallearning
+screenshots. Basedono ,theagentgeneratesanexecutable
+scenarios, yieldingperformanceimprovementsof4–22% t
+actiona ∈ A, e.g., clickingaspecificscreenlocationor
+acrossiterationsontargetenvironments. Moreover,while t
+issuing a keyboard command, which transitions the envi-
+continuallylearningintargetenvironments,theagentpre-
+ronmenttoanewstates ∈ S andyieldsanewpartial
+servesandinsomecasesimprovesperformanceinexisting t+1
+observationo ∈O. Theinteractionloopcontinuesuntil
+environments without significant catastrophic forgetting. t+1
+theagentproducesaterminationactionorreachesaprede-
+Wefurtherconductadetailedanalysisoftheagent’sinternal
+finedmaximumnumberofsteps. Finally,taskcompletion
+parameterupdatesduringcontinuallearning. Wefindthat
+isdeterminedbyanevaluator, whichassignsanoutcome
+onlyabout20%oftheparametersaresubstantiallyupdated,
+R: S ×A → [0,1]uponterminationbasedontheentire
+consistent with recent findings in RL (Mukherjee et al.,
+interactiontrajectory.AvalueofR=1indicatessuccessful
+2025). Furthermore, the update patterns differ markedly
+taskcompletion,whileR=0indicatesfailure.
+2
+
+--- Page 3 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+Continual Learning of Computer-Use Agents. Real- experience, thereby grounding task generation in the tar-
+world digital environments are diverse and evolving; as get environmental contexts (§3.1). To support effective
+a result, agents frequently encounter unfamiliar or com- continuallearning,wefurtherdesignacurriculumtaskgen-
+pletelynewenvironmentswherelittleorzerodataareseen erationscheme(§3.2)thatsynthesizestaskstailoredtothe
+duringtraining,makingcontinuallearninginsuchenviron- agent’sevolvingcapabilities. Forthetrajectoryevaluation
+mentsessential.Inthiswork,westudycontinuallearningof challenge, we introduce CUAJudge (§3.3) to accurately
+computer-useagents,whereabaseagentwithagenticcapa- evaluatetaskcompletionoverlong-horizontrajectories.
+bilities(e.g.,UIgroundingandplanning)continuallylearns
+fromasequentialsetoftasksU ={T(1),T(2),...,T(N)} 3.1.Computer-UseTaskGeneration
+over time. We consider two continual learning scenar-
+TogroundgeneratedCUAtasksindynamic,multimodalen-
+ios (Zheng et al., 2026) that differ in the scope of the
+vironmentalcontexts,weintroduceenvironmentexploration
+environment: (i) intra-environment continual learning,
+andcontextreviewstagestoacquiresomeenvironmentexpe-
+where tasks are drawn from a single environment with a
+rience,ensuringthatgeneratedtasksarerealistic,executable,
+shared interface and dynamics, but progressively vary in
+andgroundedindiverseenvironmentalcontexts.
+task goals, required skills, and complexity, requiring the
+agenttocontinuallyexpanditscapabilitiesovertime. (ii) Environment Exploration. This stage aims to collect
+cross-environmentcontinuallearning,wheretasksspan environment-specificexperienceforthetaskgeneratorG
+multiple heterogeneous environments with distinct inter- withinatargetenvironmentE,includingitsinterfaceand
+facesanddynamics,requiringtheagenttoadaptandtransfer functionalities, so that it can synthesize high-quality and
+knowledgeacrossenvironmentswhilemaintainingperfor- validtasks. WelettheagentM autonomouslyexplorethe
+manceonpreviouslyencounteredoneswithoutcatastrophic environment E without any constraints, interacting with
+forgetting. diverse interface elements and functions. The resulting
+actions sequences A = (a ,a ,...,a ) and observations
+Challenges. Onefundamentalchallengeincontinuallearn- 1 2 i
+O = (o ,o ,...,o )arerecordedasexplorationtrajecto-
+ing of CUAs lies in acquiring high-quality, environment- 1 2 i
+riesτexp = (o ,a ,o ,a ,...,o ,a ),whichserveaspre-
+groundedagentdata,asmanualannotationislabor-intensive, 1 1 2 2 i i
+liminaryexperienceforsubsequenttaskgenerationbyG.
+costly, and difficult to scale (Wang et al., 2025c). While
+existing self-evolving methods with synthetic tasks and Context Review. For each target environment E, we
+RL (Kuba et al., 2025; Zhao et al., 2025; Huang et al., first collect a diverse set of real-world contexts C =
+2025;Liuetal.,2025a)breakfreefromhumaneffortand (c ,c ,...,c )viawebcrawling,whereeachcontextcorre-
+1 2 i
+haveshownpromiseformathandcodingtasks,thereare spondstodifferentuser-createdartifacts(e.g.,documents,
+uniquechallengesincontinuallearningofCUAsw.r.t. task emails,slides,orspreadsheets). Examplesofcontextsare
+generationandtrajectoryevaluationthatrendertheseexist- providedinAppendixH.TheagentM thenactivelyinter-
+ingmethodsinfeasible: (1)Taskgeneration. Computer-use actswiththeenvironmenttoreviewandunderstandthese
+tasks must be grounded in dynamic, multimodal environ- contexts(e.g.,inapresentationsoftware,navigatingthrough
+mentalcontexts(e.g.,differentinitialstatesofsoftware)that slidestoreviewthecontentoneachpage). Theresulting
+arerarelypresentinpretrainingdata,makingenvironment- interactionsequencesarerecordedascontexttrajectories
+agnostic generation unreliable (Kuba et al., 2025; Zhao τctx. ConditioningthetaskgeneratorGontheseobserved
+et al., 2025). (2) Trajectory evaluation. Unlike domains contexttrajectoriessignificantlyincreasestaskdiversityand
+withverifiablerewardsreadilyavailablesuchasmathand bettercapturesthecomplexityofreal-worlduserrequests.
+coding (Zhao et al., 2025; Guan et al., 2025), computer- SeeAppendixB.3formoredetails.
+usetaskcompletioncannotbereliablydeterminedfromthe
+final state alone but needs to refer to a long trajectory of
+3.2.IterativeRLwithCurriculumLearning
+multimodalobservationsandactionsthatoftenintroduces
+thelongcontextissue,makingitdifficulttoobtainreliable Traditionalreinforcementlearningparadigmstypicallyrely
+rewardsignalsduringRL. onafixedpooloftrainingtasksthroughouttheentirelearn-
+ingprocessoremployfilteringstrategiestoselecttasksthat
+provideeffectivelearningsignals(Yuetal.,2025;Zheng
+3.ACuRL
+etal.,2025;Anetal.,2025). However,theseapproaches
+To address the aforementioned challenges, we intro- failtodynamicallyadjusttrainingtasksbasedontheagent’s
+duceACuRL,anAutonomousCurriculumReinforcement evolvingcapabilities. Consequently,overlydifficulttasks
+Learningframework. Specifically,forthetaskgeneration stillremainunsolvedduetothelackofintermediatesuper-
+challenge,theagentfirstinteractswithtargetenvironments visionorstructuredsubtasksthatenableprogressiveknowl-
+underdiversecontextstoaccumulateenvironment-specific edgeacquisition,whiletasksthathavebecometrivialcon-
+tinue to be sampled instead of being replaced with more
+3
+
+--- Page 4 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+challengingones. Asaresult,taskdifficultyfailstokeep subtasklearning. Specifically,thegeneratorfirstanalyzes
+pacewiththeagent’scapabilities,hinderingeffectivecon- taskstoidentifytheunderlyingsub-stepsandskillrequire-
+tinuallearning(Ladoszetal.,2022;Diaz-Boneetal.,2025). ments (e.g., invoking functions or manipulating objects),
+ThisissueisparticularlypronouncedintheCUAdomain, andthensynthesizessimpler,skill-focusedbutrealistictasks
+where agents usually exhibit weak performance in target thataregroundedinuser-createdartifacts.
+environments. Toaddressthesechallenges,weintroducean
+Through this progressive task generation, the curriculum
+iterativecurriculumRLframeworkthatdynamicallyadjusts
+generatordynamicallyadjuststaskdifficultywiththeagent’s
+taskdifficultyduringtheagent’slearningprogress. Specifi-
+evolvingcapabilities,enablingeffectivecontinuallearning.
+cally,wetraintheagentoverN iterations,eachconsisting
+Notably,underourzero-datasetting,notasksareavailable
+of x optimization steps. At the end of each iteration, we
+atthebeginningoftrainingtoassesstheagent’sinitialcapa-
+evaluatetheagent’scapabilitiesusingthetasksfromthecur-
+bility. Toaddressthis,weletthegeneratorGsynthesizean
+rentiteration,aprocesswerefertoascapabilityevaluation.
+initialtasksetbasedoncontextandexplorationtrajectories.
+TheevaluationfeedbackthenguidesthetaskgeneratorG
+Wethenconductacapabilityevaluationonthistasksetto
+toconstructcurriculumtaskswithadjusteddifficultyforthe
+obtain feedback, which is subsequently used to generate
+nextiteration.
+thetasksetforIteration1,explicitlytailoredtothecurrent
+CapabilityEvaluation. Attheendofiterationn,theagent agent. WerefertothisinitializationphaseasIteration0.
+isevaluatedonthetasksetT(n). Foreachtaskt(n) ∈T(n),
+k Toassessthevalidityofthegeneratedtasks,weconducta
+we conduct m rollouts and quantify performance as the
+human evaluation on 144 tasks, uniformly sampled from
+meansuccessrateacrosstheserollouts.
+differenttrainingiterationsacrosssixenvironments. The
+m resultsshowthat94%ofthegeneratedtasksarevalid(i.e.,
+s(n) = 1 (cid:88) I (cid:16) y(n) =1 (cid:17) , (1) meaningful and executable), demonstrating the effective-
+k m k,j
+j=1 nessofourproposedmethod. Beyondvalidity,wefurther
+analyzehowthesynthesizedtasksevolveacrossiterations.
+where y k (n ,j ) denotes whether the agent successfully com- AsshowninFigure3inAppendixB,theaveragetasklength
+pletestaskt(n)inthej-throllout. increasessteadilythroughouttraining,servingasaproxyfor
+k
+growingtaskdifficulty. Tofurthercorroboratethistrend,we
+CurriculumTaskGeneration. Drawingonthefeedback
+qualitativelyexaminerepresentativeexamplesandobserve
+fromthecapabilityevaluationatiterationn, wegenerate
+aclearprogressionfromsimplesingle-objectoperationsto
+a new set of tasks T(n+1) with different skills tailored to
+morecomplextasksinvolvingmulti-objectinteractionsand
+theagent’scurrentcapability. Here,weusethetermskill
+thecompositionofmultiplesubtasks. Additionaldetailsare
+torefertoarecurring,reusable,andsemanticallymeaning-
+providedinAppendixDwithexamplesshowninTable8.
+ful sub-goalor interaction patternrequired to completea
+Together,theseresultsindicatethatourmethodco-evolves
+task,whichcanbeexplicitlyinstantiatedasasubtaskinour
+thelearningsignalswiththeagent’scapabilities,whichwill
+curriculumgenerationprocess. Formally,giventheprevi-
+enableeffectivecontinuallearningforcomputer-useagents.
+oustasksetT(n) andevaluationfeedback{s(n)},context
+k
+trajectories τctx, exploration trajectories τexp, the genera-
+3.3.AutomaticEvaluator
+tor produces a new task set for the next training iteration
+T(n+1) ∼G(·|τctx,τexp,T(n),{s(n)}). Specifically,tasks Anotherfundamentalchallengeincomputer-useagentlearn-
+k
+inT(n)arepartitionedintothreedifficultycategoriesbased ingliesinobtainingreliablerewardsignals. Unlikemath-
+onthresholdsδ andδ toguidetheadaptivetaskgen- ematics or programming, where correctness can be veri-
+high low
+erationprocess: (i)EasyLevel(s(i) >δ ): Astheagent fiedagainstground-truthanswersortestcases,evaluating
+k high computer-usetasksrequiresexaminingintermediateinfor-
+mastersthecoreskillsrequiredforthesetasks,thegenera-
+mativestates(e.g.,checkingthetimeselectionstepwhen
+torwillsynthesizemorechallengingvariantsbyincreasing
+makingareservation),makingevaluationbasedsolelyon
+complexity,suchasincorporatingadditionalskillrequire-
+thefinalenvironmentstateunreliable. Moreover,rule-based
+ments or extending the task horizon. (ii) Medium Level
+rewardsusuallyrequireextensivehumanannotation,which
+(δ ≤s(i) ≤δ ): Sincetheagenthasnotyetfullymas-
+low k high islabor-intensiveandcostlytoscale(Gouetal.,2025a).
+teredtheskillsrequiredbythesetasks,thegeneratorwill
+promotediversitywhilepreservinglearnabilitybysynthesiz- To address these challenges, we propose CUAJudge, a
+ingtasksthatsharecoreskillsbutaregroundedindifferent reliableautomaticevaluatorofaCUA’sexecutiontrajecto-
+scenariosorpersonas. (iii)HardLevel(s(i) < δ ): For ries. OurdesignbuildsontheWebJudge(Xueetal.,2025)
+k low
+tasksthatstillremaindifficult,thegeneratorapplieshierar- pipeline,whichconsistsofthreestages:keypointidentifica-
+chicaldecomposition,breakingeachtaskintomeaningful tion,keyscreenshotidentification,andoutcomejudgment.
+subtaskstoisolateessentialskillsandenableintermediate Specifically, key point identification extracts task-critical
+4
+
+--- Page 5 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+requirementsfromthetaskdescription;keyscreenshotiden- FollowingGRPO,wecomputeatrajectory-levelnormalized
+tificationselectsinformativescreenshotsfromthetrajectory; advantageusingthegroupofsampledtrajectories:
+andoutcomejudgmentdeterminestaskcompletionbyrea-
+R(i)−mean({R(j)}G )
+soningoverthetaskdescription,keypoints,keyscreenshots, Aˆ(i) = j=1 , (4)
+std({R(j)}G )
+andactionhistory. However,WebJudgeisprimarilytailored j=1
+towebtasks,whichcanbeviewedasasubsetofthebroader
+whereR(i)denotestherewardfortrajectoryτ(i)produced
+computer-usetasks. Ingeneral,computer-usetasksexhibit
+byCUAJudge. Weassignthesametrajectory-leveladvan-
+substantiallyhighercomplexity,requiringmorefine-grained tageAˆ(i)toallactionswithinthetrajectory.
+examination of internal system and software states (e.g.,
+OS-levelorapplicationstate),whereaswebtasksoftenonly
+4.Experiments
+involve verifying surface-level effects, such as whether a
+specificfilterhasbeenapplied. Accordingly,CUAJudge
+4.1.ExperimentSetup
+extendsWebJudgewithtwokeymodificationstoaddress
+the unique challenges of general computer-use tasks and BenchmarksandMetrics. Weconsidersixrepresentative
+improveevaluationreliability: environments: LibreOfficeImpress,LibreOfficeWriter,and
+LibreOfficeCalcfromOfficeWorld(Laietal.,2025)and
+• Statedifferenceanalysis. Manycomputer-usetaskscan
+OSWorld(Xieetal.,2024)forofficeproductivitytools(we
+bereliablyverifiedbycomparingdifferencesbetweenthe
+will use Impress, Writer, Calc as the names of the three
+initialandfinalenvironmentstates,suchaseditingslide
+environmentsforsimplicity);ThunderbirdfromOSWorld
+contentorgeneratingplots. Accordingly,weaugmentthe
+for email management; and Celestia and KAlgebra from
+outcomejudgmentstagewithanexplicitstate-difference
+ScienceBoard(Sunetal.,2025a)asspecializedscientific
+analysis that highlights these changes and incorporates
+software. Office tools represent some of the most com-
+themintothefinaloutcomedetermination.
+monlyusedsoftware, whereusersexpectagentstoadapt
+• Evidence-groundedkeypointverification. CUAJudge
+effectivelytosupporteverydayproductivitytasks. Thunder-
+explicitlyevaluatesthecompletionofeachkeypointand
+bird,whilealsoareal-worldemailclient,islessprevalent
+requiresconcreteevidenceforeverydecision,including
+in pretraining data and thus presents a less familiar envi-
+the supporting screenshots and corresponding actions.
+ronment. In contrast, Celestia and KAlgebra are profes-
+This evidence-grounded design substantially improves
+sionalscientificapplicationsforastronomicalvisualization
+theprecisionofevaluation.
+and symbolic mathematics, which are niche and serve as
+testbedsforcontinuallearningandadaptationtonewenvi-
+3.4.Optimization
+ronments. Forevaluation,weadoptthecorrespondingtasks
+fromOSWorld(Xieetal.,2024), OfficeWorld(Laietal.,
+Following Wei et al. (2025c), we extend the Group Rel-
+2025),andScienceBoard(Sunetal.,2025a),andmeasure
+ativePolicyOptimization(GRPO)algorithm(Shaoetal.,
+performancebysuccessratesundereachbenchmark’srule-
+2024)toamulti-turnsettingbydecomposingeachtrajectory
+basedevaluationprotocol. Table7inAppendixFpresents
+intoasequenceofstep-levelactiongroupsandoptimizing
+the task statistics for each environment. To mitigate the
+them jointly. For a given task I, we sample a group of
+G trajectories in the environment {τ(i)}G . Each trajec- effectsofnetworkinstability,environmentalvariabilityand
+i=1
+toryτ(i) ={(s(i),a(i))}T(i) consistsofmultipleinteraction inference randomness, we report the mean and standard
+t t t=1 deviationoverthreeruns1.
+steps,wheres(i)denotestheobservationatsteptanda(i)
+t t
+denotesanactiongeneratedautoregressively. Weoptimize To evaluate our automatic evaluator, we collect 1,444
+thepolicybyminimizingtheobjective: publiclyreleasedtrajectoriesfromOSWorldgeneratedby
+Claude-Sonnet-4,Claude-Sonnet-4.5,O3,andOpenCUA-
+L(θ)=− G 1 (cid:88) G T 1 (i) (cid:88) T(i) |a 1 (i)| | (cid:88) a( t i)| (cid:104) A˜( t, i k ) −βD KL (θ) (cid:105) , 7 ca B ll, a a g n e d nt a s gr ( e X e i m e e e n t tb a e l. t , w 2 e 0 en 24 C ) U . A W Ju e d r g e e po a r n t d p t r h e e c O isi S o W n, or r l e d -
+i=1 t=1 t k=1 rule-basedevaluator. Tofurtherevaluatethereliabilityof
+(2)
+CUAJudgeduringRLtraining,wesample288trajectories
+where A˜(i) = min (cid:8) r(i)(θ)Aˆ(i),clip (cid:0) r(i)(θ),1 − ϵ,1 + acrosssixenvironmentsfromdifferentiterationsandcom-
+t,k t,k t,k
+ϵ
+(cid:1) Aˆ(i)(cid:9)
+is the advantage for the k-th token in the action
+puteprecision,recallandagreementwithhumanjudgments.
+a(i)oftrajectoryτ(i)andtheimportancesamplingratiofor ImplementationDetails.WeadoptUI-TARS-1.5-7B(Seed,
+t
+thek-thtokenoftheactionatsteptisdefinedas 2025)asthebaseagent. AsitwasreleasedpriortoScience-
+Board, environments such as Celestia and KAlgebra are
+π (a(i) |I,s(i),a(i) )
+r(i)(θ)= θ t,k t t,<k . (3) 1Threeevaluationrunsalreadyrequire60agentevaluations
+t,k π (a(i) |I,s(i),a(i) ) (1–2hourseach).
+θold t,k t t,<k
+5
+
+--- Page 6 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+Table1.Averagesuccessrate(±standarddeviation)acrosssixenvironmentsforthebaseagentandagentsthatcontinuallylearninspecific
+environmentsviaACuRL.Rowscorrespondtoagentscontinuallylearninginaspecificenvironmentandcolumnstotestingenvironments.
+Theoverallscoreisthemeanperformanceoverallsixenvironments.Bolddenotesthebestperformance.
+Agent Iteration Impress Calc Writer Thunderbird KAlgebra Celestia Overall
+UI-TARS-1.5-7B(Baseagent) – 31.1±1.0 6.5±1.6 10.8±1.4 35.5±3.9 10.8±1.8 17.2±1.7 18.7±0.9
+Iter1 34.2±0.5 5.9±0.6 13.0±0.5 44.5±3.9 14.0±1.8 19.2±1.7 21.8±0.6
+Impress Iter2 38.8±0.6 8.1±0.5 15.0±0.0 51.1±3.8 14.0±1.8 20.2±1.7 24.5±0.3
+Iter3 40.7±1.0 5.9±1.1 14.4±1.0 40.0±6.7 12.9±0.0 23.2±4.6 22.9±0.8
+Iter1 32.3±1.4 7.5±0.0 13.3±0.9 44.5±3.9 12.9±3.2 16.2±1.7 21.1±0.3
+Calc Iter2 31.7±1.0 7.8±1.1 12.8±0.5 46.7±0.0 19.4±3.3 13.2±3.5 21.9±1.2
+Iter3 33.2±2.4 9.0±0.5 11.7±0.9 37.8±3.9 16.1±3.3 13.1±1.8 20.2±0.6
+Iter1 30.7±2.5 6.9±1.1 13.0±1.2 44.5±3.9 14.0±1.8 17.2±1.7 21.1±0.3
+Writer Iter2 32.9±0.5 5.6±0.9 14.2±0.9 51.1±3.8 10.8±1.8 17.2±4.6 22.0±1.4
+Iter3 30.8±1.9 7.4±1.6 15.6±1.3 44.4±7.7 17.2±4.9 17.2±1.7 22.1±0.7
+Iter1 31.1±1.9 6.6±1.0 12.2±0.5 42.2±3.9 10.8±3.7 16.2±1.7 19.9±1.6
+Thunderbird Iter2 35.4±1.0 5.6±0.0 12.5±3.0 42.2±3.9 8.6±4.9 20.2±4.6 20.8±1.4
+Iter3 35.1±1.9 7.5±1.0 9.5±0.5 57.8±3.9 14.0±3.7 22.2±4.6 24.4±0.3
+Iter1 32.3±2.8 6.5±2.8 13.3±1.4 51.1±3.8 18.3±1.9 22.2±6.2 24.0±1.3
+KAlgebra Iter2 29.8±2.5 7.1±1.1 11.6±0.9 46.7±0.0 20.5±1.8 19.2±4.6 22.5±0.4
+Iter3 30.8±1.6 5.3±1.0 11.7±1.7 48.9±3.8 28.0±4.9 14.2±1.8 23.2±0.9
+Iter1 33.6±2.4 5.6±0.0 15.3±0.5 48.9±3.8 11.8±1.8 22.2±1.7 22.9±0.2
+Celestia Iter2 31.7±1.6 5.0±1.4 15.3±1.2 42.2±3.9 15.0±1.8 23.2±1.7 22.1±0.2
+Iter3 34.2±1.6 7.5±1.0 15.3±0.5 48.9±3.8 15.0±1.8 24.2±3.1 24.2±0.4
+likelyunseentotheagent. Forourtaskgenerator,weuse takes5–10minutesdependingonthecluster’sCPUand
+GPT-5(OpenAI,2025). Foreachenvironment,wegenerate memoryresources. Asaresult,GPUsremainidleduring
+256tasksbasedondifferentcontextscrawledfromtheweb thisphase,causingtheentiretrainingpipelinetostall. To
+foreachiteration. Forautomaticevaluation,weadoptGPT- addressthisissue,weintroduceenvironmentpreloading:
+5-minitoreduceevaluationcost. SeeAppendixFformore whiletheagentisbeingupdated,aseparateworkerasyn-
+implementationdetails. chronouslyinitializesenvironmentsforthenexttraining
+stepanddeletespreviousenvironments. Furthermore,in-
+4.2.Infrastructure stead of synchronously evaluating trajectories after all
+rolloutscomplete,wedeployaseparateevaluationworker
+Building stable, efficient infrastructure for computer-use
+that continuously monitors completed trajectories and
+agentlearningposesuniquechallengescomparedtoother
+evaluatesthemasynchronouslyastheybecomeavailable.
+domains. Eachrollouttypicallyrequiresaseparate,isolated
+Thisdesignfurtherimprovesoveralltrainingefficiency.
+Linuxenvironmenttopreventcross-trajectoryinterference,
+resultinginsignificantresourceoverhead. Moreover,envi-
+4.3.Intra-EnvironmentContinualLearning
+ronmentinitializationandresponselatencydirectlyimpact
+trainingthroughput. Toenablehigh-throughputtrainingand As shown in Table 1, the agent achieves progressive
+scalableenvironmentdeployment,weintroduceaseriesof performance gains of 4–22% on the target environment
+infrastructure-level optimizations that accelerate training across training iterations, demonstrating effective intra-
+speedby3–5timesbasedonourpreliminaryexploration. environmentcontinuallearningwhereagentsautonomously
+acquire new skills and solve increasingly complex tasks
+• Unified environment management protocol. We in-
+withouthumansupervision. Importantly,performanceon
+troduce a lightweight API protocol that supports batch
+otherenvironmentsisalsolargelypreservedandinseveral
+creationanddeletionofenvironmentsthroughrequeststo
+casesevenimproved,withtheoverallperformanceshow-
+correspondingIPaddresseswithbuilt-infailuredetection
+ingconsistentimprovementsof2-6%,suggestingeffective
+and automatic restart mechanisms. This design greatly
+continuallearningwithoutcatastrophicforgetting. Weat-
+simplifiesenvironmentorchestrationandfacilitateseffi-
+tributethesegainstopositivecross-environmentknowledge
+cientlarge-scaleenvironmentscaling.
+transfer,wherebyagentstrainedononeenvironmentacquire
+• Asynchronousenvironmentpreloadingandevaluation.
+reusable interaction skills and shared action patterns that
+Environmentinitializationandtrajectoryevaluationare
+generalizetorelatedenvironments(e.g.,fromLibreOffice
+twomajorbottleneckstotrainingspeed. Ateachtraining
+ImpresstotherelatedLibreOfficeWriter). Weprovidea
+step,environmentsmustbereinitialized,whichtypically
+6
+
+--- Page 7 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+Table2. Theperformanceofcontinuallearninginthecross-environmentscenariowheretheagentsequentiallylearnsmorethanone
+environment.Rowscorrespondtoagentscontinuallylearninginoneormultipleenvironmentsandcolumnstotestingenvironments.The
+bestandsecond-bestresultsareboldedandunderlined.Theoverallscoreisthemeanperformanceoverallsixenvironments.
+Agent Impress Calc Writer Thunderbird KAlgebra Celestia Overall
+UI-TARS-1.5-7B(BaseAgent) 31.1 6.5 10.8 35.5 10.8 17.2 18.7
+Impress 40.7 5.9 14.4 40.0 12.9 23.2 22.9
+Calc 33.2 9.0 11.7 37.8 16.1 13.1 20.2
+KAlgebra 30.8 5.3 11.7 48.9 28.0 14.2 23.2
+Impress−→Calc 37.0 8.7 16.4 44.5 16.1 19.2 23.7
+Impress−→KAlgebra 36.7 6.8 15.0 46.7 18.3 20.2 24.0
+Impress−→KAlgebra−→Calc 33.9 6.6 16.1 51.1 16.1 24.2 24.7
+detailed analysis of these phenomena in Section 4.6 and Table3. Ablationstudyontheimpactofiterativetrainingand
+curriculumlearningintheLibreOfficeImpressenvironment.
+AppendixE.
+Method Iter1 Iter2 Iter3
+4.4.Cross-EnvironmentContinualLearning
+IterativeCurriculumRL 34.2 38.8 40.7
+-w/oIterativeTraining 34.2(-0.0) 34.0(-4.8) 32.6(-8.1)
+Toevaluatethegeneralizationofourapproachtothecross- -w/oCurriculumLearning 29.8(-4.4) 33.6(-5.2) 36.4(-4.3)
+environmentcontinuallearningscenario,weconductexper-
+imentsinwhichagentssequentiallylearntwoandthreedis-
+tinctenvironments. Specifically,weinitializeanagentthat
+4.5.AblationStudy
+hasalreadyadaptedtooneenvironment,thenperforman
+additionalroundofcontinuallearningtoenableadaptation Tovalidatetheimpactofeachcomponentinourmethod,
+todifferenttargetenvironments. Weconsiderbothclosely weconductaseriesofablationstudies,includingvariants
+relatedenvironmentpairs(i.e.,Impress→Calc)andsub- thatremoveiterativetrainingorcurriculumlearningduring
+stantiallydifferentpairs(i.e.,Impress→KAlgebra)aswell training. ToablateiterativeRLtraining,wetraintheagent
+asthree-environmentsequences(Impress→KAlgebra→ forthesamenumberofoptimizationstepsusingonlythe
+Calc)toevaluatewhethertheframeworkremainseffective tasksgeneratedinthefirstiteration(Iteration1: 75steps;
+acrossenvironmentswithdifferentlevelsofsimilarity. As Iteration 2: 150 steps; Iteration 3: 225 steps). To ablate
+showninTable2,theagentsconsistentlyretainstrongper- curriculum learning, we replace our task generator with
+formanceonpreviouslylearnedenvironmentswhileachiev- random task generation at each iteration, without using
+ingsubstantialgainsonnewlyintroducedones,regardless evaluationfeedbackfromthepreviousiteration.
+ofthesimilaritybetweenthetwoenvironments. Forexam-
+AsshowninTable3,removingeitheriterativeRLtraining
+ple,theImpress→KAlgebraagentimprovesitsKAlgebra
+orcurriculum-basedtaskgenerationresultsinsubstantial
+successratefrom10.8to18.3,whilelargelypreservingits
+performance degradation. Specifically, without iterative
+performance on LibreOffice Impress. Similarly, Impress
+training,theagentreachesitspeakperformanceat150train-
+→CalcattainscompetitiveperformanceonbothLibreOf-
+ingsteps(i.e.,Iteration2),whileadditionaltrainingsubse-
+ficeImpressandCalc. Importantly,thiscontinuallearning
+quentlyresultsindegradedperformance. Thisisbecause
+processremainseffectiveinthethree-environmentsetting,
+trainingonafixedtaskpoolcausestheagenttooverfiton
+achievingthehighestoverallperformance. Weconjecture
+thetrainingset,therebyimpairinggeneralizationtounseen
+thattheimprovementsobservedacrossseeminglyunrelated
+tasks. Inaddition,replacingcurriculum-basedtaskgener-
+environments are driven by transferable decision-making
+ationwithrandomgenerationyieldssmallerperformance
+patterns and shared interface-level knowledge, including
+improvements. Theseresultshighlighttheimportanceof
+genericexplorationstrategies,avoidingredundantactions,
+curriculum-driventaskgeneration,inwhichtaskdifficulty
+andcommonUIdesignconventions. Overall,theseresults
+isdynamicallyadjustedtoalignwiththeagent’sevolving
+demonstratethatourcurriculum-basedcontinuallearning
+capabilities,therebyenablingeffectivecontinuallearning.
+strategyfacilitateseffectiveknowledgeaccumulationwhile
+mitigating catastrophic forgetting. Moreover, it general-
+4.6.FutherAnalysis
+izesbeyondsingle-environmentspecializationandcanbe
+progressivelyextendedtomultipleenvironments,underscor- TheReliabilityofCUAJudge. Oneofthekeyfactorsthat
+ingitssuitabilityforcontinuallearninginrealistic,multi- determinestheeffectivenessofcontinuallearningthrough
+environmentscenarios. RListhereliabilityoftheautomaticevaluator. Tothisend,
+wecompareCUAJudgewiththerule-basedevaluatoron
+7
+
+--- Page 8 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+Table4.ComparisonofWebJudgeandCUAJudgeacrosstrajectoriesgeneratedbydifferentagents.
+Claude-Sonnet-4 Claude-Sonnet-4.5 O3 OpenCUA-7B Overall
+Evaluator Precision Recall Agreement Precision Recall Agreement Precision Recall Agreement Precision Recall Agreement Agreement
+WebJudge 71.7 82.7 84.8 79.4 84.1 84.2 38.6 53.1 88.4 59.0 71.0 85.0 85.6
+CUAJudge 74.8 86.4 87.0 82.1 84.8 85.9 42.1 50.0 89.4 66.2 71.0 87.5 87.5
+1,444publiclyreleasedtrajectories. AsshowninTable4 evolveasitcontinuallyadaptstotargetenvironments,we
+inAppendixC,CUAJudgeachievesahighagreementof analyzemodelsparsityacrossdifferentiterations. Formally,
+87.5% with the rule-based evaluator. Furthermore, com- wequantifythisbehaviorusingupdatesparsity(Mukherjee
+paredwiththestate-of-the-artevaluator(Xueetal.,2025; etal.,2025),whichmeasuresthefractionofparametersthat
+Lu` etal.,2025), CUAJudgeimprovesprecisionby4.1% remaineffectivelyunchanged. Letθ0,θ1 ∈Rndenotethe
+acrosstrajectoriesgeneratedbyfourdifferentagents,sub- modelparametersbeforeandafterfine-tuning,respectively,
+stantiallyreducingfalsepositiveevaluations. Tofurtherver- wherenisthetotalnumberoftrainableparameters. Given
+ifythatCUAJudgecanprovidereliablerewardsignalsfor atoleranceεtoignorenegligiblenumericalvariations,we
+trainingtasksandon-policytrajectoriesduringtraining,we defineupdatesparsityas
+conductahumanevaluationon288trajectories.Specifically, n
+wecollect48trajectoriesperenvironment,evenlysampled UpdateSparsity (θ0,θ1)=1− 1 (cid:88) I(cid:0) |θ1−θ0|>ε (cid:1) ,
+ε n i i
+acrossthreeiterationsfromsixenvironments. Asshownin i=1
+Table5,CUAJudgeconsistentlyexhibitshighagreement
+Ahighervalueindicatesfewerparametersareupdateddur-
+withhumanjudgments(93.7%). Notably,astrainingpro- ingtraining. Wesetthetoleranceεto1×10−5,following
+gressesacrossiterations,precisionandagreementremain Mukherjeeetal.(2025).
+consistentlyaround90%,suggestingthatCUAJudgedoes
+not expose exploitable shortcuts for reward hacking and
+88% stayswell-alignedwithactualtaskcompletionasjudgedby
+86%
+humans. Overall, these findings suggest that CUAJudge 84%
+couldserveasarobustandreliableautomaticevaluatorof 82%
+80%
+CUAtrajectoriesformanylearningparadigms,including 78%
+RejectionSamplingFine-Tuning(RFT)(Yuanetal.,2023), 76%
+74%
+Reflection(Shinnetal.,2023;Pauletal.,2024;Xueetal., 0 5 10 15 20 25
+Layer Index
+2023),andRL.
+Table5. CUAJudge’sprecision,recall,andagreementwithhu-
+manjudgmentson288trajectoriessampledacrossthreetraining
+iterationsandsixenvironments.
+Iteration Precision Recall Agreement
+Iteration1 98.0 96.2 96.6
+Iteration2 89.1 89.1 89.1
+Iteration3 95.8 95.8 95.6
+Overall 94.5 93.8 93.7
+TheSparsityofAgentUpdatesduringContinualLearn-
+ing. AsshowninTable1andTable2, underbothintra-
+environmentandcross-environmentcontinuallearningsce-
+narios,theagentachievessubstantialgainsintargetenvi-
+ronmentswhilemaintainingstableorevenimprovedper-
+formanceonotherenvironments,indicatingnocatastrophic
+forgetting. Although(Mukherjeeetal.,2025;Chenetal.,
+2025) observe sparse parameter updates during RL, their
+studiesarelimitedtolanguagemodels,leavingitunclear
+howparametersupdateformultimodalcomputer-useagents,
+wheredecision-makingisheavilydrivenbyvisualpercep-
+tionfromdense,information-richscreenshots. Therefore,to
+betterunderstandhowthemodel’sinternalrepresentations
+)%(
+ytisrapS
+I I t t e e r r a a t t i i o o n n 1 2 88%
+Iteration 3 86%
+84%
+82%
+80%
+78%
+76%
+74%
+0 5 10 15 20 25 30
+Layer Index
+(a)LLMbackbone
+)%(
+ytisrapS
+Iteration 1 Iteration 2
+Iteration 3
+(b)Visionencoder
+Figure2.Sparsityofparameterupdatesacrossdifferentiterations
+duringiterativeRLtraining,averagedoversixenvironments.
+AsshowninFigure2,althoughsparsitygraduallydecreases
+as training progresses, both the LLM backbone and the
+visionencoderremainhighlysparseoverall, witharound
+80%ofparametersshowingnosignificantchanges. This
+highsparsityhelpsexplainwhytheagentcancontinually
+learnintargetenvironmentswhilelargelypreservingper-
+formanceonothers. Moreover,thetwocomponentsexhibit
+distinctlayer-wisepatterns: theLLMbackbonemaintains
+relativelyuniformsparsityacrossmiddleandupperlayers
+(Layers3–27),whereasthevisionencoderbecomesincreas-
+inglysparsewithdepth,indicatingthatupdatesaremainly
+concentrated in lower layers. We also observe a striking
+contrast in the early layers of the two modules. The first
+onetotwolayersoftheLLMbackboneexhibitunusually
+highsparsity,whereasthefirstlayerofthevisionencoder
+showsmuchlowersparsity. Thisasymmetrysuggeststhat
+earlyvisionlayers,responsibleforlow-levelvisualpercep-
+tion,requirestrongeradaptationinnewenvironments,while
+earlyLLMlayersarelessdirectlyinvolvedinenvironment-
+specificperceptionordecisionmaking.
+8
+
+--- Page 9 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+5.RelatedWork Acknowledgments
+We review the most relevant related work here and de- The authors would thank colleagues from the OSU NLP
+fer additional discussions to Appendix A. Self-evolving groupforconstructivefeedback. Thisresearchwasspon-
+with RL has emerged as a promising paradigm that elim- soredinpartbyNSFCAREER#1942980,NSFCAREER
+inates reliance on human-annotated data and enables it- #2443149, the Alfred P. Sloan Research Fellowship, and
+erative improvement. Absolute Zero (Zhao et al., 2025) gifts from Cisco and Amazon. We also appreciate com-
+introduces a zero-data approach that self-generates tasks putationalresourcesprovidedbytheOhioSupercomputer
+and then learns from executor-verified feedback, while Center(OhioSupercomputerCenter,1987). Theviewsand
+Agent0(Xiaetal.,2025)furtherextendsitbyincorporating conclusionscontainedhereinarethoseoftheauthorsand
+externaltoolstoovercomeinternalknowledgelimitations. shouldnotbeinterpretedasrepresentingtheofficialpoli-
+However, these approaches are not directly applicable to cies,eitherexpressedorimplied,oftheU.S.government.
+computer-useagents, astasksynthesismustbegrounded TheU.S.Governmentisauthorizedtoreproduceanddis-
+indynamicinteractiveenvironmentsandcannotrelysolely tributereprintsforGovernmentpurposesnotwithstanding
+onthemodel’sinternalknowledge,whilereliablerewards anycopyrightnoticeherein.
+aredifficulttoobtainfromlongmultimodaltrajectories. Al-
+thoughSEAgent(Sunetal.,2025b)studiescomputer-use
+References
+agents, it relies on single-turn RL rather than end-to-end
+multi-turntraining,thereforefailstocapturetheemergent An,C.,Xie,Z.,Li,X.,Li,L.,Zhang,J.,Gong,S.,Zhong,
+and important self-refinement and exploration behaviors M.,Xu,J.,Qiu,X.,Wang,M.,andKong,L. Polaris: A
+arisingfromiterativelearning. Moreover,itfocusesonspe- post-training recipe for scaling reinforcement learning
+cialistagentswithinasingleenvironment,overlookingthe on advanced reasoning models, 2025. URL https:
+morerealisticcross-environmentcontinuallearningscenar- //hkunlp.github.io/blog/2025/Polaris.
+ios. Incontrast,wesystematicallystudycontinuallearning
+Anthropic. Developingacomputerusemodel. Anthropic
+forCUAs,bridgingthegaptodiverseanddynamicdigital
+News,Oct2024. URLhttps://www.anthropic.
+environments in the real world, where agents continually
+com/news/developing-computer-use.
+learninbothintra-environmentandcross-environmentsce-
+narioswithouthumansupervision.
+Anthropic. Claude3.7sonnetandclaudecode. Anthropic
+News,Feb2025. URLhttps://www.anthropic.
+6.Conclusion com/news/claude-3-7-sonnet.
+In this work, we propose a fully autonomous curriculum Awadallah, A., Lara, Y., Magazine, R., Mozannar, H.,
+reinforcement learning framework (ACuRL) that enables Nambi, A., Pandya, Y., Rajeswaran, A., Rosset, C.,
+computer-use agents to continually adapt to specific en- Taymanov, A., Vineet, V., et al. Fara-7b: An effi-
+vironments. Our method is formulated under a zero-data cient agentic model for computer use. arXiv preprint
+settingandrequiresonlythetargetenvironmentitself. By arXiv:2511.19663,2025.
+groundingtaskgenerationinaccumulatedenvironmentex-
+perienceandprogressivelyadjustingtaskdifficultytomatch Bai,S.,Cai,Y.,Chen,R.,Chen,K.,Chen,X.,Cheng,Z.,
+theagent’sevolvingcapabilities,ourapproacheffectively Deng, L., Ding, W., Gao, C., Ge, C., Ge, W., Guo, Z.,
+improvesperformanceintargetenvironmentswhilepreserv- Huang,Q.,Huang,J.,Huang,F.,Hui,B.,Jiang,S.,Li,Z.,
+ing generalization to others. Experiments across six rep- Li,M.,Li,M.,Li,K.,Lin,Z.,Lin,J.,Liu,X.,Liu,J.,Liu,
+resentativeenvironmentsdemonstrateconsistentimprove- C.,Liu,Y.,Liu,D.,Liu,S.,Lu,D.,Luo,R.,Lv,C.,Men,
+mentsinbothintra-environmentandcross-environmentcon- R.,Meng,L.,Ren,X.,Ren,X.,Song,S.,Sun,Y.,Tang,
+tinual learning scenarios without catastrophic forgetting. J.,Tu,J.,Wan,J.,Wang,P.,Wang,P.,Wang,Q.,Wang,
+Moreover,ouranalysisshowsthatsuchadaptationisdriven Y., Xie, T., Xu, Y., Xu, H., Xu, J., Yang, Z., Yang, M.,
+byhighlysparseparameterupdates,sheddinglightonhow Yang,J.,Yang,A.,Yu,B.,Zhang,F.,Zhang,H.,Zhang,
+agentscontinuallylearnintargetenvironmentswhilemain- X., Zheng, B., Zhong, H., Zhou, J., Zhou, F., Zhou, J.,
+taining previously acquired skills. Overall, these results Zhu,Y.,andZhu,K. Qwen3-vltechnicalreport,2025.
+demonstratethatourproposedACuRLmethodprovidesa URLhttps://arxiv.org/abs/2511.21631.
+scalable and effective paradigm for continual learning in
+Bai,Y.,Jones,A.,Ndousse,K.,Askell,A.,Chen,A.,Das-
+complexcomputer-useenvironments.
+Sarma,N.,Drain,D.,Fort,S.,Ganguli,D.,Henighan,T.,
+etal. Trainingahelpfulandharmlessassistantwithrein-
+forcementlearningfromhumanfeedback. arXivpreprint
+arXiv:2204.05862,2022a.
+9
+
+--- Page 10 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+Bai, Y., Kadavath, S., Kundu, S., Askell, A., Kernion, J., 2: Evaluatingagenticsearchwithagent-as-a-judge. In
+Jones,A.,Chen,A.,Goldie,A.,Mirhoseini,A.,McKin- TheThirty-ninthAnnualConferenceonNeuralInforma-
+non, C., etal. Constitutionalai: Harmlessnessfromai tionProcessingSystemsDatasetsandBenchmarksTrack,
+feedback. arXivpreprintarXiv:2212.08073,2022b. 2025a. URLhttps://openreview.net/forum
+?id=AUaW6DS9si.
+Chen,H.,Razin,N.,Narasimhan,K.,andChen,D. Retain-
+ing by doing: The role of on-policy data in mitigating Gou, B., Wang, R., Zheng, B., Xie, Y., Chang, C., Shu,
+forgetting,2025. URLhttps://arxiv.org/abs/ Y.,Sun,H.,andSu,Y. Navigatingthedigitalworldas
+2510.18874. humansdo: UniversalvisualgroundingforGUIagents.
+InTheThirteenthInternationalConferenceonLearning
+Cobbe,K.,Kosaraju,V.,Bavarian,M.,Chen,M.,Jun,H., Representations,2025b. URLhttps://openrevi
+Kaiser,L.,Plappert,M.,Tworek,J.,Hilton,J.,Nakano, ew.net/forum?id=kxnoqaisCT.
+R.,etal. Trainingverifierstosolvemathwordproblems.
+arXivpreprintarXiv:2110.14168,2021. Gu,Y.,Zhang,K.,Ning,Y.,Zheng,B.,Gou,B.,Xue,T.,
+Chang, C., Srivastava, S., Xie, Y., Qi, P., Sun, H., and
+Cuvin, P., Zhu, H., and Yang, D. Decepticon: How Su,Y. Isyourllmsecretlyaworldmodeloftheinternet?
+dark patterns manipulate web agents. arXiv preprint model-basedplanningforwebagents. Transactionson
+arXiv:2512.22894,2025. MachineLearningResearch,2025.
+Deng,X.,Gu,Y.,Zheng,B.,Chen,S.,Stevens,S.,Wang, Guan, X., Zhang, L.L., Liu, Y., Shang, N., Sun, Y., Zhu,
+B.,Sun,H.,andSu,Y. Mind2web: Towardsageneralist Y.,Yang,F.,andYang,M. rstar-math: SmallLLMscan
+agentfortheweb.InOh,A.,Naumann,T.,Globerson,A., mastermathreasoningwithself-evolveddeepthinking.
+Saenko,K.,Hardt,M.,andLevine,S.(eds.),Advances In Forty-second International Conference on Machine
+in Neural Information Processing Systems, volume 36, Learning,2025. URLhttps://openreview.net
+pp.28091–28114.CurranAssociates,Inc.,2023. URL /forum?id=5zwF1GizFa.
+https://proceedings.neurips.cc/paper
+_files/paper/2023/file/5950bf290a157 He,Y.,Jin,J.,andLiu,P. Efficientagenttrainingforcom-
+0ea401bf98882128160-Paper-Datasets_an puteruse. arXivpreprintarXiv:2505.13909,2025.
+d_Benchmarks.pdf.
+Huang, C., Yu, W., Wang, X., Zhang, H., Li, Z., Li,
+Diaz-Bone, L., Bagatella, M., Hu¨botter, J., and Krause, R., Huang, J., Mi, H., and Yu, D. R-zero: Self-
+A. DISCOVER:Automatedcurriculaforsparse-reward evolving reasoning llm from zero data. arXiv preprint
+reinforcementlearning. InTheExplorationinAIToday arXiv:2508.05004,2025.
+WorkshopatICML2025,2025. URLhttps://open
+Kuba, J. G., Gu, M., Ma, Q., Tian, Y., Mohan, V., and
+review.net/forum?id=0kjOajnJQM.
+Chen,J. Languageself-playfordata-freetraining. arXiv
+Fang,W.,Liu,S.,Zhou,Y.,Zhang,K.,Zheng,T.,Chen,K., preprintarXiv:2509.07414,2025.
+Song,M.,andTao,D.Serl:Self-playreinforcementlearn-
+Kydl´ıcˇek,H. Math-verify: Mathverificationlibrary,2025.
+ingforlargelanguagemodelswithlimiteddata. arXiv
+URL https://github.com/huggingface/M
+preprintarXiv:2505.20347,2025.
+ath-Verify.
+Feizi,A.,Nayak,S.,Jian,X.,Lin,K.Q.,Li,K.,Awal,R.,
+Ladosz, P., Weng, L., Kim, M., and Oh, H. Exploration
+Lu`,X.H.,Obando-Ceron,J.,Rodriguez,J.A.,Chapados,
+indeepreinforcementlearning: Asurvey. Information
+N., et al. Grounding computer use agents on human
+Fusion,85:1–22,2022.
+demonstrations. arXivpreprintarXiv:2511.07332,2025.
+Lai,H.,Liu,X.,Zhao,Y.,Xu,H.,Zhang,H.,Jing,B.,Ren,
+Feng,L.,Xue,Z.,Liu,T.,andAn,B.Group-in-grouppolicy
+Y.,Yao,S.,Dong,Y.,andTang,J. Computerrl: Scaling
+optimizationforLLMagenttraining. InTheThirty-ninth
+end-to-endonlinereinforcementlearningforcomputer
+Annual Conference on Neural Information Processing
+useagents. arXivpreprintarXiv:2508.14040,2025.
+Systems, 2025. URLhttps://openreview.net
+/forum?id=QXEhBMNrCW. Liao,Z.,Lu,Y.,Gou,B.,Sun,H.,andAwadallah,A. Be-
+yond clicking: A step towards generalist gui ground-
+Gou, B., Huang, Z., Ning, Y., Gu, Y., Lin, M., Yu, B.,
+ingviatextdragging. arXivpreprintarXiv:2601.06031,
+Kopanev,A.,Qi,W.,Shu,Y.,Wu,J.,Song,C.H.,Gutier-
+2025.
+rez,B.J.,Li,Y.,Liao,Z.,Moussa,H.N.,ZHANG,T.,
+Xie,J.,Xue,T.,Chen,S.,Zheng,B.,Zhang,K.,Cai,Z., Liu, B., Guertler, L., Yu, S., Liu, Z., Qi, P., Balcells, D.,
+Rozgic,V.,Ziyadi,M.,Sun,H.,andSu,Y. Mind2web Liu,M.,Tan,C.,Shi,W.,Lin,M.,Lee,W.S.,andJaques,
+10
+
+--- Page 11 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+N. Spiral: Self-playonzero-sumgamesincentivizesrea- Paul,D.,Ismayilzada,M.,Peyrard,M.,Borges,B.,Bosse-
+soningviamulti-agentmulti-turnreinforcementlearning, lut, A., West, R., and Faltings, B. REFINER: Reason-
+2025a. URLhttps://arxiv.org/abs/2506.2 ing feedback on intermediate representations. In Gra-
+4119. ham,Y.andPurver,M.(eds.),Proceedingsofthe18th
+ConferenceoftheEuropeanChapteroftheAssociation
+Liu,J.,Xiong,K.,Xia,P.,Zhou,Y.,Ji,H.,Feng,L.,Han, forComputationalLinguistics(Volume1: LongPapers),
+S., Ding, M., and Yao, H. Agent0-vl: Exploring self- pp.1100–1126,St.Julian’s,Malta,March2024.Asso-
+evolvingagentfortool-integratedvision-languagereason- ciation for Computational Linguistics. URL https:
+ing. arXivpreprintarXiv:2511.19900,2025b. //aclanthology.org/2024.eacl-long.67/.
+Liu,Z.,Xie,J.,Ding,Z.,Li,Z.,Yang,B.,Wu,Z.,Wang, Qi,Z.,Liu,X.,Iong,I.L.,Lai,H.,Sun,X.,Sun,J.,Yang,
+X.,Sun,Q.,Liu,S.,Wang,W.,etal. Scalecua: Scaling X.,Yang,Y.,Yao,S.,Xu,W.,Tang,J.,andDong,Y. We-
+open-source computer use agents with cross-platform bRL:TrainingLLMwebagentsviaself-evolvingonline
+data. arXivpreprintarXiv:2509.15221,2025c. curriculum reinforcement learning. In The Thirteenth
+InternationalConferenceonLearningRepresentations,
+Lu`, X. H., Kazemnejad, A., Meade, N., Patel, A., Shin, 2025. URL https://openreview.net/forum
+D., Zambrano, A., Stanczak, K., Shaw, P., Pal, C., and ?id=oVKEAFjEqv.
+Reddy, S. Agentrewardbench: Evaluating automatic
+evaluations of web agent trajectories. In Second Con- Qin, Y., Ye, Y., Fang, J., Wang, H., Liang, S., Tian, S.,
+ference on Language Modeling, 2025. URL https: Zhang,J.,Li,J.,Li,Y.,Huang,S.,etal. Ui-tars: Pioneer-
+//openreview.net/forum?id=fQcUZMPIvu. ingautomatedguiinteractionwithnativeagents. arXiv
+preprintarXiv:2501.12326,2025.
+Mirzadeh,S.I.,Alizadeh,K.,Shahrokhi,H.,Tuzel,O.,Ben-
+Schrittwieser,J.,Antonoglou,I.,Hubert,T.,Simonyan,K.,
+gio,S.,andFarajtabar,M. GSM-symbolic: Understand-
+Sifre,L.,Schmitt,S.,Guez,A.,Lockhart,E.,Hassabis,
+ing the limitations of mathematical reasoning in large
+languagemodels. InTheThirteenthInternationalConfer- D.,Graepel,T.,etal. Masteringatari,go,chessandshogi
+enceonLearningRepresentations,2025. URLhttps: by planning with a learned model. Nature, 588(7839):
+//openreview.net/forum?id=AjXkRZIvjB. 604–609,2020.
+Schulman, J., Wolski, F., Dhariwal, P., Radford, A., and
+Mukherjee, S., Yuan, L., Hakkani-Tu¨r, D., and Peng, H.
+Klimov, O. Proximal policy optimization algorithms.
+Reinforcementlearningfinetunessmallsubnetworksin
+arXivpreprintarXiv:1707.06347,2017.
+largelanguagemodels. InTheThirty-ninthAnnualCon-
+ferenceonNeuralInformationProcessingSystems,2025.
+Seed,B.Ui-tars-1.5.https://seed-tars.com/1.5,
+URL https://openreview.net/forum?id=
+2025.
+0NdS4xCngO.
+Shao,Z.,Wang,P.,Zhu,Q.,Xu,R.,Song,J.,Bi,X.,Zhang,
+OhioSupercomputerCenter. Ohiosupercomputercenter,
+H.,Zhang,M.,Li,Y.,Wu,Y.,etal. Deepseekmath: Push-
+1987. URLhttps://ror.org/01apna436.
+ingthelimitsofmathematicalreasoninginopenlanguage
+models. arXivpreprintarXiv:2402.03300,2024.
+OpenAI. Introducinggpt-5. OpenAIBlog,Aug2025. URL
+https://openai.com/index/introducing
+Sheng,G.,Zhang,C.,Ye,Z.,Wu,X.,Zhang,W.,Zhang,
+-gpt-5/.
+R.,Peng,Y.,Lin,H.,andWu,C. Hybridflow: Aflexi-
+bleandefficientrlhfframework. arXivpreprintarXiv:
+Ouyang,L.,Wu,J.,Jiang,X.,Almeida,D.,Wainwright,C.,
+2409.19256,2024.
+Mishkin,P.,Zhang,C.,Agarwal,S.,Slama,K.,Ray,A.,
+et al. Training language models to follow instructions Shinn,N.,Cassano,F.,Gopinath,A.,Narasimhan,K.,and
+withhumanfeedback. Advancesinneuralinformation Yao, S. Reflexion: Language agents with verbal rein-
+processingsystems,35:27730–27744,2022. forcementlearning. InAdvancesinNeuralInformation
+ProcessingSystems,volume36,pp.8634–8652,2023.
+Pan,Y.,Kong,D.,Zhou,S.,Cui,C.,Leng,Y.,Jiang,B.,Liu,
+H.,Shang,Y.,Zhou,S.,Wu,T.,andWu,Z. Webcanvas: Silver,D.,Huang,A.,Maddison,C.J.,Guez,A.,Sifre,L.,
+Benchmarking web agents in online environments. In VanDenDriessche,G.,Schrittwieser,J.,Antonoglou,I.,
+AgenticMarketsWorkshopatICML2024, 2024. URL Panneershelvam, V., Lanctot, M., et al. Mastering the
+https://openreview.net/forum?id=O1Fa gameofgo with deepneuralnetworksandtreesearch.
+GasJob. nature,529(7587):484–489,2016.
+11
+
+--- Page 12 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+Silver,D.,Hubert,T.,Schrittwieser,J.,Antonoglou,I.,Lai, Wei,Y.,Duchenne,O.,Copet,J.,Carbonneaux,Q.,Zhang,
+M.,Guez,A.,Lanctot,M.,Sifre,L.,Kumaran,D.,Grae- L., Fried, D., Synnaeve, G., Singh, R., andWang, S.I.
+pel,T.,etal. Ageneralreinforcementlearningalgorithm Swe-rl: Advancing llm reasoning via reinforcement
+thatmasterschess,shogi,andgothroughself-play. Sci- learning on open software evolution. arXiv preprint
+ence,362(6419):1140–1144,2018. arXiv:2502.18449,2025a.
+Sun,Q.,Liu,Z.,Ma,C.,Ding,Z.,Xu,F.,Yin,Z.,Zhao,H., Wei,Y.,Sun,Z.,McMilin,E.,Gehring,J.,Zhang,D.,Syn-
+Wu, Z., Cheng, K., Liu, Z., Wang, J., Li, Q., Tang, X., naeve, G., Fried, D., Zhang, L., and Wang, S. Toward
+Xie,T.,Feng,X.,Li,X.,Kao,B.,Wang,W.,Qi,B.,Kong, trainingsuperintelligentsoftwareagentsthroughself-play
+L.,andWu,Z. Scienceboard: Evaluatingmultimodalau- swe-rl. arXivpreprintarXiv:2512.18552,2025b.
+tonomousagentsinrealisticscientificworkflows,2025a.
+Wei,Z.,Yao,W.,Liu,Y.,Zhang,W.,Lu,Q.,Qiu,L.,Yu,
+URLhttps://arxiv.org/abs/2505.19897.
+C.,Xu,P.,Zhang,C.,Yin,B.,etal. Webagent-r1: Train-
+ingwebagentsviaend-to-endmulti-turnreinforcement
+Sun,Z.,Liu,Z.,Zang,Y.,Cao,Y.,Dong,X.,Wu,T.,Lin,
+learning. arXivpreprintarXiv:2505.16421,2025c.
+D.,andWang,J. Seagent: Self-evolvingcomputeruse
+agentwithautonomouslearningfromexperience. arXiv
+Wu,Z.,Han,C.,Ding,Z.,Weng,Z.,Liu,Z.,Yao,S.,Yu,T.,
+preprintarXiv:2508.04700,2025b.
+andKong,L. Os-copilot: Towardsgeneralistcomputer
+agents with self-improvement. In ICLR Workshop on
+Wang, B., Lee, C., Lee, N., Lin, S.-C., Dai, W., Chen,
+LargeLanguageModel(LLM)Agents,2024.
+Y., Chen, Y., Yang, Z., Liu, Z., Shoeybi, M., et al.
+Nemotron-cascade: Scaling cascaded reinforcement Xia, P., Zeng, K., Liu, J., Qin, C., Wu, F., Zhou, Y.,
+learning for general-purpose reasoning models. arXiv Xiong,C.,andYao,H. Agent0:Unleashingself-evolving
+preprintarXiv:2512.13607,2025a. agentsfromzerodataviatool-integratedreasoning.arXiv
+preprintarXiv:2511.16043,2025.
+Wang,H.,Zou,H.,Song,H.,Feng,J.,Fang,J.,Lu,J.,Liu,
+L.,Luo,Q.,Liang,S.,Huang,S.,Zhong,W.,Ye,Y.,Qin, Xie,T.,Zhang,D.,Chen,J.,Li,X.,Zhao,S.,Cao,R.,Toh,
+Y.,Xiong,Y.,Song,Y.,Wu,Z.,Li,A.,Li,B.,Dun,C., J.H.,Cheng,Z.,Shin,D.,Lei,F.,etal. Osworld: Bench-
+Liu,C.,Zan,D.,Leng,F.,Wang,H.,Yu,H.,Chen,H., markingmultimodalagentsforopen-endedtasksinreal
+Guo, H., Su, J., Huang, J., Shen, K., Shi, K., Yan, L., computerenvironments. AdvancesinNeuralInformation
+Zhao,P.,Liu,P.,Ye,Q.,Zheng,R.,Xin,S.,Zhao,W.X., ProcessingSystems,37:52040–52094,2024.
+Heng,W.,Huang,W.,Wang,W.,Qin,X.,Lin,Y.,Wu,Y.,
+Chen,Z.,Wang,Z.,Zhong,B.,Zhang,X.,Li,X.,Li,Y., Xue, T., Wang, Z., Wang, Z., Han, C., Yu, P., and Ji, H.
+Zhao,Z.,Jiang,C.,Wu,F.,Zhou,H.,Pang,J.,Han,L., Rcot: Detectingandrectifyingfactualinconsistencyin
+Liu,Q.,Ma,Q.,Liu,S.,Cai,S.,Fu,W.,Liu,X.,Wang, reasoning by reversing chain-of-thought, 2023. URL
+Y.,Zhang,Z.,Zhou,B.,Li,G.,Shi,J.,Yang,J.,Tang,J.,
+https://arxiv.org/abs/2305.11499.
+Li,L.,Han,Q.,Lu,T.,Lin,W.,Tong,X.,Li,X.,Zhang,
+Xue, T., Qi, W., Shi, T., Song, C. H., Gou, B., Song, D.,
+Y.,Miao,Y.,Jiang,Z.,Li,Z.,Zhao,Z.,Li,C.,Ma,D.,
+Sun,H.,andSu,Y. Anillusionofprogress? assessing
+Lin,F.,Zhang,G.,Yang,H.,Guo,H.,Zhu,H.,Liu,J.,
+thecurrentstateofwebagents. InSecondConferenceon
+Du, J., Cai, K., Li, K., Yuan, L., Han, M., Wang, M.,
+LanguageModeling,2025. URLhttps://openre
+Guo,S.,Cheng,T.,Ma,X.,Xiao,X.,Huang,X.,Chen,
+view.net/forum?id=6jZi4HSs6o.
+X., Du, Y., Chen, Y., Wang, Y., Li, Z., Yang, Z., Zeng,
+Z., Jin, C., Li, C., Chen, H., Chen, H., Chen, J., Zhao, Yang,Y.,Yang,Z.,Dou,Z.-Y.,Nguyen,A.,You,K.,Attia,
+Q., and Shi, G. Ui-tars-2 technical report: Advancing O.,Szot,A.,Feng,M.,Ramrakhya,R.,Toshev,A.,etal.
+guiagentwithmulti-turnreinforcementlearning,2025b. Ultracua: Afoundationmodelforcomputeruseagents
+URLhttps://arxiv.org/abs/2509.02544. with hybrid action. arXiv preprint arXiv:2510.17790,
+2025.
+Wang, X., Wang, B., Lu, D., Yang, J., Xie, T., Wang, J.,
+Deng,J.,Guo,X.,Xu,Y.,Wu,C.H.,Shen,Z.,Li,Z.,Li, Yu,Q.,Zhang,Z.,Zhu,R.,Yuan,Y.,Zuo,X.,YuYue,Dai,
+R.,Li,X.,Chen,J.,Zheng,B.,Li,P.,Lei,F.,Cao,R.,Fu, W.,Fan,T.,Liu,G.,Liu,J.,Liu,L.,Liu,X.,Lin,H.,Lin,
+Y.,Shin,D.,Shin,M.,Hu,J.,Wang,Y.,Chen,J.,Ye,Y., Z.,Ma,B.,Sheng,G.,Tong,Y.,Zhang,C.,Zhang,M.,
+Zhang,D.,Du,D.,Hu,H.,Chen,H.,Zhou,Z.,Yao,H., Zhang,R.,Zhang,W.,Zhu,H.,Zhu,J.,Chen,J.,Chen,
+Chen,Z.,Gu,Q.,Wang,Y.,Wang,H.,Yang,D.,Zhong, J., Wang, C., Yu, H., Song, Y., Wei, X., Zhou, H., Liu,
+V.,Sung,F.,Charles,Y.,Yang,Z.,andYu,T. Opencua: J.,Ma,W.-Y.,Zhang,Y.-Q.,Yan,L.,Wu,Y.,andWang,
+Openfoundationsforcomputer-useagents,2025c. URL M. DAPO:Anopen-sourceLLMreinforcementlearning
+https://arxiv.org/abs/2508.09123. systematscale. InTheThirty-ninthAnnualConference
+12
+
+--- Page 13 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+onNeuralInformationProcessingSystems,2025. URL
+https://openreview.net/forum?id=2a36
+EMSSTp.
+Yuan,Z.,Yuan,H.,Li,C.,Dong,G.,Lu,K.,Tan,C.,Zhou,
+C.,andZhou,J. Scalingrelationshiponlearningmath-
+ematical reasoning with large language models, 2023.
+URLhttps://arxiv.org/abs/2308.01825.
+Zhang, C., Neubig, G., and Yue, X. On the interplay of
+pre-training,mid-training,andrlonreasoninglanguage
+models, 2025a. URLhttps://arxiv.org/abs/
+2512.07783.
+Zhang, K., Chen, X., Liu, B., Xue, T., Liao, Z., Liu, Z.,
+Wang,X.,Ning,Y.,Chen,Z.,Fu,X.,etal.Agentlearning
+viaearlyexperience. arXivpreprintarXiv:2510.08558,
+2025b.
+Zhao, A., Wu, Y., Yue, Y., Wu, T., Xu, Q., Yue, Y., Lin,
+M., Wang, S., Wu, Q., Zheng, Z., and Huang, G. Ab-
+solute zero: Reinforced self-play reasoning with zero
+data. InTheThirty-ninthAnnualConferenceonNeural
+Information Processing Systems, 2025. URL https:
+//openreview.net/forum?id=neZSGqhxDa.
+Zheng,B.,Gou,B.,Kil,J.,Sun,H.,andSu,Y.Gpt-4v(ision)
+is a generalist web agent, if grounded. In Forty-first
+InternationalConferenceonMachineLearning,ICML
+2024,Vienna,Austria,July21-27,2024.OpenReview.net,
+2024. URL https://openreview.net/forum
+?id=piecKJ2DlB.
+Zheng,H.,Zhou,Y.,Bartoldson,B.R.,Kailkhura,B.,Lai,
+F.,Zhao,J.,andChen,B.Actonlywhenitpays:Efficient
+reinforcementlearningforLLMreasoningviaselective
+rollouts. In ES-FoMo III: 3rd Workshop on Efficient
+Systems for Foundation Models, 2025. URL https:
+//openreview.net/forum?id=23W5YZHGh9.
+Zheng,J.,Shi,C.,Cai,X.,Li,Q.,Zhang,D.,Li,C.,Yu,D.,
+andMa,Q. Lifelonglearningoflargelanguagemodel
+basedagents: Aroadmap. IEEETransactionsonPattern
+AnalysisandMachineIntelligence,2026.
+Zhou,S.,Xu,F.F.,Zhu,H.,Zhou,X.,Lo,R.,Sridhar,A.,
+Cheng, X., Ou, T., Bisk, Y., Fried, D., Alon, U., and
+Neubig,G. Webarena: Arealisticwebenvironmentfor
+buildingautonomousagents.InTheTwelfthInternational
+Conference on Learning Representations, 2024. URL
+https://openreview.net/forum?id=oKn9
+c6ytLx.
+13
+
+--- Page 14 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+TableofContent:
+1. AppendixA:RelatedWork
+2. AppendixB:DetailsofCurriculumTaskGeneration
+3. AppendixC:DetailsofCUAJudge
+4. AppendixD:TaskValidityAnalysis
+5. AppendixE:TheParameterUpdateOverlapacrossAgents
+6. AppendixF:ExperimentalDetails
+7. AppendixG:Prompts
+8. AppendixH:ExamplesofContextAcrossDifferentEnvironments
+14
+
+--- Page 15 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+A.RelatedWork execution (Zhao et al., 2025; Wei et al., 2025b;a); even
+open-ended instruction-following tasks can be alleviated
+A.1.GUIAgent
+via large-scale preference data (Ouyang et al., 2022; Bai
+GUIagentsoperatedirectlyondigitalenvironmentstoac- etal.,2022a;b). Bycontrast,obtainingreliablerewardsig-
+complishuser-specifiedtasksbyintegratingperception(Gou nalsincomputer-usetasksissubstantiallymorechalleng-
+etal.,2025b),planning(Guetal.,2025),andreasoning(Qin ing (Zhang et al., 2025b), as task completion cannot be
+etal.,2025). Existingworkhasexploredawiderangeof inferredfromthefinalstatealone,andtrajectoriestypically
+interactionparadigms,spanningfromDOM-basedwebma- spanlonghorizonswithrichmultimodalobservations(e.g.,
+nipulation(Zhouetal.,2024;Dengetal.,2023;Weietal., hundreds of screenshots), rendering trajectory evaluation
+2025c;Qietal.,2025)topixel-levelcontrolindesktopen- itself a nontrivial problem (Xue et al., 2025). Although
+vironments(Anthropic,2024;2025;Qinetal.,2025;Liao SEAgent(Sunetal.,2025b)exploresself-evolvinglearning
+et al., 2025). Building on these paradigms, prior studies forcomputer-useagents,itfocusesonsingle-turnRLrather
+havesignificantlyadvancedthecapabilitiesofGUIagents. thanend-to-end,multi-stepRL.Asaresult,itfailstocap-
+However, they either heavily rely on large-scale human- turetheemergentself-refinementandexplorationbehaviors
+annotateddata(Wangetal.,2025c;Liuetal.,2025c;Deng thatariseduringmulti-steptraining.Moreover,itfocuseson
+etal.,2023;Wangetal.,2025b;Feizietal.,2025;Heetal., specialistagentswithinasingleenvironment,overlooking
+2025), whichiscostlyandunscalable, orsynthesizedata themorerealisticscenariosofcross-environmentcontinual
+fromalimitedsetofenvironments(Sunetal.,2025b;Qi learning. Inthiswork, wesystematicallystudycontinual
+etal.,2025;Weietal.,2025c;Yangetal.,2025;Awadallah learningforCUAs,bridgingthegaptodiverseanddynamic
+etal.,2025),failingtocapturethediversityofmillionsof digitalenvironmentsintherealworld,whereagentscontin-
+desktopandwebapplicationsinthereal-worldscenarios. uallylearninbothintra-environmentandcross-environment
+Moreover,theymodelthedigitalworldasstatic,despiteits scenariosthroughafullyautonomous,end-to-endcurricu-
+inherentlydynamicnature. Inpractice,interfacesandfunc- lumRLframework.
+tionalitiescontinuallyevolve(Panetal.,2024;Xueetal.,
+2025),whichcanleadtosubstantialperformancedegrada- B.DetailsofCurriculumTaskGeneration
+tionwhensuchchangesarenotcapturedbypriortraining
+data(Mirzadehetal.,2025;Cuvinetal.,2025). Incontrast, B.1.Iteration0
+we study a new setting where agents are required to con-
+DuringIteration0,thetaskgeneratorfocusesonsynthesiz-
+tinually learn and adaptto specificenvironmentswithout
+ingasetofatomictasksthatcoveressentialandfrequently
+relyingonhumansupervision,addressingscenariosthatare
+used atomic actions in target environments, thereby pro-
+unfamiliarorentirelynewtotheagent.
+viding a foundational skill set for subsequent curriculum
+learning. Tasksfromiteration0arenotusedfortraining;
+A.2.Self-EvolvingwithinZeroData
+theyareonlyusedtoassesstheagent’sinitialcapabilities
+andguidetasksynthesisinlateriterations.
+Self-evolvinglearningreferstoaparadigminwhichagents
+autonomouslygeneratetrainingdataanditerativelyimprove
+theircapabilitieswithouthumanintervention(Silveretal., B.2.MediumLevelAdjustment
+2016; 2018; Schrittwieser et al., 2020). Reinforcement
+Tasksatamediumlevelsuggestthattheagenthasnotyet
+learning(Ouyangetal.,2022;Schulmanetal.,2017)natu-
+fullymasteredtheunderlyingskillsrequiredandcanthere-
+rallyfitsthissetting,enablingagentstolearndirectlyfrom
+fore continue to learn from them, expanding its edge of
+environmentinteractionwithrewardfeedback. Whileex-
+competence (Zhang et al., 2025a). Accordingly, to main-
+isting approachesshow promise, transferring them tothe
+taintaskdiversitywhilesupportingcontinuallearningand
+computer-usedomainremainschallenging, astheytarget
+skillconsolidation,weletthecurriculumgeneratorproduce
+weakly grounded or environment-agnostic tasks that rely
+tasksthatexercisethesameorsimilarskillsacrossvaried
+primarilyoninternalknowledgeforsynthesis.(Liuetal.,
+contexts,userpersonas,andtaskgoals,butarerealistic(e.g.,
+2025b; Huang et al., 2025; Zhao et al., 2025; Wei et al.,
+completingthesamedocument-editingoperationunderdif-
+2025b; Liu et al., 2025a; Fang et al., 2025). In contrast,
+ferentconstraints,suchaslayoutrequirementsorformatting
+computer-usetasksmustbegroundedininteractiveenviron-
+standards,orplottingchartsbasedondifferentdata.).
+ments. Suchenvironment-specificexperiencesarelargely
+absentfrompretrainingdata,makingitdifficulttosynthe-
+B.3.ContextReviews
+sizehigh-qualitytasksbasedonthemodel’sinternalknowl-
+edge alone. Moreover, these domains can easily obtain Foreachenvironment,wecollectdiverseandsubstantially
+verifiablerewards,suchasexactanswermatching(Cobbe differentcontextualmaterialsfromtheweb.Forexample,in
+et al., 2021; Kydl´ıcˇek, 2025) and deterministic program theLibreOfficeImpressandWriterenvironments,wegather
+15
+
+--- Page 16 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+1–3contextsfrommultipledomains,includingart,technol-
+ogy,socialsciences,education,andscientificresearch. For
+environments where contexts are difficult to obtain or do
+notexist(e.g.,KAlgebra),weinsteadlettheagentexplore
+theenvironmentdirectlytoacquireenvironmentexperience.
+Fromeachcontext,wegenerate32tasks. Thepromptfor
+contextreviewis“‘Youaregivenaccesstoasoftwareap-
+plication in its current state. Your task is to actively and
+read-onlyexploretheapplicationtounderstandthefulluser
+context,includingmultipledistinctcontentareas,views,or
+sections,notjustasingledefaultview. Youmustnavigate
+into and inspect representative content from each major
+content-bearing area (e.g., different folders, tabs, panels,
+Figure 3. Average number of words across three iterations for
+lists,orsections)toverifywhatinformationexistsandhow
+differentenvironments.
+itdiffersacrossareas. Donotmodify,create,delete,send,
+save,ortriggeranyactionsthatpersistchanges. Youmust
+not finish after exploring only one section or view; only
+finishafteryouhavereasonablycoveredthebreadthofthe
+application’scontentspace.”’. costtrade-offsofusingGPT-5-miniandQwen3-VL-8B.As
+showninTable6,usingQwen3-VL-8Bforthekeyscreen-
+B.4.TaskEvolvingAcrossDifferentIterations shot identification stage achieves higher precision while
+reducingthecostbyapproximately5×,incurringonly$0.40
+Tobetterillustratethequalityofthesynthesizedtasksand
+forevaluating107trajectoriesduringRLtraining.
+howtheyevolveacrossiterations,weanalyzethetrendof
+theaveragetasklengththroughouttraining. Asshownin
+Figure 3, the average task length steadily increases with D.TaskValidityAnalysis
+thenumberofiterations,indicatingthatthegeneratedtasks
+To quantify the quality of the synthesized tasks, we ran-
+become progressively longer and, to some extent, more
+domly sample 144 tasks across three training iterations
+complex. This behavior aligns with our expectations: as
+fromsixdifferentenvironments. Wefindthatonly8tasks
+iterativetrainingimprovestheagent’scapabilities,thecur-
+areinvalid,while94%ofthetasksarevalidandexplicitly
+riculumgeneratorproducesincreasinglychallengingtasks
+groundedinenvironment-specificcontexts. Theseresults
+that are better tailored to the agent’s current ability. We
+demonstrate that our task synthesis pipeline can scalably
+furtherconductaqualitativeanalysisandpresentrepresenta-
+generatehigh-quality,environment-groundedtasksfortar-
+tiveexamplesinTable 8. Theseexamplesdemonstratethat
+getenvironmentswithoutrelyingonanyhumansupervision.
+taskcomplexityincreasesacrossiterations,evolvingfrom
+Theeightinvalidtasksprimarilyarisefromambiguoustask
+operationsonasingleobjecttointeractionsinvolvingmulti-
+descriptions, incomplete information, or cases where the
+pleobjects,andfromrequiringasingleskilltocomposing
+environmentdoesnotprovidetherequiredfunctionalityto
+multipleskillswithinasingletask.
+supportthespecifiedtask.
+C.DetailsofCUAJudge
+E.TheParameterUpdateOverlapacross
+Agents
+Table 6. Comparison of precision and cost across GPT-5-mini
+andQwen3-VL-8Bmodelsforthekeyscreenshotidentification
+Tobetterunderstandwhycontinuallearninginonetargeten-
+module.
+vironmentalsoimprovesperformanceinothers,weconduct
+Model Precision Cost($) afine-grainedanalysisofthesimilarityininternalparam-
+eter updates across agents undergoing continual learning
+Qwen3-VL-8B-Instruct 70.3 0.4
+in different environments. Specifically, we compute the
+GPT-5-mini 65.6 2.0
+pairwiseoverlapratioofsignificantlyupdatedparameters
+betweentheLibreOfficeagentandagentstrainedonother
+SincethenumberofAPIcallsinthekeyscreenshotidentifi- environments. Thisoverlapratioquantifiestheproportion
+cationstageofCUAJudgescaleslinearlywiththenumber ofparametersthataresignificantlyupdatedinbothagents,
+ofscreenshotsinatrajectory,theassociatedcostincreases servingasanindicatorofsharedinternaladaptationpatterns
+substantially. Toreducetheoverallcostduringreinforce- acrossenvironments. AsshowninFigure4,boththeLLM
+mentlearning,wethereforecomparetheperformanceand and vision encoder exhibit a 35–45% parameter overlap
+16
+
+--- Page 17 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+acrossdifferentspecialistagents. Thishighdegreeofover-
+lapprovidesaplausibleexplanationforwhyadaptingtoa
+specificenvironmentcanalsobenefitotherenvironments:
+despite differences in surface-level interfaces, these envi-
+ronmentsshareunderlyingdecisionpatternsandreusable
+skillsthatenableeffectivetransfer. Wealsoobservedistinct
+layer-wise overlap patterns between the LLM and the vi-
+sionencoder. FortheLLM,theoverlapincreasessteadily
+acrosstheearlylayers,peaksinthemiddlelayers,andthen
+graduallydeclinesinthehigherlayers. Thistrendsuggests
+thatthelearningofcommonskillsandunderlyingdecision-
+making patterns is primarily concentrated in the middle
+layers. Incontrast,thevisionencoderexhibitsamoreirreg-
+ularandlessstructuredrelationshipbetweenoverlapand
+layerdepth.
+40.0
+39.5 39.0 38.5
+38.0
+37.5
+37.0
+36.5
+0 5 10 15 20 25
+Layer Index
+palrevO etadpU
+retemaraP
+43.0
+42.5 42.0 41.5 41.0
+40.5
+Celestia
+KAlgebra 40.0
+T Li h b u re n O de ff r i b ce ir d Calc 39.5
+LibreOffice Writer 39.0
+0 5 10 15 20 25 30
+Layer Index
+(a)LLMbackbone
+palrevO etadpU
+retemaraP
+evaluator,followingXueetal.(2025),wesetthethreshold
+forfilteringkeyscreenshotsto3. Forcategorizingtaskdif-
+ficulty,wesetδ andδ to30%and70%,respectively:
+low high
+taskswithanaveragesuccessratebelow30%areconsidered
+difficultfortheagent,thoseabove70%indicatetasksthat
+theagenthaslargelymastered,andtheremainingtasksare
+classifiedasmediumdifficulty. Astaskdifficultyincreases
+alongsidetheagent’sevolvingcapabilities, weiteratively
+increaseboththemaximuminteractionstepsandthemaxi-
+mumsequencelength. Specifically,weuse15stepswitha
+maximumlengthof13,000tokensforiteration1,20steps
+with15,000tokensforiteration2,and25stepswith17,000
+tokensforiteration3.
+Evaluation Duringevaluation,weuniformlysetthemax-
+imumnumberofenvironmentinteractionstepsto25. For
+theScienceBoardevaluationsonKAlgebraandCelestia,we
+makeaminoradjustment. Specifically,sometasksrequire
+Celestia
+KAlgebra the agent to produce answers in a strict format (e.g., pre- Thunderbird L L i i b b r r e e O O f f f f i i c c e e C W a ri l t c er fixedwithANS:). Weobservethatinmanycasesthemodel provides a correct answer but is marked incorrect solely
+duetoformattingmismatches. Whiletheofficialevaluation
+protocoladdressesthisissuebyaddingextrainstructionsto
+explicitlyenforcetherequiredoutputformat,weintention-
+allyavoidintroducingsuchadditionalinstructionsinorder
+(b)Visionencoder
+tostrictlyalignwiththeOSWorldsettingandevaluatethe
+Figure4. Overlapratioofsignificantlyupdatedparametersbe- agent’sperformancewithoutauxiliaryguidance,wherethe
+tweenLibreOfficeImpressandotherenvironmentsacrossdifferent agentreceivesonlythetaskdescriptionandnoadditional
+layers. guidance. Toaddressthisissue,wereplacethissmallsubset
+offormat-sensitivetaskswithanLLM-as-a-judgeevalua-
+tionpoweredbyGPT-5-mini, whichisgiventhemodel’s
+F.ExperimentalDetails
+predictionandtheground-truthansweranddeterminescor-
+rectness. Wemanuallyinspectaportionofthesecasesand
+Training The number of API calls for key screenshot
+identificationinCUAJudgescaleslinearlywiththetrajec- findthatthejudgmentsareconsistentlyaccurate. Table7
+presentsthetaskstatisticsforeachenvironment.
+torylength. Therefore,weadoptQwen3-VL-8B(Baietal.,
+2025)forthiscomponent,whichnotonlyfurtherreduces
+Table7.Taskstatisticsforeachenvironment.
+cost but also achieves higher precision. See Appendix C
+fordetails. Foriterativereinforcementlearning,weemploy
+Environment TaskSource #Tasks
+stricton-policytrainingwiththreeiterationson8×H100
+GPUs and use a server with 96 CPU cores and 384 GB LibreOfficeImpress OSWorld 47
+memory for hosting the environments. Each iteration is Office 60
+trained for 75 steps using a batch size of 16 and a group
+LibreOfficeCalc OSWorld 47
+sizeof8,andalearningrateof1×10−6. Forthecapability
+Office 60
+evaluationstage,wemaintainconsistencywithtrainingby
+sampling8rolloutswith1.0temperatureandmeasuringthe LibreOfficeWriter OSWorld 23
+averagesuccessrateasfeedback. Thefinalcheckpointof OfficeWorld 60
+eachiterationisusedtoinitializethenextiteration. Follow-
+Thunderbird OSWorld 15
+ingYuetal.(2025)andWangetal.(2025a),weremovethe
+KLdivergenceandadoptahigherclippingratioof0.28. To Celestia ScienceBoard 33
+mitigatecontextlengthlimitations,weretainonlythemost
+KAlgebra ScienceBoard 31
+recenttwoimagesintheactionhistoryofeachtrajectory.
+OurRLframeworkisimplementedbasedonVeRL(Sheng
+et al., 2024; Feng et al., 2025). For GRPO, we sample 8
+trajectories per group with a temperature of 1.0. For the
+17
+
+--- Page 18 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+Table8.Taskexamplesfromdifferentenvironmentsacross3iterations.
+Iteration TaskDescription
+LibOfficeImpress
+1 OpenSlidePropertiesforslide5andchangetheslidenameto“FutureTrends”.
+2 On slide 4, append a numbered list with exactly these items: ‘Smart home devices’, ‘Personalized
+shopping’,‘Healthcareservices’.
+3 Onslide5,addastraightconnectorfromtheapexofthepyramidtothetext“Human-AICollaboration”.
+LibOfficeWriter
+1 Insertafilledrectanglebelowthebodytextandtype“Scanhere”insideit.
+2 Presentthedocumentintwocolumnswhilekeepingtheshadedblockatthetopasafull-widthsection
+abovethecolumns.
+3 Aftertheline“Howtolearnthisvocabulary”,insertacross-referencethatdisplaysthepagenumber
+where“Graduate”appears.
+LibOfficeCalc
+1 ApplyalightgraybackgroundfilltotheheadercellsA1:F1.
+2 CreateafilteredcopyofallrowswhereTransmission(columnE)equalsM¨anual¨ıntoanewsheetnamed
+ManualCars.
+3 SortthetablesoAreasfollowthecustomorderNorth, Midlands, Scotland, South-East, South-West
+whilepreservingtherowintegrityofeachrecord.
+Thunderbird
+1 CreatealocalfoldernamedReports2025andmovebothmessagesfromtheBillsfolderintoit.
+2 Inserttheclickablemaillinkmailto:assistant@outlook.comonitsownlineinthemessagebody.
+3 CreateaSavedSearchfoldernamed“”RecentAttachments”thatlistsmessageswithattachmentsfrom
+InboxandLocalFolders¿Billsreceivedwithinthelast60days,andensurethissavedsearchappearsin
+Favorites.
+KAlgebra
+1 Computesin(0.5)2 andreportthenumericvalue.
+2 Visualizethe3Dsurfacez =x2+y2 onthe3Dgraph.
+3 Showtwo3Dsurfacessimultaneously: z =x2−y2 andz =sin(x)+sin(y).
+Celestia
+1 TurnofftheDeepSkyObjectslayersoonlystarsandplanetsremainvisible.
+2 Jumpto2020-01-0100:00inlocaltime,enablelight-traveldelay,andkeepthesimulationpausedatthat
+moment.
+3 DisplayonlytheGalacticgridwhilekeepingtheEquatorial,Ecliptic,Horizontalgridsandtheecliptic
+linehidden.
+18
+
+--- Page 19 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+G.Prompts
+CurriculumGenerator
+Youareaprofessionalinstructionaldesignerspecializinginsoftwarelearningtaskdesign.Yourobjectiveistogenerateexactly
+new{totaltasks}high-quality,realisticlearningtasksbasedonthepreviousfeedback.
+Youwillbeprovidedwith:
+1.Arecordofrandomsoftwareexploration,includingseveralactionsandcorrespondingscreenshots.
+-Thisshowsthepossiblefunctionalityofthesoftware.
+2.Aninitialstateofthesoftware(withitsownscreenshots).
+-Thisrepresentstheexactstartingpointfromwhichlearnerswillbegin.
+3.Asummaryoflearnerperformanceonearliertasks.
+-Thisindicateswhichtasksweredifficult,whatthelearnercanalreadysolve,andwhatgapsorweaknessesremain.
+##SoftwareExploration
+Actions:{explorationactions}
+Thecorresponding{len(screenshots)}screenshotsacrosstheactions:{screenshots}
+##InitialState
+Thecurrentinitialstateisshownin{len(screenshots)}additionalscreenshots.Thesescreenshotsshowthestartingpointforthe
+software.
+Theinitialstatescreenshots:{screenshots}
+##TaskGenerationRequirements
+Basedontherandomexplorationactionsandscreenshots,combinedwiththeinitialstatescreenshots,generateexactly{total
+tasks}specifictasksthat:
+1.**High-LevelUserGoals(NOStep-by-StepInstructionsAllowed)**
+-Writetasksas**naturalusergoals**,NOTtutorialsorprocedures.
+-Expresstasksthewayarealuserwoulddescribewhattheywanttoachieve.
+-Absolutely**doNOTdescribeUInavigationpaths**(e.g.,“clickX”,“openY”,“gotoView¿Animation”).
+-NooperationalverbstiedtoUImechanics(e.g.,“open”,“select”,“navigateto”,“choose”).
+- Use **intent-oriented phrasing**, not action-oriented phrasing. - Each task must be **one or two concise sentences**
+describingthedesiredoutcomeorgoal.
+2.**AnchorinInitialState**
+-Eachtaskmustassumethelearnerstartsfromtheprovidedinitialstatescreenshots.
+-Donotinventextraelementsnotvisibleintheinitialstate.
+3.**LeverageExplorationEvidence**
+-Usetherandomexplorationactions/screenshotstoinferwhatthesoftwarecando.
+-Designtasksthatareplausibleandvaluablegiventhosecapabilities.
+4.**RealisticUserValue**
+-Tasksshouldreflectmeaningfulactivitiesarealuserofthissoftwaremightwanttoaccomplish,notartificialbutton-clicking
+exercises.
+5.**DistinctCoverage**
+-Eachofthetaskshouldfocusonadifferentaspect,function,orworkflowofthesoftware.
+-Avoidoverlap.Aimforvariety(e.g.,editing,organizing,exporting,formatting).
+6.**Diversity**
+-Avoidcreatingtaskssimilartotheexistingonesfrompreviousfeedback.
+-Generatecreativevariationsandnovelapproaches.
+-Ensurevarietyincomplexity,actiontypes,anduserscenarios.
+-Thinkofdifferentuserpersonasandusecases.
+19
+
+--- Page 20 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+CurriculumGenerator
+7.**ClarityandSpecificity(Anti-AmbiguityRule)**
+Allregeneratedtasksmustbestatedwithfullclarityandwithoutambiguity.
+Toensurethis:
+-Donotusevagueorillustrativeexpressionssuchas“forexample”,“suchas”,“any”,“multiple”,orotheropen-endedterms.
+-Donotintroduceoptionality,alternatives,orflexibleranges(e.g.,“AorB”,“choosewhichever”,“afew”,“some”).
+-Donotreferencehypotheticalorrepresentativeinstances.
+-Everytaskmustdefinea**single,explicittarget**anda**single,unambiguousgoal**.
+-Thetaskmustbespecificenoughthatasystemcandetermine**exactcompletioncriteria**withoutguessing.
+8.**FeedbackIntegration**
+Youmustgenerateasubstantivelydifferentnewtaskbasedontheagent’sSR.
+Thenewtaskmustnotbeaminorrevision,paraphrase,orparameterchangeoftheoriginaltask.
+####**IfSR>70%(Highperformance)**
+Theagentperformstheoriginaltaskreliably. Youmustthereforegeneratea**fullynew**taskthatis**significantlymore
+challenging**,with**nostructural,semantic,orphrasingresemblance**totheoriginal.
+Thenewtaskmustsatisfyallofthefollowing:
+**1.FullyNewScenario**
+-Usea**completelydifferentrealusermotivation**,context,andtypeofcontent.
+-DoNOTsharetheoriginaltask’sgoaltype,UIelementcategory,actionverbs,workflowpattern,orproblemstructure.
+**2.HigherComplexity**
+Thenewtaskmustbe**meaningfullymorecomplex**,forexampleby:-involving**multiplerelatedsub-goals**,
+-introducing**conditionalorconstraint-basedgoals**,
+-requiring**cross-regionorcross-documentcoordination**,
+-adding**explicitconstraints,requirements,ortrade-offs**,
+-orrequiring**richerinterpretationorreasoning**abouttheinterface/content.
+**3.StrictNon-Similarity**
+ThenewtaskmustNOT:
+-resembletheoriginalinstructureorsteppattern,
+-reusesimilarkeywords,verbs,UIcomponents,oroperations,
+-operateinthesamefunctionalspaceastheoriginal(e.g.,iforiginalusedformatting,avoidformatting),
+-pursueanyversionofthesameunderlyingobjective.
+Thefinaltaskmustfeellikean**entirelynew,high-value,realisticscenario**thatadifferentusermightgenuinelyperform.
+20
+
+--- Page 21 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+####**If30%≤SR≤70%(Mediumperformance)**
+Theagentshowspartialcompetence.Youmustgeneratea**differenttaskofsimilaroveralldifficulty**,butwitha**distinct
+scenarioanddistinctuserintent**.
+Youmay:
+-explorea**newrealuserscenario**,or
+-createa**lateralvariation**thatpracticessimilarreasoningskillswithoutrepeatingtheoriginalpattern.
+Ensuremeaningfulvariationbychangingatleastoneof:
+-the**userpersona**,
+-the**purposeormotivation**,
+-the**contentbeingworkedon**,
+-orthe**overallcontext**(documenttype,audience,situation).
+Thenewtaskmust**not**beasoftenedorstrengthenedrewriteoftheoriginal.
+####**IfSR<30%(Lowperformance)**
+Whentheagentstrugglessignificantly,generatea**scaffoldedprerequisitetask**thatfocusesonthefundamentalskill(s)
+requiredtoperformtheoriginaltask.
+Thisscaffoldedtaskmust:
+-isolate**oneessentialunderlyingcapability**neededtoaccomplishtheoriginaltask,
+-beformulatedasan**independent,authenticusergoal**,notasimplifiedorpartiallycompletedversionoftheoriginaltask,
+-introducea**distinctscenario,purpose,orcontext**,whilestillremainingwithinthesamebroadcapabilitydomain,
+-andexplicitlytargetthefoundationalcompetenciestheagentlacks(e.g., identifyingrelevantelements, applyingtargeted
+adjustments,interpretingcontext,selectingappropriateoptions,ormanipulatingcorecomponents).
+Thenewtaskshouldreflecta**coresub-skill**thattheusermustmasterbeforeattemptinganyhigher-levelormorecomplex
+versionsoftheoriginaltask.
+{feedbacksection}
+ReturnthetasksinthefollowingJSONstructure:
+“‘json{{”tasks”:[{{”task id”:”task 1”,”original task description”:”Theoriginaltaskdescriptionfromthepreviousfeedback”,
+”reasoning”:”Explainwhyandhowthistaskwasmodifiedgiventheagent’sSRandfeedbackcontext.”,”new task description”:
+”High-levelyetspecificusergoalderivedfromtheinitialstateandrefinedthroughfeedback.”}},
+{{”task id”:”task 2”,”original task description”:”Theoriginaltaskdescriptionfromthepreviousfeedback”,”reasoning”:
+”Explainwhyandhowthistaskwasmodifiedgiventheagent’sSRandfeedbackcontext.”,”new task description”:”High-level
+yetspecificusergoalderivedfromtheinitialstateandrefinedthroughfeedback.”}},
+{{”task id”:”task 3”,”original task description”:”Theoriginaltaskdescriptionfromthepreviousfeedback”,”reasoning”:
+”Explainwhyandhowthistaskwasmodifiedgiventheagent’sSRandfeedbackcontext.”,”new task description”:”High-level
+yetspecificusergoalderivedfromtheinitialstateandrefinedthroughfeedback.”}},
+{{”task id”:”task 4”,”original task description”:”Theoriginaltaskdescriptionfromthepreviousfeedback”,”reasoning”:
+”Explainwhyandhowthistaskwasmodifiedgiventheagent’sSRandfeedbackcontext.”,”new task description”:”High-level
+yetspecificusergoalderivedfromtheinitialstateandrefinedthroughfeedback.”}},
+......]}}”’
+21
+
+--- Page 22 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+CUAJudge-OutcomeJudgement
+Youareanexpertevaluatorofcomputeruseagents.Yourtaskistorigorouslyassesswhetheranagenthassuccessfullycompleted
+agiventaskbyexaminingtheinitialstate,finalstate,actionhistory,andintermediatescreenshots.
+##EvaluationProcess
+Followthissystematicevaluationprocess:
+###Step1:UnderstandtheTaskRequirements
+-Readthetaskdescriptioncarefullyandidentifywhatneedstobeaccomplished
+-Reviewthekeypointsthatdefinesuccessfulcompletion
+-Examinetheinitialscreenshot(s)tounderstandthestartingstate
+###Step2:CompareInitialvsFinalState
+-**Critical**:Comparetheinitialscreenshot(s)withthefinalscreenshotside-by-side
+-Identifywhatspecificchangesoccurredintheinterface
+-Determineifthesechangesalignwiththetaskrequirements
+-Checkifthefinalstatedemonstratescompletionofallrequiredmodifications
+###Step3:VerifyEachKeyPoint
+ForEACHkeypointlisted,systematicallycheck:
+-Isthisrequirementexplicitlyaddressedintheactionhistory?
+-Istheresultvisibleinthefinalscreenshotorintermediatescreenshots?
+-Istheimplementationcorrect(notjustsuperficiallysimilar)?-Aretheexactspecificationsmet(correctvalues,correcttargets,
+correctmethods)?
+###Step4:ApplyStrictEvaluationCriteria
+1:Theagentmustonlymakechangesthataredirectlynecessarytocompletethetask.Anyunrelatededitsorsystem/software
+modificationsthatarenotexplicitlyrequiredfortaskcompletionwillresultinfailure.
+2:Interprettheuser’sinstructionsinthecontextofthecurrentsoftware.Professionalorcommonsoftwaretermshaveprecise
+meaningsintheirrespectiveapplications. Anactionthatsuperficiallymatchesthewordingbuttargetsthewrongfunctionor
+interfaceregionofthesoftwareshouldbeconsideredafailure.
+3: You must carefully check whether these snapshots and action history meet these key points. Ensure that specific filter
+conditions,suchas”best,””highest,””cheapest,””latest,””mostrecent,””lowest,””closest,””highest-rated,””largest,”and
+”newest”arecorrectlyappliedusingthefilterfunction(e.g.,sortfunction).
+4:Iftheagentloopsthroughasequenceofactionsthatdonotmakeprogresstowardthegoal(includingfailingtoclick”Save”or
+”Submit,”etc.),itshouldbeconsideredafailure.
+###Step5:MakeFinalJudgment
+**SUCCESS**requires:
+-ALLkeypointsaresatisfied
+-ALLevaluationcriteriaaremet
+-Finalscreenshotshowscorrectendstate
+-Noextraneousorincorrectmodifications
+**FAILURE**ifANYofthesearetrue:
+-Evenonekeypointisnotsatisfied
+-Anyevaluationcriterionisviolated
+-Finalstatedoesnotmatchrequirements
+-Evidenceofincorrectorincompleteexecution
+22
+
+--- Page 23 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+##ResponseFormat
+Provideyourevaluationinexactlytwolines:
+Thoughts: [SystematicallywalkthroughSteps1-5above. Foreachkeypoint,explicitlystatewhetherit’ssatisfiedandcite
+evidencefromscreenshots/actions.Compareinitialandfinalstates.Noteanyviolationsofcriteria.]
+Status:”success”or”failure”
+**Important**:Bethoroughbutconcise.Yourthoughtsshoulddemonstrateyoucheckedeachkeypointandcriterion.
+##TasktoEvaluate:{task}
+##KeyPointsforSuccessfulCompletion:{keypoints}
+##Agent’sActionHistory:{actionhistory}
+H.ExamplesofContextAcrossDifferent
+Environments
+23
+
+--- Page 24 ---
+AutonomousContinualLearningofComputer-UseAgentsforEnvironmentAdaptation
+(a)Example1 (b)Example2
+Figure5.ExamplesofLibreOfficeImpresscontext.
+(a)Example1 (b)Example2
+Figure6.ExamplesofLibreOfficeCalccontext.
+24

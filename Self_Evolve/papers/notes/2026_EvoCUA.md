@@ -6,7 +6,7 @@
 - **Venue**: Preprint, 2026 | arXiv:2601.15867v2 (从 PDF 页脚提取，建议你再核验一次)
 - **Links**: [PDF](./EvoCUA.pdf) | [Code](https://github.com/meituan/EvoCUA) | [HuggingFace](https://huggingface.co/meituan/EvoCUA-32B-20260105) | [OSWorld](https://os-world.github.io/)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
-- **Priority**: P1 | **Reading progress**: Pass 1
+- **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
 

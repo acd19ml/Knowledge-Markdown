@@ -6,7 +6,7 @@
 - **Venue**: Preprint, 2026 | arXiv:2602.23235
 - **Links**: [PDF](../source_todo/Spatio-Temporal-Token-Pruning.pdf) | Code: not listed in PDF | Project: not listed in PDF
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-06
-- **Priority**: P1 | **Reading progress**: Pass 1
+- **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
 GUIPruner 针对高分辨率 pure-vision GUI agents 中的时空冗余，提出 TAR + SSP 两级 training-free token compression，在保持 94%+ 原始性能的同时实现 3.4x FLOPs reduction、3.3x encoder speedup，并显著缓解大模型在 Mind2Web 上的 pruning collapse（Abstract / Table 1-2, p.1-2, p.6-7）。

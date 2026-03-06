@@ -6,7 +6,7 @@
 - **Venue**: Preprint (Under review), 2023-10-10 | arXiv:2303.11366v4
 - **Links**: [PDF](./Reflexion.pdf) | [Code](https://github.com/noahshinn024/reflexion) | [Project](https://github.com/noahshinn024/reflexion)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
-- **Priority**: P1 | **Reading progress**: Pass 1
+- **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
 Reflexion 将外部反馈转成语言化自反思记忆来做“无需微调参数”的试错学习，在 ALFWorld/HotPotQA/HumanEval 上分别报告相对强基线 +22%/+20%/+11% 绝对提升，并在 HumanEval(Python) 上把 pass@1 从 GPT-4 的 80.1 提升到 91.0。

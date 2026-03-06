@@ -145,8 +145,8 @@
 | Amex (offline) | SR | 62.84% (Qwen) | Agent-S: 58.29% | +4.55pp | Table in §4 |
 | Continual (iter 3) | SR | 40.98% (AndroidWorld) | Start (Amex-init): 31.14% | +9.84pp | Table 5 |
 
-**Reading Notes**: `GUI_Agent/papers/2025_MAGNET.md`
-**Last Updated**: 2026-03-06 | 新增条目；是 GUI Agent 领域目前最接近解决 A-1 Gap 的工作，但仍受限于成功轨迹依赖和聚类粒度
+**Reading Notes**: `GUI_Agent/papers/notes/2025_MAGNET.md`
+**Last Updated**: 2026-03-06 | 新增条目；确认 MAGNET 是 A-1 的当前最佳 GUI partial solution，但仍受成功轨迹依赖、per-app workflow 粒度和聚类稳定性限制
 
 ---
 
@@ -157,10 +157,10 @@
 | **Source** | GUI_Agent | — |
 | **Task Type** | Mobile + Desktop + Web (unified multi-platform) | — |
 | **Memory Cognitive Type** | Working (sliding window context + hierarchical compression: recent N turns in full multimodal fidelity; earlier turns condensed to text summary) | `[P]` (Xu et al., 2026, §2.1, p.3-4): "sliding window with hierarchical compression: the most recent N dialogue turns are retained in full multimodal fidelity, while earlier turns are condensed into a concatenated text summary" |
-| **Memory Persistence** | In-task only — context management is within-session; no persistent cross-session or cross-task memory store | `[P]` (Xu et al., 2026, §1, p.2): "short-term and long-term memory" listed as capability requirement but implemented only as sliding window; MemGUI-Bench shows 14pp gap vs workflow agents |
+| **Memory Persistence** | In-task only — context management is within-session; no persistent cross-session or cross-task memory store | `[P]` (Xu et al., 2026, §2.1, p.4; §3.2.2, p.17): sliding-window + compressed summary only; MemGUI-Bench shows GUI-Owl-1.5-32B 27.1 vs workflow agents 41.7 |
 | **Memory Subject** | Agent-centric | — |
 | **Self-Evolution Type** | Online Experience (MRPO multi-platform RL during training) — training-phase only; no post-deployment evolution | `[P]` (Xu et al., 2026, §2.4.3, p.10-11): MRPO training with interleaved per-platform optimization; device-conditioned policy π_θ(a|o,d) |
-| **Evolution Timing** | Training-phase only (pre-deployment Hybrid Data Flywheel + MRPO RL) | `[P]` (Xu et al., 2026, §2.2): DAG-based trajectory synthesis is pre-deployment pipeline; deployed model has no described online evolution mechanism |
+| **Evolution Timing** | Training-phase only (pre-deployment Hybrid Data Flywheel + MRPO RL) | `[P]` (Xu et al., 2026, §2.2-§2.4, p.3-11): DAG-based self-evolving trajectory synthesis and MRPO both occur before deployment; deployed model has no described write-back mechanism from real trajectories |
 | **Cross-task Transfer** | None at inference time — CoT synthesis injects "memory management" annotations but no external memory bank for cross-task retrieval | `[P]` (Xu et al., 2026, §3.2.2, p.17): MemGUI-Bench: native model 27.1 vs workflow agents 41.7 (14pp gap); "in-context information retention" is the key limitation |
 
 **Representative Experimental Data**:
@@ -171,8 +171,8 @@
 | WebArena | SR | 48.4 (32B-Thinking) | AgentSymbiotic-8B: 43.2 | +5.2 | Table 1 |
 | MemGUI-Bench (Easy) | SR | 27.1 (32B native) | Workflow agents: 41.7 | -14.6pp | Table in §3.2.2 |
 
-**Reading Notes**: `GUI_Agent/papers/2026_MobileAgentV3_5.md`
-**Last Updated**: 2026-03-06 | 新增条目；MemGUI-Bench 数据是支持 A-1/A-2 Gap 的强证据；MRPO 是目前解决多平台训练冲突最完整的工程方案
+**Reading Notes**: `GUI_Agent/papers/notes/2026_MobileAgentV3_5.md`
+**Last Updated**: 2026-03-06 | 新增条目；补强 A-1/A-2/A-4 证据链：实现的是 in-task compressed working memory，MemGUI-Bench 暴露 14.6pp 记忆缺口，自进化仍停留在 pre-deployment pipeline
 
 ---
 
@@ -515,13 +515,13 @@
 **Representative Experimental Data**:
 | Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
 |-----------|--------|-------------|-------------------|---|--------|
-| Smallville believability | Human rating | Full architecture | No-reflection: significant drop | — | §4, p.9 (qualitative) |
-| Memory retrieval | Believability | Full architecture | No-observation (GPT-4 baseline): lowest | Largest | §4.2, p.9 |
+| Smallville believability | TrueSkill μ | 29.89 (full architecture) | No-reflection: 26.88 | +11.2% | §6.5.1, p.8 |
+| Smallville believability | TrueSkill μ | 29.89 (full architecture) | Fully ablated baseline: 21.21 | +40.9% | §6.5.1, p.8 |
 
 > **Note**: 无量化 SR 指标；主要为定性人类评估，与 GUI Agent SR 指标不可直接对比。
 
-**Reading Notes**: `Agent_Memory/papers/2023_GenerativeAgents.md`
-**Last Updated**: 2026-03-06 | 升级为 [P] 证据；确认 Episodic Memory 定义；Self-Evolution = None（Reflection 不是跨任务学习）
+**Reading Notes**: `Agent_Memory/papers/notes/2023_GenerativeAgents.md`
+**Last Updated**: 2026-03-06 | 升级为 [P] 证据；补入 Figure/ablation 的具体 TrueSkill 数字；确认 Episodic Memory 定义；Self-Evolution = None（Reflection 不是跨任务学习）
 
 ---
 
@@ -546,8 +546,8 @@
 
 > **Note**: 无量化 SR 数字可比较；benchmark 与 GUI Agent 评测完全不同。
 
-**Reading Notes**: `Agent_Memory/papers/2023_MemGPT.md`
-**Last Updated**: 2026-03-06 | 升级为 [P] 证据；确认 Episodic+Semantic 定义；Self-Evolution = None
+**Reading Notes**: `Agent_Memory/papers/notes/2023_MemGPT.md`
+**Last Updated**: 2026-03-06 | 升级为 [P] 证据；one-line summary 已同步 nested KV depth≥3 的唯一成功方法结论；确认 Episodic+Semantic 定义；Self-Evolution = None
 
 ---
 
@@ -730,10 +730,10 @@
 | **Source** | Self_Evolve | — |
 | **Task Type** | Desktop GUI (OSWorld — computer use agent) | — |
 | **Memory Cognitive Type** | Working (CoT synthesis augments trajectories with step-wise observation/reflection/memory notes — within-trajectory context only) | `[P]` (Xue et al., 2026, §2.3.2, p.8): CoT synthesis enables "enhanced memory capability" but limited to "in-context information retention" within single trajectory |
-| **Memory Persistence** | In-task only — CoT-augmented context is training data, not persistent cross-task memory at inference | `[P]` (Xue et al., 2026, §1, p.2; §9, p.18): "This disparity highlights the limits of offline learning from synthesized traces alone." |
+| **Memory Persistence** | In-task only — CoT-augmented context is training data, not persistent cross-task memory at inference | `[P]` (Xue et al., 2026, §2.3.2, p.8; §9, p.18): memory capability is framed as in-context trajectory augmentation, and the paper later states "the limits of offline learning from synthesized traces alone" |
 | **Memory Subject** | Agent-centric | — |
 | **Self-Evolution Type** | Online Experience (verifiable synthesis + large-scale rollout + iterative RFT/Step-level DPO) — training-phase experience loop; 1M+ training samples | `[P]` (Xue et al., 2026, §1, p.2): "from static data scaling to evolving experience learning"; generation-as-validation pipeline |
-| **Evolution Timing** | Training-phase (pre-deployment) — 100k+ accelerator hours; deployed model has no described online evolution | `[P]` (Xue et al., 2026, §6.5, p.15): 100k+ accelerator hours; Section 7 online RL is "directional report" not complete system |
+| **Evolution Timing** | Training-phase (pre-deployment) — 100k+ accelerator hours; deployed model has no described online evolution | `[P]` (Xue et al., 2026, §6.5, p.15; §7, p.17): large-scale rollout/training infrastructure is pre-deployment, and online RL is explicitly presented as future exploration rather than a deployed continual-learning system |
 | **Cross-task Transfer** | None at inference time — training on synthesized tasks, but cross-task skill reuse not architectured at deployment | `[P]` (Xue et al., 2026, §9, p.18): "a performance gap persists between current open models and leading closed-weights systems" |
 
 **Representative Experimental Data**:
@@ -743,8 +743,8 @@
 | OSWorld-Verified | SR | 56.7% | UI-TARS-2-2509: 53.1% | +3.6pp | Table 1, p.12 |
 | OSWorld-Verified (8B) | SR | 46.1% | Step-GUI-8B: 40.2% | +5.9pp | Table 1, p.12 |
 
-**Reading Notes**: `Self_Evolve/papers/2026_EvoCUA.md`
-**Last Updated**: 2026-03-06 | 新增条目；大规模经验闭环的工程代表；训练阶段演化，部署后无进化
+**Reading Notes**: `Self_Evolve/papers/notes/2026_EvoCUA.md`
+**Last Updated**: 2026-03-06 | 新增条目；补强 A-4/A-5 证据：failure-aware experience loop 很强，但仍停留在训练阶段，作者明确承认 synthesized traces offline learning 仍有上限
 
 ---
 
@@ -891,8 +891,7 @@
 
 | 主题 | 详细分析 |
 |------|---------|
-| GUI Agent × Memory | [gui-agent-x-memory.md](gui-agent-x-memory.md) |
-| GUI Agent × Self-Evolving | [gui-agent-x-self-evolving.md](gui-agent-x-self-evolving.md) |
 | 全局 Gap 分层 | [gap-tracker.md](gap-tracker.md) |
 | 综述分类框架草稿 | [taxonomy-draft.md](taxonomy-draft.md) |
+| 主线问题定义 | [main-line.md](main-line.md) |
 | Gap Tracker 批量更新 | [batch-tracker-update.md](batch-tracker-update.md) |

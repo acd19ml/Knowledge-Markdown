@@ -1,0 +1,1088 @@
+--- Page 1 ---
+ActionEngine: From Reactive to Programmatic GUI Agents via
+State Machine Memory
+HongbinZhong FazleFaisal LuisFrança
+hzhong81@gatech.edu fafaisal@microsoft.com luis.franca@microsoft.com
+GeorgiaTech MicrosoftResearch MicrosoftResearch
+USA USA USA
+TanakornLeesatapornwongsa AdrianaSzekeres KexinRong
+taleesat@microsoft.com aszekeres@microsoft.com krong@gatech.edu
+MicrosoftResearch MicrosoftResearch GeorgiaTech
+USA USA USA
+SumanNath
+Suman.Nath@microsoft.com
+MicrosoftResearch
+USA
+Abstract
+ExistingGraphicalUserInterface(GUI)agentsoperatethroughstep-
+by-stepcallstovisionlanguagemodels–takingascreenshot,reason-
+ingaboutthenextaction,executingit,thenrepeatingonthenew
+page–resultinginhighcostsandlatencythatscalewiththenum-
+berofreasoningsteps,andlimitedaccuracyduetonopersistent
+memoryofpreviouslyvisitedpages.WeproposeActionEngine,a
+Planner training-freeframeworkthattransitionsfromreactiveexecutionto
+programmaticplanningthroughanoveltwo-agentarchitecture:a
+CrawlingAgentthatconstructsanupdatablestate-machinemem- 0 5 10 15 20 25 30
+oryoftheGUIsthroughofflineexploration,andanExecutionAgent Time (seconds)
+that leverages this memory to synthesize complete, executable
+Pythonprogramsforonlinetaskexecution.Toensurerobustness
+againstevolvinginterfaces,executionfailurestriggeravision-based
+re-groundingfallbackthatrepairsthefailedactionandupdatesthe
+memory.Thisdesigndrasticallyimprovesbothefficiencyandac-
+curacy:onReddittasksfromtheWebArenabenchmark,ouragent
+achieves95%tasksuccesswithonaverageasingleLLMcall,com-
+paredto66%forthestrongestvision-onlybaseline,whilereducing
+costby11.8×andend-to-endlatencyby2×.Together,thesecom-
+ponentsyieldscalableandreliableGUIinteractionbycombining
+globalprogrammaticplanning,crawler-validatedactiontemplates,
+andnode-levelexecutionwithlocalizedvalidationandrepair.
+1 Introduction
+AutonomousGUIagents[10](includingWebagents[11]andApp
+agents[18])aredesignedtoenhancethehuman-computerinter-
+actionbyautomatingcomplextasksthatrequireinteractingwith
+GUIelements(suchasclicking,typing,andnavigatingacrossdi-
+verseplatforms)[3,10,21].Forexample,insteadofmanuallyclick-
+ingthroughpages/windows,ausercansimplyaskaGUIagent
+to“findtheuserwhopostedthelatestcommentonaRedditfo-
+rumandcounttheirupvotes."TherapidadvancementofMulti-
+modalLargeLanguageModels(MLLM)hasenabledtheseagents
+tointerpretGUIswithincreasingsophistication[3,10,15].Recent
+benchmarksforWebagents,suchasWebArena,Mind2Weband
+AgentBench[3,8,21],highlightthepotentialofthesesystemsto
+noitcA
+cigoL
+nohtyP
+noitcA noitcA
+cigoL
+nohtyP
+noitcA
+VLM
+noitcA
+VLM
+noitcA
+VLM
+noitcA
+VLM
+noitcA
+VLM
+noitcA
+noitcA
+Common Approach: Reactive Paradigm
+Ours: Programmatic Paradigm
+Figure 1: Reactive vs. Programmatic Paradigms. Our ap-
+proach(bottom)replaces𝑂(𝑁)visualinferenceswithasingle
+𝑂(1)planningphase,drasticallyreducinglatencycompared
+tothereactivebaseline(top).
+navigatereal-worldwebsitesandalsoillustratethechallengesof
+real-worldwebinteractions.
+ExistingGUIagentslargelyfollowastep-by-stepreactivepara-
+digm(Figure1,top),wherereasoningandactionareinterleaved
+withinanobserve–reason–actloop[10,11].Ateachstep,theagent
+observesthecurrentapplicationstate,throughascreenshot[2,12]
+and/ortheHTML/DOMstructure[3,14].IttheninvokesanMLLM
+toselectthenextaction,executesthatactionandobservesthenew
+state.Thisobserve–reason–actlooprepeatsuntiltaskcompletion.
+Thereactiveapproachisintuitiveandgeneralizable,asitclosely
+mimicshowusersnaturallyinteractwithGUIapplications.Werefer
+toagentsoperatingunderthisparadigmasreactiveGUIagents.
+ReactiveGUIagentssharetwofundamentallimitationsrooted
+intheirarchitecture.First,thestep-by-stepapproachisbothcom-
+putationallyexpensiveandpronetoerroraccumulation.Because
+theagentinvokestheMLLMforeachaction,thenumberofmodel
+callsscaleslinearlywiththenumberofstepsinthetask(𝑂(𝑁)).For
+instance,ataskwith50UIactionsrequires50separate,expensive
+LLMinferences.Moreover,asinglevisualhallucinationorincorrect
+reasoninginthisprocesscandisrupttheentiretrajectory[2,14].
+1
+6202
+beF
+42
+]IA.sc[
+1v20502.2062:viXra
+
+--- Page 2 ---
+Zhongetal.
+Second,existingagentsdeveloponlyamyopic,task-specificun- Theagentleveragesthepre-builtstate-machinegraphto
+derstandingoftheapplication[2,12,17].Theyeffectively“learn” groundhigh-leveltaskdescriptionsintoexecutablepro-
+theapplicationincrementallyastheyexecutespecifictasks,with- gramsthroughgraphsearchandcodegeneration.
+outformingaglobalmodelofhowpagesrelatetoeachother,or • Weachieve95%successrateonWebArena’sRedditsubset
+howpersistentGUIelementsfunctionacrosscontexts.Asaresult, with an average of one LLM call per task, significantly
+agentsoftenstruggletoidentifyreusablecomponentsfromprevi- outperformingreactivebaselines(66%)whilereducingend-
+oussolutionsorcomposethemtosolvenewtasks.Duetothese to-endlatencyby2×andcostby11.8×.
+compoundinginefficiencies,evenstate-of-the-artreactiveMLLM-
+Together,thesecomponentsestablishanewparadigmformemory-
+basedagentslikeSeeClick[2]andScreenAgent[12]achieveonly
+augmented,programmaticGUIagents.Bycombiningtheprecision
+≈58%successratesontheWebArenabenchmark.
+ofsymbolicstaterepresentationswiththeflexiblereasoningof
+Toaddressthesechallenges,weproposeActionEngine,aframe-
+LLM,ourworkbridgesthegapbetweenrigidautomationscripts
+workthattransitionsGUIagentsfromreactiveexecutiontoglobal,
+andadaptivebutcostlyvisualagents,pavingthewayformore
+programmaticplanning.Ourkeyinsightistoreplacetheiterative
+reliableandscalableautonomouswebinteraction.
+runtimereasoningwithamortizedpreprocessingeffortsonthetar-
+getapplication.Thisisenabledbyanoveltwo-agentarchitecture:
+2 SystemOverview
+duringtheofflinephase,acrawlingagentexplorestheapplication
+andconstructsatask-agnosticrepresentationofitsstructure;then Weintroduceanoveltwo-agentarchitecturethatseparatestheap-
+atruntime,anexecutionagentusesthisrepresentationtogenerate plicationoperationlearning–understandinganapplication’sstruc-
+andexecuteacomplete,executablePythonprograminoneshot. tureandavailableinteractions–fromthetaskplanningandexecution.
+Specifically,thecrawlingagentbuildsacompactstate-machine ThearchitectureinvolvesaCrawlingAgent,whichoperatesof-
+graphforeachapplication(e.g.,tensofnodesforlargeapplications flinetoconstructandmaintainastructuredmodeloftheapplication
+suchasReddit).Inthisgraph,nodesrepresentdistinctpagestates intheformofaStateMachineGraph(SMG),andanExecution
+(e.g.,“HomePage”,“ForumList”)andedgesrepresentconcreteac- Agent,whichusesthismodeltoplanandexecuteusertaskson-
+tions,suchasclickingabuttontotransitiontoanotherpage,or line.UnliketraditionalGUIagentsthatreactstep-by-steptoraw
+extractingspecificcontentsonthecurrentpage.Thisstructured visualobservations,oursystemtreatstaskautomationasaone-shot
+priorallowsagentstotreatGUIinteractionasdeterministicgraph programsynthesisproblem,shiftingcomputationalburdenfrom
+traversalratherthanstep-by-step,probabilisticMLLMreasoning. expensiveruntimevisualprocessingtoamortizedofflineprepro-
+Givenausertaskandthestate-machinegraph,theexecutionagent cessing.Thesystemlifecycle,illustratedinFigure2,consistsof
+prompts a code-generating LLM to synthesize a complete, exe- threephases:
+cutablePythonprograminasingleinferencestep.Asshownin 1 OfflineConstruction(CrawlingAgent).TheCrawlingAgent
+Figure1(bottom),LLMreasoningoccursonlyduringthisplanning systematically explores the target GUI application to build and
+step;thesubsequentexecutionproceedsdeterministicallywith- maintaintheSMG–adirectedgraphwhosenodescorrespondto
+outfurthermodelcalls.Thisprogrammaticparadigmeffectively symbolicapplicationstates(e.g.,a“ForumList"page)andwhose
+thereforereducesthereasoningoverheadfrom𝑂(𝑁)modelcalls
+edgesrepresentGUIoperations–asequenceofGUIactions,where
+toconstant𝑂(1)planningcostforeachtask.Finally,toensurero-
+eachactioninteractswithasingleGUIelement(suchasclick,type,
+bustnessagainstUIupdates,weincorporateaDynamicAdaptation textboxread,etc.)–thatmayresultinstatetransitions(e.g.,clicking
+Mechanism.Ifthepre-plannedscriptfailsatruntime,thesystem the“GotoPost"buttonnavigatesfromtheforumlisttoapostpage).
+fallsbacktoMLLMreasoningtoresolvetheanomalyandpatches WeformallydefinetheSMGinSection3.1.Thisagentoperates
+thememorygraphforfutureruns. independentlyinthebackground,continuouslymaintainingan
+Insummary,wemakethefollowingcontributioninthispaper: up-to-daterepresentationoftheapplication.
+• We propose a novel two-agent architecture that cleanly 2 OnlineCompilation(ExecutionAgent).Givenausertask,
+theExecutionAgentqueriestheSMGtosynthesizeaprogramto
+separatesofflineenvironmentlearning(viatheCrawling
+solvethetask.Itfirstgeneratesahigh-levelprogramsketchinan
+Agent)fromonlinetaskplanning(viatheExecutionAgent).
+intermediaterepresentation(IR)thatcapturesthelogicalcontrol
+This decoupling enables efficient offline indexing while
+flowofthetaskbutcontainssymbolicplaceholdersforconcrete
+maintainingrapidonlineresponsetimes.
+actions(e.g.,“navigatetoaspecificforum(@forum_name=’...’)”).
+• Weintroduceastatemachinegraphmemorymodelthat
+Acustomcompilerthenresolvestheseplaceholdersbysearching
+representswebsitesorappsasreusablestates(nodes)and
+andcomposingpathsintheSMG,groundingtheIRintoafully
+interactionsasactionabletransitions(edges).Unlikeflattra-
+specifiedExecutionPlan.Atruntime,thisplanisexecuteddeter-
+jectoryhistories,thistopologicalrepresentationcaptures
+ministicallytocompletetheuserrequest:GUIactionsareexecuted
+thefunctionalstructureofGUIsandenablesefficientpath
+throughanautomationtool(e.g.,UIAutomator[4]formobileapps,
+reuseacrosstasks.Asemi-automatedCrawlingAgentcon-
+Playwright[9]forwebsites),andthecodeblocksareexecutedby
+structsthismemorythroughofflineexploration.
+theruntimeinterpreter.
+• Wedesignaprogram-basedplanningapproachwherethe
+ExecutionAgentsynthesizescompletePythonscriptsin 3 RuntimeAdaptation(FeedbackLoop).Duringexecution,if
+a single LLM invocation, reducing planning complexity theobservedenvironmentdeviatesfromthestatemachine(e.g.,
+from𝑂(𝑁)step-by-stepcallsto𝑂(1)one-shotgeneration. duetoUIchangesthatinvalidateselectors),thesystemfallsbacks
+2
+
+--- Page 3 ---
+ActionEngine:FromReactivetoProgrammaticGUIAgentsviaStateMachineMemory
+Vision-based Agent State Machine Graph Crawling Agent Website/Application
+Home
+ UI Ops
+Fallback Update G F L o i o s r t u to m Page G Po o s t t o m ill Data Ops Update Screenshot
+Go to
+Forum XX Post XX Read Multimodal
+P L a is g t
+ e Go to Postmill Postmill Go to D P e o ta s i t
+ ls V C o o t u e n ts Model
+Postmill
+YAML
+Deterministic Runtime High level IR
+Playwright Python Execution Agent
+async def execute_task():  User Task
+Error? UI_CALL: [6]: Navigate to a specific forum
+(@forum_name=”Showerthoughts”)
+
+UI_CALL: [14]: Sort Post by New
+ Tell me the count of comments
+UI_CALL: [26]: Click First Post
+ that have received more
+U ( I C A l c ic t k io ) n
+ ... U ( I C A l c ic t k io ) n
+ P A y c t t h io o n n
+ C C o u m st p o il m
+ er v d U U o o I I t w _ _ e n C C _ v v A A c o o L L o t t L L u e e : : n d _ [ t _ c [ s c o 3 0 9 o u ] ] = m n : : m t e s a UI N n n a t i s _C v s f w i _ e A g c i r L a o n L t u t : e n ( [ t c t o 25 o = u ] n C s t o R u ) m e m m a ( < e d 1 n 0 t A f )
+ s
+ l o l r V c o o t u e n t C o i u n
+ nts
+ C M o o d d in e g l d u o s n o e w t r h n w e v o h S t o h e o m s w t a h e d a r e t n h t u o h p u e v g l o a h t t t e e s s s f t o f o p ru r o m s th t . e
+Figure2:Systemarchitecturewithtwospecializedagents.TheCrawlingAgent(top,offline)exploresthewebsite/appto
+constructandmaintainthestate-machinememory.TheExecutionAgent(bottom,online)usesthismemorytogeneratea
+high-levelprogramsketch,grounditintoexecutableUIcallsthroughgraphsearch,andcompileandexecutetheplan.When
+executionfails,anMLLM-basedfallbackrecoversandupdatesthememory,whileaPythonvalidatorhandleslogicerrors.
+toanMLLM-basedmechanismtorecoverfromthefailure.SMG representationservesasthefoundationfortheExecutionAgent’s
+updatesaregatedbyaconsistencycheck:failedactionsareretried one-shotplanningcapabilitiesatruntime.
+threetimes,andmemorymodificationsaretriggeredonlyupon
+repeatedfailures.Crucially,successfulrecoveriesarecommitted
+backtotheSMG,allowingtheCrawlingAgent’sknowledgeto HHoomme
+e
+ UI Operations
+evolvebasedonexecution-timediscoverieswithoutrequiringfull G Fo o r u to m List PPaaggee G Po o s t t o m ill Data Operations
+re-crawling.
+Thisarchitectureachievesbothefficiencyandadaptability:the Forum List
+ Go to Postmill Postmill
+Page
+CrawlingAgent’sofflineinvestmentenablestheExecutionAgent’s
+Go to Forum List
+fastonlineresponse,whileexecutionfeedbackcontinuouslyim-
+provesthememoryquality. G Fo o r u to m { G na o m to e }
+ G {n o a m to e }
+ G Po o s t t o m ill
+List Forum Submission
+Theremainderofthepaperdetailsthesystemcomponents.Sec-
+Go to Postmill
+tion3describestheCrawlingAgentandtheSMGconstruction
+Sort XX Forum
+ XX Post
+ Read All
+process.Section4presentstheExecutionAgent’splanningand Posts
+ Page Details Vote
+by New Counts
+compilationpipeline,andSection5describestheexecutionruntime
+andruntimeadaptationmechanisms.
+Comments
+
+Go to Forum List Page Go to Postmill
+3 CrawlingAgent Read All Comments Metadata
+Figure3:IllustrationofourState-MachineGraphmodel.The
+TheCrawlingAgentsimulatesausertryingto“learn”theGUI
+graphshowsasubsetofstatesandtransitionsinaReddit-
+application–WhatisthisapplicationusefulforandhowdoIuseit?
+likewebsite,wherenodesareStatesandedgesareOperations
+Ratherthansavingandtryingtoreusetask-specificsolutionslike
+(black:UImanipulation,red:datacollection).
+somepreviousreactiveGUIagents[19,20],theCrawlingAgent
+triestolearntheentiretopologyoftheGUIapplication(thedis-
+tinctpages/windowsandtheirconstituentGUIelements)andthe
+3.1 StateMachineGraph
+meaningofeveryGUIelement(e.g.,clickingonthisnextbutton
+willnavigatetothenextpageofpostsunderthisforum).Itthen TheState-MachineGraphrepresentsaGUIapplicationasadirected
+organizesthisknowledgeasastatemachinegraph(SMG)memory, graphwhosenodescorrespondtosymbolicstatesandwhoseedges
+whichisanintuitiverepresentationthatdevelopersalreadyuseto correspondtoexecutableoperations.Formally,wedefinethegraph
+designGUIs. asastatemachine𝑀 =(𝑆,𝑂,𝑇),where𝑆isasetofdiscretestates,
+TheCrawlingAgentconstructstheSMGofflinethroughsystem- 𝑂 is a set of executable operations, and𝑇 : 𝑆 ×𝑂 → 𝑆 is the
+aticexploration,capturingtheintrinsicstructureoftheapplication transitionfunction.Figure3providesasimplifiedvisualizationof
+independent of any downstream task. The design explicitly de- theSMGfortheredditwebsite.
+couplesthestatictopology(boundedbyafinitesetoftemplates) AState𝑠 ∈𝑆representsauniqueandstableviewofaGUIcon-
+fromdynamicdatacontent(potentiallyunbounded)tokeepthe tainer(e.g.,awebpage,awindow)forUIelements(e.g.,buttons,
+statespacecompactandreusable.Theresultingcompact,symbolic menus,tabs,textfields).Itisformallydefinedasacollectionof
+3
+
+--- Page 4 ---
+Zhongetal.
+State: Home Page State: SpecificForumPage
+Atom: Navigation Atom: TypeSelection Atom: Filter Atom Signature: Navigation, TypeSelection, Filter, ForumName, List[PostDetails]
+B B B u u u t t t t t t o o o n n n : : : P F W o o i r k s u i
+ t m m s
+ ill
+ B B u u t t t t o o n n : : S C u o b m m m is e s n io ts
+
+ ns
+ B B u u t t t t o o n n : : F H e o a t
+
+ tured
+ Atom: SearchBar Navigation
+(static)
+ForumName
+(dynamic)
+TypeSelection
+(static)
+Filter
+(static)
+PostDetails
+(dynamic,
+multiple instances)
+Figure4:TheHome PageStateiscomposedoffourAtoms
+thatrepresentsthenavigationbar,thesearchbar,posttype Figure5:Statetemplateequivalenceacrossdynamicpage
+selectionandfilter. instances.
+atoms,whereanAtomrepresentsasetofrelatedUIelementsthat
+thestategraphintractable.Toremainusableforplanning,thegraph
+appearatomically(i.e.,eitheralloftheUIelementsinanatomare
+sizeshouldscalewiththenumberofdistinctstatetemplates,not
+presentintheviewornoneofthem).Althoughatomsmaybeshared
+withthenumberofdatainstancesrenderedwithinthosetemplates.
+betweenstates,astateisuniquelyidentifiedbythecombinationof
+Figure5illustratesthiskeypropertyofourstateabstraction:a
+itsatoms.Forexample,theHomePagestateinFigure4,ischaracter-
+singlestatetemplatemayhaveanunboundednumberofinstantia-
+izedbyfouratoms:theGeneralNavigationatomcontainingthree
+tions,eachpopulatedwithdifferentdata.Inthisexample,thetwo
+buttons (Postmill, Forums, Wiki), the SearchBar atom contain-
+forumpagesfor“wallstreetbets”and“AskReddit”containdifferent
+ingatextinputandabutton,thePostTypeSelectionatomcon-
+posts,buttheycorrespondtothesameSpecificForumPagestate
+tainingtwobuttons(SubmissionsandComments)andtheFilter
+becausetheyshareanidenticalpagestructure.Thisstateequiv-
+atomcontainingtwoselectionlists.TheGeneralNavigationand
+alenceisachievedbydistinguishingstaticanddynamicatoms.Static
+SearchBaratomsaresharedbetweenallthestatesofthePostmil-
+atomsencodeinvariantinterfaceelements(e.g.,GeneralNavigation),
+l/Redditapplication.
+whiledynamicatomsrepresentelementswithdata-dependentcon-
+InteractionswiththeGUIapplicationaremodeledsimilarlyus- tent(e.g.,ForumNameandPostDetails).Eachdynamicatomes-
+ingatwo-levelhierarchyofActionsandOperations.AnAction
+sentiallydefinesa“type”(analogoustoaclassdefinitioninobject-
+capturesaprimitiveinteractionwithasingleUIelementinanatom
+orientedprogramming)thatcanbeinstantiatedzeroormoretimes
+(e.g.,clickonabutton,typeinatextfield,ormovethescrollbar).
+withdifferentvalues.
+AnOperation𝑜𝑝 ∈𝑂isafunctional,goal-orientedunitcomposed
+Underthisformulation,theSpecificForumPagetemplateisde-
+ofoneormorelow-levelactions.Forexample,theoperationSort
+finedbyitsatomsignature:{GeneralNavigation,TypeSelection,
+Posts By Newincludestwoactions:click(‘Sort Dropdown’)
+Filter, ForumName, List[PostDetails]}. The typed collection
+followedbyclick(‘New Option’).
+List[PostDetails]specifiesthatthepageexpectszeroormore
+AnoperationisrepresentedasanedgeintheSMG(Figure3). instancesofthePostDetailsatom.Althoughthenumberofand
+Itoperatesonatomspertainingtoasinglestateandmayresultin
+thecontentoftheseinstancesdifferacrosspages,thestateidentity
+asinglestatetransition.Itispossibletodefinecompoundedopera-
+isdeterminedbythisfixedstructuralsignature,notbythespecific
+tionswithmultiplestatetransitions(spanningmultipleedgesinthe
+datarenderedwithinit.
+SMG),butinthecurrentimplementationweonlyexperimented
+withsinglestateoperations.Thefunctionalityoftheseoperations 3.2 GraphConstruction
+varyfromsimplenavigation(e.g.,“NextForumPage”,"GotoForum
+Thestate-machinegraphisconstructedbytheCrawlingAgent
+List",“GotoPostmill”,etc.),toreadingorupdatingcontent(“Read
+throughasemi-automated,offlinecrawl-and-validatepipeline.The
+AllPosts”,“ReadKthPost(k)”,“ReadAllComments”,"UpdateUser
+primarygoalofgraphconstructionistocapturetheintrinsicinter-
+Bio(new_bio)").AsshowninFigure3,UIManipulationOperations
+actionstructureofaGUIapplication’sstates,operations,andtransi-
+typicallyinduceatransitiontoanewstate(e.g.,‘GotoPostmill‘
+tions—independentofanyspecificdownstreamtask.Thisprocess
+from‘HomePage‘leadstothe‘Postmill‘state),whereasDataCollec-
+establishesaclearboundarybetweenofflineindexconstruction
+tionOperationsintroducesself-loopsbecausetheydonotchange
+(CrawlingAgent’sresponsibility),whichdefinestheinteraction
+theagent’sstateinthegraph(e.g.,‘ReadAllVoteCounts‘onthe
+schemaoftheGUIapplication,andonlineexecution(Execution
+‘XXPostDetails‘page).Insteadoftriggeringastatetransition,these
+Agent’sresponsibility),whichinstantiatesthatschematosatisfy
+operationsextractinformationfromtheUIandstoreitinsymbolic
+userqueries.
+variablesthatcanbereferencedintheonlineexecutionstage.
+TheCrawlingAgentbeginsfromaseed“home”stateandsys-
+Challenge. AcentraldesignchallengeinconstructingtheSMG tematicallyandrecursivelyexplorestheGUIapplication.Oneach
+ispreventingstateexplosion.Forexample,alargeapplicationsuch visitedpage/window,aMLLMidentifiescoreAtomstogeneratea
+asAmazoncontainsbillionsofdistinctitemscustomerscaninspect, StateID.Basedonthedetectedatoms,theagentenumeratescan-
+yetmodelingeachitem-specificpageasaseparatestatewouldmake didateoperationsandvalidatesthemthroughexecution.MLLM
+4
+
+--- Page 5 ---
+ActionEngine:FromReactivetoProgrammaticGUIAgentsviaStateMachineMemory
+(cid:7) (cid:4)
+(e.g.,Login→Open Settings)canbeidentifiedandcachedas
+1 # ===== NAVIGATION OPERATIONS =====
+2 - !Operation higher-levelcompoundedoperations.Theseabstractionsintroduce
+3 name: Navigate to Kth Post controlledredundancythatimprovesefficiencyforcommonwork-
+4 src_state: &SpecificForumPage
+5 dst_state: &PostDetailPage flowswhilepreservingthestructuralintegrityofthebasegraph,
+6 7 ac - tio t n y s pe : : click whichcontinuestoencodetheintrinsicinterfacestructureand
+8 input: ['@k'] affordancesoftheapplication.
+9 locator: locator("nav.submission__nav").nth(${k})
+10 # ===== COMMENT OPERATIONS =====
+1 1 1 2 - ! na O m p e e : rat R i e o a n d all Comments to current Post 4 ExecutionAgent
+13 src_state: &PostDetailPage
+14 dst_state: &PostDetailPage # self-loop WhiletheCrawlingAgentlearnsthestructuralmodeloftheappli-
+15 actions: cationoffline,theExecutionAgentaddressesthecomplementary
+16 - type: read_text_all
+17 selector: ["article.comment"] question:givenastate-machinegraphofawebsite,howdowe
+18 output_format: "['user1: comment text...']" completeaspecificusertask?
+19 - !Operation
+20 name: Reply To Comment By Username Existing GUI agents typically follow a reactive paradigm: at
+2 2 1 2 s d r s c t _ _ s s t t a a t t e e : : & & P P o o s s t t D D e e t t a a i i l l P P a a g g e e # self-loop eachstep,aMultimodalLargeLanguageModels(MLLM)observes
+23 actions: thecurrentscreenandpredictsthenextaction.Thisdesignhas
+24 - type: click
+25 input: ['@commenter_username'] twofundamentallimitations.First,itsuffersfromstochasticerror
+26 locator: locator("article.comment").filter(...) accumulation,whereasinglevisualhallucinationinalongsequence
+27 - type: fill
+28 input: ['@reply_text'] disruptstheentiretask.Second,itincurshighlatency:completing
+29 (cid:6) locator: get_by_label("Comment") (cid:5) ataskofwith𝑁 stepsrequires𝑂(𝑁)separateMLLMcalls,making
+Listing1:ExcerptfromtheRedditstate-machinegraph long-horizontasksslowandexpensive.
+TheExecutionAgentinsteadtreatstasksolvingasacompilation
+problem.Givenanaturallanguagequeryandthepre-builtstate-
+machinegraph(SMG),itsynthesizesacomplete,executablePython
+identifiesnavigationcontrolsandcompileseachoperationintoa
+programinthreestages:(1)generatingahigh-levelsketchthatcap-
+sequenceofactions.Transitionsareverifiedbyexecutingtheseop-
+turesthetask’scontrollogic,(2)groundingabstractplaceholders
+erationsandobservingtheresultingStateIDchanges.Fordynamic
+inthesketchtovalidatedpathsintheSMG,and(3)compilingthe
+atoms,theMLLMdoesnotextracttheactualdatavalues(which
+groundedrepresentationintoanexecutableplan.Byshiftingrea-
+changeinreal-time).Instead,itinfersadata-accessschemainthe
+soningfromiterativeruntimeinferencetoone-shotplanningover
+formofaselector-basedrule(e.g.,“iterateoverelementsmatching
+asymbolicmodel,thesystemreducesmodelinvocationoverhead
+‘.comment‘andextracttext”).ThisschemaenablestheExecution
+from𝑂(𝑁)to𝑂(1).
+Agenttofetchlivedataduringtaskexecution.
+Toensurethememorygraphrepresentstheinherentstructure
+RunningExample. Throughoutthissection,weusethefollowing
+oftheGUIapplicationratherthanoverfittingtospecifictasks,we
+taskastherunningexample:"Replytothemanagerofthewebsite
+adheretoastrictaffordance-basedpolicy.Operationsaredefined
+inthispostwith’thanks!Iamabigfanofyourwebsite.’"Thistask
+solelybasedonrecurringstructuralpatterns(e.g.,DOMpatterns)
+requirestheagentto:(1)identifywhichforumlikelycontainsman-
+andinteractiveaffordancespresentintheUI,notontaskseman-
+agerposts,(2)locatetherelevantpost,(3)determinewhetherthe
+tics.Wespecificallyavoidcreating“virtual”operationsthatencode
+manageristhepostauthororacommenter,and(4)executethe
+compositeortask-specificintent.Forexample,ifaposthasthree
+appropriatereplyaction.Solvingthistaskrequiresmulti-steprea-
+clickable entry points (Title, Thumbnail, “Read More”), each is
+soning,dynamicdatacollection,andconditionallogicbasedon
+recordedasadistinctoperationinducingaparalleltransition,even
+runtimeobservations.
+iftheyleadtothesamedestinationstate.ThisforcestheExecution
+Agenttoreasonoverthegraphduringplanning,ratherthanrelying
+4.1 GeneratingaSketchProgram
+onmemorizedshortcuts.
+ThefinalizedgraphisserializedintoaYAMLformatoptimized TheExecutionAgentbeginsbypromptingacode-generatingLLM
+forthePlanner.Listing1showsanexcerptfromtheRedditstate- (thePlanner)withtheuser’sgoalandafilteredsubsetofthestate-
+machinegraph,illustratingbothstate-transitioningoperations(e.g., machinegraphcontainingonlystatesandoperationsreachable
+navigatingtoapost)aswellasoperationsondynamicatoms(e.g., fromthecurrentstartstate.Thisconstrainstheactionspacefor
+readingcomments).Onaverage,thegraphforacomplexdomain betterreliabilityandefficiency.TheLLMoutputsaSketchPro-
+likeReddit(Postmill)containsapproximately20-30statesand100- gram:aPythonscriptthatspecifiesthetask’slogicalstructure(e.g.,
+150transitions,asizethatallowsforefficient𝑂(1)lookupsduring loops,conditionals,anddataflow)whileabstractingconcreteUI
+onlineserving. interactionsintoplaceholders.
+Inthecurrentdesign,weenforceastrictone-to-onecorrespon- Thesketchprogramservesasanintermediaterepresentation(IR)
+dencebetweengraphedgesandconcreteGUIaffordancestomiti- thatconnectshigh-levelplanningandlow-levelexecutiondetails.
+gateoverfittingandpreventtaskleakage.Nevertheless,thearchi- Itfixesthetask’scontrolflowinadvancewhiledeferringthree
+tecturesupportsprincipled,experience-basedrefinement. environment-dependentconcernstolaterstages:(1)concretenavi-
+Specifically,thesystemmayadoptamechanismanalogousto gationpaths,(2)runtimedatabindings,and(3)auxiliaryinference
+materializedviews.Frequentlyrecurringoperationsequences logicthatisnotpartofthecoreUIcontrolflow.
+5
+
+--- Page 6 ---
+Zhongetal.
+First,concretenavigationstepsarerepresentedasexplicitUI 1 async def find_manager(post_title, comments_data):
+call placeholders using the format UI_CALL: [OpID]: OpName. 2 """Helper function: Analyzes post and comments to
+TheOpIDuniquelyidentifiesanoperationintheSMG,avoiding 3
+4 t
+i
+h
+d
+e
+e
+y
+nti
+a
+f
+r
+y
+e
+t
+t
+h
+h
+e
+e p
+w
+o
+e
+s
+b
+t
+sit
+a
+e
+uth
+m
+o
+a
+r
+nag
+o
+e
+r
+r
+a
+an
+c
+d
+omm
+d
+e
+e
+n
+t
+t
+e
+e
+r
+r
+mi
+.
+n
+"
+e
+""
+whether
+ambiguitywhenmultipleoperationssharesimilarnames.BothUI 5 prompt = f"""
+ManipulationOpsandDataCollectionOpsusethesame‘UI_CALL‘ 6 Post: {post_title}
+7 Comments: {comments_data}
+placeholderinthesketch.Data-collectionoperationsaretagged 8
+withmetadatadescribingtheirreturntypesandoutputformats, 9 Identify who is the website manager.
+10 Return: {{"is_post_author": true/false,
+whichenablesthePlannertoincorporateretrieveddataintodown- 11 "username": "manager_name"}}
+stream Python logic. At this stage, the UI calls specifies which 12 """
+logicaloperationisrequired,butnotthesequenceoftransitions 13 response = await call_llm(prompt)
+14 return parse_json(response)
+neededtoreachandexecuteitfromthecurrentstate.Expanding
+15
+eachplaceholderintoavalidatedactionsequenceisdeferredtothe 16 async def execute_task():
+linkingstage. 17 result = None
+18 # Step 1: Navigate to post and collect data
+TheseconddefiningfeatureofthesketchIRissupportforsym- 19 UI_CALL: [29]:[Navigate to Kth Post(@k=0)]
+bolicvariables,denotedbyan@prefix(e.g.,@username),torepre- 20 post_title = UI_CALL: [21]:[Read Post Title()]
+21 comments = UI_CALL: [28]:[Read all Comments()]
+sentvaluesthatareonlyavailableatruntime.Forexample,adata- 22 # Step 2: Identify manager (Python Node with LLM)
+collectionoperationmayfirstextractrawtextintoalocalvariable 23 manager_info = await find_manager(post_title, comments)
+(e.g.,comments);aPythonNode—alocallyexecutedcodeblock(e.g., 24 # Step 3: Reply based on manager's role
+25 reply_text = "Thanks! I am a big fan of your website."
+for-loops,parsing,filtering,aggregation,andotherdata-processing 26 if manager_info["is_post_author"]:
+logic)—thenprocessescommentstoderiveatargetvalue(e.g.,the 27 # Manager is the post author - comment on post
+manager’sname).ThePlannerspecifieshowthisderivedvalue 28 UI_CALL: [26]:[Post Comment(@reply_text=reply_text)]
+29 else:
+shouldbindtosymbolicarguments@usernameindownstreamUI 30 # Manager is a commenter - reply to their comment
+operations.IfthePlannermakeserrorsinthebindinglogic,the 31 manager_name = manager_info["username"]
+32 UI_CALL: [30]:[Reply To Comment By Username(
+runtimesystem’svalidatorwilldetectandcorrectthembasedon 33 @commenter_username=manager_name,
+runtimeobservationsduringexecution. 34 @reply_text=reply_text)]
+Finally,thesketchIRalsosupportshelperfunctions—specialized 35 result = "Reply posted successfully"
+Pythonfunctionthatencapsulatecomplexlogic(e.g.,LLM-based Listing 2: Example sketch program with UI_CALL
+inference,multi-stepparsing)separatefromthemainUI-drivencon- placeholdersandhelperfunctions.
+trolflow,improvingmodularitywhentasksrequiresophisticated
+dataprocessing.
+Theresultingsketchservesasalogicallycompleteblueprintofthe
+4.2 StaticLinking:ResolvingUICallsintoPaths
+task.Controlflowanddatadependenciesarefixedinadvance,while
+low-levelUInavigationpathsremainabstract.Topreservethis ThislinkingphaseresolvesabstractUI_CALLplaceholdersinthe
+program’slogicalstructureduringlaterstages,thesystemparses sketchIRintoconcreteexecutionpathsintheCrawlingAgent’s
+thesketchusingPython’sAbstractSyntaxTree(AST)andrecover state-machinegraph.ThelinkerresolveseachUIcallintoavalidse-
+thecode’snestingstructure.EachUI_CALLisassociatedwithits quenceofgraphedges,whilepreservingthecontrol-flowsemantics
+enclosingcontrolblock(e.g.,thebodyofaforlooporaconditional establishedintheIR.
+branch).Asaresult,whenasingleUI_CALLislaterexpandedinto Theagenthasthreeprogrammaticresolutionstrategies.Itfirst
+amulti-stepactionsequence,theexpansionisinjectedintothe attemptsadirectbreadth-firstsearch(BFS)overtheSMGtofinda
+correctscope,ensuringthatthefinalexecutableprogramfaithfully pathfromthecurrentstatetothetargetoperation’sstartingstate.
+preservestheintendedloopandbranchsemantics. BecausetheSMGiscompactandtemplate-bounded,thislookup
+isefficientandresolvesroutinenavigation(e.g.,Home→Forum
+→Post).IfBFSfailsandtheUI_CALLappearsinsideafor-loop
+(identifiedviaASTmetadata),theagentenforcesloopinvariants.
+RunningExample(SketchProgram). Forourrunningexample, Theresolvedpathmustreturntheagenttotheloop’sentrystate
+theplannergeneratesthesketchprogramshowninListing2(sim- afterexecution,ensuringthatsubsequentiterationsremainvalid.
+plifiedforclarity).Thesketchdemonstratesseveralkeyfeatures: Thispreventsinvalidplansthatsilentlyviolateiterationsemantics
+(1)UI_CALLplaceholderswithoperationIDs(e.g.,[28],[30])that fixedinthesketch.Ifneitherdirectsearchnorloop-awarelink-
+willbegroundedtoconcreteactionsinthelinkingstage;(2)the ingsucceeds,thesystemappliesheuristicrecovery.AnLLM-based
+helperfunctionfind_managerencapsulatesLLM-basedreasoning heuristicmaysuggesteitheraglobalreset—returningtoacanonical
+asaspecializedPythonfunction,keepingcomplexinferencelogic rootstateandre-navigating—orasemanticreplacementthatsubsti-
+separatefromthemainUI-drivencontrolflow;(3)symbolicvari- tutesthetargetoperationwithanalternativematchingtheoriginal
+ableslike@commenter_usernamewhosevaluesarecomputedat intent.5Ifallthreeprogrammaticstrategiesfail,thenodeismarked
+runtimeandbounddynamically;(4)controlflow(if-else)isfixed as‘unresolvable’,instructingtheExecutortotriggervision-based
+atplantimebasedonthetaskstructure,whiletheactualbranch fallbackatruntime(Section5.2).
+takendependsonruntimedata(whetherthemanageristhepost WenotethatwhenhighlycapableLLMs(e.g.,ClaudeSonnet4.5)
+authororacommenter). generatetheinitialsketch,theyoftenproduceUI_CALLsequences
+6
+
+--- Page 7 ---
+ActionEngine:FromReactivetoProgrammaticGUIAgentsviaStateMachineMemory
+1 async def execute_task(): TheexpandedprogramisconvertedintoaMixedActionPlan
+2 result = None objectgraph.Theplanconsistsofthreenodetypes:
+3 # Step 1: Collect comments (grounded to action)
+4 comments = <ACTION> read_text_all • UINodes:Storeprimitivebrowseractions(e.g.,click,fill)with
+5 selector="article.comment" associatedlocatorsorselectors.Besidesstoringasingleprim-
+6 # Step 2: Identify manager (unchanged Python Node) itiveaction,anUInodemayalsocontainsymbolicbindings
+7 manager_info = await find_manager(post_title, comments)
+8 # Step 3: Reply based on manager's role (e.g.,@worcester_forum_name)thatareresolvedatruntime.
+9 reply_text = "Thanks! I am a big fan of your website." Basedonthat,ActionEnginewillrunUINodesonebyone,
+10 if manager_info["is_post_author"]:
+11 # Grounded: Post Comment operation whichwilleasilytriggervalidator(seesection5.1)whenaspe-
+12 <ACTION> fill locator=get_by_label("Comment") cificUINodefailed.
+13 input=['@reply_text'] • PythonNodes:Encapsulatelocalcomputationandproduce
+14 <ACTION> click locator=get_by_role("button", name="Post")
+15 else: explicitlynamedoutputvariablesfordataflowtracking.
+16 # Grounded: Reply To Comment By Username operation • ControlFlowNodes:Mapfor/if/whiletocontainernodes
+17 manager_name = manager_info["username"] preservingnestingstructureintheIR.
+18 <ACTION> click
+19 locator=locator("article.comment") Eachnodecarriesitsexecutioncontext,codelogic,anddata
+20 .filter(has_text="${manager_name}") bindingrequirements.
+21 .get_by_role("link", name="Reply")
+22 input=['@manager_name']
+23 <ACTION> fill locator=get_by_label("Comment").last Running Example (Final Executable Plan). After compilation,
+24 input=['@reply_text'] theprogramistransformedintoaMixedActionPlanwithtyped
+25 <ACTION> click locator=get_by_role("button", name="Post").
+last nodes.4showsanexcerptofthestructure(simplifiedfromthe
+26 result = "Reply posted successfully" full25-nodeplan).Theplandemonstratesthethreenodetypes:(1)
+Listing3:Exampleofexpandedprogramafterlinking. PythonNodescontaininghelperfunctionsandorchestrationlogic;
+(2)UINodeswithactions(read_text_all,fill,click)mapped
+to Playwright locators/selectors, with symbolic inputs such as
+["@reply_message"];(3)ConditionalNodesenablingbranching
+thatarealreadycorrectandproperlyordered.Insuchcases,BFS logicwithnestedactionsequences.Atruntime,whentheExecutor
+resolutionsucceedsfornearlyalloperationswithoutrequiringpath encounters"input": ["@target_index"],itresolvesthesym-
+corrections.Insuchcases,thelinkingstageprimarilyservesasaval- bolagainstthelocalcontext—wheretarget_indexwassetbythe
+idationandstabilityguaranteethatanynavigationinconsistencies precedingPythonNode—andgeneratestheconcretePlaywright
+introducedduringplanningaredetectedandrepairedbeforeexe- commandwiththeboundvalue.
+cution.Thisarchitecturalseparationbetweenplanningandlinking
+improvesrobustness:strongplannersbenefitfromminimalover-
+5 RuntimeExecutionandAdaptation
+head,whileweakerplannersreceiveautomatedpathcorrectionas
+asafetynet. 5.1 ExecutionandValidation
+TheExecutionAgent’sruntimeenvironmenttranslatesthecom-
+RunningExample(AfterLinking). Forthemanager-replytask,
+piledprogramintoconcretebrowseractions.Theruntimeoperates
+thelinkerexpandseachUI_CALLintoconcretePlaywrightactions
+atthegranularityofplannodes,treatingeachnodeasanatomic
+asshowninListing3.
+executionunit.Thisnode-levelexecutionmodelenablesprecise
+EachUI_CALLplaceholder(e.g.,[28]: Read all Comments)is
+failurelocalization,allowingruntimeerrorstobedeterministically
+expandedintoitscorrespondinglow-levelactions(e.g.,read_text_
+attributedtoindividualnodes.Consequently,theValidatorcanper-
+allselector="article.comment").Symbolicvariableslike@manager_
+formlocalizedrepair,constrainingcorrectiveactionstotheminimal
+nameand@reply_textremainasplaceholders,carryinginputan-
+faultyregionratherthantriggeringglobalreplanning.TheExecu-
+notationsthatwillberesolvedinthecompilationstage.Thecontrol
+tionAgentoperatesdeterministically,traversingthepre-computed
+flowstructure(if-else)ispreservedexactlyasspecifiedinthe
+executionplannodebynode.Theruntimeconsistsoftwospecial-
+sketchIR.
+izedcomponents:theExecutorandtheValidator.
+4.3 CompilingintoExecutablePlans
+TheExecutor(DeterministicRuntime). TheExecutorisadeter-
+OnceallresolvableUI_CALLshavebeenlinked,thesystemcompiles ministicruntimeenginethattraversestheMixedActionPlanob-
+theresultingprogramintoanexecutablerepresentationthatistype- jectgraph,dispatchinginstructionsbasedonnodetype.Python
+safe,execution-ready,andsupportsruntimesymbolicbinding. Nodesareexecutedinasandboxedenvironmentwitharestricted
+Thecompilerfirstperformsinstructionexpansion.Eachlinked interpreterthatonlyallowswhitelistedsafe_builtins(e.g.,math,
+SMG operation is expanded into a fixed sequence of primitive json)whileblockingunsafesystemcalls(e.g.,networksockets,
+browseractionsimplementedviaPlaywright(e.g.,Sort by New fileI/O).Toenabledataflowacrosssequentialsteps,theExecutor
+→{click(#sort),click(#new)}).Thisproducesafullyspecified maintainsanActionExecutionContext,whichisadedicatedstack
+PythonprogramwithnoabstractUIcalls.Thecompileralsoextracts framethatmanagesvariablescope.Thisallowsdataextractedin
+helperfunctionsviaASTanalysisandhoiststhemtoaroot-level onestep(e.g.,output="vote_counts")tobedynamicallyboundto
+PythonNode,ensuringhelperlogicisinitializedbeforethemain parametersinsubsequentsteps(e.g.,input=["@vote_counts"])
+executionflowbegins. viaruntimesubstitution.
+7
+
+--- Page 8 ---
+Zhongetal.
+(cid:7) (cid:4)
+1 { exceptionstriggerinterfacere-groundingandmemoryupdates.For
+2 3 " " n a a c m t e io " n : s " ": Rep [ ly to the manager of the website...", logicinterruptstriggeredbyPythonfailures,itcapturestracebacks
+4 { (e.g.,JSONDecodeError)andpromptsalightweightcodingmodelto
+5 "name": "Helper Functions",
+6 "type": "python", hot-patchthecode,allowingexecutiontoresume.ForIOinterrupts
+7 "python_code": "async def identify_manager(...): ...", causedbyUIfailures(e.g.,TimeoutError),theValidatorsuspends
+8 "description": "LLM-based functions for reasoning"
+9 }, executionandtriggersanupdatetothestate-machinememory
+10 { graphbycallingavision-basedagenttoaddressinterface-level
+11 "name": "Action from operation: Navigate to Kth
+Forum", inconsistencies.
+1 1 2 3 " " t i y n p p e ut " " : : " [ c " li @ c t k a " r , get_index"], Becauseexecutionisstructuredaroundnode-levelatomicity,
+14 "locator": "locator('article').nth({target_index})" recoverycanbestrictlylocalized.Validatorinterventionsmodify
+15 },
+16 { onlythefaultynodeoritsassociatedmetadatawithoutinvalidating
+17 "name": "Action from operation: Read all Comments", thesurroundingexecutiontrajectory,therebypreventingcascading
+18 "type": "read_text_all",
+19 "selector": "article.comment", failuresandavoidingcostlyglobalreplanning.
+20 "output": "comments_data" OurevaluationwithClaude4.5Sonnetshowsthatwithastrong
+21 },
+22 { planningmodel,thegeneratedexecutionplansuccesswithoutval-
+2 2 3 4 " " n t a y m p e e " " : : " " P p y y t t h h o o n n", Block", idation(Section6.However,theValidatorbecomescriticalwith
+25 "python_code": [ weakermodels:inourexperiencewithmodelslikeGPT-4o,approx-
+26 "reply_info = await
+identify_manager(comments_data)", imately20-30%ofexecutionsrequirevalidationandhot-patching,
+27 "reply_message = \"thanks! I am a big fan.\"" demonstratingitsimportanceasasafetynetforproductiondeploy-
+28 ]
+29 }, ment.
+30 {
+31 "name": "Conditional",
+32 "type": "conditional",
+33 "condition": "reply_info[\"reply_type\"] == 5.2 DynamicMemoryUpdateMechanism
+\"post_comment\"",
+34 "actions": [ GUIinterfacesevolvecontinuouslyaselementsshiftandlayouts
+35 {
+36 "name": "Action from operation: Post Comment", change. When the Execution Agent encounters UI failures, the
+37 "type": "fill", systemtriggersafeedbacklooptoupdatetheCrawlingAgent’s
+38 "locator": "get_by_label(\"Comment\")",
+39 "input": ["@reply_message"] state-machinegraph.
+40 }, SMGupdatesaretriggeredundertwocircumstances:whenthe
+41 {
+42 "name": "Action from operation: Post Comment", Validator catches UI exceptions during execution, or when the
+4 4 3 4 " " t l y o p c e at " o : r " ": cli " c g k e " t , _by_role(\"button\", Planner marks a milestone as ‘unresolvable’ during the linking
+name=\"Post\")" phase(Section4.2).Thesetriggerssignalthatthecurrentmemory
+45 }
+46 ] representationnolongeraccuratelyreflectstheliveGUIinterface.
+47 } Upon triggering, the system pauses execution and invokes a
+48 ]
+49 (cid:6)} (cid:5) vision-basedagenttore-groundthefailedaction.Thisagentcap-
+turesthecurrentDOMandscreenshottoidentifythecorrectin-
+Listing4:Excerptsfromgeneratedexecutionplan. teractionpoint(e.g.,findingthenewCSSselectorfora"Reply"
+button).Theupdatedmetadatafortheactioniscommittedtothe
+SMG,enablingfutureexecutionstousethecorrectedpathwithout
+requiringscreenshot-basedinference.Thevision-basedfallback
+ConditionalNodesarehandledthroughstandardcontrolflow:
+theExecutorevaluatestheconditionexpressionagainstthecur- adds latency during the first recovery, though subsequent runs
+rentcontext,andiftrue,recursivelyexecutesthenestedactions benefitfromtheupdatedmemory.
+WhilethismechanismeffectivelyhandleslocalizedUIchanges,
+arraybeforecontinuingtothenextsiblingnode.Thisenablesdy-
+itoperatesundertheassumptionthatsuchchangesareinfrequent
+namicbranchingbasedonruntimeobservations(e.g.,choosing
+andlimitedinscope.Large-scaleredesignsthatfundamentallyalter
+differentreplystrategiesbasedonwhetherthemanagerisapost
+theinterfacestructuremayrequirefullre-crawlingtorebuildthe
+authororcommenter).
+memoryfromscratch.
+UINodesaredelegatedtoaWebUIWorker,whichmaintainsa
+fixedmappingfromactiontypestoPlaywright[9]APIcalls:click
+→page.locator().click(),fill→page.locator().fill(),
+6 Evaluation
+read_text→page.locator().inner_text().Thelocatorfield
+ispasseddirectlyasaPlaywrightselectorstring,whileinputpa- WeevaluateActionEngineontheWebArenabenchmark[21],a
+highlyrealisticexecutionenvironment.WebArenaiswidelyrecog-
+rametersareresolvedfromtheexecutioncontextandinjectedinto
+nizedasthemostchallengingbenchmarkinthefield,asitrequires
+theAPIcall.
+agentstoperformcomplexreasoningandcalculationratherthan
+TheValidator. TheValidatormonitorsexecutionandhandles simpleUIinteractions.Currently,evenadvancedopen-sourcesolu-
+exceptions.Sinceplannodesaretyped(UIvs.Python),theValidator tionsstruggletoachievehighsuccessrates,highlightingthesignifi-
+candirectlymapeachfailuretoacorrespondingrecoveryroutine: cantgapbetweenexistingreactiveparadigmsandtherequirements
+Python-nodeexceptionstriggercodehot-patching,whileUI-node ofreal-worlddeployment.
+8
+
+--- Page 9 ---
+ActionEngine:FromReactivetoProgrammaticGUIAgentsviaStateMachineMemory
+6.1 ExperimentalSetup improvementsoccurontasksrequiringmulti-stepreasoningwith
+Wefocusourdeep-diveanalysisonthePostmill(Reddit)domainin branching logic. For example, on task group 27-31, our system
+WebArena,whichrepresentsaworst-case"Long-HorizonReason- reduces input tokens by 95% (140.9k → 6.8k) and LLM calls by
+ing"scenarioforreactiveagents.Tasksinthisdomain(e.g.,"Find
+94%(17.8→1.0).Evenontaskswherebothsystemssucceed(e.g.,
+theuserwhopostedthelatestcommentandcounttheirupvotes")
+404-408),ourapproachuses78%fewertokensandcompletes2.1×
+requireinter-pagenavigation,logicfiltering,andarithmetic—areas faster, validating that structured memory eliminates redundant
+wherepurelyvision-basedagentssuffercatastrophicerroraccumu- environmentperceptionandenablesscalableweb/appautomation.
+lation.WecompareActionEngine(AEngine)againstAgentOccam Theseefficiencygainstranslatedirectlyintocostsavings.Our
+(AOccam)[17],astate-of-the-artreactivebaselinethatusesGPT-4-
+systemreducesaveragecostpertaskby11.8×(from$0.71to$0.06).
+Turbowithsophisticatedpromptingandvision-basedinteraction, Thereductioncomesfromthreesources:First,87%fewerinput
+butstillreliesonstep-by-stepplanningwithoutstructuredmemory.
+tokens(62.3k→8.1k)—weprovideonlyreachableoperationsto
+Weevaluateagentsystemsalongthefollowingdimensions: the planner, while linking uses deterministic graph algorithms.
+• SuccessRate:TaskcompletionrateasmeasuredbyWebArena’s Second,usingcodingmodels(e.g.,ClaudeSonnet4.5)insteadof
+evaluationframework. expensivevision-languagemodels.Third,ourarchitecturerequires
+• QueryLatency:End-to-endexecutiontime,includingcompu- onlyonelargeLLMcallforinitialplanning(avg.6.8ktokens);
+tationandAPIcalls. theremainingcallspertaskaresignificantlysmaller(forvalidation
+• Cost: Total API cost per task, computed from token usage orerrorrecovery)andsharecommonprefixeswiththeplanning
+(input/outputtokensacrossallLLMcalls)andmodelpricing. context,allowingLLMproviders’promptcachingtoreusecached
+WealsoreportthenumberofLLMcallspertask. tokensandreduceeffectivecosts.
+6.2 End-to-EndPerformance 6.3 DetailedTask-by-TaskAnalysis
+Table1presentsahigh-levelcomparisonbetweenActionEngine Toprovidetransparencyintooursystem’sperformancecharacter-
+and AgentOccam across key performance metrics. Our method istics,wepresentdetailedbreakdownsacrossall106Reddittasks
+achievesasuccessrateof95%ontheRedditbenchmark(106tasks), inTable2.Wediscusspatternsobservedinrepresentativesuccess
+significantlyoutperformingAgentOccam(66%),whiledemonstrat- andfailurecasesbelow.
+ingcostandefficiencygainsacrossallmetrics.
+6.3.1 RepresentativeSuccessCase.
+Table1:PerformancesummaryonWebArena(RedditSubset,
+Multi-StepReasoning(Task27-31). Considerthetask:"Tellme
+106tasks).CostestimatesarebasedonClaude4.5Sonnet
+thecountofcommentsthathavereceivedmoredownvotesthanup-
+($3/Minput,$15/Moutput)andGPT-4-Turbo($10/Minput,
+votesfortheuserwhomadethelatestpostonthe{{forum}}forum."
+$30/Moutput)APIpricing.
+Thisrequires:(1)navigatingtotheforum,(2)identifyingthelatest
+post,(3)findingitsauthor,(4)retrievingallcommentsbythatauthor,
+Metric AOccam AEngine Improvement(×) (5)filteringbyvotecriteria,and(6)countingtheresults.AOccam
+(GPT-4-Turbo) (Claude4.5) performed17.8LLMcallsonaverage,attemptingtonavigateand
+SuccessRate(%) 66 95 1.44× reasonvisuallyateachstep.Thisreactivestrategyaccumulated
+Avg.Latency(s) 237 118 2.01× errors—afterseveralnavigationsteps,theagentlosttrackofthe
+Avg.CostperTask($) 0.71 0.06 11.83×
+originalfilteringcriteria,leadingtoa60%failurerate.Thetokencon-
+Avg.#InTokens 62.3k 8.1k 7.69× sumption(140.9k)reflectedrepeatedcontext-passingastheagent
+Avg.#OutTokens 3.0k 2.3k 1.30×
+triedtomaintainstateacrosssteps.ActionEnginegeneratedasin-
+Avg.#LLMcalls 10.2 1.8 5.67×
+glePythonprograminoneLLMcall(6.8ktokens)thatencapsulated
+theentirelogic:navigate_to_forum() → get_latest_post()
+The29percentagepointimprovementinsuccessratevalidates → author = post.author → comments = get_all_comments
+ourcorearchitecturalprinciple:executionlogiclockedintodeter- (author)→filtered=[cforcincommentsifc.downvotes
+ministiccode(e.g.,Pythonforloopsforcountingupvotes)elim-
+> c.upvotes] → return len(filtered).Thisdeterministicpro-
+inatesthestochasticerrorsinherentinvisualreasoning.Overall,
+gramexecutedreliablyacrossall5testcases,completingin65s
+ActionEnginemaintainshighsuccessratesacrossbothsimple
+comparedtoAOccam’s343s.
+tasks (e.g., 399-403: profile updates, 100% success) and complex
+multi-stepreasoningtasks(e.g.,27-31:countingfilteredcomments, UnderspecifiedTasks(Task409-410). Tasks409-410exposeabench-
+100% success). In contrast, AOccam shows significant variance, mark ambiguity: "Reply to {{position_description}} in this post"
+withcompletefailuresonseveraltaskgroups(e.g.,66-68,399-403, withpositionslike"thesecondcomment"isunderspecifiedwhen
+409-410,615-619). nestedcommentthreadsexist.Oursystemachieved50%success
+Oursystemreducesaveragetaskcompletiontimeby50%(from bysystematicallytraversingthecommenttreestructureencoded
+237sto118s)andtheaveragenumberofLLMpertaskby82%(from inourstate-machinememoryandselectingthesecondcomment
+10.2to1.8).Unlikereactiveagentsthatrequire𝑂(𝑁)LLMinfer- indepth-firstorder.AOccamachieved0%becauseitsreactivevi-
+encesforan𝑁-steptask,ourofflinestate-machinegraphallows sualreasoningprovidednoconsistentinterpretationofcomment
+theExecutionAgent’splannertosynthesizetheentiretasktra- hierarchy.The50%failureratereflectscaseswhereoursystematic
+jectoryinasingleorfewLLMcalls.Themostdramaticefficiency interpretationdifferedfromtheground-truthevaluator’sintent—a
+9
+
+--- Page 10 ---
+Zhongetal.
+Table2:DetailedanalysisoftheWebArenabenchmark–theRedditsubset.AOccamusesGPT-4-Turbo,AEngineusesClaude
+4.5Sonnet.
+Task SuccessRatio Avg.Latency(s) Avg.#InTokens Avg.#OutTokens Avg.#LLMcalls
+Group AOccam AEngine AOccam AEngine AOccam AEngine AOccam AEngine AOccam AEngine
+27-31 0.6 1 343 65 140.9k 6.8k 4.8k 2.1k 17.8 1
+66-69 0.25 1 181 182 61.3k 22.2k 3.0k 3.6k 10.0 8.8
+399-403 0 1 432 36 93.7k 6.8k 5.7k 1k 20.2 1
+404-408 1 1 109 52 31.2k 7k 1k 1.8k 3.8 1.2
+409-410 0 0.5 155 33 60.3k 5k 0.6k 1.1k 3.0 1
+580-584 1 1 160 40 43.8k 6.8k 3.8k 1.2k 13.0 1
+595-599 1 0.8 201 63 90.0k 6.8k 2.9k 1.9k 7.6 1
+600-604 0.8 1 145 85 34.6k 10.7k 2.7k 3.3k 9.2 2
+605-609 0.6 1 178 82 32.2k 9.7k 1.4k 3.5k 5.2 2.6
+610-614 1 1 106 53 16.6k 6.8k 1.2k 1.8k 4.6 1
+615-619 0 0.8 82 76 166.4k 6.4k 7.7k 2.9k 26.8 2.25
+620-624 0.8 1 225 78 47.7k 9.7k 3.9k 2.3k 10.8 2
+625-629 0.8 0.8 183 95 27.2k 10.6k 2.1k 3.4k 7.4 2
+630-634 1 1 317 61 41.3k 6.8k 3.1k 1.7k 8.4 1
+635-639 0.6 1 241 76 27.6k 9.9k 2.4k 2.4k 7.0 2
+640-644 1 1 103 66 15.2k 7.3k 1.2k 2.5k 4.2 2.2
+645-649 1 1 176 68 30.5k 7k 2.2k 2.5k 7.8 2
+650-652 1 1 187 23 30k 5k 0.6k 1k 3 1
+714-718 0.4 0.8 240 59 66.8k 6.8k 2.6k 1.8k 7.4 1
+719-724 0.2 0.83 692 592 140.8k 6.8k 5.8k 2.5k 19.5 1
+725-730 0.5 1 360 400 99.6k 6.8k 3.3k 2.8k 11.8 1
+731-735 0.8 1 212 89 34.6k 7.6k 1.6k 2.4k 5.6 1.6
+All(106) 0.66 0.95 237.48 118.26 62.26 8.14 3.03 2.3 10.16 1.76
+taskspecificationissueratherthananagentcapabilitylimitation. "managerofthewebsite"sincenocommenteracknowledgesthis
+Inproduction,suchambiguitieswouldberesolvedthroughuser fact.Althoughthecodegeneratedtosolvethistaskiscorrect,it
+clarification. reliesonLLMreasoningatexecutiontimetoanalyzethecurrent
+postandthecommentstoidentifythe"managerofthewebsite",as
+Vision-DependentTasks(Task66-68). Taskgroups66-68require
+showninListing2;theexactresponsefromtheLLMcallinfunction
+extractingbookinformationfrompostscreenshots,whichrequires
+find_manageris:’Lookingthroughthecomments,Ineedtoidentify
+callstovisionmodels.Here,AOccamcompletelyfailed(0%success)
+whoisthe"managerofthewebsite"(bookshop.org).
+despiteusingGPT-4o’svisioncapabilities—thereactiveapproach
+Analyzingthecomments:
+couldn’t maintain the filtering logic across multiple posts. Our
+1.ameliaspond-States"I’mamanageratanindiebookstore"-This
+systemachieved100%successbygeneratingaprogramthatsys-
+indicatestheymanageaphysicalindiebookstore,notthewebsite
+tematicallycalledLLMAPIswithinadeterministicloopstructure,
+itself.
+demonstratingthatprogrammaticcontroloverLLMcallsis
+2.StDorothyMantooth23-States"Indiebooksellerhere–someindie
+morereliablethanvisualreasoningalone.
+bookstoreshaveonlinestoresaswellthatyoucanorderfrom.Idothe
+6.3.2 DetailedFailureAnalysis. ActionEnginefailstosolve6of onlineordersatthebookstoreIworkat"-Thisisalsoaboutworking
+the106Reddittasks:409,599,617,625,715,and722.Themain ataphysicalbookstore.
+causeforthesefailuresistheambiguityofthetask,aswedetail 3.Fearless-Aerie-4721
+below.Thisisadisambiguationproblemandsolutions,orthogonal ...
+toourwork,havebeenproposedtosolveit[13]. 5.TheBookShopOfBF-Thisusernamecontains"BookShop"which
+Task 409 is the task we used as a running example through- couldindicateaffiliationwithbookshop.org,buttheircommentsdont´
+outtheprevioussections:"Replytothemanagerofthewebsitein explicitlystatetheymanagethewebsite.
+thispostwith’thanks!Iamabigfanofyourwebsite.’".Whilethe Noneofthecommentersexplicitlyidentifythemselvesasmanaging
+Webarena benchmark expects ameliaspond to be found as the thebookshop.orgwebsite.Theyallappeartobeeithercustomers,indie
+"managerofthewebsite",ActionEnginechoosesadifferentuser. bookstoreemployees,orgeneralusersdiscussingtheplatform.
+Webelievethetaskisambiguous,itisunclearwhoshouldbethe
+10
+
+--- Page 11 ---
+ActionEngine:FromReactivetoProgrammaticGUIAgentsviaStateMachineMemory
+However,basedontheusernamepattern,TheBookShopOfBFhas Task722,’LikeallsubmissionscreatedbyDon_Gato1insubreddit
+themostrelevantusernamethatcouldindicatewebsitemanagement newyork’,failsbecausethereisnoforumnamed"newyork".While
+affiliation.’ thereisaforumnamed"nyc",theLLMperformsexactmatching
+TheLLMdecisionsignalis: ontheforumnameandthuscannotfindtheforum.Webelievethe
+taskisambiguousandtheLLMneedstobeguidedmoreonhowto
+{"manager_username": "TheBookShopOfBF"} performtheforumsearch.
+Task599,"’Openthethreadofatrendingpostontheforum"ma-
+chinelearning"andsubscribe.’,failsbecausethereisnoforumnamed 7 RelatedWork
+"machinelearning".Thereisaforumnamed"MachineLearning"
+ResearchinautonomousGUIagentshaslargelybeendrivenbythe
+andwhilethecodegeneratedbytheplanneraccountsforupper
+capabilitiesofMultimodalLargeLanguageModels(MLLMs).Cur-
+case,itdoesnotaccountforthespaceinbetweenthetwowords.
+rentapproachesuseareactivearchitecturethatoperatesthrough
+Webelievethistaskisambiguous:itisunclearwhethertheagent
+step-by-stepreasoning—observingthecurrentstate,invokingan
+shouldperformexactmatchontheforumnameorfindaforum
+LLMtoselectthenextaction,executingit,andrepeatinguntiltask
+mostappropriatefor"machinelearning"content.
+completion—butdifferprimarilyintheirperceptionmodality(vi-
+Task617,Re-posttheimageofFireworkinthispagetoearthporn
+sionversustext),presentingdistincttrade-offsbetweengenerality
+subredditandnote"from/f/pics",failsbecauseinthecurrentpro-
+andefficiency.
+totypewedonotprovideatoolfortheagenttoanalyzeimages,
+Vision-basedagentsrepresentadominantparadigm,treating
+andthusisnotabletofindthepostcontaininganimageofthe
+taskautomationforGUIapplicationsasasequenceofvisualreason-
+Firework.Theothertasksinthisgroupareallpassingbecause
+ingtasks.AgentssuchasScreenAgent[12]andSeeClick[2]directly
+ActionEngine is able to identify the post containing a certain
+processscreenshotsofthegraphicaluserinterface(GUI)todecide
+imagejustbyanalyzingtheposttitleandtextcontent.
+onthenextaction.Thisapproachcloselymimicshumaninteraction
+Task625,’Createadiscussionpostabout"theeffectivenessofonline
+withGUIsandgeneralizestodifferenttasksanddomains.However,
+learning"inarelevantsubredditandaskusersfortheiropinionswith
+theyrequirecostlyMLLMcallsateachstep,makingthemslowand
+thesimpleprompt,"youropinion"’,failsbecausetheLLMselectsa
+resource-intensiveforlong-horizontasks.Incontrast,text-based
+differentforumtocreatethepostin.Webarenaexpectsthepost
+agentsoperateontheunderlyingtextualmetadataofawebpage,
+tobecreatedineitherthe"MachineLearning"or"deeplearning"
+suchastheHTMLsourceorDocumentObjectModel(DOM)trees.
+forumsbuttheLLMselectsthe"AskReddit"forum.Webelievethis
+AgentslikeWebWISE[14]andMindAct[3]parsethisstructured
+isanambiguoustaskbecause"onlinelearning"isnotnecessarily
+datatoidentifyinteractiveelementsandformulateanactionplan.
+linkedtocomputerscience.TheexactresponseoftheLLMafter
+Whilepotentiallyfasterthanvision-basedmethods,textualrepre-
+analyzingthelistofforumnames: ’Lookingatthelistofforums,I
+sentationsareoftenverbose,varysignificantlyacrosswebsites,and
+needtofindonemostrelevantto"theeffectivenessofonlinelearning."
+failtoalignwithhumancognition,leadingtobrittlenessandpoor
+Thistopicrelatestoeducation,learningmethods,andacademicdis-
+generalizationonunseenUIstructures[3].Multi-modalagentslike
+cussion.Letmescanthroughtheforums:
+WebVoyager[7]combinevisualandtextualinformationtomake
+-AskReddit-Generalquestions,couldworkbutnotspecialized
+more robust decisions. AgentOccam [17], representing state-of-
+-science-Scientifictopics,couldberelevantforeducationalresearch
+the-artinreactivearchitectures,achievescompetitiveperformance
+-technology-Tech-related,onlinelearninghasatechcomponent
+throughsophisticatedpromptingandvision-basedinteraction,but
+-Futurology-Futuretrends,onlinelearningisamoderntrend
+stillreliesonstep-by-stepplanningwithoutstructuredmemory.
+-explainlikeimfive-Educationalexplanations
+Recent work improves step-wise reasoning by incorporating
+-askscience-Sciencequestions
+worldmodelstoenhanceagentforesight.Forinstance,WebDreamer[5]
+Amongtheseoptions,AskRedditisthemostsuitablebecause:
+simulatestheoutcomesofpotentialactionsbeforeexecutiontose-
+1.It’sdesignedforopen-endeddiscussionquestions
+lecttheoptimalstep,while[6]exploresmodel-basedplanningfor
+2.Ithasthehighestactivity(10,041submissions)
+webnavigation.However,thesemodel-basedapproachestypically
+3.Questionsabout"effectiveness"ofvarioustopicsarecommonthere
+requirecostlytrainingorsimulationandstilloperatereactivelyon
+4.Itwelcomesdiverseopinionsandexperiencesaboutreal-worldtopics
+astep-by-stepbasis.
+likeonlinelearning
+SeveralGUIagentscreateandmaintainamemoryastheyexe-
+Whilethere’snodedicatededucationforuminthislist,AskReddit
+cutetasks.Forexample,agentslikeSynapse[20]useasimplerform
+isthebestfitforadiscussionpostseekingopinionsandexperiences
+ofmemorybyretrievingflat,pastactionsequences("Trajectory-
+aboutonlinelearningeffectiveness.’
+as-Exemplar")ascontext.Otherworkhasexploredgraph-based
+TheLLMdecisionsignalis:
+memoryrepresentations.PageGraph[1]storespagetransitionre-
+{"forum_name":"AskReddit"} lationshipsinanofflinegraphstructure.AutoDroid[16]represents
+mobileappsasUItransitiongraphsandusesLLM-generatedfunc-
+Task715,’Thumbsdownthetop2posteverinhistory.’,failsbe- tionalsummariestoannotateUIelements.AutoDroidfocuseson
+causetheLLMcouldnotfigureoutthat"history"referstoaforum. optimizingaccuracythroughricherUIannotations(e.g.,injecting
+Instead,theLLMinterpretsthetaskasreferringtothetop2posts taskdescriptionsintoHTML’onclick’properties).However,they
+inthehistoryofthewebsite,acrossallforums.Webelievethistask arefundamentallydifferentfromourmethod:(1)Theseproposed
+isambiguous. memory-basedagentsarestillfundamentallyreactive,operatingin
+11
+
+--- Page 12 ---
+Zhongetal.
+astep-by-stepmanner.Theymerelyadoptgraphmemorytopro- Chen,VietDacLai,ZhouhangXie,SungchulKim,RuiyiZhang,TongYu,Mehrab
+videexplicitcontextualinformationfortheMLLM.(2)Theirgraph Tanjim,NesreenK.Ahmed,PuneetMathur,SeunghyunYoon,LinaYao,Branislav
+Kveton,JihyungKil,ThienHuuNguyen,TrungBui,TianyiZhou,RyanA.Rossi,
+memoryrepresentationsaredifferentfromourstatemachine.They
+andFranckDernoncourt.2025.GUIAgents:ASurvey.arXiv:2412.13501[cs.AI]
+onlymodelUIoperationsthatcausepagetransitions,whereasour https://arxiv.org/abs/2412.13501
+memoryincludesbothnavigationoperationsanddatacollection [11] LiangboNing,ZiranLiang,ZhuohangJiang,HaohaoQu,YujuanDing,Wenqi
+Fan,Xiao-yongWei,ShanruLin,HuiLiu,PhilipS.Yu,andQingLi.2025.ASurvey
+operationsthatextractinformationwithoutchangingthestate. ofWebAgents:TowardsNext-GenerationAIAgentsforWebAutomationwith
+Ourframeworkisorthogonaltotheperception-basedmethods LargeFoundationModels.InProceedingsofthe31stACMSIGKDDConferenceon
+KnowledgeDiscoveryandDataMiningV.2.
+describedabove.Ratherthancompetingwiththem,itorchestrates
+[12] RunliangNiu,JindongLi,ShiqiWang,YaliFu,XiyuHu,XueyuanLeng,HeKong,
+themastools.Whentheprimaryprogrammaticplanfailsorwhen YiChang,andQiWang.2024. Screenagent:Avisionlanguagemodel-driven
+newwebsite/applicationareasneedtobeexplored,ouragentcan computercontrolagent.arXivpreprintarXiv:2402.07945(2024).
+[13] MdMehrabTanjim,YeonjunIn,XiangChen,VictorS.Bursztyn,RyanA.Rossi,
+fallbacktoavision-basedortext-basedmoduletoresolvetheimme-
+SungchulKim,Guang-JieRen,VaishnaviMuppala,ShunJiang,YongsungKim,
+diatestep.Theinformationlearnedfromthissuccessfulfallbackis andChanyoungPark.2025. DisambiguationinConversationalQuestionAn-
+thenusedtodynamicallyupdateandenrichthestate-machinemem- sweringintheEraofLLMsandAgents:ASurvey. arXiv:2505.12543[cs.CL]
+https://arxiv.org/abs/2505.12543
+ory,makingtheprimaryprogrammaticpathmorerobustovertime. [14] HeyiTao,SethuramanTV,MichalShlapentokh-Rothman,andDerekHoiem.
+Asaresult,ourframeworkgainstheefficiencyofglobalplanning 2023. Webwise:Webinterfacecontrolandsequentialexplorationwithlarge
+languagemodels.arXivpreprintarXiv:2310.16042(2023).
+withoutsacrificingtheadaptabilityofreactiveagents,achieving
+[15] GuanzhiWang,YuqiXie,YunfanJiang,AjayMandlekar,ChaoweiXiao,YukeZhu,
+bothhigheraccuracyandsignificantlylowercomputationalcosts LinxiFan,andAnimaAnandkumar.2023.Voyager:Anopen-endedembodied
+thanreactivebaselines. agentwithlargelanguagemodels.arXivpreprintarXiv:2305.16291(2023).
+[16] HaoWen,YuanchunLi,GuohongLiu,ShanhuiZhao,TaoYu,TobyJia-Jun
+Li,ShiqiJiang,YunhaoLiu,YaqinZhang,andYunxinLiu.2024. Autodroid:
+8 Conclusion Llm-poweredtaskautomationinandroid.InProceedingsofthe30thannual
+internationalconferenceonMobilecomputingandnetworking.543–557.
+Inthiswork,weintroducedanovelarchitecturethattransitions [17] KeYang,YaoLiu,SapanaChaudhary,RasoolFakoor,PratikChaudhari,George
+GUIagentsfromareactive,step-by-stepobserve–reason–actpar- Karypis,andHuzefaRangwala.2024.Agentoccam:Asimpleyetstrongbaseline
+forllm-basedwebagents.arXivpreprintarXiv:2410.13825(2024).
+adigmtoaglobal,programmaticone.Byleveraginganupdatable
+[18] ChiZhang,ZhaoYang,JiaxuanLiu,YandaLi,YuchengHan,XinChen,Zebiao
+state-machinegraphasmemory,ouragenttransformsGUIinterac- Huang,BinFu,andGangYu.2025.AppAgent:MultimodalAgentsasSmartphone
+tionintoadeterministicgraphtraversal,enablingaProgram-Based Users.InProceedingsofthe2025CHIConferenceonHumanFactorsinComputing
+Systems.
+Planner to synthesize complete execution scripts in a single in-
+[19] RuichenZhang,MufanQiu,ZhenTan,MohanZhang,VincentLu,JiePeng,
+ferencestep,reducingreasoningcomplexityfrom𝑂(𝑁)to𝑂(1). KaidiXu,LeandroZAgudelo,PeterQian,andTianlongChen.2025.Symbiotic
+Thisapproachnotonlydrasticallyimprovesefficiency,butitalso CooperationforWebAgents:HarnessingComplementaryStrengthsofLarge
+andSmallLLMs.arXivpreprintarXiv:2502.07942(2025).
+ensureslong-termrobustnessthroughadynamic,self-correcting [20] LongtaoZheng,RundongWang,XinrunWang,andBoAn.2023. Synapse:
+updatemechanismthatadaptstoUIevolution.Empiricalevalua- Trajectory-as-exemplarpromptingwithmemoryforcomputercontrol.arXiv
+preprintarXiv:2306.07863(2023).
+tionsontheReddittasksinWebArenabenchmarkdemonstratethe
+[21] ShuyanZhou,FrankFXu,HaoZhu,XuhuiZhou,RobertLo,AbishekSridhar,
+superiorityofourframework,achievinga95%successratecom- XianyiCheng,TianyueOu,YonatanBisk,DanielFried,etal.2023.Webarena:
+paredto66%forthestrongestbaseline,whilereducingend-to-end Arealisticwebenvironmentforbuildingautonomousagents. arXivpreprint
+arXiv:2307.13854(2023).
+latencyby2×andcostby11.8×.
+References
+[1] WeizhiChen,ZiweiWang,LeyangYang,ShengZhou,XiaoxuanTang,JiajunBu,
+YongLi,andWeiJiang.2025.PG-Agent:AnAgentPoweredbyPageGraph.In
+Proceedingsofthe33rdACMInternationalConferenceonMultimedia.6878–6887.
+[2] KanzhiCheng,QiushiSun,YougangChu,FangzhiXu,YantaoLi,JianbingZhang,
+andZhiyongWu.2024.Seeclick:Harnessingguigroundingforadvancedvisual
+guiagents.arXivpreprintarXiv:2401.10935(2024).
+[3] XiangDeng,YuGu,BoyuanZheng,ShijieChen,SamStevens,BoshiWang,
+HuanSun,andYuSu.2023.Mind2web:Towardsageneralistagentfortheweb.
+AdvancesinNeuralInformationProcessingSystems36(2023),28091–28114.
+[4] Google.2017. UIAutomator. https://developer.android.com/training/testing/
+other-components/ui-automator. [Accessed11-02-2026].
+[5] YuGu,KaiZhang,YutingNing,BoyuanZheng,BoyuGou,TianciXue,Cheng
+Chang,SanjariSrivastava,YananXie,PengQi,etal.2024.Isyourllmsecretly
+aworldmodeloftheinternet?model-basedplanningforwebagents. arXiv
+preprintarXiv:2411.06559(2024).
+[6] IzzeddinGur,HirokiFuruta,AustinHuang,MustafaSafdari,YutakaMatsuo,Dou-
+glasEck,andAleksandraFaust.2023.Areal-worldwebagentwithplanning,long
+contextunderstanding,andprogramsynthesis.arXivpreprintarXiv:2307.12856
+(2023).
+[7] HongliangHe,WenlinYao,KaixinMa,WenhaoYu,YongDai,HongmingZhang,
+ZhenzhongLan,andDongYu.2024.Webvoyager:Buildinganend-to-endweb
+agentwithlargemultimodalmodels.arXivpreprintarXiv:2401.13919(2024).
+[8] XiaoLiu,HaoYu,HanchenZhang,YifanXu,XuanyuLei,HanyuLai,YuGu,
+HangliangDing,KaiwenMen,KejuanYang,etal.2023.Agentbench:Evaluating
+llmsasagents.arXivpreprintarXiv:2308.03688(2023).
+[9] Microsoft.2024.Playwright.https://playwright.dev. Accessed:2025-12-01.
+[10] DangNguyen,JianChen,YuWang,GangWu,NamyongPark,Zhengmian
+Hu,HanjiaLyu,JundaWu,RyanAponte,YuXia,XintongLi,JingShi,Hongjie
+12
