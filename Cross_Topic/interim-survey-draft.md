@@ -1,10 +1,4 @@
-# Interim Survey Draft — GUI Agent × Memory × Self-Evolving
-
----
-
-## 0. Title
-
-**Experience-Dependent Procedural Knowledge in GUI Agents: A Taxonomy and Research Agenda**
+# Experience-Dependent Procedural Knowledge in GUI Agents: A Taxonomy and Research Agenda
 
 ---
 
@@ -292,24 +286,39 @@ The practical value of this survey is therefore twofold. As a literature contrib
 
 ---
 
-## 10. Section-Level Evidence Map
+## 10. Project Outline and Proposed Methodology
 
+### 10.1 Refined Research Question
 
-| Section          | Claim                                                                            | Evidence Source                              | Current Strength | Status             |
-| ---------------- | -------------------------------------------------------------------------------- | -------------------------------------------- | ---------------- | ------------------ |
-| Introduction     | GUI agents still need interaction-derived knowledge beyond base-model priors     | Zhang et al. (2023); Lee et al. (2024); Xu et al. (2026); cross-topic gap synthesis | A                | Ready              |
-| Introduction     | The real bottleneck is reusable procedural experience rather than generic memory | Taxonomy occupancy synthesis + procedural-memory gap evidence from Lee et al. (2024), Sun et al. (2026), and adjacent precedents | A | Ready |
-| Taxonomy         | `How` must be split into match vs application                                    | Taxonomy synthesis from cross-topic comparison and capability-pattern analysis | A | Ready |
-| Related Work 5.1 | Early GUI memory is mainly app-bound exploration support                         | Zhang et al. (2023); Lee et al. (2024)       | A-B              | Ready              |
-| Related Work 5.2 | In-task reflection rarely becomes revisable long-term memory                     | Wang, J. et al. (2024); Xu et al. (2026); Yan et al. (2026) | A-B | Ready |
-| Related Work 5.3 | Current best GUI-side memory remains workflow-level and weak in rule abstraction | Sun et al. (2026); Zhong et al. (2026); Lee et al. (2026) | A | Ready |
-| Related Work 5.4 | Adjacent fields provide the strongest precedents for reusable experience         | Wang, Z. Z. et al. (2024); Zhao et al. (2024); Packer et al. (2023); Xu et al. (2025); Tang et al. (2025); Xia et al. (2026) | A | Ready |
-| Gap 6.1          | GUI agents lack cross-task reusable procedural memory                            | Lee et al. (2024); Sun et al. (2026); Zhong et al. (2026); Lee et al. (2026); Wang, Z. Z. et al. (2024) | A | Ready |
-| Gap 6.2          | GUI agents lack failure-driven write-back at deployment time                     | Wang, J. et al. (2024); Sun et al. (2026); Xu et al. (2026); Zhao et al. (2024); Xia et al. (2026); Xu et al. (2025) | A | Ready |
-| Gap 6.3          | Episodic memory is supporting infrastructure, not current core object            | Park et al. (2023); Packer et al. (2023); Yan et al. (2026) | A | Ready |
-| Gap 6.4          | User-centric memory is confirmed but still peripheral                            | Wu et al. (2024); Kim et al. (2026)          | B                | Ready with caution |
-| Methodology      | Memory unit should be a revisable procedural rule, not a raw trace               | Cross-topic synthesis from Lee et al. (2024), Sun et al. (2026), Wang, J. et al. (2024), and Xu et al. (2025) | A-B | Ready |
-| Evaluation       | Success-only memory is insufficient; failure-aware update must be tested         | Cross-topic synthesis from Wang, J. et al. (2024), Sun et al. (2026), Xu et al. (2026), and Zhao et al. (2024) | A | Ready |
+Building on the survey findings, the project is centered on the following refined question:
+
+> How can LLM-based GUI agents represent interaction-derived, experience-dependent procedural knowledge as retrievable, revisable, and cross-task reusable memory, and improve it through failure-aware write-back from post-task experience, so that the gain extends beyond repeated-task reuse to same-site or same-app cross-task reuse and near-domain site-family or app-family transfer?
+
+This formulation imposes four methodological commitments. First, the target memory must store interaction-derived procedural knowledge rather than generic GUI priors. Second, the memory must survive beyond one episode and contribute to later tasks. Third, failure must be treated as a signal for memory maintenance rather than merely as an execution-time exception. Fourth, empirical gains must extend beyond repeated-task replay and remain visible under more demanding transfer settings.
+
+### 10.2 Proposed Memory Object
+
+The proposed method follows directly from the gap analysis in Sections 6 and 7. The intended memory object is a local `experience-delta procedural rule`, or EDPM, rather than a raw trajectory, a frozen workflow cache, or a general semantic note. A memory unit of this kind should record at least five fields: a trigger condition, a recommended procedure, relevant constraints or preconditions, a failure signal, and an explicit transfer scope. This representation is meant to preserve the local rule extracted from experience while keeping its boundary conditions visible enough to support later revision.
+
+The central rationale for this design choice is that current GUI memory artifacts are usually either too concrete or too coarse. Raw trajectories preserve detail but transfer poorly. Workflow-level memories improve reuse but often conflate multiple local decisions into one broad template. By contrast, the EDPM formulation aims to isolate the smallest reusable policy fragment that remains actionable under interface variation.
+
+### 10.3 Proposed System Design
+
+The planned system contains four core modules. The first is **candidate mining**, which identifies segments of post-task experience that contain reusable procedural regularities rather than incidental episode detail. The second is **rule abstraction**, which converts those segments into compact memory units with explicit conditions of use. The third is **retrieval-application separation**, which distinguishes how memory is matched from how it influences the agent, allowing retrieval quality and application policy to be evaluated independently. The fourth is **failure-aware write-back**, which updates existing memory when later evidence shows that a previously stored rule was incomplete, over-broad, or incorrect.
+
+This design is intentionally different from nearby alternatives. It does not simply repackage app-bound knowledge documents, workflow memories, or structural state graphs. It also does not treat success-only accumulation as sufficient evidence of an evolving experience layer. Finally, it does not equate training-time self-improvement with deployment-time memory revision. The method is therefore positioned as a memory-layer contribution rather than as a broader scaling or post-training strategy.
+
+### 10.4 Evaluation Methodology
+
+The evaluation plan is designed to test whether the proposed memory unit offers real procedural reuse rather than a stronger form of cache lookup. The comparison conditions are: `C0` no memory, `C1` raw retrieval, `C2` coarse workflow memory, `C3` EDPM with success-only accumulation, `C4` EDPM with failure-aware write-back, and `C5` EDPM combined with a stronger policy constraint. These baselines isolate different alternative explanations, including generic context gain, workflow-level reuse, and the possibility that failure-aware revision adds no measurable value.
+
+Evaluation will be staged across three transfer levels: `L1` repeated-task reuse, `L2` same-site or same-app cross-task reuse, and `L3` near-domain site-family or app-family transfer. The most important hypotheses are that `C3` should outperform both `C1` and `C2` on `L2`, and that `C4` should outperform `C3` on failure-first episodes. A further guardrail is that the method should preserve positive gain at `L2` without producing negative overall transfer at `L3`. Under this design, improvement limited to near-duplicate replay would not count as a sufficient answer to the research question.
+
+### 10.5 Benchmark and Expected Outcome
+
+The most appropriate benchmark for the first validation stage is WebArena, because it provides grounded multi-step web tasks while allowing transfer to be instantiated as repeated-task reuse, same-site cross-task reuse, and near-domain site-family transfer. These settings are narrower than unrestricted cross-app generalization, but they are methodologically suitable for determining whether the proposed memory representation captures reusable procedural knowledge rather than one-off workflow hints.
+
+The expected outcome of the project is not merely a performance increase on a single benchmark. The intended contribution is a methodologically grounded demonstration that GUI agents can store interaction-derived procedural rules as revisable memory units, retrieve them beyond literal replay, and improve them when failures reveal incorrect scope or missing constraints. If successful, the project should contribute both a concrete memory design for GUI agents and an evaluation logic for distinguishing genuine memory gain from prompt expansion, plan caching, or success-case accumulation.
 
 ---
 
@@ -339,7 +348,7 @@ Xia, P. et al. (2026) 'SKILLRL: Evolving Agents via Recursive Skill-Augmented Re
 
 Xu, H. et al. (2026) 'Mobile-Agent-v3.5: Multi-platform Fundamental GUI Agents'. *arXiv preprint*, arXiv:2602.16851.
 
-Xu, W. et al. (2025) 'A-Mem: Agentic Memory for LLM Agents'. *arXiv preprint*, arXiv:2502.12110.
+Xu, W. et al. (2025) 'A-MEM: Agentic Memory for LLM Agents'. *arXiv preprint*, arXiv:2502.12110.
 
 Yan, D. et al. (2026) 'M^2: Dual-Memory Augmentation for Long-Horizon Web Agents via Trajectory Summarization and Insight Retrieval'. *arXiv preprint*, arXiv:2603.00503.
 

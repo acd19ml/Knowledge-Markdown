@@ -442,9 +442,20 @@ Claim（你的论断）
 ### 8.3 Stage 3 就绪标准（开始方法论设计的前提）
 
 - [ ] RQ 通过 5 项检验，且有明确的实验验证路径
-- [ ] 已精读目标方法论的直接前驱论文（如 AWM + SkillWeaver），能描述其设计选择
+- [ ] 已精读目标方法论的直接前驱论文，能描述其设计选择
 - [ ] 已识别可用于验证的 benchmark（AndroidEnv / WebArena / Mind2Web）
+- [ ] 若使用 WebArena，pilot split 至少已绑定到真实 `task_id / site / intent / intent_template_id`；`page path` 可以暂记为 `TBD from generated config`
 - [ ] 能清楚说明：你的方法 vs 最接近的现有工作，差异在哪里？为什么这个差异重要？
+
+### 8.4 Stage 3 可保留到下一阶段的 Benchmark TODO（不阻塞当前完成度）
+
+以下事项应该被**显式保留**，但不应阻塞 Stage 3 收口：
+
+- [ ] 将 benchmark placeholder token（如 `__MAP__`、`__GITLAB__`、`__SHOPPING__`）解析为 generated config 级真实 URL / page path
+- [ ] 对已选 pilot tasks 做 browser walkthrough，验证 slot 与 interaction motif 的匹配度
+- [ ] 完成 final holdout / leakage audit，确认 L2/L3 没有共享过强 workflow skeleton
+- [ ] 视 pilot 结果再决定是否引入 `wikipedia` 或其他扩展站点作为 Stage 4 的 transfer 增量
+- [ ] 将 task binding 产出为单独 benchmark artifact，供实验实现与复现实验直接使用
 
 ---
 
