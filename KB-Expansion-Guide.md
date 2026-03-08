@@ -18,15 +18,15 @@ Stage 0  文献地图构建（已完成）
 
 Stage 1  深度文献阅读（当前阶段）
    ├── 输出：P0/P1 论文的完整精读笔记 + 更新后的 Cross_Topic/comparison-matrix + Cross_Topic/gap-tracker
-   └── 完成标志：见 §7.1
+   └── 完成标志：见 §8.1
 
 Stage 2  Interim Survey 写作（与 Stage 1 并行）
    ├── 输出：10-15 页综述 + 结构化 Evidence Map
-   └── 完成标志：见 §7.2
+   └── 完成标志：见 §8.2
 
 Stage 3  选题确立与方法论设计
    ├── 输出：可检验的 Research Question + 方法论草案
-   └── 完成标志：见 §7.3
+   └── 完成标志：见 §8.3
 
 Stage 4  实验设计与原型实现
 Stage 5  论文写作与投稿
