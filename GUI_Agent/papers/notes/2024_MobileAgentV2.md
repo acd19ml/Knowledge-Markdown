@@ -4,12 +4,12 @@
 - **Title**: Mobile-Agent-v2: Mobile Device Operation Assistant with Effective Navigation via Multi-Agent Collaboration
 - **Authors**: Junyang Wang et al. | Beijing Jiaotong University / Alibaba Group
 - **Venue**: Preprint, June 2024 | arXiv:2406.01014
-- **Links**: [PDF](./Mobile-Agent-v2.pdf) | [Code](https://github.com/X-PLUG/MobileAgent)
+- **Links**: [PDF](../source/Mobile-Agent-v2.pdf) | [Code](https://github.com/X-PLUG/MobileAgent)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
 - **Priority**: P0 | **Reading progress**: Pass 2
 
 ## One-line Summary
-Wang et al. propose a three-agent (Planning + Decision + Reflection) architecture with a Memory Unit for task-relevant focus content, achieving >30% SR improvement over single-agent Mobile-Agent v1 on dynamic mobile device operation benchmarks covering HarmonyOS and Android.
+Wang et al. 提出由 Planning、Decision 与 Reflection 组成的三智能体架构，并加入用于存储 task-relevant focus content 的 Memory Unit；该设计在 HarmonyOS 与 Android 的动态移动设备操作任务上，相比单智能体 Mobile-Agent v1 带来超过 30% 的成功率提升。
 
 ## Problem Setting
 - **Core problem**: "The two major navigation challenges in mobile device operation tasks — task progress navigation and focus content navigation — are difficult to effectively solve under the single-agent architecture of existing work. This is due to the overly long token sequences and the interleaved text-image data format, which limit performance." (Abstract, Page 1)
@@ -53,29 +53,34 @@ The **Reflection Agent** (GPT-4V) observes the screen states before and after ea
 ## Limitations
 - **Author-stated limitations**: The paper notes that "manually injected operation knowledge can mitigate the limitations of an agent's operation capability" (Section 4.3, Page 8) — implying the system still requires human-authored hints for the hardest tasks. The knowledge injection results also highlight that automated knowledge generation is a future direction: "automating the generation of high-quality operation knowledge can further improve the performance of Mobile-Agent-v2" (Page 8).
 - **My observed limitations**:
-> ⚠️ NEEDS YOUR INPUT: 1) Memory Unit 是纯文本短期记忆，随任务结束清空，没有跨任务持久化能力——每个新任务都从零开始，无法积累过去任务的操作经验（即缺少 A-1 所定义的程序性记忆/技能库）。2) 论文的评测集是作者自设的 88 条指令（非公开基准），可复现性有限。3) Planning Agent 压缩历史的质量完全依赖 GPT-4 的摘要能力，若压缩失真则误差传播给 Decision Agent，此风险未做量化分析。4) 系统不支持离线学习或轨迹回放，失败经验被直接丢弃（对应 A-4 gap）。
+  1. **仅覆盖任务内 working memory**：Memory Unit 明确服务于当前任务，任务结束即失效，无法形成主线所需的 cross-task reusable procedural memory。
+  2. **摘要链条脆弱**：Planning Agent 的文本压缩是下游决策的唯一历史接口，但论文没有量化摘要失真如何影响后续 action quality。
+  3. **失败经验被主动舍弃**：Reflection Agent 虽能发现错误，却不把错误转化为可持久化经验，这是 A-4 的直接缺口。
+  4. **评测外部效度有限**：88 条作者自建指令足以证明架构有效，但不足以说明这种 working-memory 设计在标准长期记忆 benchmark 上的稳定性。
 - **Experimental design gaps**: Benchmark is author-designed with only 88 instructions across 10 apps per OS; no comparison against AppAgent or AutoDroid (only Mobile-Agent v1 as baseline). Evaluation is dynamic (live device) which reduces reproducibility. No latency/cost breakdown is reported.
 
 ## ⭐ Relation to My Research
 
 ### Position in Survey
 - **Corresponding survey section/category**: GUI_Agent survey — Section on Multi-Agent Architectures for Mobile GUI Agents; also relevant to Memory & State Management subsection.
-> ⚠️ NEEDS YOUR INPUT: 建议放在 GUI Agent 综述的「多智能体协作」分支下，作为任务级工作记忆（working memory）的典型正例。与 AppAgent（单智能体探索）形成对比。在 Cross_Topic/comparison-matrix.md 与 Cross_Topic/gap-tracker.md 中可作为 working memory 的代表案例引用。
+  Mobile-Agent-v2 应放在 GUI Agent 综述的 **Multi-Agent Architecture + Working Memory** 交叉位置。按当前主线，它不是 A-1 的正解，而是“现有系统已经能做 in-task memory compression / reflection，却仍没有 `post-task -> cross-task` procedural write-back”的代表性对照组。
 
 ### Gap Signals (extracted from this paper)
 - Gap signal 1: "automating the generation of high-quality operation knowledge can further improve the performance of Mobile-Agent-v2" (Section 4.3, Page 8) → 作者明确承认缺乏自动化知识生成（即 A-1 技能库自动构建），这是直接支持 A-1 gap 的作者自我陈述。
 - Gap signal 2: "we design a memory unit to store the focus content related to the current task from history screens" (Section 3.2, p.4-5) → 作者明确把 Memory Unit 定义为 current-task scoped working memory，而不是跨任务可复用的 procedure memory。
 - Gap signal 3: Failed operations are discarded from history (Page 6): "Neither erroneous nor ineffective operations are recorded in the operation history to prevent the agent from following these operations." → 失败轨迹被主动丢弃，无法用于离线学习（A-4 gap 的直接证据）。
 
-> ⚠️ NEEDS YOUR INPUT: 这篇论文的 gap signal 价值极高。Memory Unit 明确只解决了「当前任务内」的焦点内容保留问题，完全没有触及跨任务技能积累。知识注入实验（Section 4.3）间接证明：若有结构化操作知识库，性能可进一步显著提升——这正是 A-1 要构建的东西。此论文可以作为「现有工作已有 working memory，但缺少 procedural/skill memory」这一论断的强有力引用。
+这篇论文的 gap signal 价值很高，因为它把边界画得很清楚：系统已经证明 **working memory + reflection** 能提升长程导航，但这类提升仍停留在单任务内；一旦任务结束，经验不再存在。知识注入实验又反过来说明，若系统拥有可复用的结构化操作知识，性能还会继续提升。因此它是“已有 in-task memory，但缺少 cross-task procedural memory”的强证据。
 
 ### Reusable Elements
-- **Methodology**: The three-agent decomposition pattern (progress tracker + decision maker + verifier) is directly transferable. For a memory-augmented GUI agent, the Planning Agent role could be extended to also query a persistent skill library instead of only summarizing recent history.
-> ⚠️ NEEDS YOUR INPUT: Planning Agent 的「历史压缩→纯文本任务进度」机制可复用于技能库检索的触发点设计：每次规划时不仅生成任务进度，还查询历史相似任务的操作程序。Reflection Agent 的三分类（correct/erroneous/ineffective）可直接用作离线经验标注的标签体系，为 A-4 离线进化提供训练信号。
+- **Methodology**: 三智能体分解模式（progress tracker + decision maker + verifier）可以直接迁移。若扩展成 memory-augmented GUI agent，Planning Agent 不应只总结最近历史，还应承担 persistent skill library 的检索入口。
+  最值得复用的不是 Memory Unit 本身，而是两个接口：(1) Planning Agent 产出的 `task progress` 可作为 procedural memory 检索触发器；(2) Reflection Agent 的 `correct / erroneous / ineffective` 三分类可直接作为 failure-aware write-back 的标签体系，用来决定 memory 是保留、降权还是改写。
 - **Experimental design**: Dynamic evaluation on real devices (HarmonyOS + Android, ADB) with four metrics (SR/CR/DA/RA) is a solid evaluation framework. Multi-app task design is particularly useful for benchmarking cross-app memory retrieval.
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: 1) 与 Agent_Memory/（LLM Agent Memory Survey）的关联：Memory Unit 对应 Cognitive Types 中的 working memory（短期、任务内）；与 A-1 gap 中缺失的 procedural memory 形成互补。2) 与 Self_Evolve/ 的关联：反思智能体（Reflection Agent）是一种在线自我评估机制，但没有将反思结果持久化用于未来任务，是 Self-Evolve 框架中「经验积累」环节的缺失。3) 与 MobileGPT（本批次另一篇）的关联：MobileGPT 解决了跨任务子任务复用问题（A-1 方向），而 Mobile-Agent-v2 解决了单任务内长上下文导航问题——两者互补，一起形成对 A-1+A-4 gap 的完整论证。
+- 与 Agent_Memory 的对齐很直接：Memory Unit 是 **working memory**，不是 long-term procedural memory。
+- 与 Self_Evolve 的关系在于：Reflection Agent 已经具备在线错误识别能力，但没有任何跨任务沉淀，恰好停在“自我评估”而非“经验积累”之前。
+- 与 [2024_MobileGPT.md](./2024_MobileGPT.md) 形成互补：前者解决 in-task navigation，后者提供 app 内 procedural reuse；两者合起来反而更能凸显当前系统仍缺失 `failure-driven cross-task write-back`。
 
 ## Citation Tracking
 - [ ] Mobile-Agent (Wang et al., 2024, arXiv:2401.16158): 直接前作，single-agent baseline

@@ -1,0 +1,1142 @@
+--- Page 1 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+OS-COPILOT: TOWARDS GENERALIST COMPUTER
+AGENTS WITH SELF-IMPROVEMENT
+ZhiyongWu♢∗,ChengchengHan♣∗,ZichenDing♣,ZhenminWeng♣,
+ZhoumianzeLiu♢,ShunyuYao♡,TaoYu♠,LingpengKong♠
+♢ShanghaiAILaboratory♣EastChinaNormalUniversity
+♡PrincetonUniversity♠TheUniversityofHongKong
+wuzhiyong@pjlab.org.cn
+https://os-copilot.github.io/
+Figure1: RunningexamplesofFRIDAYwhendeployedonMacOSandtaskedwith(1)preparing
+afocusedworkingenvironment, (2)CalculatinganddrawingachartinExcel, and(3)creatinga
+websiteforOS-Copilot. ThetextatthebottomillustratesthesubtaskstakenbyFRIDAY.Foreachset
+ofexamples,thefigureatthetoprepresentstheinitialOSstate,whiletheoneatthebottomdepicts
+thefinalstateafterexecution. Boxes/OvalshighlightthechangesmadebyFRIDAY.
+ABSTRACT
+Autonomousinteractionwiththecomputerhasbeenalongstandingchallengewith
+greatpotential,andtherecentproliferationoflargelanguagemodels(LLMs)has
+markedlyacceleratedprogressinbuildingdigitalagents. However,mostofthese
+agentsaredesignedtointeractwithanarrowdomain,suchasaspecificsoftware
+orwebsite. Thisnarrowfocusconstrainstheirapplicabilityforgeneralcomputer
+tasks. To this end, we introduce OS-Copilot, a framework to build generalist
+agentscapableofinterfacingwithcomprehensiveelementsinanoperatingsystem
+(OS),includingtheweb,codeterminals,files,multimedia,andvariousthird-party
+applications. WeuseOS-CopilottocreateFRIDAY,aself-improvingembodied
+agentforautomatinggeneralcomputertasks. OnGAIA,ageneralAIassistants
+benchmark,FRIDAYoutperformspreviousmethodsby35%,showcasingstrong
+generalizationtounseenapplicationsviaaccumulatedskillsfromprevioustasks.
+WealsopresentnumericalandquantitativeevidencethatFRIDAYlearnstocontrol
+andself-improveonExcelandPowerpointwithminimalsupervision. OurOS-
+Copilotframeworkandempiricalfindingsprovideinfrastructureandinsightsfor
+futureresearchtowardmorecapableandgeneral-purposecomputeragents.
+∗ EqualContribution.
+1
+4202
+beF
+51
+]IA.sc[
+2v65470.2042:viXra
+
+--- Page 2 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+1 INTRODUCTION
+Fromthe1920novelR.U.RtocharacterslikeJARVISinTheIronMan,throughoutthepastcentury,
+peoplehavedreamedofbuildingdigitalagentstoautomatedailywork. However,currentdigital
+agents,likeMicrosoft’sCortana,areprimarilytailoredforsimpletaskslikesettingthealarmyet
+struggling with complex human requests. Fortunately, advancements in large language models
+(LLMs)bringusclosertorealizingthenextgenerationofdigitalassistants.
+Effortsinbuildinglanguageagents(integratingLLMsintodigitalagents)havefocusedprimarily
+onspecificstandaloneapplications, suchaswebbrowsers(Dengetal.,2023;Zhouetal.,2023),
+command-lineterminals(Yangetal.,2023a;Qiaoetal.,2023),theMinecraftgame(Wangetal.,
+2023a), anddatabase(Huetal.,2023). Inparticular, thereisalackofexplorationindeveloping
+languageagentsthatcaneffectivelyinteractwiththeentireoperatingsystem. DevelopingOS-level
+languageagentspresentsasignificantchallengeduetotheheterogeneityinherentintheOSecosystem.
+First,aunifiedinterfaceisrequiredforagentstoseamlesslyinteractwiththeoperatingsystem,beit
+throughcode,keyboardandmouseinputs,orAPIs. Second,thevastarrayofdistinctapplications
+posessignificantchallengestothegeneralizationandscalabilityoflanguageagents. Withhundreds
+and thousands of applications in the OS, manually devising a nuanced control mechanism and
+customizedtoolsandpromptsforeachofthem,isevidentlyimpractical.
+To tackle the first challenge, we introduce OS-Copilot, a framework aimed at accelerating the
+constructionofcomputeragentsonLinuxandMacOSbyofferingauniversalinterfaceforinteraction.
+ThisuniversalinterfaceconsolidatescommonpracticesforOSmanipulation,includingPythoncode
+interpreter(Significant-Gravitas,2023),bashterminal,mouse/keyboardcontrol(Chengetal.,2024),
+andAPIcalls(Qinetal.,2023). InTable4,wepresentabroadspectrumofOS-Copilot’sexample
+usecases,empoweredbythesecontrolmethods.
+In response to the second challenge, we then created FRIDAY (Fully Responsive Intelligence,
+DevotedtoAssistingYou)uponOS-Copilot.1 FRIDAYisaself-improvingembodiedagentseam-
+lesslyintegratedintotheOStoautomatecomputertasks. FRIDAYdistinguishesitselffromexisting
+general-purposeagentslikeAutoGPT(Significant-Gravitas,2023)byfeaturingtheabilitytolearn
+to control unfamiliar applications through self-directed learning. All made possible with a self-
+evolvingconfiguratorwithinFRIDAY.Theconfiguratorincludesaself-directedlearningmodulethat
+autonomouslyproposesacurriculumoftasksregardinganunfamiliarapplication. FRIDAYthen
+solvesthesetaskstolearntocontrolthisapplicationbyaccumulatingtools. InFigure1,weprovide
+threecasestudiesanddemonstratethatwithself-directedlearning,FRIDAYsuccessfullylearnsto
+manipulateExcelandbuildawebsiteusingthefrontendlibraryReact.
+To systematically assess FRIDAY’s problem-solving capabilities within the OS, we evaluate its
+performanceonGAIA(Mialonetal.,2023b),abenchmarkforgeneralAIassistants. Intheeasiest
+level-1tasks,FRIDAYachievesasuccessrateof40.86%,markinga35%relativeimprovementover
+thepreviousbestsystem(30.3%),andsignificantlyoutperformingthepopularAutoGPT-4system
+(14.4%). Eveninthemostchallenginglevel-3tasks,previouslyunsolvablebyanyothersystems,
+FRIDAYachievesasuccessrateof6.12%. WefurtherassessFRIDAY’sself-directedlearningability
+onaspreadsheetmanipulationdataset(Lietal.,2023),whereinitiallyFRIDAYfailstosolveany
+task. Surprisingly,followingself-directedlearning,FRIDAYachievesasuccessrateof60%,even
+surpassingastate-of-the-artmodelspecificallydesignedforspreadsheetcontrol.
+Weconcludethecontributionsofthispaperasfollows:
+• OS-Copilotisapioneeringconceptualframeworkforbuildinggeneralistcomputeragents
+onLinuxandMacOS,divergingfrompreviousendeavorsthatoftenfocusonindividual
+applicationslikewebbrowsers. OS-Copilotprovidesaunifiedinterfaceforappinteractions
+intheheterogeneousOSecosystem. Furthermore,OS-Copilotcanserveasafoundational
+platformthatsupportsfutureresearchinareassuchaspersonalizeddigitalassistants,multi-
+modalagents,andagentlearninginasituatedenvironment.
+• LeveragingOS-Copilot,webuiltFRIDAY,aself-improvingAIassistantcapableofsolving
+general computer tasks. FRIDAY demonstrates outstanding performance on a leading
+benchmarkandnoteworthygeneralizationcapabilitiesacrossunseenapplications,attributed
+1F.R.I.D.A.YisalsothenameofanadvancedAITonyStarkusedtoreplaceJARVIS.
+2
+
+--- Page 3 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+Figure2: AnoverviewofOS-Copilotframework.
+toitsinnovativeconfigurator.Theevaluationresultsandcasestudiesunderscorethepotential
+ofFRIDAYtoserveasahelpfulOSassistant.
+2 THE OS-COPILOT FRAMEWORK
+Inthissection,wefirstoverviewhowOS-Copilotoperatesandthendiscussitsmaincomponents.
+AsshowninFigure2,uponreceivingauserrequest,aplannerfirstconstructsaplanthatdecomposes
+therequestintosubtasks. Givenasubtask, theconfiguratormaintainsaworkingmemorythatis
+responsible for retrieving tools, knowledge, and any other relevant information needed for task
+completion. Basedontheinformationprovidedbytheconfigurator,theactorwilliterativelyperform
+operations of execution and criticism until the subtask is completed. In particular, the criticism
+operationinvolvescollectingexecutionfeedbackforself-correctionandimprovement. Researchers
+and practitioners can readily tailor their own agents by implementing various designs on each
+component. OurcustomizationinFRIDAYisin§3.
+2.1 PLANNER
+Theplannercomponentwillreasonoveruserrequestsanddecomposecomplexonesintosimpler
+subtasks. Mostimportantly,theplannerneedstocomprehendtheagent’scapabilitiestogenerate
+plansatthecorrectgranularity. Toachievethis,itmustretrieverelevantinformationabouttheagent’s
+capabilities,suchasin-housetoolsandoperatingsysteminformation,toassistplanning. OS-Copilot
+supportsvariousplanningmethods,suchasPlan-and-Solve(Wangetal.,2023c)andthedirected
+acyclicgraph-basedplannerthatwepropose.
+Directedacyclicgraph-basedplanner. Existingplanners,whethertheygeneratelinearstructured
+plans (Wang et al., 2023d) or non-linear ones (Besta et al., 2023), inherently necessitate agents
+to execute tasks sequentially. Nevertheless, in practical scenarios, numerous independent tasks
+can be parallelized to minimize execution time. For instance, a deep learning coding agent can
+simultaneouslymonitormodeltrainingprogresswhilegeneratinginferencecode. Toachievethe
+aforementionedobjective, weleverageLLMstoformalizetheplanintoadirectedacyclicgraph,
+whereeachnoderepresentsataskandarrowsrepresenttheinterdependenciesbetweentasks. Asan
+illustration,wedemonstratehowthisplannerworksin§A,andprovidethepromptinTable5.
+2.2 CONFIGURATOR
+The configurator component takes a subtask from the planner and configures it to help the actor
+completethesubtask. Ourdesignoftheconfiguratorisinspiredbythebiologicalnatureofthehuman
+brain,whichhasworking,declarative,andproceduralmemory(Baddeley,2003;Packard,2009).
+2.2.1 DECLARATIVEMEMORY
+Declarativeorexplicitmemoryisasubcategoryoflong-termmemoryandisusedforstoringfacts
+andevents. Ourdeclarativememorycontainstwofollowingcomponents:
+3
+
+--- Page 4 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+UserProfile. Itrecordsuser’spreferenceregardingconversationstyle,tool-usehabit,music/video
+preference,etc. Accurateuserprofilingiscriticalforpersonalizedproblem-solvingandrecommenda-
+tion. Althoughithasbeenwidelystudiedintherecommendationarea,personalizedlanguageagents
+arerarelyexplored. TheUserProfilemoduleisaconceptualdesignatthecurrentstageduetothe
+lackofcorrespondingbenchmarks.
+Semantic Knowledge. It stores agents’ past trajectories or knowledge they acquired from the
+Internet,users,andOS(e.g.,systemversionandcurrentworkingdirectory). Thismoduleiscrucial
+foragentstoactcorrectlybasedonthecurrentenvironmentstateandlearnfrompastexperiences.
+2.2.2 PROCEDURALMEMORY
+Procedural or implicit memory is another form of long-term memory mainly related to the skill
+developmentabilityofanindividual. Oncelearned,proceduralmemoriesautomaticallydofunctions
+that don’t involve our conscious involvement. In OS-Copilot, the procedural memory primarily
+consistsofatoolrepositoryastheagent’sskillset.
+ToolRepository AlthoughLLMscanreadandwrite,theydonotprocesstheabilitytointeract
+withtheoperatingsystem. Assuch,weneedtoequipagentswithtoolsthattranslatenaturallanguage
+intoexecutableactionswithintheOS.Thetoolrepositoryiswherethesetoolsarestoredandupdated.
+WeseedOS-Copilotwith4manuallycreatedtoolsforbasiccomputerfunctionalities,suchasweb
+browsingandspeech-to-texttranslation(seeAppendixFfordetailsoftools). InOS-Copilot,tools
+canexistintwoforms: eitherdeployedasAPIservicestobeinvokedusingPOSTrequestsorstored
+asaPythonfile(refertoTable13foranexample).
+2.2.3 WORKINGMEMORY
+Incontrasttodeclarativeandproceduralmemory,workingmemorysupportstheshort-termstorage
+andprocessingofinformation. ItservesasthecoreofOS-Copilot’sdesign,connectingtheplanner,
+configurator,andactorcomponents. Workingmemoryexchangesinformationwithothermodulesvia
+internal(withlong-termmemorymodules)andexternal(withtheplannerandactor)operations.
+Internally,theworkingmemorymoduleisresponsibleforretrievinginformationfromandupdating
+thelong-termmemory. Thisincludestaskssuchasretrievingavailabletoolstoaidinplanningand
+updatingtoolcodesfollowingself-correction.
+Externally, the working memory module receives subtasks from the planner, adeptly gathers all
+relevantinformationfromdeclarative(e.g.,currentworkingdirectory)andproceduralmemory(e.g.,
+tooldocumentation),andsubsequentlyfeedsthisinformationintotheactorcomponent.Theexecution
+feedbackfromtheactoristhenfedintotheworkingmemoryforpotentialrevisions.
+2.3 ACTOR
+Theactorcomprisestwostages: executionandself-criticism. Inthefirststage,theexecutorproposes
+anexecutableaction(e.g.,abashcommand”mkdirnew folder”)basedontheconfigurationprompt
+andthenexecutestheactionintheoperatingsystem(throughtheBashruntimeenvironmentinthis
+example). Thecriticmodulewillthenaccesstheoutcomesoftheexecutionandformulatefeedback
+torefineexecutionerrorsand/oreffectupdatestothelong-termmemory.
+Executor Giventheconfigurationprompt,theexecutorcompletesthesubtaskbygeneratingan
+executablecommandorfunctioncallwithcorrectparameters. Thepromptofexecutorcanbefound
+inTable8. TheproposedactionwillthenbeexecutedwithintheOSthroughtheuniversalruntime
+environmentprovidedbyOS-Copilot. Toelaborate,OS-Copilotprovidesaninterfacethatencapsu-
+latesthePythonruntimeenvironment,bashruntimeenvironment,APIcalls,andmouse/keyboard
+control. ThesefourcontrolmethodscoverabroadspectrumofOSusecases,asshowninTable4,
+significantlyfacilitatingthedesignofOS-levelagents.
+Critic Assessingthesuccessfulcompletionofagivensubtaskischallengingduetotheabsenceof
+groundtruth. Forfurtherdiscussionregardingthechallengeintheevaluation,readersaredirectedto
+4
+
+--- Page 5 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+(a) Configurator (b) Arunningexample
+Figure3: Thearchitectureoftheconfiguratorwith(a)atypicalworkingflowand(b)aconcrete
+runningexample.
+AppendixD.ToaidtheCriticmoduleinassessment,wegathercomprehensivesysteminformation
+beforeandafterexecutionandemployLLMstoautomaticallyevaluatethecompletionstate.
+Inparticular,followingeachsubtaskexecution,theCriticevaluatesthefollowingaspects(seeTable9
+fortheprompt): (1)Determiningwhetherthecurrentsub-taskiscompletedthroughtheanalysis
+ofexecutionresultsandtheenvironmentalstate. (2)Intheeventoffailedcompletion,offeringa
+comprehensiveerroranalysisandprovidingsuggestionsforcorrectionoftoolsoractions(howtools
+are called). (3) Assessing the necessity for restructuring subtasks, including the addition of new
+subtasksormodificationstothecontentanddependenciesofexistingsubtasks.
+3 THE FRIDAY AGENT
+ThedesignprincipleofFRIDAYaimstomaximizegeneralitybyequippingtheagentwiththeability
+forself-refinementandself-directedlearning. WefirstuseanexampletoillustratehowFRIDAY
+operatesandemphasizeitscapacityforself-refinement. Subsequently,wedelveintohowFRIDAY
+acquirestheproficiencytocontrolunfamiliarapplicationsthroughself-directedlearning.
+3.1 ARUNNINGEXAMPLE
+InFigure3,weusearunningexampletodemonstratehowFRIDAYfunctionswithintheOS.
+Uponreceivingthesubtask“ChangethesystemintotheDarkmode”(step 1),theConfiguration
+⃝
+Trackeremploysdenseretrievaltorecallrelevantinformationfromthelong-termmemorytoconstruct
+aprompt(step 2). Thispromptencompassesrelatedtools,userprofiles,OSsystemversions,and
+⃝
+theagent’sworkingdirectory.
+Inthisexample,nosuitabletoolsareidentified(similaritiesbelowaspecifiedthreshold),prompting
+activationoftheToolGeneratortodeviseanapplication-tailoredtoolforthecurrentsubtask(step 3).
+⃝
+AswecanseefromFigure3(b),thegeneratedtoolmanifestsasaPythonclassutilizingAppleScript
+tochangesystemstodarkmode.
+Subsequently,withthetoolcreatedandtheconfigurationpromptfinalized,theExecutorprocesses
+theprompt,generatesanexecutableaction,andexecutesit(step 4). Asshowninthebottomof
+⃝
+Figure3(b),theexecutorfirststoresthetoolcodeintoaPythonfileandthenexecutesthecodeinthe
+command-lineterminal.
+Afterexecution,thecriticevaluateswhetherthesubtaskissuccessfullycompleted(step 5). Upon
+⃝
+success,thecriticassignsascore(usingLLMs)rangingfrom0to10tothegeneratedtool,witha
+higherscoreindicatinggreaterpotentialforfuturereuse. Inthecurrentimplementation,toolsscoring
+above8arepreservedbyupdatingthetoolrepositoryinproceduralmemory(step 7).
+⃝
+However,intheeventofafailedexecution,therefinercollectsfeedbackfromthecriticandinitiates
+self-correction(step 6)oftheresponsibleaction,tool,orsubtask(seeTable7fortheprompt). The
+⃝
+FRIDAYwilliteratethroughsteps 4 to 6 untilthesubtaskisconsideredcompletedoramaximum
+⃝ ⃝
+ofthreeattemptsisreached.
+5
+
+--- Page 6 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+3.2 SELF-DIRECTEDLEARNING
+Self-directed learning is a crucial ability for humans to acquire information and learn new
+skills(Knowles,1975),andithasdemonstratedpromisingresultsinembodiedagentswithinMinecraft
+games(Wangetal.,2023a).
+With a pre-defined learning objective, such as mastering spreadsheet manipulation, FRIDAY is
+promptedtoproposeacontinuousstreamoftasksrelatedtotheobjective,spanningfromeasyto
+challenging. FRIDAY thenfollowsthis curriculum, resolvingthese tasksthrough trialand error,
+therebyaccumulatingvaluabletoolsandsemanticknowledgethroughouttheprocess. Weprovide
+more details in learning in § 4.2. Despite its simple design, our evaluation results indicate that
+self-directedlearningiscrucialforageneral-purposeOS-levelagent.
+4 EXPERIMENTS
+WeevaluateFRIDAYonGAIA(Mialonetal.,2023b),abenchmarkforgeneralAIassistantsfeaturing
+466challengingquestion-answeringtasks. ToanswerquestionsinGAIA,computeragentsneedskills
+tocalculatenumbers,browsetheweb,processvideoandspeechsignal,andmanipulatefiles,etc.
+Settings. WeinitializeFRIDAYwithfourbasictoolsandfacilitateitsexplorationofthedevsetof
+GAIAtoaccumulatemoretools(resultin9moretools). Foracompletelistofthebasictoolsandthe
+toolsgeneratedbyFRIDAYinthedevelopmentset,pleaserefertoAppendixF.1. Subsequently,we
+evaluatedFRIDAY’sperformanceonthetestsetbysubmittingourresultstotheofficialevaluation
+server2. Duetothelimitedbudget,weuseGPT4-turbo-1106inFRIDAY.
+Baselines. WereportsresultsofGPT-4withandwithoutmanuallysetplugins,aswellasAutoGPT
+withGPT4asthebackend(AutoGPT-4). GPT-4Pluginsrelyonhumanstobrowseandselectproper
+pluginsbasedonthetaskquestion. Asareference,wealsoincludehumanperformancesourcedfrom
+Mialonetal.(2023b). Weconductafurtherablationstudyonself-directedlearningwithFRIDAY
+(w/olearning)bydisablingFRIDAY’slearningonthedevelopmentset.
+4.1 MAINRESULTS
+FromTable1,FRIDAYdemonstrates
+an impressive 40.86% success rate
+Level Level1 Level2 Level3
+in level-1 tasks, a 35% relative im-
+Human* 93.90 91.80 87.30 provement over the state-of-the-art.
+The improvement is even more ev-
+GPT-4 9.68 1.89 0
+ident in level-2 tasks. Even when
+GPT-4-Turbo 9.68 6.92 0
+confronted with the most challeng-
+AutoGPT-4 15.05 0.63 0
+ing level-3 tasks, where none of the
+GPT-4Plugins 30.30 9.70 0
+precedingbaselinesachievesuccess,
+FRIDAYw/olearning 36.56 17.61 6.12 FRIDAYcorrectlysolves6.12%prob-
+FRIDAY 40.86 20.13 6.12 lems.
+Table 1: Evaluation Results. All results are reported on Rootofimprovement. Todiscern
+the private test set, except for the Human score, which is the root of FRIDAY’s effectiveness,
+averagedacrossthedevandtestsets. we need to exam baselines more
+closely. AutoGPT-4 shares similari-
+tieswithFRIDAYinthatitalsohasa
+memorymoduleandtoolrepository,andprocesstheabilitytodecomposetasks. Thediscrepancy
+betweenFRIDAYandAutoGPT-4underscorestheimportanceofself-criticismandrefinement. GPT-
+4PluginsoutperformsAutoGPT-4significantly,andwehypothesizethatthisisduetoitsaccessto
+anextensivetoollibrary. Finally,FRIDAY’ssuperiorityoverGPT-4Pluginsfurthervalidatesthat
+whiletheabilitytoutilizetoolsandaccesstoabroadtoolsetiscrucialforthesuccessofgeneral
+agents,theplanner,critic,andrefinerarewhatelevatethemtothenextlevel. Althoughnoneofthese
+2https://huggingface.co/spaces/gaia-benchmark/leaderboard
+6
+
+--- Page 7 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+componentsarefirstinnovatedinthispaper,OS-Copilotorganicallycombinesthemintoacohesive
+wholeanddemonstratestheeffectivenessofthisarchitecturethroughstrongevaluationresults. This
+servesasavaluabledesignguidelineforfuturegeneralcomputeragents.
+BycomparingFRIDAYagainstFRIDAY(w/olearning),weaimtoisolatethecontributionofself-
+directed learning to the final performance. As we can see, even without self-directed learning,
+FRIDAYstillsignificantlyoutperformsallbaselines,furtherhighlightingtheeffectivenessofthe
+frameworkandourcustomdesign. Thegainofself-directedlearningunderscoresthatconventional
+approachesreliantonapre-definedtoolsetencounterchallengesinopenenvironmentslikeGAIA,
+emphasizingthepivotalroleofFRIDAY’scapacitytoautonomouslydeviseandemploytoolsinits
+notablesuccess.
+ExtendedEvaluationandAnalysis. WeprovideanextendedevaluationregardingFRIDAY’stime
+efficiencyandabreakdownofitscapabilityperdomaininAppendixB.
+4.2 SELF-DIRECTEDLEARNING
+We perform quantitative and qualitative evaluations to analyze FRIDAY’s self-directed learning
+capability.
+QuantitativeAnalysis ToshowcaseFRI-
+DAY’s ability to master unfamiliar ap-
+Agents Models Pass@1
+plications through self-learning, we con-
+GPT-3.5-Turbo 40% ductexperimentsontheSheetCopilot-203
+SheetCopilot† Claude 45% dataset (Li et al., 2023). This dataset in-
+GPT-4 55% cludes 20 spreadsheet control tasks, cov-
+ering various operations such as Format-
+FRIDAY(w/olearning) GPT-4 0%
+ting, Management, Charts, Pivot Tables,
+FRIDAY GPT-4 60%
+and Formulas, representing typical use
+cases of spreadsheets. FRIDAY is self-
+Table 2: Comparison of different agents on the
+instructed (Wang et al., 2022) to gener-
+SheetCopilot-20 dataset. Pass@1 refers to the pass
+ate10tasksaboutmanipulatingExcelus-
+ratewitheachtaskbeingperformedonlyonce(Chen
+ingthepropenyxlpackage. FRIDAYthen
+etal.,2021). †denotestheresultsreportedin(Lietal.,
+solves these 10 tasks and autonomously
+2023). Wehighlightthebestresultsinbold.
+accumulates8tools,includingoperations
+such as counting elements and deleting
+sheetsbyname(seeAppendixF.2foracompletetoollist).
+TheexperimentalresultsaresummarizedinTable2.Initially,FRIDAY,withoutself-directedlearning,
+isunabletocompleteanytasksandtendstousethepandasandmatplotlibpackagesforspreadsheet
+control,resultinginfailures. Whenequippedwithself-directedlearning,FRIDAY’sperformance
+surpassesthatofSheetCopilot(Lietal.,2023),anagentspecificallydesignedforspreadsheettasks.
+Notably,alltheatomicoperationsandtoolsinSheetCopilotaremanuallycraftedandverified,whereas
+FRIDAYautonomouslygeneratesalltoolsused. AlsoworthnotingthatFRIDAYachievessucha
+levelofproficiencybysolvingandlearningonjust10tasks. Thisoutcomesignalsapromisingfuture
+where wecan build general-purpose OS-levelagents that canefficiently scale tosupport various
+applicationswithouthumanintervention.
+QualitativeAnalysis Inourqualitativeanalysis, wedesignatasktocreateaPowerPointslide
+to introduce OS-Copilot. The specific content, font, font size, and other details required for the
+slideareelaboratelydescribedinthetaskinstruction,asdetailedinAppendixG.Theexperimental
+results,asshowninFigure4(a),demonstratethatwithoutself-directedlearning,FRIDAYstrugglesto
+effectivelycontrolfonttypes,sizes,andthepositioningandsizingofinsertedimages. Nevertheless,
+followingaperiodofself-directedlearning,FRIDAYacquiresvarioustextboxconfigurationtools,
+suchaschangingthetextcolor,adjustingthefontsizeofslidetext,andmodifyingthelinespacing
+of body text in PowerPoint presentations, as illustrated in Figure 4(b). Further exploration leads
+FRIDAY to learn how to adjust the size and position of inserted images, ultimately successfully
+3TheSheetCopilotdatasetcomprises221spreadsheetcontroltasks.Lietal.(2023)select20representative
+tasksfromthissetforextensiveevaluation.
+7
+
+--- Page 8 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+(a) FRIDAYw/olearning (b) Learntocontroltextboxes (c) Learntoinsertandpositionim-
+ages
+Figure4: TheillustrationofFRIDAYexecutingthetaskofconstructingaPowerPointslide.
+completingthetask,asdepictedinFigure4(c). AcompletelistoftoolsacquiredbyFRIDAYcan
+befoundinAppendixF.3. ThedemonstratedlearningprocesscompellinglyestablishesFRIDAY’s
+proficiencyinmasteringunfamiliarapplicationsthroughself-directedlearning.
+5 RELATED WORK
+AutonomousagentpoweredbyLLMs(Weng,2023),orlanguageagents(Sumersetal.,2023),isa
+fast-growingresearchfieldthathasattractedlotsofattentionrecently(Wangetal.,2023b).
+Languageagentshavebeendesignedandappliedinvariousdomains,includingrobotics(Driessetal.,
+2023;Brohanetal.,2023),webmanipulation(Yaoetal.,2022a;Zhouetal.,2023),andgames(Fan
+etal.,2022).Itisworthnotingthatthemajorityofthesedigitallanguageagentsaretailoredtospecific
+scenarios,suchaswebmanipulationtasks(Dengetal.,2023),interactivecommand-linecoding(Yang
+etal.,2023a),automatingspreadsheetcontrol(Lietal.,2023),playingMinecraft(Wangetal.,2023a),
+andfacilitatingautomateddataanalysis(Zhangetal.,2023). Theopen-sourcecommunitycontinues
+topushtheboundariesbyintroducingframeworksthataddressmultiplescenarioswithinasingle
+platform. NotableprojectsinthisdomainincludeAutoGPT4andOpenAgents(Xieetal.,2023). But
+still,theselanguageagentscurrentlyoperatewithintheconfinesofeitheraterminalorawebbrowser
+andcanhardlyinteractwithotherapplications.
+Languageagentsrepresentacomplexsystemcomposedofalengthypipelinecomprisingvarious
+components,eachrepresentingasubstantialbodyofresearch. Foracomprehensivediscussionon
+themethodology,wedirectreaderstorecentsurveys(Wangetal.,2023b;Mialonetal.,2023a). In
+thisparagraph,weprovideabriefoverviewofsomerelatedcomponents. Duringtheplanningstage,
+researchersproposetodecomposecomplextasksintoasequentialseriesofsimplersubtasks(Yao
+etal.,2022b;Xuetal.,2023;Wangetal.,2023c). Notably,recentadvancementsinthisareainclude
+allowingLLMstoconsidermultiplereasoningpaths(Sunetal.,2023),self-evaluationofchoicesto
+determinethesubsequentcourseofaction,andevenbacktrackingwhennecessarytomakeglobal
+decisions(Yaoetal.,2023;Bestaetal.,2023). Thememorymoduleisalsoacommondesignin
+languageagents. Itcanbecategorizedintoshort-termmemoryfacilitatedbyin-contextlearning(Wu
+etal.,2022;2023),aswellaslong-termmemoryassociatedwithinformationretrievalandlifelong
+learning(Wangetal.,2023a). TheexecutionmodulegroundstheoutputofLLMsintoexecutable
+actionsandexecutesthemintheembodiedenvironment(Schicketal.,2023;Caietal.,2023). Finally,
+thereflectionmoduleprocessestheenvironmentalstateafterexecutionandgathersfeedbacktorectify
+potentialerrorsthatmayhaveoccurredintheaforementionedtwomodules(Shinnetal.,2023).
+6 CONCLUSION
+Inthispaper,wepresentOS-Copilot,aframeworkdesignedforOS-levellanguageagents.Leveraging
+OS-Copilot,wedevelopedFRIDAY,anembodiedcomputeragent. FRIDAYexhibitsremarkableper-
+formanceinsolvingopen-environmentcomputertasks,anddemonstratingitscapabilitytoeffectively
+learnandcontrolpreviouslyunseenapplicationsbyself-directedlearning. Morediscussionabout
+limitationsandfutureworkcanbefoundinAppendixD.
+4https://github.com/Significant-Gravitas/AutoGPT
+8
+
+--- Page 9 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+REFERENCES
+AlanBaddeley. Workingmemory: lookingbackandlookingforward. Naturereviewsneuroscience,
+4(10):829–839,2003.
+Maciej Besta, Nils Blach, Ales Kubicek, Robert Gerstenberger, Lukas Gianinazzi, Joanna
+Gajda, Tomasz Lehmann, Michal Podstawski, Hubert Niewiadomski, Piotr Nyczyk, et al.
+Graph of thoughts: Solving elaborate problems with large language models. arXiv preprint
+arXiv:2308.09687,2023.
+RishiBommasani, DrewAHudson, EhsanAdeli, RussAltman, SimranArora, SydneyvonArx,
+MichaelSBernstein,JeannetteBohg,AntoineBosselut,EmmaBrunskill,etal. Ontheopportuni-
+tiesandrisksoffoundationmodels. arXivpreprintarXiv:2108.07258,2021.
+AnthonyBrohan,NoahBrown,JusticeCarbajal,YevgenChebotar,XiChen,KrzysztofChoromanski,
+TianliDing, DannyDriess, AvinavaDubey, ChelseaFinn, etal. Rt-2: Vision-language-action
+modelstransferwebknowledgetoroboticcontrol. arXivpreprintarXiv:2307.15818,2023.
+TianleCai,XuezhiWang,TengyuMa,XinyunChen,andDennyZhou. Largelanguagemodelsas
+toolmakers. arXivpreprintarXiv:2305.17126,2023.
+Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan, Henrique Ponde de Oliveira Pinto, Jared
+Kaplan,HarriEdwards, YuriBurda, NicholasJoseph, GregBrockman, etal. Evaluatinglarge
+languagemodelstrainedoncode. arXivpreprintarXiv:2107.03374,2021.
+Kanzhi Cheng, Qiushi Sun, Yougang Chu, Fangzhi Xu, Yantao Li, Jianbing Zhang, and Zhiy-
+ong Wu. Seeclick: Harnessing gui grounding for advanced visual gui agents. arXiv preprint
+arXiv:2401.10935,2024.
+SijieCheng,ZhiyongWu,JiangjieChen,ZhixingLi,YangLiu,andLingpengKong. Unsupervised
+explanation generation via correct instantiations. In Proceedings of the AAAI Conference on
+ArtificialIntelligence,volume37,pp.12700–12708,2023.
+Xiang Deng, Yu Gu, Boyuan Zheng, Shijie Chen, Samuel Stevens, Boshi Wang, Huan Sun, and
+YuSu. Mind2web: Towardsageneralistagentfortheweb. arXivpreprintarXiv:2306.06070,
+2023.
+DannyDriess,FeiXia,MehdiSMSajjadi,CoreyLynch,AakankshaChowdhery,BrianIchter,Ayzaan
+Wahid, Jonathan Tompson, Quan Vuong, Tianhe Yu, et al. Palm-e: An embodied multimodal
+languagemodel. arXivpreprintarXiv:2303.03378,2023.
+LinxiFan,GuanzhiWang,YunfanJiang,AjayMandlekar,YuncongYang,HaoyiZhu,AndrewTang,
+De-AnHuang,YukeZhu,andAnimaAnandkumar. Minedojo: Buildingopen-endedembodied
+agentswithinternet-scaleknowledge. AdvancesinNeuralInformationProcessingSystems,35:
+18343–18362,2022.
+Difei Gao, Lei Ji, Zechen Bai, Mingyu Ouyang, Dongxing Li, Peiran 9and Mao, Qinchen Wu,
+WeichenZhang,PeiyiWang,XiangwuGuo,etal. Assistgui: Task-orienteddesktopgraphicaluser
+interfaceautomation. arXivpreprintarXiv:2312.13108,2023.
+YiduoGuo,ZekaiZhang,YaoboLiang,DongyanZhao,andDuanNan. Pptcbenchmark: Evaluating
+largelanguagemodelsforpowerpointtaskcompletion. arXivpreprintarXiv:2311.01767,2023.
+WenyiHong,WeihanWang,QingsongLv,JiazhengXu,WenmengYu,JunhuiJi,YanWang,Zihan
+Wang,YuxiaoDong,MingDing,etal. Cogagent: Avisuallanguagemodelforguiagents. arXiv
+preprintarXiv:2312.08914,2023.
+ChenxuHu,JieFu,ChenzhuangDu,SimianLuo,JunboZhao,andHangZhao. Chatdb: Augmenting
+llmswithdatabasesastheirsymbolicmemory,2023.
+Jiaming Ji, Tianyi Qiu, Boyuan Chen, Borong Zhang, Hantao Lou, Kaile Wang, Yawen Duan,
+ZhonghaoHe,JiayiZhou,ZhaoweiZhang,etal. Aialignment: Acomprehensivesurvey. arXiv
+preprintarXiv:2310.19852,2023.
+9
+
+--- Page 10 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+MalcolmSKnowles. Self-directedlearning: Aguideforlearnersandteachers. ERIC,1975.
+HongxinLi,JingranSu,YuntaoChen,QingLi,andZhaoxiangZhang. Sheetcopilot: Bringingsoft-
+wareproductivitytothenextlevelthroughlargelanguagemodels.arXivpreprintarXiv:2305.19308,
+2023.
+QintongLi,ZhiyongWu,LingpengKong,andWeiBi. Explanationregenerationviainformation
+bottleneck. arXivpreprintarXiv:2212.09603,2022.
+Chang Ma, Junlei Zhang, Zhihao Zhu, Cheng Yang, Yujiu Yang, Yaohui Jin, Zhenzhong Lan,
+LingpengKong,andJunxianHe. Agentboard: Ananalyticalevaluationboardofmulti-turnllm
+agents. arXivpreprintarXiv:2401.13178,2024.
+Gre´goireMialon,RobertoDess`ı,MariaLomeli,ChristoforosNalmpantis,RamPasunuru,Roberta
+Raileanu,BaptisteRozie`re,TimoSchick,JaneDwivedi-Yu,AsliCelikyilmaz,etal. Augmented
+languagemodels: asurvey. arXivpreprintarXiv:2302.07842,2023a.
+Gre´goireMialon,Cle´mentineFourrier,CraigSwift,ThomasWolf,YannLeCun,andThomasScialom.
+Gaia: abenchmarkforgeneralaiassistants. arXivpreprintarXiv:2311.12983,2023b.
+Mark G Packard. Anxiety, cognition, and habit: a multiple memory systems perspective. Brain
+research,1293:121–128,2009.
+BoQiao,LiqunLi,XuZhang,ShilinHe,YuKang,ChaoyunZhang,FangkaiYang,HangDong,
+Jue Zhang, Lu Wang, et al. Taskweaver: A code-first agent framework. arXiv preprint
+arXiv:2311.17541,2023.
+Yujia Qin, Shengding Hu, Yankai Lin, Weize Chen, Ning Ding, Ganqu Cui, Zheni Zeng, Yufei
+Huang, Chaojun Xiao, Chi Han, et al. Tool learning with foundation models. arXiv preprint
+arXiv:2304.08354,2023.
+TimoSchick,JaneDwivedi-Yu,RobertoDess`ı,RobertaRaileanu,MariaLomeli,LukeZettlemoyer,
+NicolaCancedda,andThomasScialom. Toolformer: Languagemodelscanteachthemselvesto
+usetools. arXivpreprintarXiv:2302.04761,2023.
+YongliangShen,KaitaoSong,XuTan,DongshengLi,WeimingLu,andYuetingZhuang.Hugginggpt:
+Solvingaitaskswithchatgptanditsfriendsinhuggingface. arXivpreprintarXiv:2303.17580,
+2023.
+NoahShinn,BeckLabash,andAshwinGopinath. Reflexion: anautonomousagentwithdynamic
+memoryandself-reflection. arXivpreprintarXiv:2303.11366,2023.
+Significant-Gravitas. Autogpt: build & use ai agents. https://github.com/Significant-
+Gravitas/AutoGPT,2023.
+TheodoreRSumers,ShunyuYao,KarthikNarasimhan,andThomasLGriffiths. Cognitivearchitec-
+turesforlanguageagents. arXivpreprintarXiv:2309.02427,2023.
+Qiushi Sun, Zhangyue Yin, Xiang Li, Zhiyong Wu, Xipeng Qiu, and Lingpeng Kong. Corex:
+Pushingtheboundariesofcomplexreasoningthroughmulti-modelcollaboration. arXivpreprint
+arXiv:2310.00280,2023.
+MarkTowers,JordanK.Terry,ArielKwiatkowski,JohnU.Balis,GianlucadeCola,TristanDeleu,
+ManuelGoula˜o,AndreasKallinteris,ArjunKG,MarkusKrimmel,RodrigoPerez-Vicente,Andrea
+Pierre´,SanderSchulhoff,JunJetTai,AndrewTanJinShen,andOmarG.Younis. Gymnasium.
+Github,March2023. URLhttps://zenodo.org/record/8127025.
+GuanzhiWang,YuqiXie,YunfanJiang,AjayMandlekar,ChaoweiXiao,YukeZhu,LinxiFan,and
+AnimaAnandkumar. Voyager: Anopen-endedembodiedagentwithlargelanguagemodels. arXiv
+preprintarXiv:2305.16291,2023a.
+LeiWang,ChenMa,XueyangFeng,ZeyuZhang,HaoYang,JingsenZhang,ZhiyuanChen,Jiakai
+Tang,XuChen,YankaiLin,WayneXinZhao,ZheweiWei,andJi-RongWen. Asurveyonlarge
+languagemodelbasedautonomousagents. http://arxiv.org/abs/2308.11432,2023b.
+10
+
+--- Page 11 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+LeiWang,WanyuXu,YihuaiLan,ZhiqiangHu,YunshiLan,RoyKa-WeiLee,andEe-PengLim.
+Plan-and-solveprompting: Improvingzero-shotchain-of-thoughtreasoningbylargelanguage
+models. arXivpreprintarXiv:2305.04091,2023c.
+YizhongWang,YeganehKordi,SwaroopMishra,AlisaLiu,NoahASmith,DanielKhashabi,and
+Hannaneh Hajishirzi. Self-instruct: Aligning language model with self generated instructions.
+arXivpreprintarXiv:2212.10560,2022.
+ZihaoWang,ShaofeiCai,AnjiLiu,XiaojianMa,andYitaoLiang. Describe,explain,planandselect:
+Interactive planning with large language models enables open-world multi-task agents. arXiv
+preprintarXiv:2302.01560,2023d.
+Lilian Weng. Llm-powered autonomous agents. lilianweng.github.io, Jun 2023. URL https:
+//lilianweng.github.io/posts/2023-06-23-agent/.
+ZhenyuWu,YaoXiangWang,JiachengYe,JiangtaoFeng,JingjingXu,YuQiao,andZhiyongWu.
+Openicl: Anopen-sourceframeworkforin-contextlearning. arXivpreprintarXiv:2303.02913,
+2023.
+ZhiyongWu,YaoxiangWang,JiachengYe,andLingpengKong. Self-adaptivein-contextlearning.
+arXivpreprintarXiv:2212.10375,2022.
+TianbaoXie,FanZhou,ZhoujunCheng,PengShi,LuoxuanWeng,YitaoLiu,TohJingHua,Junning
+Zhao,QianLiu,CheLiu,etal. Openagents: Anopenplatformforlanguageagentsinthewild.
+arXivpreprintarXiv:2310.10634,2023.
+Binfeng Xu, Zhiyuan Peng, Bowen Lei, Subhabrata Mukherjee, Yuchen Liu, and Dongkuan Xu.
+Rewoo: Decouplingreasoningfromobservationsforefficientaugmentedlanguagemodels. arXiv
+preprintarXiv:2305.18323,2023.
+JohnYang,AksharaPrabhakar,KarthikNarasimhan,andShunyuYao. Intercode: Standardizing
+andbenchmarkinginteractivecodingwithexecutionfeedback. arXivpreprintarXiv:2306.14898,
+2023a.
+ZhaoYang,JiaxuanLiu,YuchengHan,XinChen,ZebiaoHuang,BinFu,andGangYu. Appagent:
+Multimodalagentsassmartphoneusers. arXivpreprintarXiv:2312.13771,2023b.
+Shunyu Yao, Howard Chen, John Yang, and Karthik Narasimhan. Webshop: Towards scalable
+real-world web interaction with grounded language agents. Advances in Neural Information
+ProcessingSystems,35:20744–20757,2022a.
+ShunyuYao,JeffreyZhao,DianYu,NanDu,IzhakShafran,KarthikNarasimhan,andYuanCao.
+React: Synergizingreasoningandactinginlanguagemodels. arXivpreprintarXiv:2210.03629,
+2022b.
+Shunyu Yao, Dian Yu, Jeffrey Zhao, Izhak Shafran, Thomas L Griffiths, Yuan Cao, and Karthik
+Narasimhan. Treeofthoughts: Deliberateproblemsolvingwithlargelanguagemodels,may2023.
+arXivpreprintarXiv:2305.10601,2023.
+WenqiZhang,YongliangShen,WeimingLu,andYuetingZhuang. Data-copilot: Bridgingbillionsof
+dataandhumanswithautonomousworkflow. arXivpreprintarXiv:2306.07209,2023.
+Shuyan Zhou, Frank F Xu, Hao Zhu, Xuhui Zhou, Robert Lo, Abishek Sridhar, Xianyi Cheng,
+YonatanBisk,DanielFried,UriAlon,etal. Webarena: Arealisticwebenvironmentforbuilding
+autonomousagents. arXivpreprintarXiv:2307.13854,2023.
+A GRAPH-BASED PLANNER
+Comparedtohumanswhocanonlyexecutetaskssequentially,computersaresuperiorintheircapacity
+toprocessmultipletasksconcurrently. Currentplanners,whicharedesignedtocreateeitherlinear
+structuredplans(Wangetal.,2023d)ornon-linearones(Bestaetal.,2023),typicallyrequirethat
+tasksbeexecutedoneaftertheother. However,inreal-worldapplications,it’softenpossibleand
+11
+
+--- Page 12 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+(a) Directedacyclicgraph-basedplanner (b) Capacityperdomain
+Figure5: (a): Arunningexampleoftheplanner,whereeachnoderepresentsasubtask. Thenumbers
+aresolelyforillustrativepurposesanddonotsignifytheexecutionorderofsubtasks. (b): Scores(%)
+ofFRIDAYonlevel-1taskspercapability. NumbersexceptFRIDAYaresourcedfromGAIApaper.
+AsconfirmedbyGAIA’sauthors,therearesomenumericalerrorsinGAIA’sFigure5,soweomitthe
+comparisonwithbaselineshere.
+moreefficienttoparallelizeseveralindependenttasks,therebyreducingtheoveralltimerequiredfor
+execution. Forinstance,amachinelearningcodingagentcansimultaneouslyconductmodeltraining
+whilegeneratinginferencecode.
+Toachievetheaforementionedobjective,weleverageLLMstoformalizetheplanintoadirected
+acyclicgraph,wherearrowsrepresenttheinterdependenciesbetweentasks. Asanillustration,we
+providearunningexampleinFigure5(a). Initially,tasks1,2,and3canbeexecutedsimultaneously
+bydifferentsubagents. Subsequently,uponthecompletionoftask2(or3),thesubsequenttask4
+(or6)canbeexecutedsequentially. However,task5mustwaituntilbothtask1and4havebeen
+completed. Inthescenarioofparallelexecution,eachsubtaskwillbeaccompaniedbyasubagent
+consistingofadistinctconfiguratorandactor.
+B EXTENDED EVALUATION
+Weincludemoreevaluationandanalysishere.
+Intermsoftimeefficiency(seeTable3),FRIDAYsignificantlyoutperformsAutoGPT-4onLevel
+1tasks,executingin105secondscomparedtomorethan500secondsinthecaseofAutoGPT-4.
+Thismarksafourfoldspeedincrease. ThoughslowerthanGPT-4Plugins,FRIDAY’smeasurement
+includes tool retrieval and generation time, whereas GPT-4 Plugins exclude the time taken for
+manualpluginselectionbyhumans. Comparedtohumanperformance,FRIDAYisalsothreetimes
+faster. Thistrendholdsacrossvariousleveltasks,highlightingFRIDAY’snotableadvancementsin
+performanceandtimeefficiency.
+Level Level1 Level2 Level3
+GPT-4 11 9 N/A
+GPT-4-Turbo 14 7 N/A
+AutoGPT-4 456 702 N/A
+GPT-4Plugins 39 32 N/A
+FRIDAYw/olearning 124 239 234
+FRIDAY 118 221 234
+Table3: Avg. timetoanswerinsec.
+FurtherbreakdownofscoresobtainedpercapabilityisshowninFigure5(b). Sincethetestdata
+werenotreleased,wemanuallyverifiedthecorrectnessofall93level-1tasksandassignedcapability
+12
+
+--- Page 13 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+labels.5 WecanseethatFRIDAYexcelsatprocessingcodingandfileI/O,whileshowingweak-
+nessesinwebbrowsingandhandlingmulti-modality. Notably,theFRIDAYcurrentlyonlysupports
+retrievinginformationfromawebsiteandcannotperformactionswithintheweb,suchasclicks.
+WeanticipateasignificantenhancementintheFRIDAY’swebbrowsingcapabilitybyincorporating
+recentadvancementsinwebagents(Dengetal.,2023). Additionally,challengesinmulti-modaltasks
+arisefromtheneedfordownloadinganddeployinglocalmodels(e.g.,speech-to-text). Webelieve
+thatincorporatingrecenteffortslikeHuggingfaceGPT(Shenetal.,2023)cansubstantiallyenhance
+theFRIDAY’smulti-modalcapabilities.
+C POSSIBLE USE CASES OF OS-COPILOT
+WeprovidesomepossibleusecasesofOS-CopilotwithintheOSinTable4.
+InteractionMethod UseCases
+PythonInterpreter dataprocessingandanalysis,controlapps(e.g.,Excel)usingPythonlibraries.
+Bash anythingpossiblewithinBash,likefileoperation,packageinstallation
+API onlineservices,MLmodelsservices,third-partyserviceintegration
+Mouse/Keyboard desktopapplicationscontrol,userbehaviorsimulation
+Table4: FourOSinteractionmethodssupportedbyOS-Copilot. Foreachmethod,weprovidesome
+exemplaryusecases.
+D DISCUSSION
+Despitethesenotableachievements,itisalsocrucialtoacknowledgethelimitationsofOS-Copilot
+andFRIDAY,particularlytheirrelianceonpromptengineeringandtheirincapacitywhenconfronted
+withclosed-sourceapplications.Hereweelaborateonsomeoftheseconstraints,alongwithintriguing
+futureresearchtopics.
+Promptingv.sFine-tuningBuildFRIDAYbypromptingmaysufferdramaticperformancechanges
+when the underlying LLMs change. To address this challenge, we have meticulously designed
+OS-CopilottofollowtheinterfacedesignofOpenAI-Gymnasium(Towersetal.,2023). Thisdesign
+choicewillfacilitatefutureresearchinreinforcementlearningandfine-tuning. However,achieving
+effectivetrainingforlanguageagentsposesasignificantchallengeduetothesubstantialdemand
+fordata. Theprimaryobstacleinfine-tuninglanguageagentsliesintheeffectiveandconvenient
+collectionofalargevolumeoftrajectorydata.
+Multimodality. Controllingcomputerssolelythroughcodeandlanguageisinfeasibleduetothe
+existence of close-sourced commercial software. In comparison, all software employ a similar
+graphicaluserinterfacelogic. Therefore,itbecomesimperativetoexpandthecapabilitiesofOS-
+Copilot to support visual input and encompass screenshot-to-action generation. Although initial
+effortshavebeenmadetodevelopvisuallanguageagentsonweb(Hongetal.,2023),mobile(Yang
+etal.,2023b),andPCplatforms(Gaoetal.,2023),numerouschallengespersist,includingthevisual
+groundingofelements(Chengetal.,2024)andvisualinstructionfollowing,amongothers.
+Evaluation. Evaluatinggeneralcomputeragentspresentssubstantialchallengeswhichhavebeen
+extensivelydiscussedinrecentworks(Maetal.,2024). Herewespecificallydiscussthechallenges
+encountered when operating within the OS environment. Computer agents, such as FRIDAY,
+commonlyapproachproblem-solvingbydecomposingtasksintosubtasks. However,assessingthe
+successfulexecutionofthesesubtasksposessignificantdifficultiesduetotheabsenceofground
+truth. Furthermore,unlikeconventionalNLPtasks,whichcanbeevaluatedthroughstringmatching,
+evaluatingsubtaskcompletionentailscomparingtwosystemstatesusinghard-codedrulesorLLMs,
+presentingscalabilitychallengesandcanbepotentiallyinaccurate.
+SafetyandInterpretability. SystemsthatinteractwiththeOSmustbetransparent,interpretable,
+andsafetodeploy. Wemustensurethattheoutputsgeneratedbythesesystems,andsubsequently
+5Ourannotationsresults,however,slightlydifferfromthosereturnedbytheevaluationserver.
+13
+
+--- Page 14 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+actedupon,arenotharmfulinanyway.Thisnecessitatesanewavenueofresearch,whichemphasizes
+thegenerationofnaturallanguageexplanationsthatareeasilycomprehensible(Lietal.,2022;Cheng
+etal.,2023). Additionally,itisequallyimportanttofocusonsafetyalignmentduringthelearning
+process(Bommasanietal.,2021),anaspectthathasgainedconsiderableattentioninLLMtraining(Ji
+etal.,2023)butremainslargelyunderstudiedinthecontextofhuman-computerinteraction.
+E PROMPTS
+WeprovidethepromptsforthecorecomponentsofFRIDAYinTables5to9.
+F TOOLS
+F.1 TOOLSFORGAIA
+WeprovideFRIDAYwithaseriesofbasictoolstoenableittoaccesstheinternetandtounderstand
+images and audio. These capabilities are crucial for completing tasks within the GAIA dataset.
+Additionally, while executing tasks in the GAIA development set, FRIDAY generates a set of
+toolsthatexhibitadegreeofatomicityanduniversality. Thesetoolsareinstrumentalinenhancing
+FRIDAY’sperformanceinsubsequenttesting. Detailedinformationaboutthesetoolscanbefoundin
+Table10.
+F.2 TOOLSFORSHEETCOPILOT
+FRIDAY explores the use of openyxl for solving spreadsheet control tasks through self-directed
+learningandaccumulatesmanyrelevanttools,whichsignificantlyimprovesFRIDAY’sperformance
+ontheSheetCopilotdataset. DetailedinformationaboutthesetoolscanbefoundinTable11.
+F.3 TOOLSFORPPT
+Throughself-directedlearning,FRIDAYlearnstousepython-pptxforslidegenerationandmanipula-
+tion. ThetoolsandtheirdescriptionsaccumulatedduringthelearningareshowninTable12.
+F.4 EXAMPLESOFTOOLSGENERATEDBYFRIDAY
+TomoreintuitivelyunderstandthetoolsgeneratedbyFRIDAY,weprovideanexampleofatool
+createdbyFRIDAYinTable13. WestrictlydefinetheformatofthetoolcodetomatchtheExecutor,
+withthespecificrequirementsforthetoolcodeformatdetailedintheToolGeneratorprompts(as
+showninTable5).
+G TASK INSTRUCTION
+We provide the task instruction used in Section 4.2, where the task involves asking FRIDAY to
+generateaPowerPointslidetointroduceOS-Copilot. FollowingGuoetal.(2023),wegivedetailed
+specificationsregardingcontent,font,fontsize,andthepositioningoftextandimages,asdetailedin
+Table14.
+14
+
+--- Page 15 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+PublishedasaconferencepaperatICLR2024
+Graph-basedPlanner
+YoGuraarpeha-nbaesxepdePrtlainnnmearkingplans.
+IwYoilulgairveeaynoeuxpaetratsiknamnadkainskgypolaunsto. decomposethistaskintoaseriesofsubtasks. Thesesubtasks
+caInwfiolrlmgivaedyiroeuctaedtasakcyacnldicagskraypohu,atonddeecaocmhpsousbetatshkisistaasnkaintotomaicseorpieesraotfiosnu.btTahskros.uTghhetsheeseuxbetcausktison
+ofctaonpfoolromgiacadlirseocrtteidngacoyfclsiucbgtraaspkhs,,aIncdaenaccohmsupblteatsekthiseaennatitroemtiacsokp.eration.Throughtheexecution
+Yoouftsohpoouloldgiocnallysorertsipnognodfwsuibthtasakrse,aIscoannincgomprpolceetessthaenednatirJeStOasNk.resultintheformatasdescribed
+beYloowu:shouldonlyrespondwithareasoningprocessandaJSONresultintheformatasdescribed
+1.bCelaorwr:youtstep-by-stepreasoningbasedonthegiventaskuntilthetaskiscompleted. Each
+st1e.pCoafrrreyaosuotnsintegpi-sbyd-escteopmrpeoassoedniinngtobassuebd-toanskthse.gFiovrenextaamskpulen,ttihlethceutrareskntistacsokmisplteoteredo.rEgaacnhize
+thsetetepxotffirleesascoonnitnaigniisngdethcoemwpoordse’daginentot’siunbt-hteasfkosld.eFrocraelxleadmdpolec,utmheenctuirnretontthtaeskfoilsdteorrceaollregdanaigzeent.
+Ththeenttehxetrfielaessocnoinntgaipnriongcetshseiwsoasrdfo’allgoewnts’:iAncthceorfdoilndgertocaClleudrrdenoctuWmoernktiningtoDtihreecftoilodreyracnadlleFdilaegseAntn.d
+FoTlhdeenrsthienrCeausrorneinntgWproorckeisnsgisDaisrefocltlioowrys:inAfcocromrdaitniognto,tChuerfreonldteWrsordkoincgumDeirrencttiaonrydaangdeFntileesxiAstn,dso
+firFsotllyd,errestriinevCeutrhreentxttWteoxrtkiinngthDeifroelcdtieorrcyailnlfdoorcmuamtieonnt,itnhethfeowldoerrksidnogcduimreecrtnotrya.nIdftahgeentetxetxciostn,tsaoins
+firstly,retrievethetxttextinthefoldercalldocumentintheworkingdirectory.Ifthetextcontains
+theword”agent”,savethepathofthetextfileintothelist,andreturn. Secondly,puttheretrieved
+theword”agent”,savethepathofthetextfileintothelist,andreturn.Secondly,puttheretrieved
+filesintoafoldernamedagentbasedonthefilepathlistobtainedbyexecutingtheprevioustask.
+filesintoafoldernamedagentbasedonthefilepathlistobtainedbyexecutingtheprevioustask.
+2. The Action List I gave you contains the name of each action and the corresponding
+2. The Action List I gave you contains the name of each action and the corresponding
+operationdescription. Theseactionsareallatomiccodetask. Youcanrefertotheseatomic
+operationdescription. Theseactionsareallatomiccodetask. Youcanrefertotheseatomic
+operationstodecomposethecodetask.
+operationstodecomposethecodetask.
+3. Therearethreetypesofsubtasks(API,Code,QA),thefirstisataskthatrequirestheuse
+3.Therearethreetypesofsubtasks(API,Code,QA),thefirstisataskthatrequirestheuse
+ofAPIstoaccessinternetresourcestoobtaininformation,suchasretrievinginformationfrom
+ofAPIstoaccessinternetresourcestoobtaininformation,suchasretrievinginformationfrom
+theInternet,thistypeoftaskiscalled’APIsubtask’,andallavailableAPIsareonlylistedinthe
+theInternet,thistypeoftaskiscalled’APIsubtask’,andallavailableAPIsareonlylistedinthe
+APIList. ThesecondisataskthatdoesnotrequiretheuseofAPItoolsbutneedtowritecodeto
+APIList.ThesecondisataskthatdoesnotrequiretheuseofAPItoolsbutneedtowritecodeto
+complete,whichiscalled’Codesubtask’,’Codesubtask’usuallyonlyinvolvesoperatingsystem
+complete,whichiscalled’Codesubtask’,’Codesubtask’usuallyonlyinvolvesoperatingsystem
+orfileoperations. Thethirdiscalled’QAsubtask’,Itneitherrequireswritingcodenorcalling
+orfileoperations. Thethirdiscalled’QAsubtask’,Itneitherrequireswritingcodenorcalling
+AAPIPtIotococmomplpelteeteththeetatasskk,,ititwwiillllaannaallyyzzeetthheeccuurrrreennttssuubbttaasskkddeessccrripiptitoionnaannddththeererteutrunrnrerseuslutsltosfof
+thteheprperdeedceecsessosorrtatasksksstotoggeettaannaapppprroopprriiaatteeaannsswweerr..
+4.4E.Eacahchdedceocmomppooseseddssuubbttaasskkhhaassffoouurraattttrriibbuutteess::nnaammee,,ttaasskkddeessccrripiptitoionn,,anandddedpeepnednednecniecsie.s.
+’n’anmame’e’abasbtsrtarcatcstsaannaapppprroopprriiaatteennaammeebbaasseedd oonntthheerreeaassoonniinnggpprroocceessssooffththeecucrurrernetnstusbutbatsaks.k.
+’d’edsecsrcirpitpiotino’n’isisththeepprorocceessssoofftthheeccuurrrreennttssuubbttaasskk..’’ddeeppeennddeenncciieess’’rreefefersrstotoththeelilsitsotfotfatsaksknanmameses
+thtahtatthtehecucrurrernentttataskskddeeppeennddssoonnbbaasseeddoonntthheerreeaassoonniinnggpprroocceessss..TThheesseetataskskssmmusutsbtebeexeexceuctuedted
+bebfeofroerethtehecucrurrernentttatasskk..’t’ytyppee’’iinnddiiccaatteesswwhheetthheerrtthheeccuurrrreennttttaasskkisisaaCCooddeetatsakskororaaAAPIPtIatsakskoroara
+QQAAtatsaks,kI,fIfititisisaaCCooddeetatasskk,,iittssvvaalluueeiiss’’CCooddee’’,,iiffiittiissaaAAPPIIttaasskk,,itistsvvaalulueeisis’A’APPI’I,’i,fiiftiitsiasQaAQA
+tatsaks,ki,tsitsvavlauleueisis’Q’QAA’.’.
+5.5I.nInJSJOSONN,,eaeacchhddeeccoommppoosseeddssuubbttaasskkccoonnttaaiinnssffoouurraattttrriibbuutteess::nnaammee,,ddesecsrcirpitpitoino,nd,edpeepne-n-
+dednecniceisesananddtytyppee,,wwhhicichhaarreeoobbttaaiinneeddtthhrroouugghhrreeaassoonniinnggaabboouutttthheetatasskk..TThheekekyeyofofeaecahchsusbutbastaksk
+isitshtehe’n’anmame’e’atattrtirbibuuteteooffththeessuubbttaasskk..
+6.6.CCoonntitninuuininggwwiitthhtthheeeexxaammpplleeinin11,,thtehefofromrmataotfothfethJeSOJSNOdNatadaItwaaInwttaongtettoisgeastifsolaloswfos:llows:
+{
+"retrieve_files" : {
+"name": "retrieve_files",
+"description": "retrieve the txt text in the folder call document in the working
+, directory. If the text contains the word 'agent', save the path of the text
+, → file into the list, and return.",
+" → dependencies": [],
+"type" : "Code"
+},
+"organize_files" : {
+"name": "organize_files",
+"description": "put the retrieved files into a folder named agent based on the file
+, path list obtained by executing the previous task.",
+" → dependencies": ["retrieve_files"],
+"type": "Code"
+}
+}
+UUsesre’rs’sinifnofromrmaatitoionnisisaassffoolllloowwss::
+SySsytsetmemVVeresrisoionn:: sysysstetemmvveerrssiioonn
+{{ }}
+TaTsaks:k:tatsaksk
+{{ }}
+AActciotinonLLisits:t: acatcitoionnlilsistt
+AAPIPLIiLsits:t:apa{ ip { ililsitst }}
+CuCrurrernetnWtW{ o { rokrkininggD }D } irierecctitoiorryy:: wwoorrkkiinnggddiirr
+FiFleilsesAAndndFFolodlderesrsininCCuurrrreenntt{ W { WoorrkkiinnggDDiirree}} ccttiioorryy:: fifilleessaannddffooldldeerrss
+{{ }}
+TaTbalbele5:5:TThehepprorommppttfoforrththeeGGrraapphh--bbaasseeddPPllaannnneerr.. BBlluuee//oorraannggeeininddicicaatetessininfofromrmataiotinonfrofrmomthtehe
+DDecelcalraartaivtiev/eP/ProrocecdeduurarallMMeemmoorryy..
+15
+15
+
+--- Page 16 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+ToolGenerator
+YouareahelpfulassistanttoassistinwritingPythontoolcodefortaskscompletedonoperating
+systems.
+YourexpertiseliesincreatingPythonclassesthatperformspecifictasks,adheringtoapredefined
+formatandstructure. YourgoalistogeneratePythontoolcodeintheformofaclass. Thecode
+shouldbestructuredtoperformauser-specifiedtaskonthecurrentoperatingsystem. Theclass
+must be easy to use and understand, with clear instructions and comments. You should only
+respondwithapythoncodeandainvocationstatement.
+Pythoncodeintheformatasdescribedbelow:
+1. CodeStructure: Beginwiththenecessaryimportstatement: fromfriday.action.base action
+importBaseAction. Then,definetheclassusingtheclassnamewhichisthesameasthetask
+nameprovidedbytheuser.
+2. Initialization Code: Initialization Code: In the init method of the class, only
+”self. description” is initialized. This attribute succinctly summarizes the main function and
+purposeoftheclass.
+3. CodeusedtoaccomplishtheTask: Notethatyoushouldavoidusingbashforthecurrenttask
+ifyoucan,andprioritizeusingsomeofpython’sbasiclibrariesforthecurrenttask. Ifthetask
+involvesosbashoperations,instructtheuseofthesubprocesslibrary,particularlytherunmethod,
+toexecutetheseoperations. Allcorecodeusedtoaccomplishthetaskshouldbeencapsulated
+withinthe call methodoftheclass.
+4. Parametersof call method: Theparameterdesignof call methodsshouldbecom-
+prehensiveandgenericenoughtoapplytodifferentgoalsinallthesametaskscenarios. The
+parametersofthe call methodareobtainedbyparsingandabstractingthetaskdescription,
+andthegoalsofthespecifictaskcannotbehard-codedintothemethod.
+5. DetailedComments: Providecomprehensivecommentsthroughoutthecode. Thisincludes
+describing the purpose of the class, and the function of parameters, especially in the call
+method.
+6. The call methodmustallowflexiblearguments( args, kwargs)fordifferentuser
+∗ ∗∗
+requirements. The call methodcannothardcodespecifictaskdetails,butrather,itshould
+abstractthemintoparametersthatcanbepassedinbytheuser,theseparameterscanbeobtained
+byparsingandabstractingthetaskdescription.
+7. Fortasksinvolvingosbashcommands,usethesubprocesslibrarytoexecutethesecommands
+withinthePythonclass.
+Invocationstatementintheformatasdescribedbelow:
+1. ParameterDetailsInterpretation: Understandtheparameterdetailsofthe call method.
+Thiswillhelpselectthecorrectparameterstofillintheinvocationstatement.
+2. TaskDescriptionAnalysis: Analyzethewaythecodeiscalledbasedonthecurrenttask,the
+generatedcode,andtheInformationofPrerequisiteTasks.
+3. GeneratingInvocationStatement: Constructthe call methodinvocationstatement. This
+includesinstantiatingtheclassandpassingtheappropriateargumentstothe call methodbased
+onthetaskdescription. Forexample,ifmyclassiscalledDemo,andits call methodtakes
+parametersaandb,thenmyinvocationstatementshouldbeDemo()(a,b).
+4. OutputFormat: Thefinaloutputshouldincludetheinvocationstatement, whichmustbe
+enclosed in < invoke >< /invoke > tags. For example, < invoke > Demo()(a,b) <
+/invoke>.
+Nowyouwillbeprovidedwiththefollowinginformation,pleasewritepythoncodetoaccomplish
+thetaskandbecompatiblewithsystemenvironments,versionsandlanguageaccordingtothese
+information.
+Otherrelevantinformationisasfollows:
+SystemVersion: system version
+{ }
+Systemlanguage: simplified chinese
+{ }
+TaskName: task name
+{ }
+TaskDescription: task description
+{ }
+InformationofPrerequisiteTasks: pre tasks info
+{ }
+RelevantCode: relevant code
+{ }
+CurrentWorkingDirectiory: working dir
+{ }
+FilesAndFoldersinCurrentWorkingDirectiory: files and folders
+{ }
+Table6: ThepromptfortheToolGenerator.Blue/OrangeindicatesinformationfromtheDeclara-
+tive/ProceduralMemory. RedrepresentsinformationfromthePlanner.
+16
+
+--- Page 17 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+Refiner
+YouareanAIexpertinPythonprogramming,withafocusondiagnosingandresolvingcode
+issues.
+YourgoalistopreciselyidentifythereasonsforfailureintheexistingPythoncodeandimplement
+effectivemodificationstoensureitaccomplishestheintendedtaskwithouterrors. Youshould
+onlyrespondwithapythoncodeandainvocationstatement.
+Pythoncodeintheformatasdescribedbelow:
+1.ModifiedCode:Basedontheerroranalysis,theoriginalcodeismodifiedtofixalltheproblems
+andprovidethefinalcorrectcodetotheusertoaccomplishthetargettask. Ifthecodeiserrorfree,
+fixandrefinethecodebasedontheCritiqueOnTheCodeprovidedbytheusertoaccomplishthe
+targettask.
+2. ErrorAnalysis: Conductastep-by-stepanalysistoidentifywhythecodeisgeneratingerrors
+orfailingtocompletethetask. Thisinvolvescheckingforsyntaxerrors,logicalflaws,andany
+otherissuesthatmighthinderexecution.
+3. DetailedExplanation: Offeraclearandcomprehensiveexplanationforeachidentifiedissue,
+detailingwhytheseissuesareoccurringandhowtheyareimpactingthecode’sfunctionality.
+4. Youmustkeeptheoriginalcodeasformattedaspossible,e.g. classname,methods,etc.
+Youcanonlymodifytherelevantimplementationofthe call methodinthecode.
+5. Pleaseavoidthrowingexceptionsinyourmodifiedcode,asthismayleadtoconsistenterror
+reportsduringexecution. Instead,youshouldhandlethecaughtexceptionsappropriately!
+Otherrelevantinformationisasfollows:
+OriginalCode: original code
+{ }
+Task: task
+{ }
+ErrorMessages: error
+{ }
+Output: output
+{ }
+CurrentWorkingDirectiory: current working dir
+{ }
+WorkingDirectiory: working dir
+{ }
+FilesAndFoldersinCurrentWorkingDirectiory: files and folders
+{ }
+Critique: critique
+{ }
+Table 7: The prompt for the Refiner. Blue/Orange indicates information from the Declara-
+tive/ProceduralMemory. PurpletextisfromtheExecutorandDarkgreentextisfromtheCritic.
+17
+
+--- Page 18 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+Executor
+YouareanAItrainedtoassistwithPythonprogrammingtasks,withafocusonclassandmethod
+usage.
+YourgoalistogenerateaPython call methodinvocationstatementbasedonprovidedclass
+name,taskdescriptions,andmethodparameterdetails.
+Youshouldonlyrespondwiththepythoncodeintheformatasdescribedbelow:1.ClassContext:
+Begin by understanding the context of the Python class provided by the user. This includes
+graspingtheclassnameanditsintendedfunctionality.
+2. TaskDescriptionAnalysis: Analyzethetaskdescriptionprovidedtodeterminethepurposeof
+theclassandhowitisexpectedtooperate. Thiswillhelpinidentifyingthecorrectwaytoinvoke
+theclass.
+3. ParameterDetailsInterpretation: Interprettheparameterdetailsofthe call method. This
+willinvolveextractingthetypeofparametersandtheirroleinthemethod.
+4. GeneratingInvocationStatement: Constructthe call methodinvocationstatement. This
+includesinstantiatingtheclassandpassingtheappropriateargumentstothe call methodbased
+onthetaskdescription. Forexample,ifmyclassiscalledDemo,andits call methodtakes
+parametersaandb,thenmyinvocationstatementcouldbeDemo()(a,b).
+5. FakeParameterIdentification: Iftherequiredparameterinformation(likeaURLorfilepath)
+isnotprovidedandaplaceholderorfakeparameterisused,clearlyidentifyandlisttheseasnot
+beingactualorvalidvalues.Allthefakeparamtersyoulistshouldbeseparatedbycomma.Ifthere
+arenofakeparameters,youshouldgiveaNone.
+6. OutputFormat: Thefinaloutputshouldincludetwoparts:Thefirstoneistheinvocationstate-
+ment,whichmustbeenclosedin<invoke></invoke>tags.Thesecondoneisallthefake
+parametersyouidentified,whichwillbeenclosedin< fake-params >< /fake-params >
+tags.
+Andtheresponseyouwriteshouldalsofollowthefollowingcriteria:
+1. The call methodinvocationmustbesyntacticallycorrectasperPythonstandards.
+2. Clearlyidentifyanyfakeorplaceholderparametersusedintheinvocation.
+3. Ifnecessary,youcanusetheWorkingDirectoryprovidedbytheuserasaparameterpassed
+intothe call method.
+Nowyouwillbeprovidedwiththefollowinginformation,pleasegenerateyourresponseaccording
+totheseinformation:
+Otherrelevantinformationisasfollows:
+ClassName: class name
+{ }
+TaskDescription: task description
+{ }
+RelevantCode: relevant code
+{ }
+InformationofPrerequisiteTasks: pre tasks info
+{ }
+WorkingDirectory: working dir
+{ }
+Table 8: The prompt for the Executor. The Critique is generated by the Critic, and other infor-
+mation is sourced from the Configuration Tracker. Blue/Orange indicates information from the
+Declarative/ProceduralMemory.
+18
+
+--- Page 19 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+Critic
+YouareanAIprogramexperttoverifyPythoncodeagainstauser’staskrequirements.
+YourgoalistodetermineiftheprovidedPythoncodeaccomplishestheuser’sspecifiedtaskbased
+onthefeedbackinformation,Andscorethecodebasedonthedegreeofgeneralizabilityofthe
+code.
+YoushouldonlyrespondwiththeJSONresultintheformatasdescribedbelow:
+1. Analyzetheprovidedcode: Examinetheuser’sPythoncodetounderstanditsfunctionality
+andstructure.
+2. Comparethecodewiththetaskdescription: Aligntheobjectivesstatedintheuser’stask
+descriptionwiththecapabilitiesofthecode.
+3. Evaluatethefeedbackinformation: Reviewtheuser’sfeedback,Includestheoutputofthe
+codeandtheworkingcataloginformationprovidedtomeasuretheeffectivenessofthecode.
+4. Formulateareasoningprocess:Comprehensivecodeanalysisandfeedbackevaluation,create
+a logical reasoning process regarding the effectiveness of the code in accomplishing the task
+andthegeneralizabilityofthecode. Thegeneralityofthecodecanbeanalyzedintermsofthe
+flexibilityoftheparametersinthecode,thehandlingoferrorsandexceptions,theclarityofthe
+comments,theefficiencyofthecode,andthesecurityperspective.
+5. Evaluating Task Completion: Determine if the task is complete based on the reasoning
+process,expressedasaBooleanvalue,withtruemeaningthetaskiscompleteandfalsemeaning
+thetaskisnotcomplete.
+6. Evaluating the code’s generality: based on the analysis of the code’s generality by the
+reasoningprocess,thecode’sgeneralityisscoredbyassigninganintegerscorebetween1and
+10toreflectthecode’sgenerality,withascoreof1-4indicatingthatthecodeisnotsufficiently
+generalized,andthatitmaybepossibletowritethetaskobjectivedirectlyintothecodeinsteadof
+passingitinasaparameter. ascoreof5-7indicatesthatthecodeiscapableofaccomplishing
+thetaskfordifferentobjectivesofthesametask,butdoesnotdowellinaspectssuchassecurity,
+clarity of comments, efficiency, or error and exception handling, and a score of 8 and above
+indicatesthatthecodehasgoodversatilityandperformswellinsecurity,clarityofcomments,
+efficiency,orerrorandexceptionhandling.
+7. OutputFormat: YoushouldonlyreturnaJSONwithnoextracontent. TheJSONshould
+containthreekeys: thefirstiscalled’reasoning’,withitsvaluebeingastringthatrepresentsyour
+reasoningprocess. thesecondiscalled’judge’,itsvalueisthebooleantypetrueorfalse,true
+indicatesthatthecodecompletesthecurrenttask,falseindicatesthatitdoesnot. Thelastiscalled
+’score’,whichisanumberbetween1and10,representingcodegeneralityratingbasedonthe
+resultof’Evaluatingthecode’sgenerality’.
+Otherrelevantinformationisasfollows:
+CurrentCode: current code
+{ }
+Task: task
+{ }
+ErrorMessages: error
+{ }
+Output: output
+{ }
+CurrentWorkingDirectiory: current working dir
+{ }
+WorkingDirectory: working dir
+{ }
+FilesAndFoldersinCurrentWorkingDirectiory: files and folders
+{ }
+NextTask: next action
+{ }
+Table9:ThepromptfortheCritic.Blue/OrangeindicatesinformationfromtheDeclarative/Procedural
+Memory. PurpletextisfromtheExecutorandRedtextisfromthePlanner.
+19
+
+--- Page 20 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+Type Name Description
+ExecuteBingSearch-gettopsnippetsfor
+/tools/bing/searchv2 queries. Avoidusingcomplexfilters. Use
+webbrowserformorepagedetails.
+Use web browser for detailed info from
+/tools/bing/load pagev2
+URLs.
+BasicTools
+Atoolthatconvertsaudiotonaturallan-
+/tools/audio2text
+guagetext.
+UseImageCaptiontoolforQ&Aaboutlo-
+/tools/image caption calimages.Provideimage fileand’query’
+withtaskdetails.
+Createafolderunderthedefaultworking
+create folder
+directory.
+ReadthecontentofaCSVfiletoextract
+read csv file
+data.
+Read the content of the specified JSON
+read json file
+file.
+Read the full text content of a specified
+read text file
+textfile.
+Readthefulltextcontentofthespecified
+read xml file
+Self-generationTools XMLfile.
+Calculatethedistancesbetweeneachpair
+calculate adjacent distances of adjacent site using latitude and longi-
+tude.
+Calculatethedurationofthespecifiedau-
+calculate audio duration
+diofileandreturnthedurationinseconds.
+CalculatetheISBN-10checkdigitsforthe
+calculate ISBN10 digits
+provided9-digitnumbers.
+ExecutethePythoncodereadfromafile
+execute original python code
+andgettheoriginaloutput.
+Table10: BasictoolsandthetoolsgeneratedbyFRIDAYinthedevelopmentset.
+Tools Description
+AddsanewsheetwiththespecifiednametoanExcelwork-
+add new sheet to excel
+book.
+count elements Countsthefrequencyofeachelementinaniterable.
+create excel horizontal bar chart CreateahorizontalbarchartinanExcelfile.
+CreatesasimulatedpivottableinanExcelfileusingopenyxl
+create pivot table
+andpandas.
+DeletesasheetwiththespecifiednamefromanExcelwork-
+delete sheet from excel
+book.
+InsertalinechartintoanExcelsheetusingtheprovideddata
+insert line chart with data
+lists.
+ModifythestyleofspecifiedcellsinacolumnofanExcel
+set column cells format
+sheet.
+SortsanExcelsheetbasedonaspecifiedcolumninascending
+sort excel by column
+ordescendingorder.
+Table11: ToolsacquiredbyFRIDAYforspreadsheetcontroltasksduringself-directedlearning.
+20
+
+--- Page 21 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+Tools Description
+change ppt slide text color Changethecolorofthetitleorbodytextinaspecifiedslide
+ofaPowerPointfile.
+change ppt slide text font size Change the font size of the title or body text in a specified
+slideofaPowerPointfile.
+change ppt body text line spacing Changethelinespacingofthebodytextinaspecifiedslide
+ofaPowerPointfile.
+modify ppt slide font style Modifythefontstyle(bold,italic,underline)ofthetitleor
+bodytextinaspecifiedslideofaPowerPointfile.
+insert image into ppt slide Insertanimageintoaspecifiedpositiononaspecifiedslide
+ofaPowerPointfilewithamargin.
+resize image in ppt slide Resizeanimagetospecifieddimensionsonaspecifiedslide
+PublishedasaconferencepaperatICLoRfa20P2o4werPointfile.
+rotate image in ppt slide Rotateanimagetoaspecifiedangleonaspecifiedslideofa
+PowerPointfile.
+Table12: ToolsacquiredbyFRIDAYforcreatingPowerPointslides.
+from friday.action.base_action import BaseAction
+import subprocess
+class change_system_appearance(BaseAction):
+def __init__(self):
+self._description = "Execute an AppleScript command using
+, `osascript` to change the Mac system appearance to dark
+→
+, mode."
+→
+def __call__(self, *args, **kwargs):
+"""
+Changes the Mac system appearance to dark mode using an
+, AppleScript command executed through `osascript`.
+→
+Args:
+*args: Variable length argument list.
+**kwargs: Arbitrary keyword arguments.
+Returns:
+None
+"""
+try:
+# AppleScript command to switch to dark mode
+script = 'tell app "System Events" to tell appearance
+, preferences to set dark mode to true'
+→
+# Execute the AppleScript command using `osascript`
+subprocess.run(['osascript', '-e', script], check=True)
+print("System appearance changed to dark mode
+, successfully.")
+→
+except subprocess.CalledProcessError as e:
+print(f"An error occurred while trying to change the system
+, appearance: {e}")
+→
+# Example of how to use the class (this should not be executed here,
+, it's just for reference):
+→
+change_system_appearance()()
+Table13: AnexampleofToolCodeGeneratedbyFRIDAY.
+Table13:AnexampleofToolCodeGeneratedbyFRIDAY.
+21
+PleasecreateaPowerPointfileintheworkingdirectory,containingoneslidetointroduceOS-
+Copilot.Thespecificconstructionstepsareasfollows:
+1.Movethetitlepartintothetopleftcornerandfillitwith“OS-Copilot”.
+2.Makethecolorofthetitletobergb(242,131,131).
+3.Makethefontsizeofthetitletobe80.
+4.Addthetextfrom“content.txt”intotheslide.
+5.Setthebodycontentto1.5timesthelinespacing.
+6.Setalltexttothe“Chalkboard”font.
+7.Insert“framework.png”intothebottomcenteroftheslide.Thesizeofthepictureshouldbe
+9.8inches*2.6inches.
+Table14:TaskinstructionforcreatingaPowerPointslidetointroduceOS-Copilot.
+22
+
+--- Page 22 ---
+OS-Copilot: TowardsGeneralistComputerAgentswithSelf-Improvement
+PleasecreateaPowerPointfileintheworkingdirectory,containingoneslidetointroduceOS-
+Copilot. Thespecificconstructionstepsareasfollows:
+1. Movethetitlepartintothetopleftcornerandfillitwith“OS-Copilot”.
+2. Makethecolorofthetitletobergb(242,131,131).
+3. Makethefontsizeofthetitletobe80.
+4. Addthetextfrom“content.txt”intotheslide.
+5. Setthebodycontentto1.5timesthelinespacing.
+6. Setalltexttothe“Chalkboard”font.
+7. Insert“framework.png”intothebottomcenteroftheslide. Thesizeofthepictureshouldbe
+9.8inches*2.6inches.
+Table14: TaskinstructionforcreatingaPowerPointslidetointroduceOS-Copilot.
+22

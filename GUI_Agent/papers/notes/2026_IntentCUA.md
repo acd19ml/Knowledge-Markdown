@@ -4,7 +4,7 @@
 - **Title**: IntentCUA: Learning Intent-level Representations for Skill Abstraction and Multi-Agent Planning in Computer-Use Agents
 - **Authors**: Seoyoung Lee et al. | Sookmyung Women's University
 - **Venue**: AAMAS 2026 | arXiv:2602.17049
-- **Links**: [PDF](../source_todo/IntentCUA.pdf) | Code: not listed in PDF | Project: not listed in PDF
+- **Links**: [PDF](../source/IntentCUA.pdf) | Code: not listed in PDF | Project: not listed in PDF
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-06
 - **Priority**: P1 | **Reading progress**: Pass 2
 
@@ -48,14 +48,14 @@ IntentCUA 将 raw interaction traces 提炼成 multi-view intent representations
 ## Limitations
 - **Author-stated limitations**: "This highlights a limitation of script-based GUI grounding under transient interface changes." (Section 6, p.8)
 - **My observed limitations**: 
-> ⚠️ NEEDS YOUR INPUT: (1) IntentCUA 需要离线 traces 和人工批准的 global plans，前置成本不低。(2) plan memory 更像受控 plan cache，而不是开放式长期经验库；其 memory 仍偏 task-template reuse，不是面向持续自演化的开放记忆。(3) 当前评测主要是 desktop workflow，尚未展示在更强动态 web / mobile 环境中的适配性。
+  IntentCUA 的 memory 更像受控 plan cache，而不是开放式长期经验库。它确实把 atomic actions 提升到了 skill / sub-intent 层，但经验来源高度依赖离线 traces 和人工批准计划，因此更接近 task-template reuse，而不是可持续写回、可失败修订的 procedural memory。
 - **Experimental design gaps**: 论文没有把 memory 命中率、plan reuse 频率、cache miss 时的退化程度单独拆出来；也缺少对不同 trace quality 的敏感性分析。
 
 ## ⭐ Relation to My Research
 
 ### Position in Survey
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: 这篇适合放进 **Planning / Skill Abstraction / Memory** 交叉区域，尤其是“从 atomic GUI actions 向 reusable skill units 抽象”的代表工作。
+  这篇应放进 **Planning / Skill Abstraction / Memory** 交叉区域，作为“从 atomic GUI actions 向 reusable skill units 抽象”的代表工作。按当前 main-line，它是 A-1 的邻近工作，但还不是 A-1 + A-4 的完整答案。
 - **Role**: Positive example
 
 ### Gap Signals (extracted from this paper)
@@ -63,15 +63,15 @@ IntentCUA 将 raw interaction traces 提炼成 multi-view intent representations
 - Gap signal 2: memory 只存 user-approved global plans + subgroup skills（Figure 1 / Section 3, p.2-5）→ 长期经验仍然受限于预先整理过的结构，不支持真正开放世界持续积累。
 - Gap signal 3: pop-up failure case (Section 6, p.8) → 高层 intent abstraction 并不能替代底层 grounding robustness。
 
-> ⚠️ NEEDS YOUR INPUT: 这篇适合在你的知识库里被标成“skill abstraction 路线代表作”，但它还没有回答如何从失败轨迹中持续生成新 skill。
+  它最适合被标成 skill abstraction 路线代表作：说明 GUI memory 可以不止保存原始动作，而应上升到 sub-intent / parameterized skill schema。缺口在于，它没有 failure-driven skill generation 与长期 write-back。
 
 ### Reusable Elements
 - **Methodology**: multi-view intent embedding、intent group / subgroup clustering、parameterized skill hints、cache-first global planning 都很值得迁移。
-> ⚠️ NEEDS YOUR INPUT: 如果你之后要做 GUI procedural memory，我建议优先借它的“sub-intent -> parameterized skill schema”这一步，而不是整个多 agent scaffold。
+  对当前主线，最值得复用的是 “sub-intent -> parameterized skill schema” 这一步，而不是整个多-agent scaffold。它为 procedural rule 的表示层提供了很好的中间形态。
 - **Experimental design**: success + SER + latency 三联指标对长 horizon task 很有效，比只看 SR 更有解释力。
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: 可与 [2026_ActionEngine](./2026_ActionEngine.md) 对比 symbolic structural memory；与 [2026_M2](./2026_M2.md) 对比 summary/retrieval memory；与 [2025_MobileAgentV3](../notes/2025_MobileAgentV3.md) 对比多 agent 分工但不同 memory 粒度。
+  它与 [2026_ActionEngine.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2026_ActionEngine.md) 对照时，能看出 symbolic structural memory 和 skill abstraction memory 的差异；与 [2026_M2.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2026_M2.md) 对照时，则对应 retrieval / summary memory 路线。再与 [2025_MobileAgentV3.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2025_MobileAgentV3.md) 并置，可比较多 agent 分工下不同粒度的记忆设计。
 
 ## Citation Tracking
 - [ ] UI-TARS-1.5: RL-based baseline

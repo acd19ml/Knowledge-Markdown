@@ -1,0 +1,1577 @@
+--- Page 1 ---
+AGENT KB: LEVERAGING CROSS-DOMAIN EXPE-
+RIENCE FOR AGENTIC PROBLEM SOLVING
+XiangruTang  O,∗TianruiQinO∗,TianhaoPengO∗,ZiyangZhou  ,DanielShao  ,TingtingDu  ,
+XinmingWeiO,PengXia  ,FangWu  ,HeZhuO,GeZhang(cid:1),JiahengLiu(cid:8),XingyaoWang  ,
+SiruiHong/,ChenglinWu/,HaoChengq,ChiWang,WangchunshuZhouO
+YaleUniversity,OOPPO,  UW-Madison,  UNCChapelHill,
+StanfordUniversity,(cid:1)Bytedance,(cid:8)NanjingUniversity,  AllHandsAI,
+/DeepWisdom,qMicrosoftResearch,GoogleDeepMind
+https://github.com/OPPO-PersonalAI/Agent-KB
+ABSTRACT
+AIagentframeworksoperateinisolation,forcingagentstorediscoversolutions
+andrepeatmistakesacrossdifferentsystems. Despitevaluableproblem-solving
+experiencesaccumulatedbyframeworkslikesmolagents,OpenHands,andOWL,
+thisknowledgeremainstrappedwithinindividualsystems,preventingcollective
+intelligenceemergence. Currentmemorysystemsfocusonindividualagentsor
+framework-specificdemonstrations,failingtoenablecross-architectureknowledge
+transfer. WeintroduceAGENT KB,auniversalmemoryinfrastructureenabling
+seamlessexperiencesharingacrossheterogeneousagentframeworkswithoutre-
+training. AGENT KB aggregates trajectories into a structured knowledge base
+andserveslightweightAPIs. Atinferencetime,hybridretrievaloperatesthrough
+twostages: planningseedsagentswithcross-domainworkflows,whilefeedback
+appliestargeteddiagnosticfixes. Adisagreementgateensuresretrievedknowledge
+enhances rather than disrupts reasoning, addressing knowledge interference in
+cross-frameworktransfer. WevalidateAGENT KBacrossmajorframeworkson
+GAIA,Humanity’sLastExam,GPQA,andSWE-bench. Resultsshowsubstantial
+improvementsacrossdiversemodelfamilies: comparedtobaselinepass@1,smo-
+lagentswithAGENTKBachieveupto18.7ppgainsatpass@3(55.2%→73.9%),
+whileOpenHandsimproves4.0pponSWE-benchpass@1(24.3%→28.3%). Simi-
+larimprovementsareobservedacrossallbasemodelfamilies. Ablationsconfirm
+thathybridretrievalandfeedbackstagesareessential,withautomaticallygener-
+atedexperiencesmatchingmanualcuration. Thisestablishesthefoundationfor
+collectiveagentintelligencethroughsharedmemoryinfrastructures.
+1 INTRODUCTION
+ModernAIagentsexcelatcomplexreasoningandtooluse(Chanetal.,2023;Hongetal.,2023;Guo
+etal.,2024;Liuetal.,2025b;Zhouetal.,2023;2024b),yeteachframeworkoperatesinisolation,
+unabletoleveragesolutionsdiscoveredbyothers. Currentmemorysystemsstrengthenindividual
+agents (Xu et al., 2025; Packer et al., 2023; Hu & Ying, 2025) or synthesize framework-specific
+demonstrations(Zhengetal.,2023;Tanetal.,2025),whilecross-taskapproacheslikeLearn-by-
+Interact(Suetal.,2025)andA-Mem(Xuetal.,2025)remainconfinedwithinsingleframeworks.
+Thisfragmentationforcesagentstosolveidenticalproblemsandmakethesamemistakesrepeatedly.
+Enablingcross-frameworkknowledgesharingrequiresovercomingthreefundamentalchallenges
+that no existing system addresses simultaneously. (1) Representation heterogeneity: different
+frameworksorganize,encode,andabstractexperiencesinincompatibleways,whichpreventsdirect
+transferorreuse. (2)Contextmismatch: asolutioneffectiveinonetoolecosystemmaybeinvalid
+orincompletewhentransplantedtoanother,duetodifferencesinavailableAPIs,reasoningprotocols,
+∗Equalcontribution.
+1
+5202
+tcO
+72
+]LC.sc[
+5v92260.7052:viXra
+
+--- Page 2 ---
+Figure1: AgentworkflowcomparisonforPDBdistancecalculationwithandwithoutAGENTKB.(A)
+Originalpipeline:indiscriminatelyreadsthefirsttwoATOM/HETATM/ANISOUlines,oftenselectingsolvent
+recordsandyieldingaspuriousO–Hdistance(0.961Å).(B)AGENTKB-enhancedagentworkflow:applies
+experience-drivenrules—filteroutallANISOU/HETATM,useonlygenuineATOMentriesinfileorder,and
+sanity-checkagainstknownN–CAbond-lengthranges—tocorrectlyextractthebackboneN–CApairandreport
+thedistanceof1.456Å.
+orexecutionenvironments. (3)Knowledgeinterference: naivelyinjectingexternalexperiencesrisks
+destabilizingtheagent’sownreasoningflow,producingincoherentplansorcompoundingerrors.
+Addressingtheseissuesiscrucialforbuildingthefirstinteroperablelayerofsharedmemorythat
+enablesagentstoaccumulateandreusecollectiveintelligenceacrossdiversearchitectures. Figure1
+contraststhebaselineandAGENTKB-assistedworkflowsonarepresentativeprotein-distancetaskto
+groundthesechallenges.
+We introduce AGENT KB, the first cross-framework plug-and-play knowledge base that enables
+seamlessexperiencesharingacrossheterogeneousagentframeworkswithoutretraining. Bydistilling
+heterogeneousagenttrajectoriesintostructuredexperienceunitsthroughframework-agnosticab-
+straction,AGENTKBexposesthemthroughlightweightAPIsthatseamlesslyintegratewithdiverse
+frameworks,includingsmolagents(Zhuetal.,2025),OWL(Huetal.,2025),SWE-Agent(Yang
+etal.,2024),andOpenHands(Wangetal.,2024a). Thiscreatesacontinuouslygrowingrepositoryof
+collectiveintelligence. Toaddressknowledgeinterferenceincross-frameworktransfer,weintroduce
+anoveldisagreementgatemechanismthatselectivelyintegratesonlycoherentupdates,ensuring
+stabilityandsafetyduringknowledgeintegration.
+Contributions.(1)Wepresentthefirstcross-frameworkplug-and-playknowledgebasethatintegrates
+withfourrepresentativeopen-sourceagentframeworkswithoutrequiringretrainingorarchitectural
+modifications,demonstratinguniversalapplicabilityacrossheterogeneousagentecosystems. (2)We
+introduceanoveldisagreementgatemechanismthataddressesthecriticalchallengeofknowledge
+interference in cross-framework transfer, ensuring stable integration of external experiences. (3)
+Wedevelopatwo-stageretrievalsystemthatenablesbothplanningguidanceandfeedback-driven
+refinementwhilemaintainingframeworkcompatibility. (4)Weprovidecomprehensiveempirical
+validationacrossfourdistinctagentframeworksonGAIA(Mialonetal.,2023),Humanity’sLast
+Exam(Bio/Chem)1(Skarlinskietal.,2025),GPQA(Reinetal.,2024),andSWE-bench(Jimenezetal.,
+2023),establishingthefirstsystematicstudyofcross-frameworkknowledgetransfereffectiveness.
+EvaluationacrossreasoningandsoftwareengineeringtasksdemonstratesthatAGENTKBconsistently
+boostsdiverseagent–modelcombinations. OnGAIA,smolagentsimprovebyupto18.7ppatpass@3
+(55.2%→73.9%),whileonSWE-benchLite,OpenHandsgains4.0ppatpass@1(24.3%→28.3%).
+OnHLE,OpenHandsoutperformsspecializedsystems(9.5%→14.1%atpass@3)andonGPQA,
+it improves GPT-4.1 from 62.6% to 72.7%. Similar trends appear for both open-source models
+(Qwen,DeepSeek)andproprietarybackbones(GPT,Claude),underscoringthebroadapplicabilityof
+ourapproach. Ablationsfurthershowthatautomaticallydistilledexperiencesperformonparwith
+hand-curatedones,confirmingAGENTKBasascalablepathtowardcollectiveagentintelligence.
+1https://huggingface.co/datasets/futurehouse/hle-gold-bio-chem
+2
+
+--- Page 3 ---
+2 RELATED WORK
+2.1 AGENTICMEMORYSYSTEMS
+Memorysystemshaveprogressedfromsimplestoragetoadvancedarchitecturesthatsupportcomplex
+reasoning(Piaoetal.,2025;Zengetal.,2024;Liuetal.,2025b;Duetal.,2025;Wuetal.,2025b;
+Zhangetal.,2025),thoughcurrentsystemsstillstrugglewithmanaginglargeamountsofinformation
+andtransferringknowledge(Wangetal.,2024c). Earliersystemsembeddedknowledgeinalatent
+space(Wangetal.,2024b),whilenewer,moreorganizedapproacheshaveadoptedgraph-basedand
+hierarchical frameworks (Xu et al., 2025; Anokhin et al., 2024; Packer et al., 2023; Hu & Ying,
+2025). ImprovingretrievalbeyondbasicRAG(Lewisetal.,2020a;b)includesvariousinnovationsfor
+indexing,temporalcues,semantictagging,andchunkingstrategies(Huangetal.,2025b;Gutiérrez
+etal.,2024;Liuetal.,2025a;Salamaetal.,2025;Huetal.,2024). Thesemethodshavealsoevolved
+toincorporateneuroscienceinspirationormulti-agentvariants(Ye,2025;Wangetal.,2025;Squire
+et al., 2015; Wang et al., 2024d; Zhu et al., 2024; Qiao et al., 2024; Xu et al., 2024; Chen et al.,
+2025;Gangulietal.,2025;Lvetal.,2024;Shusteretal.,2021;Niuetal.,2024;Malaetal.,2025).
+Despiteimprovements,existingapproachesfacesignificantlimitations: theyareprimarilytailored
+forsingleagents,retainseparatememorysystemsthatpreventsharedknowledge,andlackwaysto
+reuseexperiencesacrossdifferentareas,whichmakesthemvulnerableinneworunfamiliarcontexts.
+2.2 AGENTICKNOWLEDGETRANSFER
+Alongsidememoryinfrastructures,anotherresearchareacondensesagenttrajectoriesintoworkflow
+priorsthatguidefutureproblemsolving: retrieval-basedsystems(Zhengetal.,2023;Zhouetal.,
+2024a)stabilizetoolusewithexemplartraces,minedsub-workflowssupportreuseacrosstasks(Wang
+etal.,2024d),andtemplatingpipelinesrefineplanswithinnarrowfamilies(Tanetal.,2025;Liu
+etal.,2025e). Knowledge-augmentedandcollaborativeplannersextendtheseideaswithstructured
+repositories(Zhuetal.,2024;Qiaoetal.,2024;Liuetal.,2025c),yeteffortsformulti-agentmemory
+stillmaintainsiloedstoresevenwhencoordinationleveragesin-contextlearningorRAG(Luetal.,
+2023; Zhong et al., 2024; Glocker et al., 2025). Early evidence shows that cross-agent transfer
+dependsonexperiencequalityandstronger-to-weakersharing(Shahetal.,2025;Zhaoetal.,2025;
+Alakuijalaetal.,2025),whilevisionsforlifelongcognitioncallforAI-native,adaptive,evaluable,
+case-basedinfrastructuresthatjointlyencodeproblempatterns,workflows,metadata,andrelational
+structure (Wang et al., 2024c; Wei et al., 2025b; Pink et al., 2025; Hatalis et al., 2025). AGENT
+KBabstractsheterogeneoustrajectoriesintohierarchicalexperienceunitsandcouplesthemwith
+hybridretrieval,seedingplanningwithcross-domainworkflows,andinjectingfeedbackcorrections
+toenabletransferacrossdivergenttasks. Althoughrecentreviewsofcase-basedreasoningforLLM
+agents (Hatalis et al., 2025) emphasize the classic Retrieve–Reuse–Revise–Retain cycle, our
+framework restructures it as a Reason-Retrieve-Refine loop with write-back across agents. In
+parallel,systemssuchasDSPy(Khattabetal.,2023)offerpromptdeclarativeprogrammingfortask
+workflows;AGENTKBiscomplementary,providingareusablecross-frameworkmemorylayerthat
+canbeintegratedbeneathDSPyorsimilarpipelinestocaptureandtransferexecutionknowledge.
+3 METHODOLOGY
+3.1 OVERVIEW
+AGENT KB enables agents to learn from collective experiences across tasks and frameworks by
+capturingexecutiontracesandabstractingthemintoreusableexperiences. Whenfacingnewtasks,
+agentsretrieverelevantpastexperiencestoguidetherefinementofplanningandexecution,transform-
+ingindividualinteractionsintoshared,cumulativeintelligence. Ourapproachoperatesthroughtwo
+keystages: initialsolutionplanning,whichutilizespastexperiences,andfeedback-drivenexecution
+improvements,bothemployingthesameReason-Retrieve-Refinestructurebutwithdifferentquery
+formulations: thefirsttargetingtaskdescriptionsandtheotherexecutionfeedbackpatterns.
+Toensureframework-agnosticism, AGENT KB standardizestheexperienceschemaandprovides
+lightweightRESTendpointstosubmitandretrieveexperiences. Thisenablesheterogeneousagentsto
+contributeandconsumethesameknowledgebasewithoutrequiringarchitecturalchanges,allowing
+thesharingandreuseofhigh-qualityentriesthatcollectivelybuildintelligenceacrosstheecosystem.
+3
+
+--- Page 4 ---
+Figure 2: End-to-endworkflowof AGENT KB.(a)Construction: heterogeneousagenttrajectoriesand
+few-shothumanseedsareabstractedintostructuredexperiencesandindexedintheAGENTKB.(b)Evolution:
+AGENT KBexpandsacrossdomainsthroughaddition,conflictresolution,andtimelyeviction,maintaining
+qualitywhilescaling. (c)Solvingtasks: agentsapplyatwo-stageReason-Retrieve-Refineloop,planning
+withretrievedworkflowsandrefiningviafeedback.
+3.2 SELF-EVOLVINGAGENTKB
+ExperienceRepresentation. Wetransformagentexecutionlogsintostructuredexperiencesthrough
+human-guidedabstraction:
+E =⟨π,γ,S,C⟩ (1)
+whereπisthetaskembeddingviaall-MiniLM-L6-v2fromsentence-transformers,γ encodes
+goalconstraintsasstructuredpredicates,S ={(a ,r )}storesaction–reasoningpairs,andC carries
+i i
+metadataforcross-frameworkcompatibility. Abstractionisdonewithfew-shotprompting(10–15
+human-curated exemplars per domain) and standardized action vocabularies across frameworks
+(e.g., smolagents (Zhu et al., 2025), OWL (Hu et al., 2025), SWE-Agent (Yang et al., 2024),
+OpenHands(Wangetal.,2024a)). FullconstructiondetailsappearinAppendixB,whiletheprompt
+templatesarecompiledinAppendixFwithgeneralgenerationpatternsinAppendixF.1andpipeline
+variantsinAppendixF.2.
+Self-Evolving Memory. The memory evolves through addition, deduplication, and eviction
+(Fig.2b). AGENTKBgrowsasdiverseagentframeworkscontributeexecutionexperiences,creating
+cumulativeintelligencethatexpandsbothcoverageandgeneralizationcapabilitybetweendomains.
+Whenacandidateishighlysimilartoexistingentriesmax π′∈Ecos(π,π′)>τ (defaultτ =0.8),an
+LLMrankercomparesreasoningquality,completeness,andtransferabilitytokeepthesuperiorentry,
+preventingredundancy. Undermemorypressure,experiencesfollowanadaptiveevictionpolicywith
+alearnedutilityscorethatbalancesrecency,frequency,andcross-frameworktransferability. Each
+experienceE maintainsu ← u +η(r −u ),wherer istherewardsignal(e.g.,retrievalsuccess
+j j j j j j
+orexecutiongain)andηisalearningrate. Low-utilityentriesareevicted,yieldingdynamicmemory
+allocationthatpreserveshigh-valuecross-domainknowledge.
+3.3 EXECUTIONVIAReason-Retrieve-Refine
+AsshowninFig.2c,AGENTKBinterceptsreasoningatplanningandfeedbackstageswhileleaving
+thebaseagentunchanged. RetrievedexperiencesareadaptedthroughtheReason-Retrieve-Refine
+cycle.
+Retrieval Pipeline. Retrieval uses two complementary filters: (1) lexical retrieval (BM25) to
+shortlistcandidateswithdomain/toolcompatibility,and(2)semanticrankingbytasksimilarityvia
+all-MiniLM-L6-v2embeddings. Wealsosupportacalibratedhybridfusion(defaultα=0.5)ofthe
+twoscores:
+σhyb←α⋅σ˜text+(1−α)⋅σ˜sem, α∈[0,1].
+i i i
+Afterreranking,thetop-kcandidatesarededuplicatedbeforerefinement.
+4
+
+--- Page 5 ---
+Planning Stage. The system applies the Reason-Retrieve-Refine cycle to the incoming task
+descriptiontogenerateapreliminaryexecutionplan. IntheReasonstep,itsurfaceskeyrequirements
+andpotentialchallenges,producingstructuredqueriesthattargetreusablesubroutinesorsuccessful
+completionpatterns. TheRetrievestepthenselectspastexperiencesviathehybridsimilarityscorer,
+providingcandidatetrajectories. Ratherthandirectreuse,thesecandidatesareadaptedintheRefine
+step: abstractactionpatternsarealignedwithcurrentlyavailabletoolsandAPIsusingmetadataC
+forcross-frameworkcompatibility. Whenmultipleexperiencesareretrieved,thesystemsynthesizes
+themintoacoherentworkflowbyapplyingentitymapping,toolsubstitution,andstepreordering
+tosatisfydomain-specificconstraints—enablingcross-frameworkcompatibilitywithoutsacrificing
+executionfidelity. Thefinaloutputisanexecutableplanρ,whichisreturnedtotheagentframework
+forexecutioninitsnativeenvironment.
+FeedbackStageAfterinitialexecution,AGENTKBre-engagesthroughasecondReason-Retrieve-
+Refine cycle. In the Reason step, it analyzes execution traces to identify errors, bottlenecks, or
+unexpectedoutcomes.TheRetrievestepthenproducesqueriesderivedfromthesetraces,ratherthan
+taskdescriptions,thatfavorexperiencesthatdocumentsuccessfulrefinementsinsimilarcontexts. In
+theRefinestep,candidatefixesareadaptedtoliveexecution,takingintoaccountdomainconstraints
+andobservederrors. Toensuresafety,weintroduceadisagreementgate:
+G(ρ,ρ ′)=1[cos(ϕ(ρ),ϕ(ρ ′))≥β],
+whereρistheoriginalplan,ρ′therefinedone,ϕisimplementedasall-MiniLM-L6-v2embeddings,
+andβ=0.8bydefault. OnlyrefinementswithG(ρ,ρ′)=1areapplied.
+4 EXPERIMENT
+4.1 SETUP
+DatasetWebenchmark AGENT KB onfoursuitescoveringreasoningandsoftwareengineering.
+GAIA(Mialonetal.,2023)contributes165tasks: 53Level1(factuallookup),86Level2(multi-step
+reasoning),and26Level3(analysisandsynthesis). Thecleanedbiology&chemistrysubsetprovides
+149tasksneedingmultimodalreasoningwithscientificimagesandtools. GPQA(Reinetal.,2024)
+offers198graduate-levelMCQsinphysics,chemistry,andbiology,requiringexperts. BothGAIA
+andHLEsupportwebbrowsing,fileI/O,andtoolswithinstandardlimits,whereasGPQAfocuses
+onreasoningwithouttheuseofexternaltools. Benchmarksarereportedwithpass@1,pass@2,and
+pass@3accuracy. SWE-benchLite(Jimenezetal.,2023)comprises300GitHubissuesacrossPython
+repositories;successistestedwith50-and100-iterationlimitsforreproducibility. Itrestrictsnetwork
+accessandlimitsoperationstothosewithintherepository. Thesebenchmarksshowhowknowledge
+refinementaffectsreasoning(GAIA,HLE,GPQA)andsoftwareengineering(SWE-bench).
+AGENT KB Construction. We bootstrap AGENT KB with 80 seed trajectories written by five
+computer-sciencegraduatestudents(60BrowseComp/HopRAG-stylebrowsingtracesand20SWE-
+Gym-style coding logs). These curated demonstrations are never retrieved directly; instead they
+guideautomaticrolloutsexecutedbysmolagents(Zhuetal.,2025),OWL(Huetal.,2025),SWE-
+Agent(Yangetal.,2024), andOpenHands(Wangetal.,2024a)acrossBrowseComp(Weietal.,
+2025a),HopRAG(Liuetal.,2025d),HLE2(Phanetal.,2025),WebWalkerQA(Wuetal.,2025a),
+RepoClassBench(Deshpandeetal.,2024),SWE-Gym-Raw(Panetal.,2024),andRepoEval(Zhang
+etal.,2023). Wenormalizebothsuccessfulandfailedrunsintostructuredexperienceunits,yielding
+roughly9kworkflowsummariesand7kexecutionsnippetsbeforeevaluation. Thismixequipsthe
+memorywithreusableplansforeachmodalityandthediagnostictracesinlaterpasses(AppendixA).
+ModelConfigurationsWeattachthesameAGENTKBinstancetoallplannersthroughlightweight
+RPC calls so that experiences gathered in one framework are instantly available to the others,
+demonstratingtruecross-frameworkknowledgetransfer. GAIAexperimentsusesmolagents(backed
+by GPT-4o, GPT-4.1, Claude-3.7, Qwen-3 32B, and DeepSeek-R1) and OWL (GPT-4o); SWE-
+benchLiteisevaluatedwithSWE-Agent(GPT-4.1,o3-mini)andOpenHands(GPT-4o,GPT-4.1,
+Claude-3.7, Qwen-3 32B, DeepSeek-R1, o3-mini). Each benchmark instance is solved in three
+sequential passes: pass@1 retrieves cross-task experiences without exposure to held-out labels,
+pass@2 enriches AGENT KB with failure diagnoses from the first attempt, and pass@3 revisits
+unresolvedcasesusingtheexpandedretrievalpool. Unlessotherwisestated,wefixthebasemodelto
+GPT-4.1,thetemperatureto1.0,andtheretrievaltop-kto3,mirroringthesettingusedforFigure3.
+2Wedeliberatelyremovedthebiology&chemistrysubsetfromHumanity’sLastExamasatestset.
+5
+
+--- Page 6 ---
+Table1: ResultsonGAIAbenchmark(valset).Wereportpass@1forallstandardbaselines.Formethodsthat
+buildontopofabaseframework(A-MEM(Xuetal.,2025)andAGENTKB),wepresentthebaselinealongside
+theimprovementsachievedbyeachenhancedvariant.
+Method Models Config Average Level1 Level2 Level3
+AgenticModel
+Search-o1-32B(Lietal.,2025a) Qwen-3 pass@1 39.8 53.8 34.6 16.7
+WebThinker-32B-RL(Lietal.,2025b) Qwen-3 pass@1 48.5 56.4 50.0 16.7
+Closed-sourceFrameworks
+TraseAgent(Trase,2024) Claude-3.5 pass@1 70.3 83.0 69.8 46.2
+DeepResearch(OpenAI,2024) Unknown pass@1 67.4 74.3 69.1 47.6
+h2oGPTe(H2O.ai,2024) Claude-3.5 pass@1 63.6 67.9 67.4 42.3
+Desearch(AI,2024) GPT-4o pass@1 57.0 71.7 58.1 23.1
+Alita(Qiuetal.,2025) Claude-3.7 pass@1 72.7 81.1 75.6 46.2
+Open-sourceFrameworks
+OWL(Huetal.,2025) o3-mini pass@1 60.6 81.1 58.1 26.9
+TapeAgents(Bahdanauetal.,2024) Claude-3.7 pass@1 55.8 71.7 53.5 30.8
+AutoAgent(Tangetal.,2025) Claude-3.5 pass@1 55.2 71.7 53.4 26.9
+Magnetic-1(Fourneyetal.,2024) o1 pass@1 46.1 56.6 46.5 23.1
+FRIDAY(Wuetal.,2024b) GPT-4 turbo pass@1 34.6 45.3 34.9 11.5
+smolagents(Roucheretal.,2025) GPT-4o pass@1 43.6→57.0↑13.4 52.8→71.7↑18.9 41.9→57.0↑15.1 30.8→26.9↓3.9
+↝+A-MEM(Xuetal.,2025) pass@2 53.9→64.2↑10.3 64.2→83.0↑18.9 53.5→64.0↑10.5 34.6→26.9↓7.7
+pass@3 57.0→69.1↑12.1 69.8→86.8↑17.0 55.8→69.8↑14.0 34.6→30.8↓3.8
+smolagents(Roucheretal.,2025) GPT-4.1 pass@1 55.2→61.2↑6.1 67.9→79.3↑11.3 53.5→58.1↑4.7 34.6→34.6↑0.0
+↝ +AGENTKB pass@2 61.8→67.3↑5.5 73.6→83.0↑9.4 62.8→67.4↑4.7 34.6→34.6↑0.0
+pass@3 68.5→73.9↑5.5 77.4→84.9↑7.6 68.6→73.3↑4.7 50.0→53.9↑3.9
+smolagents(Roucheretal.,2025) Claude-3.7 pass@1 58.8→65.5↑6.7 64.2→75.5↑11.3 61.6→66.3↑4.7 38.5→38.5↑0.0
+↝ +AGENTKB pass@2 63.6→69.7↑6.1 77.4→79.3↑1.9 61.6→69.8↑8.1 42.3→50.0↑7.7
+pass@3 72.7→75.2↑2.4 81.1→84.9↑3.8 74.4→74.4↑0.0 50.0→57.7↑7.7
+OWL(Huetal.,2025) GPT-4o pass@1 43.6→52.7↑9.1 52.8→64.2↑11.3 41.9→54.7↑12.8 30.8→23.1↓7.7
+↝ +AGENTKB pass@2 53.9→60.6↑6.7 64.2→75.5↑11.3 53.5→61.6↑8.1 34.6→26.9↓7.7
+pass@3 57.0→63.6↑6.7 69.8→79.3↑9.4 55.8→61.6↑5.8 34.6→38.5↑3.8
+Table2: Resultsonmultiplebenchmarks.Wereportbaselinepass@1andAGENTKB-enhancedvariants.
+(a)SWE-benchLite(Jimenezetal.,2023)(300in- (b)GAIA(Mialonetal.,2023)(165instances)with
+stances)withmaxiterationsof50and100. pass@1baselineandAGENTKB-enhancedvariants.
+Method Models Max S It u e c r c 5 e 0 ssR M at a e x (% Ite ) r100 BudgetCap Method Models Avg L1 Accuracy L2 (%) L3
+SWE-agent(Yangetal.,2024) 24.3 27.0 $3.0 OWL(Huetal.,2025) 43.6 52.8 41.9 30.8
+p p a a s s s s @ @ 1 2 + + A A G G E E N N T T K K B B GPT-4.1 3 3 1 6 . . 7 7 ↑ ↑ 7 1 . 2 4 .4 3 3 8 5 . . 0 3↑ ↑ 8 1 . 1 3 .0 $ $ 3 3 . . 0 0 p p a a s s s s @ @ 1 2 + + A A G G E E N N T T K K B B GPT-4o 5 6 2 0 . . 7 6 ↑ ↑ 9 6 . . 1 7 6 7 4 5 . . 2 5 ↑ ↑ 1 1 1 1 . . 3 3 5 6 4 1 . . 7 6 ↑ ↑ 1 8 2 .1 .8 2 2 3 6 . . 1 9 ↓ ↓ 7 7 . . 7 7
+pass@3 +AGENTKB 38.0↑13.7 42.3↑15.3 $3.0 pass@3 +AGENTKB 63.6↑6.7 79.3↑9.4 61.6↑5.8 38.5↑3.8
+OpenHands(Wangetal.,2024a) 24.3 28.7 $4.5 smolagents(Roucheretal.,2025) 55.2 67.9 53.5 34.6
+p p p a a a s s s s s s @ @ @ 1 2 3 + + + A A A G G G E E E N N N T T T K K K B B B GPT-4.1 2 3 3 8 7 8 . . . 3 3 7 ↑ ↑ ↑ 4 1 1 . 3 4 0 . . 0 3 4 4 3 2 5 1 . . . 3 7 7↑ ↑ ↑ 3 1 1 . 3 7 0 . . 7 0 $ $ $ 4 4 4 . . . 5 5 5 p p p a a a s s s s s s @ @ @ 1 2 3 + + + A A A G G G E E E N N N T T T K K K B B B GPT-4.1 6 6 7 1 7 3 . . . 2 3 9 ↑ ↑ ↑ 6 5 5 . . . 1 5 5 7 8 8 9 3 4 . . . 3 0 9 ↑ ↑ ↑ 1 9 7 1 . . 4 6 .3 5 6 7 8 7 3 . . . 1 4 3 ↑ ↑ ↑ 4 4 4 . . . 7 7 7 3 3 5 4 4 3 . . . 6 6 9 ↑ ↑ ↑ 0 0 3 . . . 0 0 9
+smolagents 58.8 64.2 61.6 38.5
+OpenH pa a s n s d @1 s +AGENTKB Claude-3.7 3 4 0 6 . . 0 7↑16.7 4 4 1 8 . . 3 3↑7.0 $ $ 4 4 . . 5 5 p p a a s s s s @ @ 1 2 + + A A G G E E N N T T K K B B Claude-3.7 6 6 5 9 . . 5 7 ↑ ↑ 6 6 . . 7 1 7 7 5 9 . . 5 3 ↑ ↑ 1 1 1 .9 .3 6 6 6 9 . . 3 8 ↑ ↑ 4 8 . . 7 1 3 5 8 0 . . 5 0 ↑ ↑ 0 7 . . 0 7
+pass@2 +AGENTKB 49.7↑19.7 51.7↑10.3 $4.5 pass@3 +AGENTKB 75.2↑2.4 84.9↑3.8 74.4↑0.0 57.7↑7.7
+pass@3 +AGENTKB 51.0↑21.0 53.3↑12.0 $4.5
+(c) Humanity’s Last Exam (Bio/Chem) (Skarlinski (d) GPQA benchmark (Rein et al., 2024) (198 in-
+etal.,2025)(149instances)withpass@1baselineand stances) with pass@1 baseline and AGENT KB-
+AGENTKB-enhancedvariants. enhancedvariants.
+Method Models Accuracy(%) Method Models Accuracy(%)
+AutoGen(Wuetal.,2024a) GPT-4.1 7.4 o3-mini 75.0
+SciMaster(Chaietal.,2025) GPT-4.1 9.5 DirectReasoning Claude-3.7 67.4
+Biomni(Huangetal.,2025a) GPT-4.1 10.7 GPT-4.1 64.6
+OpenHands(Wangetal.,2024a) 9.5 OpenHands(Wangetal.,2024a) 62.6
+pass@1 +AGENTKB 10.1↑0.7 pass@1 +AGENTKB GPT-4.1 67.2↑4.6
+pass@2 +AGENTKB GPT-4.1 12.1↑2.7 pass@2 +AGENTKB 70.7↑8.1
+pass@3 +AGENTKB 14.1↑4.7 pass@3 +AGENTKB 72.7↑10.1
+WeestimatebudgetcapsassumingOpenAIpricing($1.36/Mprompt,$5.44/Mcompletiontokens);
+seeAppendixDfordetailedcostanalysis.
+4.2 MAINRESULTS
+Table 1 shows that AGENT KB delivers consistent gains across heterogeneous agent stacks and
+modelfamiliesonGAIA.Withsmolagents,GPT-4.1risesfrom55.2%to73.9%pass@3accuracy
+(+18.7), with the largest lift at Level 2 (53.5%→73.3%, +19.8). The more capable Claude-3.7
+backbonereaches75.2%pass@3andadds19.2onLevel3(38.5%→57.7%),matchingorexceeding
+closed-sourcesystemssuchash2oGPTe(63.6%). RelativetoA-Mem(Xuetal.,2025),whichlifts
+GPT-4osmolagentsto69.1%,AGENT KBattains73.9%withthesameplanner,indicatinghybrid
+6
+
+--- Page 7 ---
+SWE-Bench Lite GAIA Level 1
++2.+34.3 +7.6+3.8+5.7
+DeepSeek-R1 24.3 32.7 62.3 79.2
++2.3+8.0 +17.0 +7.5+3.8
+Qwen-3 32B 18.3 30.3 47.2 75.5
++16.7 +3.0 +11.3+3.8+5.7
+Claude-3.7 30.0 51.0 64.2 84.9
++8.7+3.7 +5.7+7.5
+o3-mini 23.0 37.0 47.2 52.8
++4.0+9.0 +11.3+3.8
+GPT-4.1 24.3 38.0 67.9 84.9
++4.0+9.0 +3.8+5.7+5.7
+GPT-4o 16.3 31.3 62.3 77.4
+GAIA Level 2 GAIA Level 3
++7.0+4.7 +15.4 +7.7
+DeepSeek-R1 50.0 61.6 23.1 38.5
++3.+53.5 +19.2 +3.8
+Qwen-3 32B 38.4 40.7 26.9
++4.+63.+54.7 +19.2 +7.7
+Claude-3.7 61.6 74.4 38.5 57.7
++4.7+8.1 +3.8
+o3-mini 26.7 38.4 19.2 23.1
++4.6+9.3+5.8 +19.2
+GPT-4.1 53.5 73.3 34.6 53.9
++4.+73.5 +26.9
+GPT-4o 45.4 52.3 15.4 42.3
+Baseline +Agent KB pass@1 +Agent KB pass@2 +Agent KB pass@3
+Figure3: Scoreimprovements(%)acrossbenchmarksformultipleLLMsenhancedwithAGENTKB.Results
+onSWE-BenchLite(Jimenezetal.,2023)usingOpenHands(Wangetal.,2024a)(left)andGAIAbenchmark
+(Mialon et al., 2023) using smolagents (Zhu et al., 2025) (right) showing iterative improvement through
+progressiveknowledgerefinement.Redintensityindicatestherefinementstage,baselineperformanceingray.
+retrievalextractsmorevaluefromeachpass. OWLwithGPT-4oalsobenefits: accuracyimprovesby
+20.0overall(43.6%→63.6%)andretainsgainsonthemostchallengingquestions(30.8%→38.5%).
+On SWE-bench Lite, Table 2b highlights similar trends. GPT-4.1 paired with SWE-Agent im-
+proves from 24.3% to 38.0% at 50 iterations and 42.3% under 100 iterations. OpenHands sees
+a 14.4-point increase at 50 iterations (24.3%→38.7%) and a 17.0-point gain at 100 iterations
+(28.7%→45.7%). Thestrongestbackbone,Claude-3.7,achievesthelargestjump,adding21.0at
+50iterations(30.0%→51.0%)and12.0at100iterations(41.3%→53.3%).
+BeyondGAIAandSWE-bench,AGENT KBalsoimprovesonchallengingscientificQAdatasets.
+OnHLE(Table2c,OpenHandsbaseline(9.5%)lagsbehindBiomni(10.7%),butsurpassesitonce
+retrievalisapplied(12.1%atpass@2,14.1%atpass@3). OnGPQA(Table2d),OpenHandswith
+GPT-4.1 climbs from 62.6% to 72.7%, approaching latest proprietary models. These improve-
+mentsareachievedwithoutadditionalfine-tuningortoolcustomization,underscoringthezero-shot
+transferabilityofthesharedexperiencestoreacrossdiverseagentarchitectures.
+ThestackedanalysisinFigure3confirmsthateverybackbonebenefitsfromsuccessiveretrieval
+passesacrossreasoning(GAIA,HLE,GPQA)andsoftwareengineering(SWE-bench). Forexample,
+GPT-4ogains15.0onSWE-bench(16.3%→31.3%)and26.9onGAIALevel3(15.4%→42.3%).
+GPT-4.1deliverssimilarlystrongliftsonGAIALevel2(53.5%→73.3%),whileClaude-3.7records
+the largest SWE-bench improvement (30.0%→51.0%). Across all settings, pass@1 supplies the
+initialboostbyimportingcompatibleworkflows,whiledeeperpasses(pass@2/pass@3)contribute
+targetedrefinements,mostpronouncedonscientificandgeneralreasoningtasks.
+Representative GAIA and SWE-bench Table3: AblationstudyforcomponentsoftheAGENTKB.
+walkthroughsillustratingthesedynamics
+appearinAppendixE,withthefullexe- AblationSetting Avg Level1 Level2 Level3
+cutiontracereproducedinAppendixE.1. smolagent 55.15 67.92 53.49 34.62
+smolagents +AGENTKB 61.21 79.25 58.14 34.62
+4.3 ABLATIONSTUDIES
+w/oPlanningStep 59.39 75.47 56.98 34.62
+Impact of Retrieval Passes and Rea- w/oFeedbackStep 59.39 73.58 58.14 34.62
+soning Stages. To assess the contribu- w/oReasonModule 60.00 77.36 56.98 34.62
+tionofeachcorecomponentinAGENT w/oRetrieveModule 57.58 73.58 54.65 34.62
+KB, we conduct systematic ablation w/oRefineModule 55.15 69.81 53.49 30.77
+studiesinTable3. Detailsoftheablation w/RawWorkflow 58.18 73.58 55.81 34.62
+elements can be found in Appendix C.
+RemovingtheRefinestageincursthelargestdrop(−6.06),confirmingthatretrievedworkflowsmust
+beadaptedratherthanreplayed. RemovingeitherRetrievepasscapsaveragepass@1at59.39%,
+withsharperLevel1erosionwithoutthefeedbackstage(79.25%→73.58%)andwithouttheplanning
+stage(79.25%→75.47%),underscoringtheircomplementaryplanning/feedbackroles. TheRefine
+stageimposesthelargestpenaltywhenablated(61.21%→55.15%overall;Level334.62%→30.77%),
+whiledroppingRetrieveloses3.63andReasononly1.21,indicatingthatknowledgegroundingand
+structuredhypothesisdraftingtogetherpreventregressionevenwhenrawworkflowlogs(58.18%)
+7
+
+--- Page 8 ---
+80
+78
+76
+74
+72
+=0.2 =0.4 =0.8
+)%(
+1@ssaP
+(a) Baseline (no-gate) -weighted
+GAIA Level 1 GAIA Level 2 GAIA Level 3 SWE-bench Lite
+60 36 30
+79.25 79.25 58.14 28.33
+77.36 58 56.98 56.98 35 34.62 34.62 34.62 28
+77.36 77.36 77.36 56 56.98 56.98 56.98 34 34.62 34.62 34.62
+26 25.00 25.33
+54 33
+24 24.67 24.67 24.67
+52 32
+=0.2 =0.4 =0.8 =0.2 =0.4 =0.8 =0.2 =0.4 =0.8
+85 80
+75
+70
+k=1 k=3 k=5
+)%( 1@ssaP
+(b) Text Sim. Semantic Sim. Hybrid
+GAIA Level 1 GAIA Level 2 GAIA Level 3 SWE-bench Lite
+83.02 81.13 6 7 7 0 . . 5 0 67.44 66.28 40.0 38.46 38.46 3 4 8 0 37.33 79.25 6 6 2 5 . . 5 0 62.79 3 3 5 7 . . 0 5 34.62 3 3 4 6 34.67 35.33
+75.47 60.0 61.63 32.5 34.62 34.62 32 34.33 33.33
+73.58 57.5 58.13 59.30 30.0 30.77 30 31.00
+69.81 55.0 28
+k=1 k=3 k=5 k=1 k=3 k=5 k=1 k=3 k=5
+80
+75
+70
+100 500 Full
+ExamplesExamplesExamples
+)%(
+1@ssaP
+(c)
+GAIA Level 1 GAIA Level 2 GAIA Level 3 SWE-bench Lite
+60.0 38 30
+58.1 28.3
+79.2 57.5 28 77.4 +7.7%55.0 53.5 54.6 +8.7% 36 34.6 34.6 34.6 26 24.7 25.3 +14.8%
+73.6 34
+52.5 24
+50.0 32 22
+100 500 Full 100 500 Full 100 500 Full
+ExamplesExamplesExamples ExamplesExamplesExamples ExamplesExamplesExamples
+Figure5: Ablationanalysisofretrievalconfiguration,knowledge-basesize,andfeedbackweighting.(a)Impact
+ofconfidenceweightinghyper-parameterβonfeedbackintegration.(b)Comparisonofretrievalstrategiesacross
+top-ksettings.Textsimilarity,semanticsimilarity,andhybridmethodsareevaluatedonGAIALevels1–3and
+SWE-benchLite.(c)Effectofknowledge-basesizeonvalidationperformance.
+areavailable. Figure5afurthershowsAGENTKBbenefitfromadisagreementgateinthefeedback
+stagewithathresholdatβ≈0.8.
+Table4: Performanceofsmolagents(GPT-4.1)onGAIAand
+Hybridretrievaloutperformsindivid-
+SWE-benchwithdifferentknowledgetypes. Baselineusesno
+ual similarity metrics. We compare
+augmentation,HANDCRAFTEDusesstudent-annotatedexperi-
+threeretrievalmethods: lexical(BM25), ences,andAGENTKBusesautomaticallyextractedandrefined
+semantic(embedding),andhybrid. The experiences.
+hybridstrategyconsistentlyachievesthe
+GAIA SWE-bench
+highestaccuracyacrossgeneralreason- Knowledgetype
+Average Level1 Level2 Level3 Lite
+ing and software engineering bench-
+Baseline 55.15 67.92 53.49 34.62 24.33
+marks,combiningtheprecisionofexact
++HANDCRAFTED 76.97 84.91 79.07 53.85 55.67
+matcheswiththebroadercoverageofse- +AGENTKB 75.15 84.91 74.42 57.69 51.00
+manticsimilarity. Thiscomplementary
+fusionprovesessentialforcross-frameworkknowledgetransfer,asdifferentagentarchitecturesmay
+requireeitherprecisetoolmatchesorconceptualsimilaritydependingonthetaskcontext.
+102
+101
+1000 10000 100000
+Memory Size
+)BM(
+egasU
+yromeM
+(c)
+104
+103
+102
+101
+100
+101
+102
+)s
+(
+emiT
+laveirteR
+Figure5bshowsthathybridretrievalmain-
+tains robust performance across different
+top-ksettings,withoptimalresultsatk=3 A-Mem MemoryBank ReadAgent Agent-KB
+whereitattainspeakaccuracyongeneral
+reasoningtasks(83.0%onGAIALevel1)
+whileremainingeffectiveacrosssoftware
+engineeringbenchmarks.
+Increasingknowledgebasesizeimproves
+validation performance. Figure 5c
+shows performance degrades gracefully
+as AGENT KB shrinks. With 100 ex-
+amples, general reasoning and software
+benchmarks retain capability, indicating
+that small stores offer useful prior trajec-
+tories. Expandingto500examplesyields
+consistent gains in reasoning, while soft-
+waretasksbenefitgreatly,highlightingthe
+importanceofthisscaleforcoderepair.Ad- Figure4:Retrievallatency&memoryfootprintwhenscaling
+vancedreasoningtasksremainflat,suggest- differentstores. BaselinesaretakendirectlyfromXuetal.
+ingthatthequalityofabstractionisbottle- (2025).
+8
+
+--- Page 9 ---
+Figure7: Thefrequencyoferrorscomparingsmolagents(Roucheretal.,2025)withandwithoutAGENTKB
+onGAIA.TheVenndiagramsquantifyoverlappinganduniquefailurecases,whilethehorizontalbarcharts
+showerrorcountspercategory.(a)ResultsforGPT-4.1.(b)ResultsforClaude-3.7.
+necked, not the quantity. Larger knowledge bases reliably improve performance, but supporting
+complextasksneedsbetterstructuringandretrieval.
+70
+SWE-bench 27.0% 37.0% 42.3%
+(SWE-Agent)
+60
+50
+40
+GAIA 68.5% 73.9% 56.4%
+(smolagents)
+30
+Empty General Software Reasoning Engineering
+Knowledge Context
+)%(
+ecnamrofreP
+Automaticexperienceconstructionmatches
+manual curation. Table 4 shows that
+AGENT KB’s automatically refined knowl-
+edge matches hand-crafted experiences (an-
+notated by five computer science students)
+on GAIA (75.15% vs. 76.97%), surpasses
+them on Level 3 (57.69% vs. 53.85%), and
+liftsSWE-benchliteaccuracyfrom24.33%to
+51.00%.
+Latency and memory overhead remain
+modest. Figure 4 compares raw lookup
+latency against store size for AGENT KB
+and alternatives such as A-Mem (Xu et al., Figure 6: Cross-domain knowledge transfer analysis.
+2025),MemoryBank(Zhongetal.,2024),and Performancecomparisonwhenapplyingdomain-specific
+ReadAgent (Lee et al., 2024). AGENT KB knowledgebasestodifferenttasktypes.
+maintainscompetitivelatencywhileoccupy-
+ingasimilarmemoryfootprintacrossdifferentstoresizes. AlongsidethecostaccountinginAp-
+pendixD,thisindicatesthatAGENTKB’sconstructionandinferenceoverheadremainsminorrelative
+totheperformancegains.
+Domain-specificknowledgebasesexhibitasymmetrictransferability. Figure6comparesgeneral
+reasoningexperiences(e.g.,BrowseComp,HopRAG,HLE,andWebWalkerQA)withsoftwareengi-
+neeringexperiences(e.g.,RepoClassBench,SWE-Gym-Raw,andRepoEval). Reasoningexperience
+reaches73.9%inGAIAandstillreaches37.0%inSWE-bench,whereasSWEexperiencereaches
+42.3%inSWE-bench,butdropsto56.4%inGAIA.ThisasymmetryshowsthatSWEknowledge
+does not generalize to reasoning tasks, while reasoning experience retains partial utility in SWE
+domains.
+4.4 ERRORANALYSIS
+OntheGAIAbenchmark,weanalyzeerrordistributionsunderbaselineandAGENTKB-augmented
+configurations(Figure7). ForGPT-4.1(Figure7a),49errorsaresharedacrossbothsettings,while
+25areuniquetothebaseline;AGENT KBintroducesonly15newerrors,yieldinganetreduction
+of10. ForClaude-3.7(Figure7b),46errorspersistinbothruns,with22baseline-specificerrors
+correctedand11newerrorsadded,givinganetimprovementof11. Wemanuallycategorizedeach
+errorintosixclasses: retrieval(incorrectormissingevidence),planning(invalidtaskdecomposition
+orstepordering),reasoning(logicalinconsistencyorunsupportedinference),format(violationsof
+requiredoutputschema),perception(failuresinimage/videounderstandingortoolgrounding),and
+execution(extraneousorfabricatedsteps). Piechartsshowtherelativeprevalenceofeachtype. With
+GPT-4.1,retrievalerrorsdecreasefrom24to20andplanningerrorsfrom13to10,reflectingmore
+consistentqueryformulationandworkflowreuse. Claude-3.7achieveslargergainsinreasoning,
+droppingfrom13to8,alongsidefewerretrievalfailures(19to16). Theseimprovementsarisefrom
+AGENTKB’sknowledgebase,whichencodessearchprotocols,planningtemplates,andformatting
+9
+
+--- Page 10 ---
+conventions,enablingagentstoadoptprovenstrategiesratherthanimprovisingfromscratch. While
+perception errors remain constrained by tool capabilities, AGENT KB mitigates their impact by
+reducingunnecessarystepsandminimizingcontextlength. Overall,bothmodelsbenefitfromsimilar
+error reductions, with Claude-3.7 excelling in reasoning robustness and GPT-4.1 in perception
+alignment,underscoringhowAGENTKBcomplementsdifferentmodelstrengthsonGAIA.
+5 CONCLUSION
+We presented AGENT KB, a cross-framework memory layer that abstracts heterogeneous agent
+tracesintoreusableexperiences. Bycouplinghybridretrievalwithadisagreement-gatedrefinement
+stage,itaddressesthecorechallengesofrepresentationheterogeneity,contextmismatch,andknowl-
+edge interference. Experiments across GAIA, HLE, GPQA, and SWE-bench confirm consistent
+improvements,withautomaticallygeneratedexperiencesperformingcomparablytocuratedones
+andsurpassingthemonhardertasks. Theseresultssuggestthatashared,evolvingmemorybackbone
+offersapracticalsteptowardcollectiveagentintelligence,withfutureworkaimedatrichermodalities
+andlonger-horizonreasoning.
+10
+
+--- Page 11 ---
+ETHICS STATEMENT
+Ourworkbuildsonpubliclyavailabledatasets(GAIA,HLE,GPQA,SWE-bench)andfollowstheir
+respective licenses. We do not foresee direct ethical concerns; however, when deploying agent
+memorysystemsinpractice,oneshouldcarefullyconsiderdataprivacy,potentialbiasinretrieved
+knowledge,andtheriskofmisuseinhigh-stakesdomains.
+REPRODUCIBILITY STATEMENT
+Weprovidecompletedetailsofarchitectures,configurations,datasets,andevaluationprotocolsin
+themaintextandtheAppendix. Ourcodeandscriptstoreproduceallexperimentsareavailableat
+https://anonymous.4open.science/r/Agent-KB/.
+REFERENCES
+DesearchAI. Desearch,2024. URLhttps://desearch.ai/.
+MinttuAlakuijala,YaGao,GeorgyAnanov,SamuelKaski,PekkaMarttinen,AlexanderIlin,and
+HarriValpola. Mementonomore: Coachingaiagentstomastermultipletasksviahintsinternal-
+ization. arXivpreprintarXiv:2502.01562,2025.
+Petr Anokhin, Nikita Semenov, Artyom Sorokin, Dmitry Evseev, Mikhail Burtsev, and Evgeny
+Burnaev. Arigraph: Learningknowledgegraphworldmodelswithepisodicmemoryforllmagents.
+arXivpreprintarXiv:2407.04363,2024.
+DzmitryBahdanau,NicolasGontier,GabrielHuang,EhsanKamalloo,RafaelPardinas,AlexPiché,
+TorstenScholak,OlehShliazhko,JordanPrinceTremblay,KaramGhanem,SohamParikh,Mi-
+tul Tiwari, and Quaizar Vohra. Tapeagents: a holistic framework for agent development and
+optimization,2024. URLhttps://arxiv.org/abs/2412.08445.
+JingyiChai,ShuoTang,RuiYe,YuwenDu,XinyuZhu,MengchengZhou,YanfengWang,Yuzhi
+Zhang, Linfeng Zhang, Siheng Chen, et al. Scimaster: Towards general-purpose scientific ai
+agents, part i. x-master as foundation: Can we lead on humanity’s last exam? arXiv preprint
+arXiv:2507.05241,2025.
+Chi-MinChan,WeizeChen,YushengSu,JianxuanYu,WeiXue,ShanghangZhang,JieFu,and
+ZhiyuanLiu. Chateval: Towardsbetterllm-basedevaluatorsthroughmulti-agentdebate. arXiv
+preprintarXiv:2308.07201,2023.
+YongruiChen,JunhaoHe,LinboFu,ShenyuZhang,RihuiJin,XinbangDai,JiaqiLi,DehaiMin,
+Nan Hu, Yuxin Zhang, et al. Pandora: A code-driven large language model agent for unified
+reasoningacrossdiversestructuredknowledge. arXivpreprintarXiv:2504.12734,2025.
+Ajinkya Deshpande, Anmol Agarwal, Shashank Shet, Arun Iyer, Aditya Kanade, Ramakrishna
+Bairi,andSureshParthasarathy. Class-levelcodegenerationfromnaturallanguageusingiterative,
+tool-enhancedreasoningoverrepository. arXivpreprintarXiv:2405.01573,2024.
+Yiming Du, Wenyu Huang, Danna Zheng, Zhaowei Wang, Sebastien Montella, Mirella Lapata,
+Kam-FaiWong, andJeffZPan. Rethinkingmemoryinai: Taxonomy, operations, topics, and
+futuredirections. arXivpreprintarXiv:2505.00675,2025.
+AdamFourney,GaganBansal,HusseinMozannar,ChengTan,EduardoSalinas,FriederikeNiedtner,
+GraceProebsting,GriffinBassman,JackGerrits,JacobAlber,etal. Magentic-one: Ageneralist
+multi-agentsystemforsolvingcomplextasks. arXivpreprintarXiv:2411.04468,2024.
+Anish Ganguli, Prabal Deb, and Debleena Banerjee. Mark: Memory augmented refinement of
+knowledge. arXivpreprintarXiv:2505.05177,2025.
+Marc Glocker, Peter Hönig, Matthias Hirschmanner, and Markus Vincze. Llm-empowered em-
+bodied agent for memory-augmented task planning in household robotics. arXiv preprint
+arXiv:2504.21716,2025.
+11
+
+--- Page 12 ---
+TaichengGuo,XiuyingChen,YaqiWang,RuidiChang,ShichaoPei,NiteshVChawla,OlafWiest,
+and Xiangliang Zhang. Large language model based multi-agents: A survey of progress and
+challenges. arXivpreprintarXiv:2402.01680,2024.
+BernalJiménezGutiérrez,YihengShu,YuGu,MichihiroYasunaga,andYuSu. Hipporag: Neurobio-
+logicallyinspiredlong-termmemoryforlargelanguagemodels. arXivpreprintarXiv:2405.14831,
+2024.
+H2O.ai. Autonomous agentic ai: execute multi-step workflows autonomously. [Online], 2024.
+https://h2o.ai/platform/enterprise-h2ogpte/#AgenticAI.
+KostasHatalis,DespinaChristou,andVyshnaviKondapalli. Reviewofcase-basedreasoningfor
+llmagents: Theoreticalfoundations,architecturalcomponents,andcognitiveintegration. arXiv
+preprintarXiv:2504.06943,2025.
+SiruiHong,XiawuZheng,JonathanChen,YuhengCheng,JinlinWang,CeyaoZhang,ZiliWang,
+StevenKaShingYau,ZijuanLin,LiyangZhou,etal. Metagpt: Metaprogrammingformulti-agent
+collaborativeframework. arXivpreprintarXiv:2308.00352,3(4):6,2023.
+MengkangHu,TianxingChen,QiguangChen,YaoMu,WenqiShao,andPingLuo. Hiagent: Hier-
+archicalworkingmemorymanagementforsolvinglong-horizonagenttaskswithlargelanguage
+model. arXivpreprintarXiv:2408.09559,2024.
+MengkangHu,YuhangZhou,WendongFan,YuzhouNie,BoweiXia,TaoSun,ZiyuYe,Zhaoxuan
+Jin,YingruLi,ZeyuZhang,YifengWang,QianshuoYe,PingLuo,andGuohaoLi.Owl:Optimized
+workforcelearningforgeneralmulti-agentassistanceinreal-worldtaskautomation,2025. URL
+https://github.com/camel-ai/owl.
+PengboHuandXiangYing. Unifiedmindmodel: Reimaginingautonomousagentsinthellmera.
+arXivpreprintarXiv:2503.03459,2025.
+KexinHuang,SerenaZhang,HanchenWang,YuanhaoQu,YingzhouLu,YusufRoohani,RyanLi,
+LinQiu,GavinLi,JunzeZhang,etal. Biomni: Ageneral-purposebiomedicalaiagent. biorxiv,
+2025a.
+TenghaoHuang,KinjalBasu,IbrahimAbdelaziz,PavanKapanipathi,JonathanMay,andMuhao
+Chen. R2d2: Remembering, reflecting and dynamic decision making for web agents. arXiv
+preprintarXiv:2501.12485,2025b.
+CarlosEJimenez,JohnYang,AlexanderWettig,ShunyuYao,KexinPei,OfirPress,andKarthik
+Narasimhan. Swe-bench: Canlanguagemodelsresolvereal-worldgithubissues? arXivpreprint
+arXiv:2310.06770,2023.
+OmarKhattab,ArnavSinghvi,ParidhiMaheshwari,ZhiyuanZhang,KeshavSanthanam,SriVard-
+hamanan,SaifulHaq,AshutoshSharma,ThomasTJoshi,HannaMoazam,etal. Dspy: Compiling
+declarativelanguagemodelcallsintoself-improvingpipelines. arXivpreprintarXiv:2310.03714,
+2023.
+Kuang-Huei Lee, Xinyun Chen, Hiroki Furuta, John Canny, and Ian Fischer. A human-inspired
+readingagentwithgistmemoryofverylongcontexts. arXivpreprintarXiv:2402.09727,2024.
+PatrickLewis,EthanPerez,AleksandraPiktus,FabioPetroni,VladimirKarpukhin,NamanGoyal,
+HeinrichKüttler,MikeLewis,Wen-tauYih,TimRocktäschel,SebastianRiedel,andDouweKiela.
+Retrieval-augmentedgenerationforknowledge-intensiveNLPtasks. InProc.NeurIPS,2020a.
+PatrickLewis,EthanPerez,AleksandraPiktus,FabioPetroni,VladimirKarpukhin,etal. Retrieval-
+augmentedgenerationforknowledge-intensivenlptasks. arXivpreprintarXiv:2005.11280,2020b.
+URLhttps://arxiv.org/abs/2005.11280.
+Xiaoxi Li, Guanting Dong, Jiajie Jin, Yuyao Zhang, Yujia Zhou, Yutao Zhu, Peitian Zhang, and
+Zhicheng Dou. Search-o1: Agentic search-enhanced large reasoning models. arXiv preprint
+arXiv:2501.05366,2025a.
+12
+
+--- Page 13 ---
+XiaoxiLi,JiajieJin,GuantingDong,HongjinQian,YutaoZhu,YongkangWu,Ji-RongWen,and
+ZhichengDou. Webthinker: Empoweringlargereasoningmodelswithdeepresearchcapability.
+arXivpreprintarXiv:2504.21776,2025b.
+BaichuanLiu,ChenLi,MingTan,WenqiangLiu,andYimingYang. Echo: Alargelanguagemodel
+withtemporalepisodicmemory. arXivpreprintarXiv:2502.16090,2025a.
+BangLiu,XinfengLi,JiayiZhang,JinlinWang,TanjinHe,SiruiHong,HongzhangLiu,Shaokun
+Zhang,KaitaoSong,KunlunZhu,etal. Advancesandchallengesinfoundationagents: From
+brain-inspired intelligence to evolutionary, collaborative, and safe systems. arXiv preprint
+arXiv:2504.01990,2025b.
+Hanchao Liu, Rongjun Li, Weimin Xiong, Ziyu Zhou, and Wei Peng. Workteam: Constructing
+workflowsfromnaturallanguagewithmulti-agents. arXivpreprintarXiv:2503.22473,2025c.
+Hao Liu, Zhengren Wang, Xi Chen, Zhiyu Li, Feiyu Xiong, Qinhan Yu, and Wentao Zhang.
+Hoprag: Multi-hop reasoning for logic-aware retrieval-augmented generation. arXiv preprint
+arXiv:2502.12442,2025d.
+SiweiLiu,JinyuanFang,HanZhou,YingxuWang,andZaiqiaoMeng. Sew: Self-evolvingagentic
+workflowsforautomatedcodegeneration. arXivpreprintarXiv:2505.18646,2025e.
+JunruLu,SiyuAn,MingbaoLin,GabrielePergola,YulanHe,DiYin,XingSun,andYunshengWu.
+Memochat: Tuningllmstousememosforconsistentlong-rangeopen-domainconversation. arXiv
+preprintarXiv:2308.08239,2023.
+QitanLv,JieWang,HanzhuChen,BinLi,YongdongZhang,andFengWu. Coarse-to-finehighlight-
+ing:Reducingknowledgehallucinationinlargelanguagemodels.arXivpreprintarXiv:2410.15116,
+2024.
+ChandanaSreeMala,GizemGezici,andFoscaGiannotti.Hybridretrievalforhallucinationmitigation
+inlargelanguagemodels: Acomparativeanalysis. arXivpreprintarXiv:2504.05324,2025.
+GrégoireMialon, ClémentineFourrier, ThomasWolf, YannLeCun, andThomasScialom. Gaia:
+a benchmark for general ai assistants. In The Twelfth International Conference on Learning
+Representations,2023.
+MengjiaNiu,HaoLi,JieShi,HamedHaddadi,andFanMo. Mitigatinghallucinationsinlargelan-
+guagemodelsviaself-refinement-enhancedknowledgeretrieval. arXivpreprintarXiv:2405.06545,
+2024.
+OpenAI. deepresearch,2024. URLhttps://openai.com/index/introducing-deep-research/.
+CharlesPacker,SarahWooders,KevinLin,VivianFang,ShishirG.Patil,IonStoica,andJosephE.
+Gonzalez. Memgpt: TowardsLLMsasoperatingsystems. arXivpreprintarXiv:2310.08560,2023.
+JiayiPan,XingyaoWang,GrahamNeubig,NavdeepJaitly,HengJi,AlaneSuhr,andYizheZhang.
+Trainingsoftwareengineeringagentsandverifierswithswe-gym.arXivpreprintarXiv:2412.21139,
+2024.
+Long Phan, Alice Gatti, Ziwen Han, Nathaniel Li, Josephina Hu, Hugh Zhang, Chen Bo Calvin
+Zhang, MohamedShaaban, JohnLing, SeanShi, etal. Humanity’slastexam. arXivpreprint
+arXiv:2501.14249,2025.
+JinghuaPiao,YuweiYan,JunZhang,NianLi,JunboYan,XiaochongLan,ZhihongLu,Zhiheng
+Zheng,JingYiWang,DiZhou,etal.Agentsociety:Large-scalesimulationofllm-drivengenerative
+agentsadvancesunderstandingofhumanbehaviorsandsociety. arXivpreprintarXiv:2502.08691,
+2025.
+Mathis Pink, Qinyuan Wu, Vy Ai Vo, Javier Turek, Jianing Mu, Alexander Huth, and Mariya
+Toneva. Position: Episodicmemoryisthemissingpieceforlong-termllmagents. arXivpreprint
+arXiv:2502.06975,2025.
+13
+
+--- Page 14 ---
+Shuofei Qiao, Runnan Fang, Ningyu Zhang, Yuqi Zhu, Xiang Chen, Shumin Deng, Yong Jiang,
+PengjunXie,FeiHuang,andHuajunChen. Agentplanningwithworldknowledgemodel. InProc.
+NeurIPS,2024.
+JiahaoQiu,XuanQi,TongchengZhang,XinzheJuan,JiachengGuo,YifuLu,YiminWang,Zixin
+Yao,QihanRen,XunJiang,etal. Alita: Generalistagentenablingscalableagenticreasoningwith
+minimalpredefinitionandmaximalself-evolution. arXivpreprintarXiv:2505.20286,2025.
+DavidRein,BettyLiHou,AsaCooperStickland,JacksonPetty,RichardYuanzhePang,JulienDirani,
+JulianMichael,andSamuelRBowman. Gpqa: Agraduate-levelgoogle-proofq&abenchmark. In
+FirstConferenceonLanguageModeling,2024.
+AymericRoucher,AlbertVillanovadelMoral,ThomasWolf,LeandrovonWerra,andErikKau-
+nismäki. ‘smolagents‘: a smol library to build great agentic systems. https://github.com/
+huggingface/smolagents,2025.
+Rana Salama, Jason Cai, Michelle Yuan, Anna Currey, Monica Sunkara, Yi Zhang, and Yassine
+Benajiba. Meminsight: Autonomous memory augmentation for llm agents. arXiv preprint
+arXiv:2503.21760,2025.
+VishwaShah,VishruthVeerendranath,GrahamNeubig,DanielFried,andZoraZhiruoWang. Explor-
+ingthepre-conditionsformemory-learningagents. InScalingSelf-ImprovingFoundationModels
+withoutHumanSupervision,2025. URLhttps://openreview.net/forum?id=WZV7I3PT90.
+KurtShuster,SpencerPoff,MoyaChen,DouweKiela,andJasonWeston. Retrievalaugmentation
+reduceshallucinationinconversation. arXivpreprintarXiv:2104.07567,2021.
+Michael Skarlinski, Jon Laurent, Albert Bou, and Andrew White. About 30% of humanity’s
+last exam chemistry/biology answers are likely wrong. https://www.futurehouse.org/
+research-announcements/hle-exam,July2025. Accessed: 2025-09-23.
+LarryRSquire,LisaGenzel,JohnTWixted,andRichardGMorris. Memoryconsolidation. Cold
+SpringHarborperspectivesinbiology,7(8):a021766,2015.
+Hongjin Su, Ruoxi Sun, Jinsung Yoon, Pengcheng Yin, Tao Yu, and Sercan Ö Arık. Learn-by-
+interact: A data-centric framework for self-adaptive agents in realistic environments. arXiv
+preprintarXiv:2501.10893,2025.
+XiaoyuTan,BinLi,XiheQiu,ChaoQu,WeiChu,YinghuiXu,andYuanQi. Meta-agent-workflow:
+Streamlining tool usage in llms through workflow construction, retrieval, and refinement. In
+CompanionProceedingsoftheACMonWebConference2025,pp.458–467,2025.
+JiabinTang,TianyuFan,andChaoHuang. Autoagent: Afully-automatedandzero-codeframework
+forllmagents. arXive-prints,pp.arXiv–2502,2025.
+Trase. Meettrasesystems. [Online],2024. https://www.trasesystems.com/.
+XingyaoWang,BoxuanLi,YufanSong,FrankF.Xu,XiangruTang,MingchenZhuge,JiayiPan,
+YueqiSong,BowenLi,JaskiratSingh,HoangH.Tran,FuqiangLi,RenMa,MingzhangZheng,
+BillQian,YanjunShao,NiklasMuennighoff,YizheZhang,BinyuanHui,JunyangLin,Robert
+Brennan,HaoPeng,HengJi,andGrahamNeubig.OpenHands:AnOpenPlatformforAISoftware
+DevelopersasGeneralistAgents,2024a. URLhttps://arxiv.org/abs/2407.16741.
+YuWang,YifanGao,XiusiChen,HaomingJiang,ShiyangLi,JingfengYang,QingyuYin,ZhengLi,
+XianLi,BingYin,JingboShang,andJulianMcAuley. MEMORYLLM:Towardsself-updatable
+largelanguagemodels. arXivpreprintarXiv:2402.04624,2024b.
+YuWang,ChiHan,TongtongWu,XiaoxinHe,WangchunshuZhou,NafisSadeq,XiusiChen,Zexue
+He,WeiWang,GholamrezaHaffari,etal. Towardslifespancognitivesystems. arXivpreprint
+arXiv:2409.13265,2024c.
+ZhenhailongWang,HaiyangXu,JunyangWang,XiZhang,MingYan,JiZhang,FeiHuang,and
+Heng Ji. Mobile-agent-e: Self-evolving mobile assistant for complex tasks. arXiv preprint
+arXiv:2501.11733,2025.
+14
+
+--- Page 15 ---
+ZoraZhiruoWang,JiayuanMao,DanielFried,andGrahamNeubig. Agentworkflowmemory. arXiv
+preprintarXiv:2409.07429,2024d.
+Jason Wei, Zhiqing Sun, Spencer Papay, Scott McKinney, Jeffrey Han, Isa Fulford, Hyung Won
+Chung,AlexTachardPassos,WilliamFedus,andAmeliaGlaese. Browsecomp: Asimpleyet
+challengingbenchmarkforbrowsingagents. arXivpreprintarXiv:2504.12516,2025a.
+JialeWei,XiangYing,TaoGao,FangyiBao,FelixTao,andJingboShang. Ai-nativememory2.0:
+Secondme. arXivpreprintarXiv:2503.08102,2025b.
+Jialong Wu, Wenbiao Yin, Yong Jiang, Zhenglin Wang, Zekun Xi, Runnan Fang, Linhai Zhang,
+YulanHe,DeyuZhou,PengjunXie,etal. Webwalker: Benchmarkingllmsinwebtraversal. arXiv
+preprintarXiv:2501.07572,2025a.
+QingyunWu,GaganBansal,JieyuZhang,YiranWu,BeibinLi,ErkangZhu,LiJiang,XiaoyunZhang,
+ShaokunZhang,JialeLiu,etal. Autogen: Enablingnext-genllmapplicationsviamulti-agent
+conversations. InFirstConferenceonLanguageModeling,2024a.
+YaxiongWu,ShengLiang,ChenZhang,YichaoWang,YongyueZhang,HuifengGuo,Ruiming
+Tang,andYongLiu. Fromhumanmemorytoaimemory: Asurveyonmemorymechanismsinthe
+eraofllms. arXivpreprintarXiv:2504.15965,2025b.
+ZhiyongWu,ChengchengHan,ZichenDing,ZhenminWeng,ZhoumianzeLiu,ShunyuYao,Tao
+Yu,andLingpengKong. Os-copilot: Towardsgeneralistcomputeragentswithself-improvement.
+arXivpreprintarXiv:2402.07456,2024b.
+WujiangXu,ZujieLiang,KaiMei,HangGao,JuntaoTan,andYongfengZhang. A-mem: Agentic
+memoryforllmagents. arXivpreprintarXiv:2502.12110,2025.
+YaoXu,ShizhuHe,JiabeiChen,ZihaoWang,YangqiuSong,HanghangTong,GuangLiu,KangLiu,
+andJunZhao. Generate-on-graph: Treatllmasbothagentandkginincompleteknowledgegraph
+questionanswering. arXivpreprintarXiv:2404.14741,2024.
+JohnYang,CarlosE.Jimenez,AlexanderWettig,KilianLieret,ShunyuYao,KarthikNarasimhan,
+andOfirPress. Swe-agent: Agent-computerinterfacesenableautomatedsoftwareengineering,
+2024. URLhttps://arxiv.org/abs/2405.15793.
+YeYe. Taskmemoryengine(tme): Enhancingstateawarenessformulti-stepllmagenttasks. arXiv
+preprintarXiv:2504.08525,2025.
+RuihongZeng,JinyuanFang,SiweiLiu,andZaiqiaoMeng. Onthestructuralmemoryofllmagents.
+arXivpreprintarXiv:2412.15266,2024.
+FengjiZhang,BeiChen,YueZhang,JackyKeung,JinLiu,DaoguangZan,YiMao,Jian-GuangLou,
+andWeizhuChen. Repocoder: Repository-levelcodecompletionthroughiterativeretrievaland
+generation. arXivpreprintarXiv:2303.12570,2023.
+JieyuZhang,RanjayKrishna,AhmedHassanAwadallah,andChiWang. Ecoassistant: Usingllm
+assistantsmoreaffordablyandaccurately. InICLR2024WorkshoponLargeLanguageModel
+(LLM)Agents,2025.
+ZhengyiZhao,ShuboZhang,YimingDu,BinLiang,BaojunWang,ZhongyangLi,BinyangLi,and
+Kam-FaiWong. Eventweave: Adynamicframeworkforcapturingcoreandsupportingeventsin
+dialoguesystems. arXivpreprintarXiv:2503.23078,2025.
+Longtao Zheng, Rundong Wang, Xinrun Wang, and Bo An. Synapse: Trajectory-as-exemplar
+promptingwithmemoryforcomputercontrol. arXivpreprintarXiv:2306.07863,2023.
+WanjunZhong,LianghongGuo,QiqiGao,HeYe,andYanlinWang. Memorybank: Enhancinglarge
+languagemodelswithlong-termmemory. InProceedingsoftheAAAIConferenceonArtificial
+Intelligence,2024.
+15
+
+--- Page 16 ---
+RuiwenZhou,YingxuanYang,MuningWen,YingWen,WenhaoWang,ChunlingXi,GuoqiangXu,
+YongYu,andWeinanZhang. Trad: Enhancingllmagentswithstep-wisethoughtretrievaland
+aligneddecision. InProceedingsofthe47thInternationalACMSIGIRConferenceonResearch
+andDevelopmentinInformationRetrieval,pp.3–13,2024a.
+WangchunshuZhou,YuchenEleanorJiang,LongLi,JialongWu,TiannanWang,ShiQiu,Jintian
+Zhang, Jing Chen, Ruipu Wu, Shuai Wang, et al. Agents: An open-source framework for
+autonomouslanguageagents. arXivpreprintarXiv:2309.07870,2023.
+WangchunshuZhou,YixinOu,ShengweiDing,LongLi,JialongWu,TiannanWang,JiaminChen,
+ShuaiWang,XiaohuaXu,NingyuZhang,etal. Symboliclearningenablesself-evolvingagents.
+arXivpreprintarXiv:2406.18532,2024b.
+He Zhu, Tianrui Qin, King Zhu, Heyuan Huang, Yeyi Guan, Jinxiang Xia, Yi Yao, Hanhao Li,
+NingningWang,PaiLiu,etal. Oagents: Anempiricalstudyofbuildingeffectiveagents. arXiv
+preprintarXiv:2506.15741,2025.
+YuqiZhu,ShuofeiQiao,YixinOu,ShuminDeng,NingyuZhang,ShiweiLyu,YueShen,LeiLiang,
+JinjieGu,andHuajunChen. Knowagent: Knowledge-augmentedplanningforLLM-basedagents.
+InProc.NAACLFindings,2024.
+16
+
+--- Page 17 ---
+Part I
+Appendix
+Table of Contents
+A ExperienceSourceOverview 18
+B Hand-craftedExperienceProcess 19
+C AblationDetailsofReason-Retrieve-RefineModules 20
+D InferenceCostBreakdown 20
+E Examples 21
+E.1 ExecutionExample . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21
+E.2 ComprehensiveExamples . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23
+F CollectionsofUsedPrompts 26
+F.1 PromptDesignforAGENTKBConstruction . . . . . . . . . . . . . . . . . . . . 26
+F.2 PromptDesignforAGENTKBPipeline . . . . . . . . . . . . . . . . . . . . . . . 29
+G LanguageModelUsage 31
+G.1 SystemComponents . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 31
+G.2 ExperimentalSetup . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 31
+G.3 ManuscriptDevelopment . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 32
+G.4 MethodologicalConsiderations . . . . . . . . . . . . . . . . . . . . . . . . . . . . 32
+17
+
+--- Page 18 ---
+A EXPERIENCE SOURCE OVERVIEW
+OurAGENTKBisconstructedfromadiversesetofbenchmarkdatasetsspanningcodereasoning,
+web navigation, multi-hop retrieval, and human-level evaluation tasks. Each dataset contributes
+structuredexperienceentriesthatreflectdistinctproblem-solvingpatternsanddomaincharacteristics.
+Table5summarizesthedatasources,theiroriginaltaskcounts,andthenumberofresultingexperience
+entriesafterprocessing:
+Table5: Overviewofdatasetsusedtoconstructtheexperienceknowledgebase.
+Dataset Domain Tasks GeneratedExperiences
+GeneralQAexperiences
+BrowseComp(Weietal.,2025a) Webnavigation 1,266 1,266
+MultiHopRAG(Liuetal.,2025d) Multi-hopreasoning 2,556 2,556
+HLE(Phanetal.,2025) Expert-levelQA 3,000 ∼2,000
+WebWalkerQA(Wuetal.,2025a) Open-domainQA 680 680
+Softwareengineeringexperiences
+RepoClassBench(Deshpandeetal.,2024) Codeunderstanding 100 1,000
+SWE-Gym-Raw(Panetal.,2024) Codegeneration 100 1,000
+RepoEval(Zhangetal.,2023) Codecompletion 100 1,000
+Total(approx.) 7,802 ∼9,502
+BrowseComp. We processed all 1,266 tasks from the BrowseComp benchmark (https://
+huggingface.co/datasets/smolagents/browse_comp), creating one experience entry per task.
+Theseexperiencescapturewebbrowsing,informationretrieval,andmultimodalreasoningpatterns.
+MultiHopRAG.Weincorporatedall2,556tasksfromtheMultiHopRAGdataset(https://github.
+com/yixuantt/MultiHop-RAG/tree/main/dataset),witheachtaskcontributingoneexperience
+entry. MultiHopRAGexperiencesfocusonmulti-hopreasoningandretrieval-augmentedgeneration
+scenarios.
+HLE.FromtheHLEbenchmark’s3,000tasks(https://huggingface.co/datasets/cais/hle),
+weselectedthetext-basedsubset,creatingoneexperienceentrypertask. Weexcludednon-textual
+taskstomaintainconsistencyinknowledgerepresentation. Theseexperiencescoverhuman-level
+evaluationscenariosacrossdiversedomains.
+WebWalkerQA. We integrated 680 tasks from WebWalkerQA (https://huggingface.co/
+datasets/callanwu/WebWalkerQA),witheachtaskcontributingoneexperienceentry. Theseexpe-
+riencescapturewebnavigationandquestion-answeringpatternsinopen-domaincontexts.
+RepoClassBench. We utilized the RepoClassBench dataset (https://github.com/microsoft/
+repoclassbench),selecting100representativecasesfromPythonrepositoriesthatalignwiththose
+in SWE-bench. For each case, we generated 10 distinct experiences capturing different solution
+approaches,resultingin1,000structuredknowledgeentries. Theseexperiencesfocusonrepository
+classificationandcodeunderstandingtasks.
+SWE-Gym-Raw. We incorporated the SWE-Gym-Raw dataset (https://huggingface.co/
+datasets/SWE-Gym/SWE-Gym-Raw),fromwhichweselected100diverseprobleminstances. Fol-
+lowingamethodologysimilartoRepoClassBench,wegenerated10distinctexperiencesperinstance,
+resultinginatotalof1,000knowledgeentries. Theseexperiencesprimarilyfocusoncodegeneration
+andbug-fixingscenarioswithinPython-basedrepositories.
+RepoEval. From the RepoEval dataset (https://github.com/microsoft/CodeT/tree/main/
+RepoCoder/datasets),weselected100casesandgenerated10experiencespercase,creatingan
+additional1,000knowledgeentries. RepoEvalexperiencesfocusoncodecompletionandrepository-
+levelprogrammingtasksinPython.
+18
+
+--- Page 19 ---
+B HAND-CRAFTED EXPERIENCE PROCESS
+Toidentifycommonfailuremodesandimprovegeneralization,humanannotatorsmanuallyinspecta
+subsetoffailedlogs. Theysummarizerecurringissuessuchasincorrecttoolselection,misaligned
+reasoningchains,ormissingpreconditionsorconstraints.Thesefailuresareabstractedintocorrection
+templates that serve as few-shot examples for the experience generation model. The abstraction
+processreliesonasetofreasoningtemplates:
+AGENTKBdatatemplate
+{
+"question": "<question from various data source>",
+"agent_plan": "<Agent original plan>",
+"agent_experience": "<detailed agent experience>",
+}
+Theprocedureofhand-craftedexperienceisdescribedasfollows:
+• Step1: TeamSetupandObjectiveDefinition
+Three computer science students familiar with the GAIA benchmark and agent reasoning
+workflowswererecruitedtocollaborativelydesignhigh-qualityprompts. Themainobjective
+wastotransformsuccessfulagentreasoningpathsintostructured,human-readableinstructions
+thatcapturedessentialsteps,tools,anddecisionrules.
+• Step2: ReviewofHistoricalLogs
+EachstudentwasassignedasubsetofGAIAbenchmarktasks(Level1,2,3). Theythoroughly
+examinedthecorrespondingsmolagentlogs,focusingon:
+– Taskswheretheagentreachedthecorrectanswer.
+– Actionsequencesthatwerelogicallysoundandtool-useefficient.
+– Commonpatternsacrossmultipletasks.
+Afterthat,theyalsoanalyzedthelogsofthefailedquestions,tryingtofixthewronganswersby
+handwiththesuccessfulexperience.
+• Step3: PromptAuthoringandStandardization
+Theteamsynthesizedthesefindingsintogeneralreasoningworkflows—abstractsequencesthat
+couldbereused.
+Eachreasoningpatternwasrewrittenintoanaturallanguageinstructionalprompt. Promptswere
+standardizedtouseconsistentsentencestructures,imperativevoice,andtool-neutralreferences.
+• HandCraftedExampleExperience:
+Search for the 2015 paper "Pie Menus or Linear Menus, Which Is Better?"
+on a scholarly database (e.g., Google Scholar or IEEE Xplore) and
+note the authors in "First M. Last" format. For each author, look
+up their publication history on DBLP or Google Scholar and list all
+their papers with publication years. Determine which author has works
+published before 2015, and collect that author’s prior publications.
+Sort the author’s earlier papers by year and identify the very first
+one. Verify the title of that earliest paper against the database
+entry to ensure accuracy.
+• Step4: EffectivenessTestingandSelection
+Toevaluatequality,eachhandcraftedexperiencewastestedviafew-shotpromptingonsimilar
+GAIAtasks.
+Thetop80promptswiththebestperformancewereselectedasthecanonicalset.
+• Step5: GeneralizationtoOtherBenchmarks
+Usingthese80high-qualityexamples,weappliedfew-shotpromptingtogenerateexperience
+instructionsforotherreasoningbenchmarks.
+19
+
+--- Page 20 ---
+C ABLATION DETAILS OF Reason-Retrieve-Refine MODULES
+ToevaluatetheeffectivenessofeachcomponentinourAGENTKBframework,weconductaseries
+ofablationstudies. Thedeploymentloopoperatesintworetrievalphaseswithdistinctobjectives:
+• Planningstageformstheinitialplan. ItfollowstheReason-Retrieve-Refinecycletosumma-
+rizethequery,selectexperiences,andweavethemintoanexecutableworkflow.
+• Feedbackstagereusesthesamecycleonexecutiontraces. Itreasonsoverthecritic’shighlights,
+retrievesprecedents,andrefinestheplanwhileguardedbythedisagreementgate.
+Theexperimentalsetupinvolvessystematicallyremovingordisablingspecificmodulesoragentsto
+assesstheircontributions. TheresultsaresummarizedinTable3,withthefollowingdefinitions:
+• w/oPlanningStage: Thefirst-stagestepsareremoved.
+• w/oFeedbackStage: Thesecond-stagestepsareremoved.
+• w/oReasonModule: Inbothstages,noreasoningisperformed;onlyretrievalbasedonrawdata
+isconducted.
+• w/oRetrieveModule: Bothstagesomittheretrievalprocessentirely. Agentsrelysolelyon
+prompt-basedinstructionstogenerateresponses,withoutconsultingpriorexperiences.
+• w/oRefineModule: Norefinementisperformedofbothstags; onlytheretrievedcontentis
+usedasknowledge.
+• w/RawWorkflow: Thefullretrievepipelineisused,butwithoutanyexplicitmodularcontrol—
+i.e.,themodelfollowsastandardpromptingstrategythroughout,lackingstructuredguidance
+throughtheReasonandRefinephases.
+Theseablationexperimentsprovideinsightintohoweachmodulecontributestooverallperformance,
+particularlyintermsofaccuracy,robustness,andcoherenceincomplexreasoningtasks.
+D INFERENCE COST BREAKDOWN
+Tables6and7reportthetokenandmonetarybudgetofAGENTKBacrossGAIAandSWE-bench
+lite. InGAIA,theretrievalloopaddsonly$0.27ontopofafullevaluationof$86.0USD-less
+than0.4%ofthecostperrun. Theofflineingestionstepisaone-timeexpenseamortizedoverfuture
+runs. OnSWE-benchlite,hintingwith AGENT KB costsonaverage<0.004USDperissuewith
+shortprompts(<7,000tokens),keepingthemarginaloverheadwellbelowonecentwhenpairedwith
+GPT-4.1. TheseresultshighlightthatAGENTKBprovidescross-frameworkexperiencesharingat
+negligibleadditionalcost.
+Table 6: Per-task token and cost budget for GAIA validation (165 tasks). Shares cover the per-
+evaluationbudgetandexcludetheone-offknowledge-baseingestionstep. Pricing: $1.36permillion
+prompttokensand$5.44permillioncompletiontokens. Valuesareaveragedacross165tasks.
+Module Prompttokens Completiontokens Cost(USD) Share(%)
+Evaluation(perGAIAtask)
+Actionloop 205,873 41,912 0.51 98.2
+Logsummary 6,182 67 0.01 1.6
+Planning 237 119 0.001 0.2
+Feedback 294 123 0.001 0.2
+Total(evaluation) 212,586 42,221 0.52 100.0
+One-offsetup
+AGENTKBconstruction 5,140,655 768,270 10.88 –
+20
+
+--- Page 21 ---
+Table7: Per-instancecost forSWE-bench lite when AGENT KB supplieshints (GPT-4.1). Max
+stepsperissuefixedat100. Tokencountsareperissue. Tokenpricingfollowsthesamescheduleas
+Table6.
+Hintsource Prompttokens Completiontokens Cost(USD) Hintlength
+RepoClassBench 6,543 912 0.0078 90
+RepoClassBench(refine) 4,217 508 0.0028 130
+Top-nSWE-Gym 2,847 296 0.0019 60
+Top-nRepoClassBench 3,129 402 0.0021 70
+Average 4,184 530 0.0037 88
+E EXAMPLES
+ThissectionprovidesconcreteexamplesanddemonstrationsofhowAGENT KBprocessesdiffer-
+enttypesofqueriesandworkflows. Wepresentdetailedexecutionexamplesandcomprehensive
+illustrationsofthesystem’scapabilitiesacrossvariousdomainsandtasktypes.
+E.1 EXECUTIONEXAMPLE
+Initially,theAGENTKBindependentlyprocessedaquery,leveragingitsinternalretrievalmechanisms
+tosummarizerelevantinformation. Thisinitialprocessingledtothegenerationofapreliminary
+plan. Aspartofthisplan,theAGENTKBinitiatedasearchforthetwomostcommonlyassociated
+chemicals. However,thesearchsuccessfullyretrievedtheEuropeanCommunity(EC)numberfor
+onlyoneofthesechemicals,astheotherwasnotanenzyme. Basedonthisincompleteretrieval,the
+AGENTKBincorrectlyconcludedthatthetrueanswerwassolelyconfinedtoentry"3.1.3.1,"leading
+totwosequentialanderroneousreturns.
+Subsequently,thefeedbackstageprovidedamoreexplicitandrefinedplanningdirective,offeringa
+clearerunderstandingofthetasktrajectoryandexpectedoutcomewithfewersteps. Itclarifiedthat
+thequestionpertainedexplicitlytoenzymes,sinceonlyenzymeshaveECnumbers. Asaresult,the
+AGENTKBwouldnolongersearchfornon-enzymechemicalsinthefirstplace,anditwouldavoid
+mistakenlyreturninga"nocorrectanswer"responseinthefollowingsteps. Thisguidancehelpedthe
+AGENTKBovercomethelimitationsofitsinitialindependentprocessingandenabledittoretainand
+utilizethecorrectedcontext.
+AGENTKB-UserQuestion
+What are the EC numbers of the two most commonly used chemicals for the virus
+testing method in the paper about SPFMV and SPCSV in the Pearl Of Africa from
+2016? Return the semicolon-separated numbers in the order of the alphabetized
+chemicals.
+AGENTKB-Reasonthequestiontogetsuggestion
+EC numbers; virus testing method; SPFMV; SPCSV; Pearl Of Africa; 2016 paper;
+commonly used chemicals; chemical alphabetization
+AGENTKB-RetrievefromAgentKB
+Similar task: During studies of the phage genome database, the researchers
+identified an operon......
+Suggestions: Explicitly map experimental design to logical variables—use data
+frames or grid tables for clarity......
+21
+
+--- Page 22 ---
+AGENTKB-InitialPlanafterrefinement
+1. Identify the specific 2016 paper on SPFMV and SPCSV in Uganda.
+2. Retrieve the full text using inspect_file_as_text or search agent.
+3. Check the methodology section for the virus testing method (e.g., ELISA).
+4. Extract chemicals used, focusing on enzymes.
+5. Determine the two most commonly used ones.
+6. Alphabetize the chemical names.
+7. Look up their EC numbers using BRENDA, ExplorEnz, etc.
+8. Verify EC number correctness.
+9. Return EC numbers in the correct order, separated by a semicolon.
+AGENTKB-ModelPrediction
+3.1.3.1;3.1.3.1
+AGENTKB-RetrievefromAgentKB
+Similar task: Which of the following peptides has been found to bind or is
+highly likely to bind an integrin receptor in an in vitro assay......
+Suggestions: Always decompose the question to clarify the biological context
+and functional motifs encountered in sequence-based tasks......
+AGENTKB-feedbackstage’ssuggestion
+1. Search for the paper using keywords like "SPFMV", "SPCSV", "Pearl of
+Africa", and "2016".
+2. Identify the virus detection method (typically ELISA) and the enzymes used
+in the labeling step......
+AGENTKB-NewPlan
+1. Use compact keywords to Search for the 2016 paper on SPFMV and SPCSV in
+Pearl of Africa.
+2. Review the method section to find the virus detection technique and the
+two enzymes.
+3. Look up EC numbers from BRENDA or ExPASy.
+4. Alphabetize enzyme names.
+5. Return EC numbers joined by a semicolon.
+AGENTKB-ModelThought
+I suspect the two most common enzymes for virus detection are alkaline
+phosphatase and horseradish peroxidase. Their EC numbers are:
+* Alkaline phosphatase: 3.1.3.1
+* Horseradish peroxidase: 1.11.1.7
+Alphabetically, alkaline phosphatase comes first.
+So I will return: 3.1.3.1;1.11.1.7
+AGENTKB-FinalOutput(Code)
+answer = "3.1.3.1;1.11.1.7"
+final_answer(answer)
+AGENTKB-Observation
+Last output from code snippet:
+3.1.3.1;1.11.1.7
+22
+
+--- Page 23 ---
+E.2 COMPREHENSIVEEXAMPLES
+ThissectionprovidesconcreteexamplesofhowAGENTKBprocessesandstoresdifferenttypesof
+agentexperiences. Wedemonstratethreekeycomponents: SWE-benchworkflowexamplesshowing
+problem-solutionpairs,rawexecutionlogstransformedintostructuredexperiences,andcomplex
+multi-constraintqueryprocessing.
+E.2.1 ANEXAMPLEONSWE-BENCH
+ThefollowingexamplesillustratehowAGENTKBstoresandretrievesdomain-specificknowledgefor
+softwareengineeringtasksfromtheSWE-benchdataset. Eachexampleshowsaproblemdescription
+paired with relevant guidance retrieved from AGENT KB, demonstrating the system’s ability to
+providecontextualassistanceforcodedebuggingandmodificationtasks.
+AGENTKB-ProblemDescription
+In the project that automatically generates API documentation for Python
+projects, an extra backslash is inserted before underscores—for example, hello_
+is rendered as hello\_
+AGENTKB-RetrievefromAgentKB
+Check the string processing part in the relevant functions to ensure that
+escape is only carried out when necessary. For example, whether all parameters
+ending with _ need to be escaped, or whether different handling methods are
+required in certain specific contexts (such as attribute names, parameter
+names, etc.).
+When modifying conditions, not only the original conditions should be taken
+into account, but also factors such as configuration and context should be
+combined to ensure the accuracy of the logic.
+AGENTKB-ProblemDescription
+Disabling evaluation globally with with evaluate(False) interferes with
+sympify’s string-parsing logic, preventing some integer expressions from being
+instantiated as integer objects.
+AGENTKB-RetrievefromAgentKB
+When adding or modifying a conditional check (such as for ’evaluate’ or
+imaginary coordinates), ensure the logic does not inadvertently skip important
+validation for invalid inputs (such as actual imaginary numbers), and only
+disables overly strict checks for valid real inputs. This is critical to
+maintain mathematical correctness while fixing the bug. (Most important)
+When changing the logic in constructors (like Point/Point2D), verify that the
+minimal change solves the immediate bug, does not introduce new regressions,
+and does not allow forbidden cases (e.g., actual imaginary coordinates)
+TheseexamplesdemonstrateAGENTKB’sabilitytoprovidetargetedguidanceforcommonsoftware
+engineeringchallenges. ThefirstexampleaddressesAPIdocumentationgenerationissuesrelated
+tostringescaping,whilethesecondfocusesondebuggingasymbolicmathematicslibrary. Notice
+howtheretrievedknowledgeprovidesspecific,actionableadviceratherthangenerictroubleshooting
+steps.
+E.2.2 RAWLOGTOEXPERIENCEGENERATION
+Thissubsectiondemonstratesthecompletepipelinefortransformingrawagentexecutionlogsinto
+structured knowledge that can be stored in AGENT KB. This process is crucial for the system’s
+learningcapability,allowingsuccessfulproblem-solvingstrategiestobecapturedandreused.
+23
+
+--- Page 24 ---
+RawLogExample Thefollowingdemonstrateshowagentexecutionlogsareprocessedandtrans-
+formedintostructuredexperiencesforAGENTKB.Thisparticularexampleshowsabioinformatics
+taskinvolvingproteinstructureanalysis,wheretheagenthadtoadaptitsapproachwhenencountering
+unexpectedfileformats.
+(cid:7) (cid:4)
+1 {
+2 "agent_name": "gpt-4.1",
+3 "question": "Using the Biopython library in Python, parse the PDB file of the
+protein identified by the PDB ID 5wb7 from the RCSB Protein Data Bank. Calculate
+the distance between the first and second atoms as they are listed in the PDB
+file. Report the answer in Angstroms, rounded to the nearest picometer.",
+4 "prediction": "1.46",
+5 "true_answer": "1.456",
+6 "intermediate_steps": [
+7 {
+8 "task": "You have one question to answer...",
+9 "step_type": "task"
+10 },
+11 {
+12 "facts": "Here are the facts that I know so far...",
+13 "plan": "Here is the plan of action that I will follow...",
+14 "step_type": "planning"
+15 },
+16 {
+17 "tool_calls": [{"id": "call_1", "type": "function", "function": {"name":
+"python_interpreter", "arguments": "..."}}],
+18 "error": {"type": "AgentExecutionError", "message": "Code execution failed..."},
+19 "step_type": "action"
+20 }
+21 ]
+22(cid:6) } (cid:5)
+Listing1: RawAgentExecutionLog
+KeyInsights TheseexamplescollectivelydemonstrateseveralimportantaspectsofAGENTKB’s
+designandfunctionality:
+1. DomainAdaptation: Thesystemsuccessfullycapturesdomain-specificknowledgeacross
+differentfields(softwareengineering,bioinformatics,biographicalresearch),showingits
+generalapplicability.
+2. ErrorRecovery: Rawlogsshowhowagentsadaptwheninitialapproachesfail,andthese
+adaptationstrategiesarepreservedasvaluableexperiencesforfutureuse.
+3. PrecisionManagement: Thesystemlearnsspecificformattingandprecisionrequirements,
+crucialfortasksrequiringexactnumericaloutputs.
+4. Multi-AgentCoordination: Complexqueriesdemonstratehowdifferentagentroles(gen-
+eralreasoningvs. specializedsearch)canbecoordinatedwithdistinctbutcomplementary
+planningstrategies.
+5. SourceValidation: Theemphasisonauthoritativesourcesandcross-validationshowsthe
+system’scommitmenttoreliabilityandaccuracyininformationgathering.
+Theseexamplesillustratehow AGENT KB transformsindividualagentexperiencesintoashared
+knowledgeresourcethatenhancestheperformanceoftheentireagentecosystem.
+Fromtherawlog,thefollowingagentexperienceisextracted:
+AgentExperience
+Whencalculatingdistance,extractonlythefirsttwoATOMcoordinatesdirectlywithoutskippinganylines.
+IfthetaskasksforthedistanceinÅngströms,roundedtothenearestpicometer,keeptheoriginalÅvalue
+withthreedecimalplacesprecision,withoutconvertingbackandforthbetweenÅandpm. Outputthe
+24
+
+--- Page 25 ---
+distancedirectlyinÅngströms,keepingthecomputedvaluewiththreedecimals(e.g.,x.xxx),donotround
+ittofewerdecimalplaces.Theoutputisjustthenumberwithoutanyunitsorsymbols,suchasx.xxx,not
+x.xxxÅngströms.
+E.2.3 COMPLEXQUERYPROCESSINGEXAMPLE
+ComplexQueryExample
+Question:There’sthispopularfigurewithmultipleGrammyawardsintheentertainmentindustry,whoput
+outtheirfirstalbumbefore1969,hadsubstancedependence,andwasdismissedfromschoolbeforethey
+turned20. Theirfirstlifepartnerdiedin1997. Theybecameuniformedpersonnelatsomepointintheir
+lives.What’sthenameofthehospitaltheydied?
+TrueAnswer:St.John’sHealthCenter
+Generated JSON Structure The following JSON structure shows how AGENT KB organizes
+planningstrategiesandexperiencesforcomplexqueries. Thestructureincludesseparateplanning
+approachesfordifferentagenttypes(generalagentsvs. specializedsearchagents)andcapturesboth
+successfulstrategiesandlessonslearnedfromthetaskexecution. Thisstructuredapproachenables
+systematicknowledgetransferandstrategyrefinement.
+(cid:7) (cid:4)
+1 {
+2 "question": "There’s this popular figure with multiple Grammy awards...",
+3 "true_answer": "St. John’s Health Center",
+4 "agent_planning": "1. Parse the question to extract all key constraints: multiple
+Grammy awards, first album before 1969, substance dependence, dismissed from
+school before age 20, first life partner died in 1997, served as uniformed
+personnel, determine place/hospital of death.\n2. Conceptual plan:\n- Identify
+the possible entertainers matching all constraints.\n- For each candidate:\n a)
+Verify the timeline for first album release (before 1969)\n b) Check Grammy
+history\n c) Search biographical records for substance abuse and educational
+background\n d) Confirm information about life partner’s death year and
+uniformed service\n e) Pinpoint the date and location/hospital of death of the
+matched figure.",
+5 "search_agent_planning": "1. Receive precise person identifier from Code Agent or
+use biographical clues to triangulate the subject.\n2. Formulate search queries
+for identification and specific hospital information.\n3. Prioritize official
+biographical sources, reputable news outlets, Grammy records.\n4. Cross-check
+critical data points to validate subject match.\n5. Extract facts about location
+and hospital of death from obituaries.",
+6 "agent_experience": [
+7 "Break down multifaceted questions into smaller constraint checks",
+8 "Explicitly log and verify biographical constraints with multi-source
+confirmation",
+9 "Select high-reliability sources for biographical and award data",
+10 "Delegate to Search Agent early with specific sub-queries",
+11 "Validate final answers by chaining all found facts back to original constraints"
+12 ],
+13 "search_agent_experience": [
+14 "Decompose complex queries into sequential search refinements",
+15 "Craft highly specific queries for ambiguous identifiers",
+16 "Favor authoritative sources over entertainment/tabloid content",
+17 "Cross-validate information from multiple independent sources",
+18 "Format results with direct attribution and clear source references"
+19 ]
+20(cid:6) } (cid:5)
+Listing2: GeneratedAgentPlanningandExperienceJSON
+25
+
+--- Page 26 ---
+F COLLECTIONS OF USED PROMPTS
+F.1 PROMPTDESIGNFORAGENTKBCONSTRUCTION
+F.1.1 GENERALTASKS
+AGENTKBGenerationPrompt
+You will act as an advanced AI evaluation system tasked with analyzing a
+complex problem that an agent handles. Your analysis will extract valuable
+insights from this process. Follow these instructions carefully:
+1. I will provide a question and its correct answer (true_answer).
+2. First, simulate the agent’s planning process in detail. Describe how it
+would:
+- Break down the problem into logical components
+- Determine which tools to use (code execution, data processing, API calls)
+- Decide when to delegate to the Search Agent
+- Plan data transformations and analysis steps
+- Structure the final solution
+Include specific reasoning steps, potential code snippets considered, and
+decision points. Only include content in the agent plan, without any other
+description.
+4. Next, based on the question and your simulated planning processes, create
+a realistic error scenario. Describe:
+- Where and how the agents might fail
+- Incorrect assumptions they might make
+- Data misinterpretations or code errors
+- Logical flaws in their approach
+5. Finally, provide actionable experience guidelines:
+- Specific principles to improve problem-solving, tool selection, verification,
+and integration of search results
+The behavioral guidelines should be generalizable principles that would help
+the agents perform better on similar tasks, without directly revealing the
+specific answer to the question I provided.
+Output your complete analysis in the following JSON format with no additional
+text:
+{
+"question": "<question I provide>",
+"true_answer": "<correct answer I provide>",
+"agent_plan": "<your detailed Code Agent plan simulation>",
+"agent_experience": "<your actionable Code Agent guidelines>",
+}
+Here is an example:
+{
+"question": "<question from hand-crafted experience pool>",
+"true_answer": "<correct answer>",
+"agent_plan": "<Real Code Agent plan>",
+"agent_experience": "<Hand-crafted agent experience>",
+}
+26
+
+--- Page 27 ---
+F.1.2 GAIA
+AGENTKBGenerationPrompt
+You will act as an advanced AI evaluation system tasked with analyzing a
+complex problem handled by a Code Agent with an embedded Search Agent. Your
+analysis will extract valuable insights from this process. Follow these
+instructions carefully:
+1. I will provide a question and its correct answer (true_answer).
+2. First, simulate the Code Agent’s planning process in detail. Describe how
+it would:
+- Break down the problem into logical components
+- Determine which tools to use (code execution, data processing, API calls)
+- Decide when to delegate to the Search Agent
+- Plan data transformations and analysis steps
+- Structure the final solution
+Include specific reasoning steps, potential code snippets considered, and
+decision points. Only include content in the agent plan, without any other
+description.
+3. Next, simulate the Search Agent’s planning process in detail. Describe how
+it would:
+- Parse the search query requirements from the Code Agent
+- Formulate effective search queries
+- Determine which sources to prioritize
+- Extract and validate relevant information
+- Process and structure the search results for the Code Agent
+Include specific query formulation strategies and information filtering
+approaches. Only include content to search the agent plan, without any other
+description.
+4. Based on the question and your simulated planning processes, create a
+realistic error scenario. Describe:
+- Where and how the agents might fail
+- Incorrect assumptions they might make
+- Data misinterpretations or code errors
+- Logical flaws in their approach
+5. Finally, provide two sets of actionable experience guidelines:
+- For the Code Agent: Specific principles to improve problem-solving, tool
+selection, verification, and integration of search results
+- For the Search Agent: Specific principles to enhance query formulation,
+source evaluation, information extraction, and result formatting
+The behavioral guidelines should be generalizable principles that would help
+the agents perform better on similar tasks, without directly revealing the
+specific answer to the question I provided.
+Important: If the question does not require the search agent to solve, leave
+"search_agent_plan" and "search_agent_experience" empty in your response.
+Output your complete analysis in the following JSON format with no additional
+text:
+{
+"question": "<question I provide>",
+"true_answer": "<correct answer I provide>",
+"agent_plan": "<your detailed Code Agent plan simulation>",
+27
+
+--- Page 28 ---
+"search_agent_plan": "<your detailed Search Agent plan simulation>",
+"agent_experience": "<your actionable Code Agent guidelines>",
+"search_agent_experience": "<your actionable Search Agent guidelines>"
+}
+Here is an example:
+{
+"question": "<question from hand-crafted experience pool>",
+"true_answer": "<correct answer>",
+"agent_plan": "<Real Code Agent plan>",
+"search_agent_plan": "<Real Search Agent plan>",
+"agent_experience": "<Hand-crafted agent experience>",
+"search_agent_experience": "<Hand-crafted search agent experience>"
+}
+F.1.3 SWE-BENCH
+AGENTKBGenerationPrompt
+You are an advanced code repair analysis system tasked with constructing
+structured experiences for Agent KB from SWE-bench tasks. Given a natural
+language problem description, a model-generated fix, and supporting repair
+hints, follow the steps below to extract reusable knowledge entries. Your
+output should conform strictly to JSON formatting and follow the key structure
+outlined in each step.
+1. Code Reconstruction:
+Given a detailed natural language description of a Python class or function,
+generate its correct implementation. Ensure it is complete and syntactically
+valid.
+Output key: "code"
+2. Error Analysis and Repair Principles:
+You are given two versions of code: one with errors and one corrected. Analyze
+the differences and identify key problems in the faulty version. Based on
+this comparison, produce a list of 10 code repair precautions. These should
+be generalizable principles addressing common issues (e.g., indentation, type
+conversion, exception handling, logic errors). Avoid using titles; just
+output the explanations.
+Output key: "hints" (as a list of 10 strings)
+3. Hint Classification:
+Each natural language hint is used to prompt the LLM to repair the code.
+Classify each hint into one repair category (e.g., "syntax", "logic",
+"exception handling"). Also, extract important keywords and write a
+one-sentence summary of the hint.
+Output keys: "category", "keywords", "summary"
+4. Repair Type Identification:
+Given the original problem description, identify the {K} most relevant
+categories this code repair case falls under. Select from a pre-defined set
+of bug types.
+Output key: "categories" (as a list of {K} strings)
+28
+
+--- Page 29 ---
+5. Most Relevant Hints Ranking:
+You are given a set of all the hints provided to the model. Analyze the model’s
+generated fix and its reasoning trace. Based on this analysis, identify the
+{N} most relevant hints. These may be either positively helpful or misleading.
+Sort them in order of influence on the final patch.
+Output key: "hints" (as a list of {N} strings)
+Important Notes:
+- Always respond strictly in JSON format.
+- Do not include section titles, markdown formatting, or explanations.
+- When code is requested, return only the code inside the JSON key.
+- If any step is not applicable (e.g., hint classification not possible), return
+an empty string or array for that field.
+F.2 PROMPTDESIGNFORAGENTKBPIPELINE
+F.2.1 GAIA
+AGENTKBReasonPrompt
+Analyze similar tasks and past experiences to generate concise, actionable
+suggestions for improving the current plan. Based on the patterns identified
+in relevant tasks and insights from the Agent KB, provide specific
+recommendations.
+Key Requirements:
+1. Focus exclusively on technical/behavioral improvements derived from similar
+task patterns and experience.
+2. Provide root-cause solutions and implementation strategies based on past
+successes.
+3. Format output strictly as:
+{1. Specific suggestion 1}
+{2. Specific suggestion 2}
+...
+No headings, explanations, or markdown.
+You can refer to similar tasks, plans, and corresponding experience to provide
+your suggestions:
+{
+"question": "<Question retrieved from Agent KB>",
+"agent_plan": "<Retrieved agent plan>",
+"agent_experience": "<Retrieved agent experience>",
+}
+...
+AGENTKBRefinePrompt
+Analyze the execution logs to determine the causes of the agent’s incorrect
+responses. Based on the findings of the log and insights from the provided
+similar tasks and experience, generate some concise, actionable suggestions
+that the agent must follow to improve accuracy.
+**Key Requirements:**
+1. Focus exclusively on technical/behavioral fixes derived from log patterns
+and the Agent KB.
+2. Provide root-cause resolution (e.g., code logic, data validation, API
+29
+
+--- Page 30 ---
+handling) as well as generic advice.
+3. Format output strictly as:
+{1. Specific suggestion 1}
+{2. Specific suggestion 2}
+...
+No headings, explanations, or markdown.
+You can refer to similar tasks and corresponding experience to provide your
+suggestions:
+{
+"question": "<Question retrieved from Agent KB>",
+"agent_plan": "<Retrieved agent plan>",
+"agent_experience": "<Retrieved agent experience>",
+}
+...
+Execution logs summary:
+<Log summary>
+F.2.2 SWE-BENCH
+AGENTKBReasonPrompt
+Extract key information from user queries to construct efficient search terms
+for retrieving the most relevant results.
+Requirements:
+Analyze the user’s question to identify core concepts, terminology, and
+keywords Extract contextual information and constraints that may impact
+search quality Break down complex questions into searchable components
+Identify the domain, subject matter, and specific needs of the question
+Output format:
+{<core concepts or topics of the question>}
+Ensure search terms are specific enough to retrieve relevant information while
+maintaining sufficient breadth to capture related cases. Combine technical
+terminology with everyday expressions to optimize search effectiveness.
+AGENTKBRetrievePrompt
+Given the current bug description, initial patch plan, and model thought
+process, retrieve the most relevant historical experiences from Agent KB.
+Retrieval Priorities:
+1. Prefer experiences with similar bug types (e.g., off-by-one errors, null
+pointer exceptions, wrong return value).
+2. Favor patches with successful unit test outcomes and generalizable fix
+patterns.
+3. Include agent plans that show tool usage, exception guards, or correct
+interface assumptions.
+Format each retrieved experience as:
+{
+"question": "<SWE-bench issue title or commit description>",
+"agent_plan": "<Historical high-level patch or thought process>",
+"agent_experience": "<Failure modes avoided or debug strategies that worked>"
+}
+...
+30
+
+--- Page 31 ---
+Retrieve 3 to 5 relevant entries and return them in the above format for use
+in downstream reasoning and refinement.
+AGENTKBRefinePrompt
+Analyze the execution trace of the model’s patch attempt and identify the
+reasons for its failure. You are given: a natural language description of
+a code fix problem, the model-generated fix, the model’s internal thought
+process, and the prompts previously provided to guide the model.
+Based on this information, identify the most likely cause of the error and
+determine which hints or prompt components influenced the model’s incorrect
+reasoning. Rank the provided prompts in order of their influence over the
+model’s behavior.
+Key Requirements:
+1. Focus exclusively on technical root causes, such as incorrect API
+assumptions, scope misunderstanding, faulty patch structure, or missing
+validation.
+2. Identify which prompt(s) led the model astray, based on reasoning steps or
+patch behaviors.
+3. Output a strictly ranked list of prompts or hints, based on their importance
+in shaping the erroneous behavior.
+4. Justify the ranking based on model thought content and the specific failure
+observed.
+Format strictly as:
+{
+1. "<Most influential prompt or hint snippet>"
+2. "<Second most influential prompt or hint snippet>"
+...}
+Do not include headings, explanations, or markdown. Focus only on returning
+the ranked list with brief justifications inline.
+G LANGUAGE MODEL USAGE
+Thissectionoutlinesthespecificrolesoflargelanguagemodels(LLMs)withinourAGENTKBframe-
+workandexperimentalmethodology. WeprovidedetaileddocumentationofallLLMapplicationsfor
+transparency.
+G.1 SYSTEMCOMPONENTS
+We employ LLMs in three core functions: (1) Experience synthesis using LLMs with few-shot
+promptingtotransformheterogeneousagentlogsintostandardizedrepresentations,(2)Knowledge
+curationthroughLLM-basedrankingwhendeduplicatingsimilarentries(τ =0.8threshold),and
+(3)QueryprocessingforbothtaskanalysisintheReasonphaseandexperienceadaptationinthe
+Refinephase.
+G.2 EXPERIMENTALSETUP
+AgentBackbones. Ourevaluationinvolvesfourdistinctagentframeworks,eachpoweredbydiffer-
+entLLMconfigurations: smolagents(GPT-4o,GPT-4.1,Claude-3.7,Qwen 3-32B,DeepSeek-R1),
+OWL (GPT-4o), SWE-Agent (GPT-4.1, o3-mini), and OpenHands (GPT-4o, o3-mini, GPT-4.1,
+Claude-3.7,Qwen 3-3B,DeepSeek-R1). TheAGENTKBsystemactsasamodel-agnosticmemory
+layer,interfacingthroughstandardizedAPIswithoutrequiringchangestoagentarchitectures.
+31
+
+--- Page 32 ---
+EvaluationMethodology. Performanceassessmentreliessolelyonground-truthtaskcompletion
+metrics.WeuseexactmatchaccuracyforGAIAreasoningtasksandtestpassageratesforSWE-bench
+coderepair,ratherthanLLM-generatedevaluationscores.
+G.3 MANUSCRIPTDEVELOPMENT
+Inlinewithconferencetransparencystandards,wedisclosethatlargelanguagemodelsassistedin
+manuscriptpreparationthrougheditorialtaskssuchasgrammarcorrection,typodetection,andprose
+clarityimprovement. Alltechnicalcontributions,experimentaldesign,resultsinterpretation,and
+scientificclaimsareentirelyauthoredbytheresearchers.
+G.4 METHODOLOGICALCONSIDERATIONS
+ComputationalOverhead. LLMinferenceincursmeasurablecostsduringexperienceconstruction
+andretrieval. Costanalysis(AppendixD)estimatestheseoverheadsat$3.0−−$4.5pertask,which
+isacceptableconsideringtheperformancegainsof4.0–18.7percentagepoints.
+ArchitecturalIndependence. AlthoughindividualagentframeworksdependonspecificLLMs,
+AGENT KB maintains an architecture-agnostic design. Knowledge transfer across frameworks
+happensviasemanticembeddingsandstandardizedactionvocabularies,ensuringportabilityacross
+differentmodelfamiliesandAPIinterfaces.
+32

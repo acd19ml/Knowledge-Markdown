@@ -1,6 +1,6 @@
 # Paper Reading Note Template
 
-Use this exact structure for every paper note. Sections marked with `[AI]` should be filled by Claude from the PDF content. Sections marked with `[HUMAN]` require the researcher's judgment — generate a preliminary suggestion but wrap it in a `> ⚠️ NEEDS YOUR INPUT:` blockquote so it's visually distinct and easy to find.
+Use this exact structure for every paper note. The note is a research intermediate artifact for KB sync, survey writing, and method design. Default style is: **Chinese for analysis, English for evidence fidelity**. Only use `> ⚠️ NEEDS YOUR INPUT:` for genuine unresolved researcher decisions; do not leave it as the default output style for finalized notes.
 
 ---
 
@@ -45,15 +45,15 @@ Use this exact structure for every paper note. Sections marked with `[AI]` shoul
 
 ## Limitations
 - **Author-stated limitations**: [Quote + page number]
-- **My observed limitations**: 
-> ⚠️ NEEDS YOUR INPUT: [AI provides preliminary observations, but you should verify and add your own]
+- **My observed limitations**:
+[AI fills with finalized analytical judgment when evidence is sufficient; use `⚠️ NEEDS YOUR INPUT` only if a real researcher decision is still required]
 - **Experimental design gaps**: [Benchmark coverage? Baseline omissions? Metric bias?]
 
 ## ⭐ Relation to My Research
 
 ### Position in Survey
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: [AI suggests based on paper content, you confirm]
+[AI fills with a concrete survey / taxonomy placement aligned with the current main line; use `⚠️ NEEDS YOUR INPUT` only if the placement is genuinely ambiguous]
 - **Role**: Positive example / Contrastive baseline / Background reference
 
 ### Gap Signals (extracted from this paper)
@@ -61,15 +61,15 @@ Use this exact structure for every paper note. Sections marked with `[AI]` shoul
 - Gap signal 1: "[Quote]" (Section X, p.Y) → implies ___
 - Gap signal 2: Experimental results show ___ scenario performance drops ___%, implying ___
 
-> ⚠️ NEEDS YOUR INPUT: 评估以上 Gap 信号的价值——是否与你的 RQ 直接相关？证据等级是 A/B/C？
+[AI should give a concrete preliminary value judgment and evidence level. Use `⚠️ NEEDS YOUR INPUT` only if this judgment would materially change the research direction.]
 
 ### Reusable Elements
 - **Methodology**: [Which module? How could it be reused or adapted?]
-> ⚠️ NEEDS YOUR INPUT: 具体如何迁移到你的方法中？
+[AI should write a concrete migration judgment when possible; reserve `⚠️ NEEDS YOUR INPUT` for truly unresolved design decisions]
 - **Experimental design**: [Which benchmark config / ablation design is transferable?]
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: 与 [Paper X] 的关系（互补/竞争/扩展/前驱）+ 具体描述
+[AI should state the relation type explicitly: 前驱 / 互补 / 竞争 / 扩展 / counter-evidence / blueprint / partial solution]
 
 ## Citation Tracking
 - [ ] [Paper name]: Tracking reason (supports Gap X / validates Method Y / understanding Tech Z)

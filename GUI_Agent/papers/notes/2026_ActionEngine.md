@@ -4,7 +4,7 @@
 - **Title**: ActionEngine: From Reactive to Programmatic GUI Agents via State Machine Memory
 - **Authors**: Hongbin Zhong et al. | Georgia Tech + Microsoft Research
 - **Venue**: Preprint, 2026 | arXiv:2602.20502
-- **Links**: [PDF](../source_todo/ActionEngine.pdf) | Code: not listed in PDF | Project: not listed in PDF
+- **Links**: [PDF](../source/ActionEngine.pdf) | Code: not listed in PDF | Project: not listed in PDF
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-06
 - **Priority**: P1 | **Reading progress**: Pass 2
 
@@ -47,14 +47,14 @@ ActionEngine 用离线构建的 state-machine graph memory 将 Web GUI agent 从
 ## Limitations
 - **Author-stated limitations**: 论文没有独立 Limitations 章节；最明显的作者自述失败点是 benchmark 中存在 underspecified tasks，导致系统化解释与 ground-truth evaluator 不一致（Section 6.3, p.9-10）。
 - **My observed limitations**: 
-> ⚠️ NEEDS YOUR INPUT: (1) ActionEngine 强依赖离线 crawling 预构建 graph，这对登录后、动态 personalization 很强、或 anti-bot 限制严格的网站可能并不现实。(2) 目前实验只覆盖 WebArena 的 Reddit 子集，尚不能说明它对跨站点、多应用 workflow 的泛化。(3) graph memory 记录的是页面结构与动作模板，不是显式 task-level skill abstraction，因此跨任务迁移仍偏 UI topology reuse，而不是真正的 procedural memory。
+  ActionEngine 很强，但它解决的是 structural memory for planning，而不是 main-line 所需的 experience-delta procedural memory。它的 graph 依赖离线 crawling 预构建，对登录态、强动态 personalization 和 anti-bot 场景并不稳健；同时当前迁移主要是 UI topology reuse，而不是把失败 / 成功经验写成可修订的 task-level rule。
 - **Experimental design gaps**: 缺少对 Crawling Agent、graph granularity、re-grounding fallback 等核心模块的单独消融；评测范围集中在 Reddit 子集，未覆盖更开放的 multi-site WebArena 配置。
 
 ## ⭐ Relation to My Research
 
 ### Position in Survey
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: 适合放在 GUI Agent survey 的 **Task Automation Pipeline / Planning + Memory** 交叉位置。它不是传统 episodic memory，而是更“symbolic / structural memory for planning”的代表。
+  这篇应放在 GUI Agent survey 的 **Planning + Structural Memory** 交叉位置。按当前主线，它是重要 related work，但不是 A-1 / A-4 的直接答案，因为它存的是页面结构和动作模板，不是 `post-task -> cross-task` 的经验规则与失败写回。
 - **Role**: Positive example / Contrastive baseline
 
 ### Gap Signals (extracted from this paper)
@@ -62,15 +62,15 @@ ActionEngine 用离线构建的 state-machine graph memory 将 Web GUI agent 从
 - Gap signal 2: Tasks 409-410 only reach 50% success because "the 50% failure rate reflect[s] cases where our systematic interpretation differed from the ground-truth evaluator's intent" (Section 6.3, p.9-10) → 仅有结构化页面记忆还不足以处理语义层面的指代歧义。
 - Gap signal 3: "Large-scale redesigns that fundamentally alter the interface structure may require full re-crawling to rebuild the memory from scratch." (Section 5, p.8) → 结构化 graph memory 的维护成本在界面大改时会陡增，开放世界和高频变化场景仍有明显边界。
 
-> ⚠️ NEEDS YOUR INPUT: 我倾向于把这篇论文视为“从 flat trajectory memory 走向 structural GUI memory”的强信号，但它还没有触及跨任务长期经验积累与在线自演化。
+  这篇论文最重要的信号是：GUI memory 不必只做 flat trajectory retrieval，结构化表示确实能提升规划质量。但它仍停在 structural prior 层，没有进入持续经验积累、规则泛化和 failure-driven rewrite。
 
 ### Reusable Elements
 - **Methodology**: state-machine graph memory、high-level IR to executable program、validator-triggered local repair 都很值得复用。
-> ⚠️ NEEDS YOUR INPUT: 如果你的研究想做 GUI procedural memory，这篇可以作为“结构先验”路线的参照物: 先把页面/动作抽象成图，再讨论如何把 task-level skill 叠加到图结构之上。
+  若继续沿当前主线推进，这篇最适合作为结构先验底座：先用 graph 抽象页面和动作，再把真正的 procedural rule 叠加在图节点 / 边上，形成“结构 memory + 经验 rule”两层系统。
 - **Experimental design**: 除总体成功率外，同时报告 latency、token、LLM calls，很适合拿来作为 efficiency-aware GUI agent 评测模板。
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: 可与 [2023_AppAgent](../notes/2023_AppAgent.md) 对比 reactive workflow；与 [2025_MobileAgentV3](../notes/2025_MobileAgentV3.md) 对比“训练型自演化”路线；与 [2026_M2](./2026_M2.md) 对比“结构 memory vs 摘要/检索 memory”两种记忆范式。
+  它与 [2023_AppAgent.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2023_AppAgent.md) 构成 reactive vs structural planning 的对照，与 [2026_M2.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2026_M2.md) 构成 structural memory vs retrieval / summary memory 的对照；再与 [2025_MobileAgentV3.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2025_MobileAgentV3.md) 放在一起，就能看出“training-time evolution”和“runtime structural planning”是两条不同路线。
 
 ## Citation Tracking
 - [ ] AgentOccam: 作为 strongest reactive baseline，需要对照其 prompt/context 管理机制

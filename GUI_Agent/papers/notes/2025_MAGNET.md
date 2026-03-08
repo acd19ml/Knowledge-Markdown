@@ -4,12 +4,12 @@
 - **Title**: MAGNET: Towards Adaptive GUI Agents with Memory-Driven Knowledge Evolution
 - **Authors**: Libo Sun, Jiwen Zhang et al. | Fudan University & University of Southern California
 - **Venue**: Preprint Jan 2026 | arXiv:2601.19992
-- **Links**: [PDF](./MAGNET.pdf)
+- **Links**: [PDF](../source/MAGNET.pdf)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
 - **Priority**: P0 | **Reading progress**: Pass 2
 
 ## One-line Summary
-Fudan/USC's MAGNET equips a planner–actor GUI agent with dual-level memory — stationary memory (visual UI patches → stable functional semantics) + procedural memory (abstract task workflows) — plus a dynamic evolution mechanism, achieving 42.62% on AndroidWorld vs. Agent-S 40.98% and AppAgent 34.43%, while also outperforming memory-free baselines on three offline benchmarks.
+复旦大学与 USC 的 MAGNET 为 planner-actor GUI agent 引入双层记忆，即 stationary memory（visual UI patches -> stable functional semantics）与 procedural memory（abstract task workflows），并配合 dynamic evolution 机制；它在 AndroidWorld 上达到 42.62%，高于 Agent-S 的 40.98% 与 AppAgent 的 34.43%，同时在三个离线 benchmark 上也优于无记忆基线。
 
 ## Problem Setting
 - **Core problem**: "frequent updates altering UI appearance and reorganizing workflows cause agents trained on historical data to fail" (Abstract, p.1). Two specific failure modes: (1) **appearance drift** — "UI elements are redesigned without altering their functions (e.g., the icon transition from Twitter to X)"; (2) **workflow drift** — "operation logic is reorganized across app versions (e.g., the task of 'changing the currency to USD')" (Introduction, p.1).
@@ -53,14 +53,17 @@ MAGNET is a memory-driven adaptive agent framework built on a planner–actor ar
 ## Limitations
 - **Author-stated limitations**: "The framework requires successful trajectories for memory construction, making it less effective in completely novel domains where initial exploration fails. Additionally, the clustering-based workflow extraction may struggle with highly diverse task structures that do not form clear patterns. Future work could explore zero-shot memory initialization and more flexible workflow representations." (Limitations, p.9)
 - **My observed limitations**:
-> ⚠️ NEEDS YOUR INPUT: (1) 程序性记忆的抽象工作流是通过聚类后让LLM归纳生成的，质量依赖聚类准确性和LLM的归纳能力，对稀有任务类型效果可能下降；(2) 静态记忆（stationary memory）的视觉patch + 文本描述对的构建需要成功的轨迹数据，冷启动时仍需大量人工演示或已有数据集；(3) 记忆进化实验（Table 5）是从Amex预热再在AndroidWorld上迭代，现实中跨平台迁移的有效性还需进一步验证；(4) 与专精模型（如Atlas-Pro-7B 66.64%）相比，MAGNET在in-distribution设置下仍有明显差距，记忆增强的收益在offline benchmark上相对有限（尤其是AITZ和GUI-Odyssey上的提升小于1%）。
+  1. **workflow 抽象仍偏 coarse**：procedural memory 由聚类后归纳出的 workflow 构成，适合 similarity-based reuse，但距离主线要求的 fine-grained experience-delta rule 还有一步。
+  2. **成功轨迹依赖仍强**：stationary 与 procedural 两层 memory 都建立在成功样本上，冷启动和新域失败场景下缺乏自举能力。
+  3. **迁移证据仍偏单一路径**：continual adaptation 主要验证 Amex → AndroidWorld 的持续替换，尚不足以证明更广的 app-family 泛化。
+  4. **memory 增益不是万能补丁**：在 AITZ / GUI-Odyssey 上的优势有限，说明 memory 设计虽有效，但仍受 backbone、benchmark 分布和任务粒度约束。
 - **Experimental design gaps**: Offline benchmarks use step-level success rate, not end-to-end task completion rate — performance on harder long-horizon tasks may not be well-captured. The online AndroidWorld evaluation uses only Qwen2.5-VL-32B as the backbone, leaving open the question of whether stronger backbones further amplify MAGNET's gains in the online setting.
 
 ## ⭐ Relation to My Research
 
 ### Position in Survey
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: MAGNET直接对应研究的核心关注点：(1) 程序性记忆（Procedural Memory）在GUI Agent中的实例化——对应Gap A-1的一个重要解决方案，可作为正面示例；(2) 离线经验进化（Offline Evolution）——其"dynamic memory evolution"机制涉及从历史成功轨迹中更新记忆库，部分回应了Gap A-4，但仍局限于成功轨迹，对失败轨迹的利用不足；(3) 多模态情景记忆——stationary memory存储视觉patch，部分回应Gap A-2。在GUI Agent survey的记忆章节中，MAGNET应作为"当前最佳实践"的正面示例，同时也展示了仍存在的Gap：记忆初始化仍需成功轨迹，无法从失败中离线学习。
+  MAGNET 是当前主线里最重要的 **partial solution / strongest baseline**。它已经弱占位了 `post-task / Skills / 相似性检索 × 上下文注入` 这格，因此写综述时应作为 GUI procedural memory 的当前最佳实践来讨论；但必须同时明确，它仍未解决 failure-driven write-back，也还没有把 workflow memory 提升为更细粒度、可稳定改写的 experience-delta rule。
 - **Role**: Positive example (current SOTA for memory-augmented GUI agents) + Gap signal provider (shows what remains unsolved)
 
 ### Gap Signals (extracted from this paper)
@@ -68,15 +71,18 @@ MAGNET is a memory-driven adaptive agent framework built on a planner–actor ar
 - Gap signal 2: "memory-augmented systems … mainly focus on text-based workflow descriptions that lack multimodal knowledge, making them vulnerable to visual changes in UI elements" (Introduction, p.1) → 即使MAGNET引入了视觉patch，仍是检索式的点对点匹配，缺乏结构化的多模态情景记忆流（对应Gap A-2）
 - Gap signal 3: "the clustering-based workflow extraction may struggle with highly diverse task structures that do not form clear patterns." (Limitations, p.9) → procedural memory 目前仍依赖 task clustering 质量，说明其跨任务迁移粒度和技能抽象稳定性还不够强。
 
-> ⚠️ NEEDS YOUR INPUT: MAGNET对研究的核心价值：(1) 它是最接近"解决Gap A-1+A-4"的现有工作，可直接作为研究的强baseline——如果本研究在AndroidWorld或相同offline benchmarks上超过MAGNET，即为显著的positive result；(2) MAGNET的stationary memory构建流水线（triplet collection → region annotation → function description）是memory construction的工程参考，可以参考其UI-40K数据集的构建方式；(3) MAGNET的局限（只从成功轨迹学习）是本研究"从失败中学习/离线进化"这一研究方向的直接motivation支撑。
+MAGNET 对主线的价值有三层：(1) 它证明 GUI procedural memory 在 system level 上已经可行，不再只是理论空白；(2) 它提供了 memory construction、ranking、injection 的完整工程参考；(3) 它又恰好把主线剩余问题暴露得很清楚，即 success-only evolution 仍不足以支持 A-4 所要求的 failure-aware memory rewriting。因此它是最强 baseline，但不是终点。
 
 ### Reusable Elements
 - **Methodology**: (1) The `<functional_description, visual_patch>` pair representation for stationary memory is directly reusable as multimodal memory unit design; (2) The Ebbinghaus-inspired retention score `R_i = exp(-g_i/n_i)` is a clean, principled memory prioritization formula adaptable to other dynamic memory systems; (3) The planner–actor separation with memory injected at different levels is a good architectural template.
-> ⚠️ NEEDS YOUR INPUT: 具体复用建议：(1) 保留双层记忆的架构划分（UI-level stationary + workflow-level procedural），但扩展stationary memory以支持跨app的功能语义聚合而不只是per-entry检索；(2) 将retention score机制扩展为同时考虑"成功/失败"标签，使记忆能从失败轨迹中降权低质知识；(3) UI-40K数据集可作为初始化记忆库的现成资源，节省冷启动成本。
+  以当前主线看，最合理的复用方式不是照搬 MAGNET，而是做三处改造：(1) 保留双层分工思路，但把 procedural memory 从 coarse workflow 推进一步到 finer-grained experience-delta rule；(2) 把 retention 机制扩展为 success / failure aware，使其支持 memory rewrite 而不仅是 success-only accumulation；(3) 视需要使用 UI-40K 或其构建流程作为冷启动资源，而不是把数据集本身当成方法核心。
 - **Experimental design**: (1) AndroidWorld online evaluation protocol (self-exploration → memory initialization → evaluation) is a standard reproducible setup; (2) The ID/TS/AS/DS subset design for GUI-Odyssey and Amex is a rigorous distribution-shift evaluation framework worth replicating; (3) Continual adaptation experiment (Table 5: iterative deployment + memory update) is a good template for evaluating offline/online memory evolution.
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: (1) AppAgent (2023_AppAgent.md)：MAGNET在AndroidWorld上直接与AppAgent对比（42.62% vs 34.43%），MAGNET的双层记忆正是对AppAgent文本文档的multimodal升级和程序性升级。两篇笔记应相互交叉引用。(2) Agent_Memory/中的记忆类型分类：MAGNET的stationary memory对应"Semantic Memory"（元素功能语义），procedural memory对应"Procedural Memory"（任务工作流），但两者都缺乏"Episodic Memory"（情景历史回放）。(3) Self_Evolve/中的"自进化"框架：MAGNET的dynamic memory evolution是一种受限的自进化——只从成功轨迹进化，且是规则驱动而非模型驱动；与Self_Evolve/中更激进的进化方法（如基于反馈信号的策略更新）有显著差距，这正是研究的切入点。(4) Cross_Topic/gap-tracker.md：MAGNET是Gap A-1（Procedural Memory）的最新正面示例，应更新Gap A-1的"Current Best"字段；同时它也证实了Gap A-4（Offline Evolution）仍未被解决（其Limitation一节明确承认）。(5) GUI_Agent/comparison-matrix.md：应将MAGNET添加至comparison matrix，Memory Type字段填"Stationary(visual) + Procedural(abstract workflow)"。
+- 与 [2023_AppAgent.md](./2023_AppAgent.md) 构成直接升级关系：MAGNET 把 text doc 路线推进到 multimodal grounding + workflow memory。
+- 与 Agent_Memory 的术语对齐时，stationary memory 对应 semantic memory，procedural memory 对应 workflow-level procedural memory，但系统仍缺少真正的 episodic replay layer。
+- 与 Self_Evolve 的关系在于：它已经做到了受限的 offline evolution，但仍停留在 success-only accumulation，而不是 failure-aware rewriting。
+- 在 [gap-tracker.md](/Users/mac/studyspace/Knowledge-Markdown/Cross_Topic/gap-tracker.md) 中，它应继续作为 A-1 的 `Current Best Partial Solution`；同时它也是 A-4 未被解决的最强反证材料。
 
 ## Citation Tracking
 - [ ] AppAgent (Zhang et al., 2025/CHI): primary baseline — MAGNET improves +8.19pp SR on AndroidWorld over AppAgent

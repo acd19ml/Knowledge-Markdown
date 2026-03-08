@@ -247,17 +247,22 @@
 |-----------|-------|-----------------|
 | **Source** | GUI_Agent | — |
 | **Task Type** | Desktop | — |
-| **Memory Cognitive Type** | Semantic（用户画像）| `[S]` |
-| **Memory Persistence** | Cross-session | `[S]` |
-| **Memory Subject** | User-centric | `[S]` |
-| **Self-Evolution Type** | None | `[S]` |
-| **Evolution Timing** | — | — |
-| **Cross-task Transfer** | None | `[S]` |
+| **Memory Cognitive Type** | Working + Semantic + Procedural (working memory hub + declarative memory + tool repository; UserProfile is explicitly defined but remains conceptual / unbenchmarked) | `[S→P]` (Wu et al., 2024, §2.2-§2.3, p.3-5): declarative memory contains UserProfile + semantic knowledge; procedural memory is Tool Repository; working memory retrieves from and updates long-term memory |
+| **Memory Persistence** | Cross-task — tool repository and semantic knowledge persist across tasks; user profile is intended cross-session but not empirically validated | `[S→P]` (Wu et al., 2024, §2.2.1-§2.2.3, p.3-4; §3.1, p.5): long-term memory stores user profile / semantic knowledge / tools; high-scoring tools are preserved in procedural memory |
+| **Memory Subject** | Agent-centric + User-centric (partial) — agent skills dominate, while UserProfile is only a conceptual personalized module | `[S→P]` (Wu et al., 2024, §2.2.1, p.3-4): `UserProfile` records user preference, but the authors state it is conceptual due to lack of benchmarks |
+| **Self-Evolution Type** | Online Experience (critic-guided self-correction + self-directed learning accumulates tools into procedural memory) | `[S→P]` (Wu et al., 2024, §3.1-§3.2, p.5-6): critic revises actions/tools/subtasks; self-directed learning proposes curriculum on unfamiliar apps and accumulates tools |
+| **Evolution Timing** | Cross-task continuous — local self-correction occurs in-task, while reusable tool accumulation happens across a curriculum of unfamiliar-app tasks | `[P]` (Wu et al., 2024, §3.1-§3.2, p.5-6): feedback triggers revisions during execution and preserves reusable tools for later tasks |
+| **Cross-task Transfer** | App-level — accumulated tools generalize to future tasks within the same unfamiliar application; not a cross-app abstraction layer | `[S→P]` (Wu et al., 2024, Abstract, p.1; §3.2, p.6): FRIDAY shows generalization to unseen applications via accumulated skills from previous tasks, but the learning target is still application-specific control |
 
-**Representative Experimental Data**: Not yet filled — awaiting paper read.
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| GAIA Level-1 | SR | 40.86% | Previous best: 30.3% | +10.56pp | Introduction, p.2 |
+| GAIA Level-3 | SR | 6.12% | Prior systems: essentially unsolved | Positive | Introduction, p.2 |
+| SheetCopilot-20 | SR | 60% (after self-directed learning) | SheetCopilot GPT-4: 55% | +5.0pp | Introduction, p.2 |
 
-**Reading Notes**: Not yet read
-**Last Updated**: 2026-03-06 | 初始 [S] 条目，来自综述推断
+**Reading Notes**: `GUI_Agent/papers/notes/2024_OS-COPILOT.md`
+**Last Updated**: 2026-03-08 | 从综述推断升级为原文精读确认；Friday 修正为 working+declarative+procedural 的 OS-level self-improving system，而非仅 "Semantic 用户画像"
 
 ---
 
@@ -557,17 +562,23 @@
 |-----------|-------|-----------------|
 | **Source** | Agent_Memory | — |
 | **Task Type** | 对话 | — |
-| **Memory Cognitive Type** | Semantic | `[S]` |
-| **Memory Persistence** | Cross-session | `[S]` |
-| **Memory Subject** | User-centric | `[S]` |
-| **Self-Evolution Type** | None | `[S]` |
-| **Evolution Timing** | — | — |
-| **Cross-task Transfer** | — | — |
+| **Memory Cognitive Type** | Semantic (structured notes over interaction traces: contextual description + keywords/tags + links; note-centric evolving semantic memory rather than executable skill memory) | `[S→P]` (Xu et al., 2025, §3.1-§3.3, p.4-5): each note stores content, timestamp, keywords, tags, contextual description, embedding, and links; old notes can be evolved by new evidence |
+| **Memory Persistence** | Cross-session — long-term note store is updated across ongoing interactions and later retrievals | `[S→P]` (Xu et al., 2025, §3.1-§3.4, p.4-5): notes are stored in memory collection `M`, retrieved later, and updated as new memories arrive |
+| **Memory Subject** | Agent-centric | `[S→P]` (Xu et al., 2025, §1-§3, p.1-5): A-MEM is framed as an agentic memory system for LLM agents, not a user profile system |
+| **Self-Evolution Type** | Inference-time (new memories trigger link generation and memory evolution over historical notes) | `[S→P]` (Xu et al., 2025, §3.2-§3.3, p.4-5): new memories autonomously generate links and can update contextual representations of prior notes |
+| **Evolution Timing** | Cross-task continuous — memory write-back happens whenever new interactions are processed, not in a separate offline training stage | `[P]` (Xu et al., 2025, §3.3, p.5): historical memories are evolved when new memories are incorporated |
+| **Cross-task Transfer** | None — improves long-horizon interaction within one agent/framework, but no explicit cross-task or cross-framework transfer claim | `[P]` (Xu et al., 2025, §4-§6, p.5-9): evaluation is on long-term conversational QA rather than task transfer |
 
-**Representative Experimental Data**: Not yet filled — awaiting paper read.
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| DialSim | F1 | 3.45 | LoCoMo: 2.55 | +0.90 | Table 2, p.7 |
+| DialSim | SBERT Similarity | 19.51 | LoCoMo: 15.76 | +3.75 | Table 2, p.7 |
+| LoCoMo MultiHop (GPT-4o-mini) | F1 | 27.02 | w/o LG&ME: 9.65 | +17.37 | Table 3, p.7 |
+| LoCoMo Temporal (GPT-4o-mini) | F1 | 45.85 | w/o ME: 31.24 | +14.61 | Table 3, p.7 |
 
-**Reading Notes**: Not yet read
-**Last Updated**: 2026-03-06 | 初始 [S] 条目，来自综述推断；← GUI Agent 个性化的现成方案
+**Reading Notes**: `Agent_Memory/papers/notes/2025_AMem.md`
+**Last Updated**: 2026-03-08 | 从综述推断升级为原文精读确认；纠正为 Agent-centric evolving semantic memory，而非 "GUI 个性化的现成 User-centric 方案"
 
 ---
 
@@ -831,17 +842,23 @@
 |-----------|-------|-----------------|
 | **Source** | Self_Evolve | — |
 | **Task Type** | 通用 | — |
-| **Memory Cognitive Type** | Semantic | `[S]` |
-| **Memory Persistence** | Cross-task | `[S]` |
-| **Memory Subject** | Agent-centric | `[S]` |
-| **Self-Evolution Type** | Offline Experience | `[S]` |
-| **Evolution Timing** | Post-task | `[S]` |
-| **Cross-task Transfer** | Cross-domain | `[S]` |
+| **Memory Cognitive Type** | Procedural + Semantic (structured experience units with action-reasoning pairs, workflow guidance, and cross-framework metadata; stronger on transferable experience than plain note memory) | `[S→P]` (Tang et al., 2025, §3.1-§3.3, p.3-5): `E=<pi,gamma,S,C>` stores task embedding, constraints, action-reasoning pairs, and compatibility metadata; planning is seeded with cross-domain workflows |
+| **Memory Persistence** | Cross-task — shared KB persists across tasks, passes, and frameworks; entries are ranked, retained, or evicted over time | `[S→P]` (Tang et al., 2025, §3.2-§4.1, p.4-5): AGENT KB grows as frameworks contribute execution experiences and uses utility-based eviction |
+| **Memory Subject** | Agent-centric | `[S→P]` (Tang et al., 2025, §3.1, p.3): the KB stores reusable agent execution experiences rather than user profiles |
+| **Self-Evolution Type** | Offline Experience (shared KB write-back + ranking/eviction + feedback-derived refinement; no parameter retraining required) | `[S→P]` (Tang et al., 2025, §3.2-§3.3, p.4-5): experiences are abstracted into the KB, reranked, refined, and updated from later passes |
+| **Evolution Timing** | Cross-task continuous — pass@2/pass@3 enrich the KB with failure diagnoses from earlier attempts and later tasks/frameworks reuse the expanded pool | `[S→P]` (Tang et al., 2025, §4.1, p.5): "pass@2 enriches AGENT KB with failure diagnoses from the first attempt" |
+| **Cross-task Transfer** | Cross-domain / cross-framework — shared experiences transfer across reasoning and software-engineering frameworks, but not validated in GUI visual environments | `[S→P]` (Tang et al., 2025, Abstract, p.1; §4.2, p.6-7): gains shown across smolagents, OpenHands, OWL, and SWE-Agent on GAIA / HLE / GPQA / SWE-bench |
 
-**Representative Experimental Data**: Not yet filled — awaiting paper read.
+**Representative Experimental Data**:
+| Benchmark | Metric | This System | Strongest Baseline | Δ | Source |
+|-----------|--------|-------------|-------------------|---|--------|
+| GAIA (smolagents, GPT-4.1, pass@3) | Accuracy | 73.9% | smolagents baseline: 55.2% | +18.7pp | Table 1, p.6 |
+| SWE-bench Lite (OpenHands, GPT-4.1, pass@1) | Accuracy | 28.3% | OpenHands baseline: 24.3% | +4.0pp | Table 2, p.6 |
+| HLE Bio/Chem (OpenHands, GPT-4.1, pass@3) | Accuracy | 14.1% | OpenHands baseline: 9.5% | +4.6pp | Table 2, p.6 |
+| GPQA (OpenHands, GPT-4.1, pass@3) | Accuracy | 72.7% | OpenHands baseline: 62.6% | +10.1pp | Table 2, p.6 |
 
-**Reading Notes**: Not yet read
-**Last Updated**: 2026-03-06 | 初始 [S] 条目；← GUI 跨 App 知识迁移的答案
+**Reading Notes**: `Self_Evolve/papers/notes/2025_AgentKB.md`
+**Last Updated**: 2026-03-08 | 从综述推断升级为原文精读确认；确认其为 cross-framework transferable experience layer，而不是 GUI 跨 App 迁移的现成答案
 
 ---
 
@@ -875,7 +892,7 @@
 （Self_Evolve）  |  离线经验  o MAGNET(app-level)  *SkillWeaver *AgentKB|
                  |  在线经验  o                                        |
                  |  推理时    *MobAgv2  *PC-Agent  *Reflexion          |
-                 |  无        *(大多数GUI Agent)  *Friday(仅Semantic)  |
+                 |  无        *(大多数GUI Agent)  *Friday(OS-level tool memory) |
                  +------+----------+----------+----------+-----------+
                         无      Working   Episodic  Semantic  Procedural
                                         <--- 记忆认知类型（Agent_Memory）--->

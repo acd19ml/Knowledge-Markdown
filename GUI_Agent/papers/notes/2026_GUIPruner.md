@@ -4,7 +4,7 @@
 - **Title**: Spatio-Temporal Token Pruning for Efficient High-Resolution GUI Agents
 - **Authors**: Zhou Xu et al. | Tsinghua University + Xidian University + CUHK
 - **Venue**: Preprint, 2026 | arXiv:2602.23235
-- **Links**: [PDF](../source_todo/Spatio-Temporal-Token-Pruning.pdf) | Code: not listed in PDF | Project: not listed in PDF
+- **Links**: [PDF](../source/Spatio-Temporal-Token-Pruning.pdf) | Code: not listed in PDF | Project: not listed in PDF
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-06
 - **Priority**: P1 | **Reading progress**: Pass 2
 
@@ -48,14 +48,14 @@ GUIPruner 针对高分辨率 pure-vision GUI agents 中的时空冗余，提出 
 ## Limitations
 - **Author-stated limitations**: "there exists a theoretic lower bound to token reduction" and aggressive compression inevitably discards fine-grained cues, so performance degradation becomes unavoidable beyond the Pareto frontier (Limitations, p.14)
 - **My observed limitations**: 
-> ⚠️ NEEDS YOUR INPUT: (1) 这篇优化的是视觉编码成本，而不是高层规划，所以它更像底层加速模块，不会直接解决 GUI agent 的 intent / memory 问题。(2) 实验仍主要围绕 Qwen 系列 backbone，跨模型稳定性还需更多验证。(3) 论文题目强调 high-resolution GUI，但对 OCR-heavy 或极端动态场景的收益没有单独拆解。
+  GUIPruner 解决的是视觉编码成本，不是规划、记忆或失败写回。因此它对当前 main-line 的意义是“约束条件”，而不是“方法答案”：如果未来 procedural memory 系统建立在 pure-vision GUI agent 上，history / current-frame token budget 会成为真实系统瓶颈。
 - **Experimental design gaps**: 缺少与 end-to-end textual / DOM agents 的整体系统级成本对比；也未分析压缩对 downstream reflection / self-correction 模块的影响。
 
 ## ⭐ Relation to My Research
 
 ### Position in Survey
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: 适合放在 **Efficiency / Perception Optimization** 小节，作为 pure-vision GUI agent 的底层系统优化工作。
+  这篇应放在 **Efficiency / Perception Optimization** 小节，作为 pure-vision GUI agent 的底层系统优化工作。按当前主线，它应被视为 supporting evidence，而不是核心 related work。
 - **Role**: Positive example / Background reference
 
 ### Gap Signals (extracted from this paper)
@@ -63,15 +63,15 @@ GUIPruner 针对高分辨率 pure-vision GUI agents 中的时空冗余，提出 
 - Gap signal 2: baseline methods collapse on Mind2Web for 7B models (Table 1, p.6) → 通用视觉 pruning 在 GUI grounding 上并不可靠。
 - Gap signal 3: even GUIPruner admits a lower bound to compression (Limitations, p.14) → efficiency 与 grounding fidelity 之间存在不可消除的信息瓶颈。
 
-> ⚠️ NEEDS YOUR INPUT: 如果你的 survey 主线不聚焦系统优化，可以把它作为 supporting evidence，用来说明 pure-vision GUI agents 的扩展性问题真实存在。
+  它最适合被用作 supporting evidence，说明纯视觉 GUI agent 的扩展性压力是真实存在的，任何依赖长 history 或多视图的 memory 方案都不能忽视这一约束。
 
 ### Reusable Elements
 - **Methodology**: TAR 的 recency-aware token budgeting、SSP 的 topology-preserving pruning，都可作为 GUI encoder 前端模块复用。
-> ⚠️ NEEDS YOUR INPUT: 我更看重它的分析框架，即把 GUI compression 分成 history 与 current-frame 两类完全不同的问题，而不是照搬具体超参。
+  更值得保留的是它的分析框架，而不是具体超参：GUI compression 需要把 history 和 current frame 分开处理，这一点对后续 memory 系统尤其重要。
 - **Experimental design**: 同时汇报 accuracy、FLOPs、encoder latency、prefill latency、GPU memory，是效率论文应有的完整评价方式。
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: 可与 [2026_M2](./2026_M2.md) 对比“视觉 token 压缩 vs 文本/轨迹记忆压缩”；与 [2025_MobileAgentV3](../notes/2025_MobileAgentV3.md) 的历史图像消融结果形成呼应。
+  它与 [2026_M2.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2026_M2.md) 构成“视觉 token 压缩 vs 文本 / 轨迹记忆压缩”的对照，也与 [2025_MobileAgentV3.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2025_MobileAgentV3.md) 的历史图像消融形成呼应。
 
 ## Citation Tracking
 - [ ] FastV / DivPrune / CDPruner / MoB: 通用 pruning baseline

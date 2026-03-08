@@ -4,12 +4,12 @@
 - **Title**: EVOLVER: SELF-EVOLVING LLM AGENTS THROUGH AN EXPERIENCE-DRIVEN LIFECYCLE
 - **Authors**: Rong Wu et al. | Zhejiang University, Shanghai AI Lab, ECNU, Fudan, CSU, SJTU, USTC
 - **Venue**: arXiv preprint, 2025-10-17 | arXiv:2510.16079
-- **Links**: [PDF](./EVOLVER.pdf) | [Code](https://github.com/Edaizi/EvolveR) | [Project](https://github.com/Edaizi/EvolveR)
+- **Links**: [PDF](../source/EVOLVER.pdf) | [Code](https://github.com/Edaizi/EvolveR) | [Project](https://github.com/Edaizi/EvolveR)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
 - **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
-Wu et al. 提出 EvolveR 闭环范式（Offline Self-Distillation + Online Interaction + GRPO Policy Evolution），在 Qwen2.5-3B 上将 7 个 QA 基准平均 EM 提升到 0.382，相比最强 baseline（Search-R1-instruct, 0.325）提升 +0.057（约 +17.5% 相对提升）(Section 4.2, p.8; Table 1, p.8)。
+EvolveR 提出“Offline Self-Distillation + Online Interaction + GRPO Policy Evolution”的闭环范式，在 Qwen2.5-3B 上把 7 个 QA 基准的平均 EM 提升到 0.382，相比最强 baseline `Search-R1-instruct` 的 0.325 提升 +0.057（约 +17.5% 相对提升）（Section 4.2, p.8; Table 1, p.8）。
 
 ## Problem Setting
 - **Core problem**: “each interaction is treated independently… suffering from operational amnesia and failing to learn from past successes or avoid prior mistakes” (Section 1, p.1)。
@@ -63,11 +63,7 @@ EvolveR 的核心是“经验生命周期闭环”。第一阶段 Offline Experi
 ## Limitations
 - **Author-stated limitations**: “the efficacy of our self-distillation mechanism is inherently bounded by the capabilities of the agent’s own model” (Appendix A.5, p.16)；并指出 lifelong 场景下计算效率仍是 open challenge，且自演化可能引入安全与价值对齐风险 (p.17)。
 - **My observed limitations**:
-> ⚠️ NEEDS YOUR INPUT: 初步观察如下，请结合你的 RQ 确认。  
-> 1. 评测全部在文本 QA + 搜索工具范式，尚未覆盖 GUI / embodied / code-agent 等更复杂交互。  
-> 2. 经验库机制很完整，但关键超参（相似度阈值、剪枝阈值、top-k）缺乏系统敏感性分析。  
-> 3. 多数增益来自“检索到经验再推理”，而不是“经验内化进参数”，说明长期 autonomous self-improvement 还未完全闭环。  
-> 4. 与更大闭源模型/更强检索系统的成本-效果权衡尚不清楚。
+  EvolveR 已经把“经验检索 -> 原则蒸馏 -> 策略演化”的闭环做得比较完整，但按当前主线看，它仍主要证明 principles / retrieval 在文本任务中有效。真正没闭上的环，是经验质量控制和吸收机制本身；这与 A-4 的 failure-aware revision 问题高度同构。
 - **Experimental design gaps**:
   - 缺少跨任务类型泛化（非 QA）实验。  
   - 缺少经验库规模增长下的时延/内存成本曲线。  
@@ -77,7 +73,7 @@ EvolveR 的核心是“经验生命周期闭环”。第一阶段 Offline Experi
 
 ### Position in Survey
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: 建议定位在 `Self_Evolve` 主线中的 “experience-driven self-evolution loop” 小节；如果你的综述有 memory 章节，也可作为“external memory retrieval -> policy evolution”桥接案例。
+  这篇应定位在 `Self_Evolve` 的 “experience-driven self-evolution loop” 小节，并可在 memory 章节中作为 “external memory retrieval -> policy evolution” 的桥接案例。它对当前 main-line 的价值主要是蓝图作用，而不是直接的 GUI 证据。
 - **Role**: Positive example（完整闭环）+ Contrastive baseline（显示“可检索经验”与“可内化经验”的差异）
 
 ### Gap Signals (extracted from this paper)
@@ -86,26 +82,20 @@ EvolveR 的核心是“经验生命周期闭环”。第一阶段 Offline Experi
 - Gap signal 3: exp-absorb 退化（0.382 -> 0.371）且作者归因为检索噪声 (Appendix A.3, p.15; Table 9, p.18) -> implies “经验质量评估/加权吸收”是下一步关键技术缺口。
 - Gap signal 4: 仅在 QA benchmark 验证 (Section 4.1.1, p.7) -> implies 该闭环在 GUI agent 或开放环境中的有效性仍待实证。
 
-> ⚠️ NEEDS YOUR INPUT: 建议给以上 Gap 信号打证据等级。  
-> - Signal 1/2/3：建议 A 或 B（有直接文本和表格证据）。  
-> - Signal 4：建议 B（外推合理，但尚未被该文直接实验验证）。
+  在当前主线下，最值得保留的 gap 不是“它还没扩到 GUI”，而是 exp-absorb 退化与 self-distillation 上限这两点。它们直接说明，经验库不是有了就够，还需要质量过滤、加权吸收和污染控制。
 
 ### Reusable Elements
 - **Methodology**:
   - “成功/失败轨迹 -> guiding/cautionary principle”双通道蒸馏模板可直接复用到你自己的经验库管线。
   - “embedding 检索 + LLM 语义判等 + merge”的经验去重流程可直接迁移到 `Self_Evolve` 方法实现。
   - `outcome + format` 复合奖励对“结果正确 + 过程规范”双目标优化很实用。
-> ⚠️ NEEDS YOUR INPUT: 你是否希望把这套机制落地为 GUI/代码 agent 版本？若是，建议先定义“principle 的结构化字段”与“质量过滤器”。
+> 如果迁移到 GUI / code agent，这套机制最值得保留的是 principle schema 和质量过滤器。沿 main-line 收缩后，principle 不应是自由文本格言，而应是可检索、可修订的结构化 procedural rule。
 - **Experimental design**:
   - Table 2/3/9 的“机制级拆分消融”范式值得复用：分别验证蒸馏来源、推理检索、参数吸收三条路径。
   - 多尺度（0.5B/1.5B/3B）验证可用于证明“方法是否依赖模型规模”。
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: 建议补全以下交叉引用。  
-> 1. `2026_SkillRL.md`：都在做“经验抽象 + 训练闭环”，但 SkillRL 更偏 RL 技能库，EvolveR 更偏原则库与检索。  
-> 2. `2024_AWM.md`：都强调“抽象经验单元优于原始轨迹记忆”，可做统一叙事线。  
-> 3. `ExpeL.pdf`、`Reflexion.pdf`：EvolveR 可作为它们之后“从提示级反思走向策略更新闭环”的延伸。  
-> 4. `MemRL.pdf`：可对照“memory-augmented RL”与“principle-driven self-evolution”差异。
+  它与 [2026_SkillRL.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2026_SkillRL.md) 的关系是 principle library vs skill library，与 [2024_AWM.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2024_AWM.md) 则共同支撑“抽象经验单元优于原始轨迹”的叙事。再与 [2024_ExpeL.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2024_ExpeL.md)、[2023_Reflexion.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2023_Reflexion.md) 和 [2026_MemRL.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2026_MemRL.md) 组合，就能覆盖从反思、原则、记忆策略到 RL 决策的完整谱系。
 
 ## Citation Tracking
 - [ ] ExpeL (Zhao et al., 2024): 经验学习基线（trajectory reflection）

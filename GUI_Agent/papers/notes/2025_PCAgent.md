@@ -5,7 +5,7 @@
 - **Title**: PC-Agent: A Hierarchical Multi-Agent Collaboration Framework for Complex Task Automation on PC
 - **Authors**: Haowei Liu, Xi Zhang, Haiyang Xu et al. | CASIA (Chinese Academy of Sciences) / Alibaba Group
 - **Venue**: Preprint, February 2025 | arXiv:2502.14282
-- **Links**: [PDF](./PC-Agent.pdf) | [Code](https://github.com/X-PLUG/MobileAgent/tree/main/PC-Agent)
+- **Links**: [PDF](../source/PC-Agent.pdf) | [Code](https://github.com/X-PLUG/MobileAgent/tree/main/PC-Agent)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
 - **Priority**: P1 | **Reading progress**: Pass 2
 
@@ -81,7 +81,7 @@ PC-Agent 由三个核心设计组成。第一，**Active Perception Module (APM)
 
 - **Author-stated limitations**: "Currently, the best performing model remains the closed-source GPT-4o. However, there is still significant room for improving the efficiency of completing complex tasks by invoking closed-source models. And the privacy and security issues associated with closed-source models also deserve attention. Additionally, our focus in this work has primarily been on productivity scenarios. In future work, we will explore expanding into more scenarios such as social interaction and entertainment." (Limitations, p.8)
 - **My observed limitations**:
-  > ⚠️ NEEDS YOUR INPUT: (1) PA（Progress Agent）追踪子任务进度，本质上是**单次任务内的工作记忆**，任务结束后不保留；没有跨任务的历史经验存储，不具备 A-1（Procedural Memory）或 A-2（Episodic Memory）能力。(2) Agent-S 已尝试用本地记忆做"经验增强规划"，但本文反而放弃了这一路线，专注于感知和架构设计——这说明作者认为当前阶段感知和分解是瓶颈，记忆机制尚未成熟。(3) PC-Eval 仅有 25 条指令，规模小，且依赖人工评估，难以大规模自动化；未在 OSWorld 等通用基准上验证。(4) 完全依赖 GPT-4o 作为所有 Agent 的基础模型，部署成本高且有隐私风险。
+  > PC-Agent 的 PA/Communication Hub 解决的是任务内协同，不是跨任务经验累积。它很适合说明 PC 场景为什么需要 working memory 和层级分解，但并没有形成 `post-task -> cross-task` procedural memory；同时作者有意避开 Agent-S 式 local memory，说明当下系统瓶颈仍被视为感知与决策分解而非长期记忆。再加上 PC-Eval 规模小、人工评测重、强依赖 GPT-4o，这篇更像动机论文和架构基线，而不是 memory solution。
 - **Experimental design gaps**: 仅在自建 PC-Eval 上评估，未在 OSWorld、WindowsAgentArena 等标准基准上对比；未做 APM 内部消融（OCR vs A11y tree 各自的贡献）；未分析任务类型对成功率的影响（如纯应用内操作 vs 跨应用工作流）。
 
 ## ⭐ Relation to My Research
@@ -89,7 +89,7 @@ PC-Agent 由三个核心设计组成。第一，**Active Perception Module (APM)
 ### Position in Survey
 
 - **Corresponding survey section/category**:
-  > ⚠️ NEEDS YOUR INPUT: 属于 GUI Agent Survey 中 **Section 3（Task Automation Pipeline）→ 3.2 Decision Making（多智能体）** 与 **3.1 Perception（APM）** 的交叉。Progress Agent 对 Cross_Topic/gap-tracker.md 中的 A-1/A-2 缺口有直接参照意义——PA 是“有限 session 内记忆”的具体实现，但与跨任务持久化记忆有本质差距，可作为 Gap Analysis 的“现有局部方案”引用。
+  > 这篇应放在 GUI Agent survey 的 **Perception + Multi-Agent Decision Making** 段落，并在 main-line 里作为 A-1/A-4 的动机证据引用。PA 是 session 内 memory 的清晰实例，因此很适合用来说明“任务内记忆已出现，但跨任务 procedural reuse 仍未成立”。
 - **Role**: Background reference（PC 场景多智能体基线）/ Contrastive baseline（与具备持久化记忆的未来方案对比）
 
 ### Gap Signals (extracted from this paper)
@@ -98,17 +98,17 @@ PC-Agent 由三个核心设计组成。第一，**Active Perception Module (APM)
 - Gap signal 2: "the existence of inter-subtask dependencies requires the agent to consider the execution results of preceding subtasks when making decisions, further increasing the decision-making difficulty." (Section 1, p.1) → 子任务间依赖要求智能体在**跨步骤、跨应用**间传递上下文信息，当前 Communication Hub 是 session 内的手动传递，若能用持久化的过程性记忆自动管理此类依赖，将大幅降低人工设计成本（A-1 的应用场景）。
 - Gap signal 3: "removing RA leads to a very significant performance decrease (i.e., 27.9% in SSR and 44.0% in SR). This is because during the execution of complex instructions, errors in perception and decision-making are inevitable." (Section 3.3, p.7) → 反射 Agent 可弥补感知与决策错误，但这是**即时纠错**而非**从过去错误中学习**；若 RA 的失败反馈能累积为跨任务的失败经验库，则对应 A-4（Offline Experience Evolution from failed trajectories）。
 
-> ⚠️ NEEDS YOUR INPUT: PC-Agent 对研究的核心价值在于：它精确地描述了"PC 生产力场景下，记忆缺失导致的两类问题"——(1) 缺乏过程性知识（每次任务都要从零规划 Word 操作步骤），(2) 缺乏跨任务的失败经验积累（每次遇到同类错误都要 RA 即时重试而非从历史中预判）。这两点与 A-1 和 A-4 研究缺口高度对应，是很好的动机引用来源。
+> PC-Agent 对当前主线最有价值的地方，是把“没有 procedural memory 时会发生什么”写得很具体：复杂 PC workflow 只能现场分解、现场重试，既没有可复用操作规则，也没有失败后跨任务保留的写回机制。因此它非常适合作为 A-1 和 A-4 的需求侧证据，而不是作为解法论文。
 
 ### Reusable Elements
 
 - **Methodology**: APM 的"意图理解 Agent + OCR"双通道文本定位机制，可作为 GUI 记忆检索时的 observation 预处理模块（将截图中的文本准确抽取为记忆索引键）；Progress Agent 的进度追踪设计可扩展为"记忆检索触发器"——当当前进度与历史经验匹配时自动提取相关记忆。
-  > ⚠️ NEEDS YOUR INPUT: (1) APM 的文本精准定位能力对构建 A-2（视觉片段性记忆）中的"记忆锚点"很有价值——历史截图中的关键文本可被 APM 风格的 OCR 抽取为结构化索引，支持跨任务检索。(2) Progress Agent 的"子任务级进度摘要"模式（对应 Agent_Memory 中的 Summary Memory）可扩展为持久化的"任务完成路径记录"，即 A-1 技能库条目的一种天然格式。
+  > 最可迁移的是两个局部设计：一是 APM 提供的文本锚点提取，可作为视觉记忆检索的索引层；二是 Progress Agent 的子任务摘要，可改造成 procedural memory 的触发上下文与完成路径记录。沿当前 main-line，这些都应服务于 rule retrieval / write-back，而不是停留在任务内 coordination。
 - **Experimental design**: PC-Eval 的 25 条跨应用指令设计值得参考——若研究 PC 场景记忆，可直接在此基准上扩展（加入"重复任务"测试集来测量记忆带来的提升）；Table 3 的消融设计（逐步去除各模块）是清晰的 ablation 模板。
 
 ### Connections to Other Papers in Knowledge Base
 
-> ⚠️ NEEDS YOUR INPUT: (1) **与 Agent_Memory/ 的联系**：PA 对应 Agent_Memory/03_memory-types.md 中的 Working Memory（短期工作记忆）；Communication Hub 是 Semantic Memory 的 session 级简化版。本文 Limitations 提到 Agent-S 用 local memory 的尝试，可引用 Agent_Memory 中的相关分析来阐明"为何当前简单记忆不够用"。(2) **与 Cross_Topic/gap-tracker.md 的联系**：PC-Agent 是 A-1（Procedural Memory）缺口的直接动机来源——每次 Word 操作都从零规划，没有可复用的操作技能库。可在 gap-tracker.md 中将本文作为 A-1 的"佐证文献"补充。(3) **与同目录 Mobile-Agent-v3 的联系**：两者均来自阿里/CASIA，Mobile-Agent-v3 提供了更强的底层视觉基础模型（GUI-Owl），PC-Agent 提供了更精细的 PC 感知与分层决策架构。两篇可组合形成"感知+决策+记忆"完整 pipeline 的对比图。(4) **与 Self_Evolve/ 的联系**：PC-Agent 的 Reflection Agent 是单任务内的自我纠错，而 Self_Evolve 中的演化机制关注跨任务的持续学习，两者构成记忆研究的两个层次（within-task vs. across-task）。
+> 它与 `Agent_Memory` 的关系很清楚：PA 是典型 working memory，Communication Hub 只是 session 级共享上下文。与 [2025_MobileAgentV3.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2025_MobileAgentV3.md) 一起看，二者分别代表 PC 和 mobile 侧的任务内记忆上限；与 `Self_Evolve` 文献对照时，则刚好说明 “in-task reflection/correction” 和 “cross-task evolution/write-back” 之间仍有方法断层。
 
 ## Citation Tracking
 

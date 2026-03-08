@@ -4,7 +4,7 @@
 - **Title**: ExpSeek: Self-Triggered Experience Seeking for Web Agents
 - **Authors**: Wenyuan Zhang et al. | Institute of Information Engineering, CAS / UCAS / Tongyi Lab, Alibaba Group
 - **Venue**: arXiv preprint, 2026-01-13 | arXiv:2601.08605v1
-- **Links**: [PDF](./ExpSeek.pdf) | Code: 待公开 | Project: 未提供
+- **Links**: [PDF](../source/ExpSeek.pdf) | Code: 待公开 | Project: 未提供
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
 - **Priority**: P1 | **Reading progress**: Pass 2
 
@@ -69,11 +69,7 @@ ExpSeek 的核心是把经验检索函数从传统的 `e = G(E, q)` 改成 step 
   - 是否能扩展到 non-web domain 与更多工具尚未验证（Limitations, p.9）。
   - 尚未研究将 ExpSeek 作为 Agentic RL rollout 增强技术，以提升收敛速度与采样质量（Limitations, p.9）。
 - **My observed limitations**:
-> ⚠️ NEEDS YOUR INPUT:  
-> 1. 触发机制强依赖 entropy calibration，而 calibration 又依赖特定数据分布（WebWalkerQA 抽样）+ 外部评估工具模型；跨任务域时可能需要重标定。  
-> 2. 主实验的 guidance/tool model 采用 235B 模型（Section 5.1, p.6），部署成本偏高；在低资源场景的稳定性证据还不够。  
-> 3. 评测采用 LLM-as-a-Judge（Section 5.1, p.5），在复杂开放网页任务上可能引入判分偏差；缺少人工复核一致性报告。  
-> 4. 当前聚焦 step-level test-time guidance，对跨任务长期记忆积累（memory consolidation）没有直接机制。
+  ExpSeek 解决的是“何时介入、如何即时纠偏”，而不是“如何长期积累经验”。它的 entropy-trigger 很有启发，但强依赖 calibration、外部模型和 LLM judge，因此更像 runtime guidance controller。按当前主线，它可以服务 A-4 的前端质量控制，却不能替代长期 memory consolidation。
 - **Experimental design gaps**:
   - 缺少对“干预后下一步静默”机制的独立消融。
   - 缺少不同经验库规模/主题质量下的系统敏感性报告（仅给了缩减趋势分析）。
@@ -83,7 +79,7 @@ ExpSeek 的核心是把经验检索函数从传统的 `e = G(E, q)` 改成 step 
 
 ### Position in Survey
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: 建议放在 `Self_Evolve` 中的“test-time experience intervention / online guidance”小节，作为“非参数化在线纠偏”代表；同时可在 `Agent_Memory` 交叉引用为“step-level short-horizon memory usage”案例（不是长期记忆系统）。
+  这篇应放在 `Self_Evolve` 的 “test-time experience intervention / online guidance” 小节，作为非参数化在线纠偏代表；在 memory 视角里，它最多是短视距 guidance 的使用案例，而不是长期记忆系统。
 - **Role**: Positive example（动态经验干预范式）+ Contrastive baseline（对比持久化记忆/离线演化方法）
 
 ### Gap Signals (extracted from this paper)
@@ -92,25 +88,20 @@ ExpSeek 的核心是把经验检索函数从传统的 `e = G(E, q)` 改成 step 
 - Gap signal 3: “has not yet been studied whether it can serve as an enhancement technique for Agentic Reinforcement Learning rollout” (Limitations, p.9) → implies 与 self-evolving / RL-based continual improvement 的耦合仍为空白。
 - Gap signal 4: 训练仅使用 WebWalkerQA 抽样 170 条样本（Section 5.1, p.5），但宣称跨三项 OOD benchmark 泛化（Section 5.2, p.6）→ implies 当前证据更偏“初步有效”，尚需更大规模与更异质任务验证。
 
-> ⚠️ NEEDS YOUR INPUT:  
-> 对你当前 Self_Evolve 研究，最有价值的可能是 Gap 3：把 ExpSeek 的“何时介入”机制接到 RL rollout/filtering 流程里，作为 trajectory quality control 信号。你可以判断这是主线（A）还是补充线（B）。
+  对当前主线，最有价值的不是 topic repository 本身，而是“何时介入”的判定机制。它很适合并到 rollout / filtering 流程里做 trajectory quality control，但应被视为补充模块，而不是主方法核心。
 
 ### Reusable Elements
 - **Methodology**:  
   - entropy-trigger + probabilistic intervention 可直接复用为 agent 的“自监控开关”；  
   - triplet（Behavior/Mistake/Guidance）可复用为失败经验结构化模板；  
   - topic-based guidance generation 可作为 memory retrieval 前的“语义路由层”。
-> ⚠️ NEEDS YOUR INPUT: 你是否要把 triplet 扩展为 `(state, error type, correction, confidence)` 四元组，用于后续 A-4 离线经验演化？
+> 最值得迁移的是 trigger 和经验模板。若向 A-4 收缩，triplet 很自然可以扩成带 `state / error type / correction / confidence` 的结构化失败经验单元。
 - **Experimental design**:  
   - “accuracy-step-time”三维效率曲线（Figure 6）适合评估干预强度 trade-off；  
   - “repository size vs performance”分析（Figure 7）可直接迁移到 memory budget 研究。
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: 建议优先连接以下已读论文并补“互补/对比”说明：  
-> 1. `/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/2024_AWM.md`：AWM 做 workflow-level memory 复用；ExpSeek 做 step-level实时纠偏。前者偏“长期复用”，后者偏“即时干预”。  
-> 2. `/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/2026_SkillRL.md`：SkillRL 强调 skill library + RL 递归演化；ExpSeek 可作为 rollout 阶段的前端质量控制器。  
-> 3. `ExpeL.pdf` / `EVOLVER.pdf`：同属经验驱动，但 ExpSeek 的贡献点在“触发时机建模”而非经验本体演化。  
-> 4. `GUI_Agent` 相关论文：可把 ExpSeek 的触发机制迁移到 GUI agent 多步操作中的“何时请求外部帮助/记忆”。
+  它与 [2024_AWM.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2024_AWM.md) 构成长期复用 vs 即时干预的对照，与 [2026_SkillRL.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2026_SkillRL.md) 则是 rollout 前端质量控制 vs skill co-evolution 的对照。再与 [2024_ExpeL.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2024_ExpeL.md) 和 [2025_EvolveR.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2025_EvolveR.md) 一起看，可以把“经验本体演化”和“触发时机建模”明确区分开。
 
 ## Citation Tracking
 - [ ] ExpSeek (Zhang et al., 2026): step-level proactive experience seeking 的核心参考

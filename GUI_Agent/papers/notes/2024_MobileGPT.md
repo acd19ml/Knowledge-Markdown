@@ -4,12 +4,12 @@
 - **Title**: MobileGPT: Augmenting LLM with Human-like App Memory for Mobile Task Automation
 - **Authors**: Sunjae Lee et al. | KAIST (with Simon Fraser University)
 - **Venue**: ACM MobiCom 2024 (The 30th Annual International Conference on Mobile Computing and Networking, November 18–22, 2024, Washington D.C.) | arXiv:2312.10190 (per DOI: 10.1145/3636534.3690682)
-- **Links**: [PDF](./MobileGPT.pdf) | [Code](https://mobile-gpt.github.io/)
+- **Links**: [PDF](../source/MobileGPT.pdf) | [Code](https://mobile-gpt.github.io/)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
 - **Priority**: P0 | **Reading progress**: Pass 2
 
 ## One-line Summary
-Lee et al. (KAIST) propose MobileGPT, which emulates human app learning via an Explore-Select-Derive-Recall pipeline backed by a three-level hierarchical app memory (task / sub-task / action), achieving 82.7% task learning accuracy and 98.75% recall accuracy on 185 tasks across 18 apps, with 62.5% latency and 68.8% cost reductions versus a GPT-4-powered baseline.
+Lee et al.（KAIST）提出 MobileGPT，用 Explore-Select-Derive-Recall 流水线和三层 app memory（task / sub-task / action）来模拟人类学习 app 的过程；它在 18 个 app、185 个任务上达到 82.7% 的 task learning accuracy 与 98.75% 的 recall accuracy，并相对 GPT-4 baseline 将延迟降低 62.5%、成本降低 68.8%。
 
 ## Problem Setting
 - **Core problem**: "The inherent non-deterministic and unpredictable nature of LLMs can undermine the reliability and consistency of task automation. This is critical in mobile environments as many mobile tasks nowadays involve sensitive and private information. Second, LLMs are costly, both in terms of budget and time." (Section 1, Page 1). Existing LLM-based automators treat every task execution as independent, discarding learned procedures and incurring full LLM inference costs on repetition.
@@ -57,29 +57,35 @@ The three-level **hierarchical memory** (task → sub-task → action) is organi
 ## Limitations
 - **Author-stated limitations**: (1) Current implementation does not support apps without text-based screen layouts (Flutter, WebApps, image-dominated screens such as maps/camera) — VLM extension is discussed as future work. (Section 9, Page 14). (2) Cross-app task execution (e.g., "Check bank account, and if it has over $10, order me a pizza") is not currently supported but identified as a future extension via a global cross-app task dataset. (Section 9, Page 14). (3) App memory is stored locally per device; crowd-sourcing or sharing app memory across users is proposed as future work that could eliminate individual cold-start learning. (Section 9, Page 14).
 - **My observed limitations**:
-> ⚠️ NEEDS YOUR INPUT: 1) 系统依赖离线 Explore 阶段预建 sub-task 图，每个新 app 都需要一次性探索成本（约 10-15 分钟 + $10.78），在 app 快速更新（UI 变更）场景下维护成本高。2) 记忆是 app 级别的（per-app transition graph），每个 app 独立存储，无法跨 app 泛化子任务（如「搜索联系人」在 Telegram 和 Gmail 中分别存储，不共享）——这是 A-1 gap 中「跨 app 技能复用」的缺口。3) 失败轨迹最终通过 HITL 修复后才存入记忆，没有自动从失败经验中学习的机制（A-4 gap）。4) 评测基准（185 任务）由作者自建，数据集规模偏小，缺乏与标准 GUI Agent 基准的对比。
+  1. **探索成本仍是前置税**：每个新 app 都需要离线 Explore 才能构建 transition graph，因此记忆复用仍建立在 app-level onboarding 成本上。
+  2. **程序性记忆边界停在单 app**：三层记忆已经是 procedural memory 的强雏形，但复用范围仅限 per-app / per-device，尚未进入主线关心的 cross-task transferable rule 层。
+  3. **失败学习依赖 HITL**：系统把错误修复外包给人工，而不是把失败模式系统化写回 memory，因此不满足 A-4 的 autonomous failure-driven evolution。
+  4. **评测生态较封闭**：作者自建 185 任务足以展示 warm-start 优势，但缺少 AndroidWorld 类标准环境下的横向比较。
 - **Experimental design gaps**: Dataset is self-constructed (MobileGPT dataset: 80 tasks / 8 apps) with only partial coverage of AutoDroid and AppAgent datasets; no AndroidWorld, AITW full-set, or AitZ evaluation. HITL task repair is disabled in comparative study but enabled in ablation, creating inconsistency. Evaluation on a single device (Google Pixel 6) limits generalizability.
 
 ## ⭐ Relation to My Research
 
 ### Position in Survey
 - **Corresponding survey section/category**: GUI_Agent survey — Memory & Knowledge Reuse subsection; most directly relevant to A-1 (procedural memory / skill library) gap.
-> ⚠️ NEEDS YOUR INPUT: 这篇论文是目前 GUI Agent 领域最接近 A-1 gap（程序性记忆）的现有工作。建议在 Cross_Topic/gap-tracker.md 的 A-1 gap 条目下将其列为「已有工作」的最强基线，同时指出其局限（per-app 存储、依赖人工修复、无跨 app 泛化）作为 gap 仍然存在的论据。在 GUI_Agent/ 的 survey notes 中，应在「Memory」章节重点介绍。
+  在当前主线下，MobileGPT 应被视为 **A-1 的最强早期 related work**：它已经把 memory 从 task cache 提升到 sub-task / action hierarchy，但仍停留在 app-bound reuse。写综述时应把它放在 Memory 小节的核心位置，用来说明 GUI 领域其实已经出现 procedural-memory 雏形，只是还没有进入 `post-task -> cross-task reusable rule` 这一步。
 
 ### Gap Signals (extracted from this paper)
 - Gap signal 1: "MobileGPT currently stores memory on a local basis, meaning each device has its own version of app memory." (Section 9, Page 14) → 记忆无法跨用户/跨设备共享，作者明确承认这是限制，指向 A-1 中「共享/可扩展技能库」的需求。
 - Gap signal 2: "Cross App Task execution... MobileGPT can be extended to maintain a global dataset of known tasks across apps." (Section 9, Page 14) → 跨 app 任务无法处理，作者将其列为 future work，这是 A-1 gap 中「跨 app 程序性记忆」的直接证据。
 - Gap signal 3: "Human-in-the-loop (HITL) task repair ... provides mechanisms for users to correct the LLM's mistakes themselves." (Section 3.4, p.5-6) → 失败后的知识修复依赖人工介入，而不是自动 failure-driven learning，这直接限制了 A-4 式离线经验进化。
 
-> ⚠️ NEEDS YOUR INPUT: MobileGPT 的 gap signal 价值在于：它已经实现了「子任务级别的程序性记忆」，但被限制在 per-app、per-device 范围内，且依赖 HITL 修复失败。这意味着研究空间是：(a) 将 sub-task 记忆从 app 级提升为 cross-app、cross-domain 的通用技能库（A-1 核心方向）；(b) 将 HITL 修复替换为自动的失败轨迹学习（A-4 方向）。此论文是迄今为止最相关的 related work，应在 proposal 中详细讨论其局限。
+MobileGPT 的 gap signal 之所以关键，是因为它证明 GUI 场景下的 procedural memory 并非空想：sub-task hierarchy、parameterized actions、warm-start reuse 都已经可行。主线真正要补的是两个剩余缺口：把 app-bound memory 提升为更稳定的 cross-task reusable rule，以及把 HITL 修复替换为自动的 failure-driven write-back。也因此，它是 proposal 中必须详细讨论的最相关 related work。
 
 ### Reusable Elements
-- **Methodology**: The function-call format for sub-task representation is directly reusable for encoding skills in a procedural memory library. The transition graph structure can inspire a cross-app skill graph design. The attribute-based action generalization mechanism is a concrete technique for making stored actions context-independent.
-> ⚠️ NEEDS YOUR INPUT: 具体复用建议：1) Sub-task 的 function-call 格式（name, desc, params, UI_index）可直接作为技能库的存储格式，无需重新设计。2) Sub-task-based screen classification（用子任务列表表征页面，而非视觉外观）可用于跨 app 技能检索：在新 app 中找到具有相同子任务集的页面，直接复用已学技能。3) 失败轨迹的 HITL 修复 pipeline 可以作为半自动标注框架，用于训练离线经验学习模型（A-4 方向的数据收集方法）。
+- **Methodology**: sub-task 的 function-call 表示可直接复用于 procedural memory library 的 skill 编码；transition graph 结构可进一步启发 cross-app skill graph 设计；基于属性的 action generalization 也是把已存动作做成 context-independent 的具体技术抓手。
+  最可复用的有三部分：(1) sub-task 的 function-call schema 可以直接作为 procedural memory entry 的外层接口；(2) attribute-based action generalization 提供了把动作从实例级提升到参数化模板的具体技术；(3) HITL repair pipeline 可以作为 failure-aware memory 学习的数据采集器，但在你的主线中它应被进一步自动化，而不是保留人工闭环。
 - **Experimental design**: The cold-start / warm-start evaluation paradigm is essential for benchmarking any memory-augmented GUI agent. Memory hit rate per app is a useful metric for quantifying memory utilization. The 185-task, 18-app dataset (combining AutoDroid + AppAgent + MobileGPT datasets) provides a reasonable starting evaluation scope.
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: 1) 与 Agent_Memory/（记忆综述）：MobileGPT 的三层记忆（task/sub-task/action）对应认知记忆分类中的程序性记忆（procedural memory）+ 工作记忆的结合体。在 agent memory 综述中被归为 external memory / parametric memory 的哪一类？值得对照。2) 与 Self_Evolve/（自进化综述）：MobileGPT 的「Recall → HITL修复 → 存回记忆」流程是一种 human-in-the-loop 的轻量进化机制，但不满足 Self_Evolve 综述中定义的「自主」进化条件（需要自动化）。3) 与 Mobile-Agent-v2（本批次）：互补关系——Mobile-Agent-v2 解决单任务内的工作记忆（working memory），MobileGPT 解决跨任务的程序性记忆（procedural memory）。两者结合构成一个更完整的记忆架构。4) 与 Cross_Topic/gap-tracker.md 的 A-1 gap：MobileGPT 是 A-1 的最强 related work，应在 gap tracker 的 A-1 条目中更新「已有工作」字段。
+- 与 Agent_Memory 对齐时，MobileGPT 的核心应归为 **external procedural memory**，并伴随少量 task-execution-time working memory 成分。
+- 与 Self_Evolve 的关系是：它已经出现“回忆-修复-存回”的演化雏形，但由于修复依赖 HITL，仍不属于 autonomous self-evolution。
+- 与 [2024_MobileAgentV2.md](./2024_MobileAgentV2.md) 的互补性很强：一个解决 in-task context management，一个解决 app 内 procedural reuse。
+- 在 [gap-tracker.md](/Users/mac/studyspace/Knowledge-Markdown/Cross_Topic/gap-tracker.md) 中，MobileGPT 应持续作为 A-1 的 strongest related work，而不是被误写成已解决主线问题。
 
 ## Citation Tracking
 - [ ] AutoDroid (Wen et al., 2023): 直接对比基线，LLM + Android UI text representation

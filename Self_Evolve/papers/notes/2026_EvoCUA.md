@@ -4,7 +4,7 @@
 - **Title**: EvoCUA: Evolving Computer Use Agents via Learning from Scalable Synthetic Experience
 - **Authors**: Taofeng Xue, Chong Peng, Mianqiu Huang et al. | Meituan, Fudan University, Tongji University, HKUST
 - **Venue**: Preprint, 2026 | arXiv:2601.15867v2 (从 PDF 页脚提取，建议你再核验一次)
-- **Links**: [PDF](./EvoCUA.pdf) | [Code](https://github.com/meituan/EvoCUA) | [HuggingFace](https://huggingface.co/meituan/EvoCUA-32B-20260105) | [OSWorld](https://os-world.github.io/)
+- **Links**: [PDF](../source/EvoCUA.pdf) | [Code](https://github.com/meituan/EvoCUA) | [HuggingFace](https://huggingface.co/meituan/EvoCUA-32B-20260105) | [OSWorld](https://os-world.github.io/)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
 - **Priority**: P1 | **Reading progress**: Pass 2
 
@@ -75,11 +75,7 @@ EvoCUA 的核心是一个持续闭环，而不是一次性数据集：先由 Ver
   - "This disparity highlights the limits of offline learning from synthesized traces alone." (Section 9, p.18)
 
 - **My observed limitations**:
-> ⚠️ NEEDS YOUR INPUT: 初步观察，请结合你的研究目标确认：
-> 1. **数据-模型分布错配**：作者在 6.2.2 明确承认，EvoCUA-32B 在 ScreenSpot-Pro/MMMU 等指标退化，主因是使用了 non-thinking 风格通用数据；这说明其 recipe 对数据风格敏感，跨骨干迁移并非“无条件稳健”。
-> 2. **系统成本很高**：文中提到超过 100 万 accelerator hours（Section 6.5, p.15），同时 STEPO 训练成本高；对多数研究团队复现门槛较高。
-> 3. **在线 RL 证据还早期**：Section 7 的在线 RL 更像“方向性报告”，还不是完整 benchmark 级结论。
-> 4. **评测生态依赖 OSWorld**：尽管有离线 grounding/general 指标，但主叙事几乎围绕 OSWorld，跨环境泛化证据仍薄。
+  EvoCUA 展示了大型 GUI self-evolution recipe 的工程上限，但它也把成本、分布敏感性和在线 RL 尚不成熟的问题暴露得很彻底。按当前主线，它更像 training-side upper bound：证明“只靠合成数据和训练闭环”能走多远，同时也说明这条路对算力、数据风格和 benchmark 生态高度敏感。
 
 - **Experimental design gaps**:
   - Table 2 多个 baseline 带 `*`（来自外部报告），与本文内部训练条件未完全统一（p.12）。
@@ -91,7 +87,7 @@ EvoCUA 的核心是一个持续闭环，而不是一次性数据集：先由 Ver
 ### Position in Survey
 
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: 建议归到 `Self-Evolving Agents` 主线中的 **Experience Loop Systems** 子类：`synthetic task generation -> online rollout -> failure correction -> iterative policy update`。如果你在综述中有“可验证奖励驱动自演化”小节，这篇应作为核心代表之一。
+  这篇应归到 `Self-Evolving Agents` 主线中的 **Experience Loop Systems** 子类。如果单列“可验证奖励驱动自演化”，它应是核心代表之一；但在当前 A-1 / A-4 主线下，它属于训练期强基线，而不是 deployment-time memory answer。
 - **Role**: Positive example（展示可扩展经验闭环） + Contrastive baseline（对比纯 memory/纯 imitation 路线）
 
 ### Gap Signals (extracted from this paper)
@@ -101,10 +97,7 @@ EvoCUA 的核心是一个持续闭环，而不是一次性数据集：先由 Ver
 - Gap signal 3: "This disparity highlights the limits of offline learning from synthesized traces alone." (Section 9, p.18) → 仅靠离线可合成轨迹难触及 human-level reliability，真实环境在线演化是必要方向。
 - Gap signal 4: EvoCUA-32B 在部分通用/grounding 指标退化，且作者将其归因于 `non-thinking` 数据分布不匹配（Section 6.2.2, p.11-12）→ 自演化流程中的“分布对齐机制”仍不完善。
 
-> ⚠️ NEEDS YOUR INPUT: 以上 Gap 对你当前 RQ 的价值判断建议：
-> - Gap 1/2 可支撑“在线自演化实用化瓶颈”论点（证据等级 A-）。
-> - Gap 3 可支撑“纯离线合成数据路线的上限”论点（证据等级 A）。
-> - Gap 4 可支撑“自演化中的数据-骨干耦合风险”论点（证据等级 B+）。
+  对当前知识库，最应保留的不是它“规模很大”这一点，而是它清楚地给出了三类瓶颈：在线自演化成本高、纯离线合成数据有上限、recipe 与 backbone / data style 强耦合。这些都在侧面支撑了为什么 inference-time memory 路线仍值得做。
 
 ### Reusable Elements
 
@@ -112,7 +105,7 @@ EvoCUA 的核心是一个持续闭环，而不是一次性数据集：先由 Ver
   - 可执行 validator 驱动的 generation-as-validation 框架（可借鉴到你自己的合成任务流水线）。
   - `Critical Forking Point` + 双范式 DPO（Action Correction + Reflection）可直接复用到失败恢复训练。
   - Step-level 轨迹去噪与“失败样本反思化”策略，有利于降低长轨迹噪声污染。
-> ⚠️ NEEDS YOUR INPUT: 你是否计划在自己的 Self_Evolve pipeline 里加入“关键分叉点检测”？若加入，建议先在单一应用域（如浏览器或表格）验证收益/成本比。
+> 最值得迁移的是 `Critical Forking Point` 和失败样本反思化，而不是整套大规模训练 recipe。它们可以被收缩成 failure segmentation / write-back 的局部模块，用来服务 A-4。
 
 - **Experimental design**:
   - Pass@k + Max Step 双轴 scaling 分析适合评估 agent robustness（Section 6.4, p.13-14）。
@@ -120,10 +113,7 @@ EvoCUA 的核心是一个持续闭环，而不是一次性数据集：先由 Ver
 
 ### Connections to Other Papers in Knowledge Base
 
-> ⚠️ NEEDS YOUR INPUT: 初步关联建议（请按你现有笔记再确认）：
-> - 与 [SkillRL](./2026_SkillRL.md)：都属于“经验驱动自演化”，但 SkillRL 偏 skill abstraction，EvoCUA 偏 verifiable synthesis + infra scaling。
-> - 与 `ExpeL`/`Reflexion`：都强调从失败中学习；EvoCUA 将其工程化到大规模 GUI rollout 与 step-level DPO。
-> - 与 `EVOLVER`/`ExpSeek`：可构成“自演化范式谱系”对比（memory-centric vs synthesis-centric vs search-centric）。
+  它与 [2026_SkillRL.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2026_SkillRL.md) 的关系是 skill abstraction vs synthesis / infra scaling，与 [2024_ExpeL.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2024_ExpeL.md) 和 [2023_Reflexion.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2023_Reflexion.md) 的关系则是把 failure learning 工程化到大规模 GUI rollout。再与 [2025_EvolveR.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2025_EvolveR.md) 和 [2026_ExpSeek.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2026_ExpSeek.md) 对照，可形成 memory-centric、synthesis-centric、search-centric 三类自演化路线。
 
 ## Citation Tracking
 

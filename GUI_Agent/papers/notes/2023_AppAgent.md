@@ -4,12 +4,12 @@
 - **Title**: AppAgent: Multimodal Agents as Smartphone Users
 - **Authors**: Chi Zhang et al. | Tencent
 - **Venue**: Preprint Dec 2023; published CHI 2025 | arXiv:2312.11190
-- **Links**: [PDF](./AppAgent.pdf) | [Project](https://appagent-official.github.io/)
+- **Links**: [PDF](../source/AppAgent.pdf) | [Project](https://appagent-official.github.io/)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
 - **Priority**: P0 | **Reading progress**: Pass 2
 
 ## One-line Summary
-Tencent's AppAgent uses GPT-4V with a two-phase exploration-then-deploy framework to operate smartphone apps via GUI actions (no system API access), achieving 84.4% task success rate on 50 tasks across 10 apps when using human-demo-based knowledge documents.
+腾讯的 AppAgent 使用 GPT-4V 和“两阶段 exploration-then-deploy”框架，在不依赖系统 API 的前提下通过 GUI actions 操作手机 app；当知识文档来自 human demos 时，它在 10 个 app、50 个任务上达到 84.4% 的成功率。
 
 ## Problem Setting
 - **Core problem**: "creating a multimodal agent capable of operating diverse smartphone apps presents significant challenges" — adapting models for embodied tasks requires extensive training data, and "collecting a large dataset of app demonstrations for training is a formidable task" (Introduction, p.2); further, "different apps have unique GUIs with varying icon meanings and operational logic, and it remains uncertain whether these adapted models can effectively generalize to unseen apps" (Introduction, p.2).
@@ -48,14 +48,17 @@ The key enabler is the **simplified action space**: `tap(element)`, `long_press(
 ## Limitations
 - **Author-stated limitations**: "We have adopted a simplified action space for smartphone operations, which means that advanced controls such as multi-touch and irregular gestures are not supported. This limitation may restrict the agent's applicability in some challenging scenarios." (Conclusion/Limitation, p.8)
 - **My observed limitations**:
-> ⚠️ NEEDS YOUR INPUT: 知识库是per-app的纯文本文档，存在以下问题：(1) 知识不能跨app迁移——每个新app都需要重新探索，无法复用已学到的UI模式；(2) 探索阶段生成的文档与任务强相关，不同任务可能需要不同的探索过程；(3) 没有对失败轨迹的学习机制，离线进化能力缺失；(4) 文本文档无法捕捉视觉外观信息，面对UI外观漂移时鲁棒性存疑。
+  1. **per-app 文档孤岛**：知识文档按 app 单独维护，迁移边界停留在单 app 内，无法支持主线所要求的 `post-task -> cross-task` procedural reuse。
+  2. **表示粒度过粗**：文档记录的是“元素-动作-效果”描述，而不是带触发条件、约束和失败信号的 procedural rule，更接近 semantic doc 而非可改写的 procedural memory。
+  3. **无失败写回机制**：部署阶段的失败不会回流为 memory edit / split / rewrite，因此不具备 A-4 所要求的 failure-driven write-back。
+  4. **视觉鲁棒性不足**：纯文本知识文档无法稳定覆盖 UI 外观漂移和视觉定位问题，这也是后续 MAGNET 要引入视觉 patch memory 的直接动机。
 - **Experimental design gaps**: Lightroom is excluded from the main SR evaluation because "assessing task completion in this application presented inherent ambiguities" (p.7) — this creates a gap where the most vision-demanding app is not quantitatively evaluated on success rate.
 
 ## ⭐ Relation to My Research
 
 ### Position in Survey
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: 对应survey中"训练无关/推理时记忆增强"方法类别（planner-actor框架下的知识库方法）。在GUI Agent综述的Memory部分，AppAgent是最具代表性的"外部知识文档"方法——通过exploration生成per-app文本文档作为语义记忆（Semantic Memory），但缺乏程序性记忆（Procedural Memory）和跨app知识迁移能力。建议放在 §Memory-Augmented GUI Agents 下，作为"基线/对比方法"。
+  AppAgent 应放在 GUI Agent 综述的 **Memory-Augmented GUI Agents / Exploration-built Knowledge** 小节，作为外部知识文档路线的代表基线。按当前主线，它不是 procedural memory 的正例，而是 `pre-task exploration + app-bound semantic memory` 的典型系统，用来和后续的 MobileGPT / MAGNET 对照。
 - **Role**: Positive example (pioneer of exploration-based knowledge document approach) + Contrastive baseline (lacks procedural/episodic memory)
 
 ### Gap Signals (extracted from this paper)
@@ -63,15 +66,17 @@ The key enabler is the **simplified action space**: `tap(element)`, `long_press(
 - Gap signal 2: "We have adopted a simplified action space for smartphone operations, which means that advanced controls such as multi-touch and irregular gestures are not supported." (Conclusion/Limitation, p.8) → 现有知识文档和动作接口仍覆盖不了更复杂的 GUI 操作形态，说明 procedure abstraction 还受 action-space 上限约束。
 - Gap signal 3: "This information is compiled into a document that records the effects of actions applied to different elements." (Section 3.3, p.5) → 记忆被压缩为元素-动作效果文档，而不是保留 richer visual episode；这为后续多模态 episodic memory 设计留下了空间。
 
-> ⚠️ NEEDS YOUR INPUT: AppAgent对研究的价值：它是Gap A-1（程序性记忆）和A-4（离线进化）最直接的对比基线。其知识文档设计思路（exploration → document → deploy）是本研究可以改进的出发点：(1) 将per-app文档升级为跨app可迁移的程序性技能库；(2) 引入离线进化机制，从历史轨迹（包括失败轨迹）中持续更新知识库；(3) 引入截图级别的多模态记忆以应对UI外观变化。
+AppAgent 对当前主线的价值在于提供一个清晰的“起点基线”：它证明 exploration → external knowledge → deployment 这条路线有效，但也同时暴露了主线要解决的三处核心缺口：`semantic doc ≠ procedural rule`、`app-bound reuse ≠ cross-task reusable memory`、`document lookup ≠ failure-driven write-back`。因此它是 A-1 与 A-4 的直接对比基线，而不是目标解法本身。
 
 ### Reusable Elements
 - **Methodology**: The exploration → document → deploy pipeline is directly reusable as a baseline framework. The element-indexed action space design is standard and can be adopted as-is in new frameworks.
-> ⚠️ NEEDS YOUR INPUT: 具体可复用之处：(1) 知识文档的数据结构（元素名、xpath、截图描述、动作效果）可作为程序性记忆条目设计的参考；(2) 探索阶段的goal-directed exploration策略（遇到无关页面就Back()）可作为memory construction的数据收集协议；(3) 将in-context的interaction history summary扩展为持久化的episodic memory是自然的研究方向。
+  可直接复用的部分主要有三项：(1) exploration → document → deploy 这一最小闭环可作为无训练 procedural-memory baseline；(2) goal-directed exploration 协议适合作为经验收集阶段的数据生成器；(3) 元素级动作效果记录可作为后续 procedural rule 抽象前的原始证据层，但需要再向上抽象成带 `context / constraint / failure signal` 的 memory unit。
 - **Experimental design**: The 50-task / 10-app benchmark setup is widely adopted as a baseline evaluation protocol. The three-metric design (SR + Reward + Avg. Steps) is transferable.
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: (1) MAGNET (2025_MAGNET.md) 在AndroidWorld上直接与AppAgent对比，AppAgent得34.43% vs MAGNET 42.62%——MAGNET的双层记忆正是针对AppAgent文本文档不能应对视觉漂移的弱点设计的；(2) 与Agent_Memory/中的"Procedural Memory"定义对应——AppAgent的知识文档是语义记忆(Semantic Memory)而非程序性记忆，关键区别在于没有可跨任务重用的抽象工作流；(3) GUI_Agent/comparison-matrix.md中AppAgent已被收录，可更新其"Memory Type"字段为"Semantic Doc (per-app)"；(4) Cross_Topic/gap-tracker.md中A-1 Procedural Memory和A-4 Offline Evolution两个Gap的典型缺失案例就是AppAgent。
+- 与 [2025_MAGNET.md](./2025_MAGNET.md) 构成直接前后继关系：MAGNET 的双层记忆就是对 AppAgent 文本文档路线的多模态化和 workflow 化升级。
+- 与 Agent_Memory 的术语对齐时，AppAgent 更应归为 **Semantic Memory / app knowledge document**，而不是 Procedural Memory。
+- 在 [comparison-matrix.md](/Users/mac/studyspace/Knowledge-Markdown/Cross_Topic/comparison-matrix.md) 中，它是 `Semantic Doc (per-app)` 的代表；在 [gap-tracker.md](/Users/mac/studyspace/Knowledge-Markdown/Cross_Topic/gap-tracker.md) 中，它是 A-1 与 A-4 的典型缺失案例。
 
 ## Citation Tracking
 - [ ] AppAgentV2 (Li et al., 2024): extends AppAgent with flexible mobile interactions — should check if procedural memory gap is addressed

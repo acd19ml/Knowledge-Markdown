@@ -4,7 +4,7 @@
 - **Title**: Autonomous Continual Learning of Computer-Use Agents for Environment Adaptation
 - **Authors**: Tianci Xue et al. | The Ohio State University + UC Berkeley
 - **Venue**: Preprint, 2026 | arXiv:2602.10356
-- **Links**: [PDF](../source_todo/Autonomous-Continual-Learning.pdf) | Code: github.com/OSU-NLP-Group/ACuRL | Project: not listed in PDF
+- **Links**: [PDF](../source/Autonomous-Continual-Learning.pdf) | Code: github.com/OSU-NLP-Group/ACuRL | Project: not listed in PDF
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-06
 - **Priority**: P1 | **Reading progress**: Pass 2
 
@@ -47,14 +47,14 @@ ACuRL 让 computer-use agent 在零人工数据条件下，通过 autonomous exp
 ## Limitations
 - **Author-stated limitations**: 论文没有独立 limitations 章节，但结论与实验设置已暗示边界: 目前仅在 6 个代表性环境中验证，并且适配依赖目标环境可被反复访问和训练（Section 4-6, p.6-10）。
 - **My observed limitations**: 
-> ⚠️ NEEDS YOUR INPUT: (1) ACuRL 虽然实现了 continual learning，但仍是一个显式训练阶段过程，不是部署期即插即用的 runtime memory adaptation。(2) 任务生成与自动评估都强依赖外部高能力模型（如 GPT-5 / GPT-5-mini），真实部署成本和可迁移性还要单独评估。(3) 环境覆盖仍偏 office / productivity，尚未证明在更开放的真实 consumer web / desktop software 上同样成立。
+  ACuRL 证明了 GUI continual learning 可以做，但它的“持续学习”本质上是训练阶段的环境适应，而不是部署期 memory write-back。任务生成和评测都强依赖高能力外部模型，且实验分布仍集中在 office / productivity 场景，所以它更像 A-4 的训练期对照路线，而不是当前主线要解决的 inference-time experience reuse。
 - **Experimental design gaps**: 未直接与 inference-time memory / retrieval methods 做比较；也没有分析若目标环境本身变化非常剧烈，过去经验是否会误导 curriculum。
 
 ## ⭐ Relation to My Research
 
 ### Position in Survey
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: 这篇最适合放在 GUI Agent survey 的 **Training / Adaptation / Self-Evolution** 小节，也可以作为“online continual adaptation”与“inference-time memory reuse”之间的重要分界线。
+  这篇应放在 GUI Agent survey 的 **Training / Adaptation / Self-Evolution** 小节，并被明确标成与当前 main-line 的分界案例。它回答的是“如何继续训练 agent 适应目标环境”，不是“如何在部署后把经验写成可检索、可修订的 procedural memory”。
 - **Role**: Positive example / Background reference
 
 ### Gap Signals (extracted from this paper)
@@ -62,15 +62,15 @@ ACuRL 让 computer-use agent 在零人工数据条件下，通过 autonomous exp
 - Gap signal 2: ACuRL 的适应闭环由 autonomous exploration、curriculum generation、RL 更新和 CUAJudge 组成（Sections 3-4, p.3-8）→ 这是训练期 continual learning 方案，而不是 deployment-time retrieval / memory reuse；两类持续改进机制仍应区分。
 - Gap signal 3: sparse updates around only 20% parameters and about 80% unchanged (Abstract / Figure 2 discussion, p.1, p.8) → 暗示也许存在更轻量的 parameter-efficient or memory-based adaptation 路径。
 
-> ⚠️ NEEDS YOUR INPUT: 如果你的 RQ 聚焦“agent 如何持续吸收经验”，ACuRL 可以作为训练期自演化的强基线，而你的工作可进一步问: 能不能把这套能力搬到 inference-time、无显式 RL 的设置里。
+  对当前主线而言，ACuRL 的价值在于给出一个强训练期基线，并把问题边界切清楚：如果不想依赖持续参数更新和 RL，那么就需要一个更轻量的 inference-time experience layer 来承接同类收益。
 
 ### Reusable Elements
 - **Methodology**: CUAJudge 非常值得复用，尤其是 state-difference + evidence-grounded verification 的组合；curriculum generator 也适合作为 self-evolving pipeline 的 task source。
-> ⚠️ NEEDS YOUR INPUT: 我会优先复用 CUAJudge，而不是整套 RL 框架。前者能直接迁移到“经验筛选 / 记忆质量评估”，后者工程代价较高。
+  最值得复用的是 CUAJudge，而不是整套 RL pipeline。它很适合被改造成经验筛选、失败归因和记忆质量评估模块；相比之下，完整 continual-RL 框架与当前 A-1 / A-4 主线耦合过重。
 - **Experimental design**: 同时报 intra-environment、cross-environment、agreement with human judgments、update sparsity，是很完整的 continual learning 评测模板。
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: 可与 [2025_MobileAgentV3](../notes/2025_MobileAgentV3.md) 对比训练期自演化；与 [2026_GUI-Genesis](./2026_GUI-Genesis.md) 对比“构造训练环境”路线；与 memory-oriented papers 如 [2026_M2](./2026_M2.md) 对比训练期 adaptation vs inference-time augmentation。
+  它与 [2025_MobileAgentV3.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2025_MobileAgentV3.md) 和 [2026_GUI-Genesis.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2026_GUI-Genesis.md) 组成训练侧谱系：一个强调 rollout 自演化，一个强调环境生成，一个强调 continual adaptation。与 [2026_M2.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2026_M2.md) 对照时，则能更清楚地区分 training-time adaptation 和 inference-time memory augmentation。
 
 ## Citation Tracking
 - [ ] CUAJudge / WebJudge lineage: 需要追 evaluator 设计来源

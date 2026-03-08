@@ -141,9 +141,10 @@ Keep `Pass 1` if any of these is true:
 
 `Pass 3` = the note is fully integrated into the knowledge base. All of the following must be true:
 
-- All `⚠️ NEEDS YOUR INPUT` blocks have been filled by the researcher (not AI suggestions)
+- No unresolved placeholders remain in research-facing sections
 - Connections to ≥ 2 other papers/files in the KB are established with specific relation type (complement / contrast / extend / precede)
-- Each Gap signal has a researcher-assigned evidence grade (A / B / C)
+- Each Gap signal has a stable evidence grade (A / B / C) and role in the current main line
 - Citation Tracking follow-up papers have been prioritized and scheduled
 - The note has been used to update `comparison-matrix` and `gap-tracker` at least once
+- The note's language follows the Chinese-analysis / English-evidence split
 - You can write a survey paragraph citing this paper without reopening the note more than once

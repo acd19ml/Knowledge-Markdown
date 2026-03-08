@@ -4,12 +4,12 @@
 - **Title**: Mobile-Agent-v3.5: Multi-platform Fundamental GUI Agents
 - **Authors**: Haiyang Xu et al. | Tongyi Lab, Alibaba Group
 - **Venue**: Preprint, February 2026 | arXiv:2602.16851
-- **Links**: [PDF](./Mobile-Agent-v3.5.pdf) | [Code](https://github.com/X-PLUG/MobileAgent)
+- **Links**: [PDF](../source/Mobile-Agent-v3.5.pdf) | [Code](https://github.com/X-PLUG/MobileAgent)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
 - **Priority**: P0 | **Reading progress**: Pass 2
 
 ## One-line Summary
-Xu et al. (Alibaba Tongyi) train GUI-Owl-1.5 (2B–235B) on a hybrid data flywheel + MRPO reinforcement learning, achieving SOTA open-source results on OSWorld (56.5%), AndroidWorld (71.6%), WebArena (48.4%), and ScreenSpotPro (80.3%) across desktop/mobile/browser platforms.
+Xu et al.（Alibaba Tongyi）用 hybrid data flywheel 与 MRPO reinforcement learning 训练 GUI-Owl-1.5（2B–235B），在 desktop / mobile / browser 三类平台上取得当前开源 SOTA：OSWorld 56.5%、AndroidWorld 71.6%、WebArena 48.4%、ScreenSpotPro 80.3%。
 
 ## Problem Setting
 - **Core problem**: "The development of robust and practically usable GUI agents still faces several challenges. (1) The efficiency of real-world data collection: Collecting large-scale trajectories is costly to hamper the scalability of GUI datasets ... (2) The adaptation to multiple platforms ... (3) The comprehensive agentic capabilities: The General GUI Agent should be capable of completing tasks efficiently, not limited to GUI-only operations. It should also support tool/Model Context Protocol (MCP) invocation, short-term and long-term memory, multi-agent adaptation, and human–agent interaction." (Section 1, p.2)
@@ -62,23 +62,17 @@ Xu et al. (Alibaba Tongyi) train GUI-Owl-1.5 (2B–235B) on a hybrid data flywhe
 ## Limitations
 - **Author-stated limitations**: Not explicitly enumerated as a dedicated limitations section, but the results section shows that on MemGUI-Bench "workflow agents reach 41.7" while the best native GUI-Owl-1.5-32B reaches 27.1 (Section 3.2.2, p.17), indicating that memory-intensive long-horizon tasks are still not fully solved by the native model alone. Table 2 / Table 9 also leave some large-model evaluations incomplete, so the end-to-end ceiling of the 235B family is not comprehensively established.
 - **My observed limitations**:
-> ⚠️ NEEDS YOUR INPUT:
-> 1. **记忆机制的天花板**：MemGUI-Bench上原生模型（27.1）与Workflow型智能体（41.7）之间仍存在14pp差距，说明通过CoT合成注入的"记忆管理"能力尚未真正实现持久化、跨任务的程序性记忆（A-1类空白）。
-> 2. **被动记忆 vs 主动检索**：本文的记忆机制是sliding window + 行动结论拼接，属于上下文压缩式短期记忆，不涉及外部记忆库检索或跨session的episode回放（A-2类空白未覆盖）。
-> 3. **离线经验进化缺失**：数据飞轮是生成时的离线pipeline，但模型部署后并不支持从实际运行轨迹中自动学习更新（A-4类空白）。
-> 4. **RL依赖环境沙箱**：MRPO需要真实或虚拟环境rollout，对没有沙箱环境的新平台适配成本高。
+  1. **native model 仍缺外部 procedural memory**：MemGUI-Bench 上 27.1 vs 41.7 的差距说明，单靠训练把“记忆管理”蒸馏进模型，还不足以替代显式 workflow / memory orchestration。
+  2. **上下文压缩不等于 episodic retrieval**：sliding window + summary 只能缓解单 session 内的信息拥塞，不能覆盖跨任务 episode 检索或 cross-task reusable rule。
+  3. **经验闭环停在预部署阶段**：Hybrid Data Flywheel 与 MRPO 都服务于训练期能力构建，部署后没有 memory write-back 通道。
+  4. **训练基础设施成本高**：MRPO 依赖可 rollout 的真实或虚拟环境，对缺少沙箱的新平台并不轻量。
 - **Experimental design gaps**: MemGUI-Bench evaluation is limited to "Easy" tasks only, leaving medium/hard task performance unreported. GUI-Owl-1.5-32B-Thinking is not benchmarked on WebArena/VisualWebArena (Table 2 shows "—" entries). The 235B variant lacks comprehensive end-to-end evaluation.
 
 ## ⭐ Relation to My Research
 
 ### Position in Survey
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT:
-> 对应GUI Agent综述中的以下位置：
-> - **Section: Native Agent Models（原生智能体模型）**：GUI-Owl-1.5是端到端训练的原生模型，区别于基于通用VLM的框架型agent。
-> - **Section: Multi-platform Generalization（多平台泛化）**：MRPO是目前少数同时处理mobile/desktop/web训练冲突的RL方案。
-> - **Section: Memory and Knowledge（记忆与知识）**：通过CoT合成注入记忆管理能力，并在GUI-KnowledgeBench和MemGUI-Bench上设有专项评测。
-> - **在Cross_Topic/gap-tracker.md中**：本文可作为A-1（程序性记忆）和A-4（离线经验进化）空白的"不充分正例"——有尝试但未真正解决。
+  本文在综述中的最佳位置是 **Native Agent Models / Multi-platform Training** 主段落，并在 Memory 小节中作为“能力上限证据”引用。按当前主线，它不是 A-1/A-4 的正解，而是最强 native route 的 `insufficient positive case`：说明更强 backbone、更长训练配方和 RL 虽然重要，但仍不能自动替代 external procedural memory 与 failure-driven write-back。
 - **Role**: Positive example (state-of-the-art baseline for GUI automation); also serves as a Contrastive baseline for memory and experience evolution gaps (A-1, A-4).
 
 ### Gap Signals (extracted from this paper)
@@ -91,24 +85,14 @@ Xu et al. (Alibaba Tongyi) train GUI-Owl-1.5 (2B–235B) on a hybrid data flywhe
 
 - Gap signal 4: "we design a unified chain-of-thought (CoT) synthesis pipeline that augments all trajectory data with step-wise observation, reflection, memory management, and tool invocation reasoning" (Section 1 / Abstract, p.1) — memory management here means extracting key info within a single trajectory, not retrieving from a historical episodic store. → Reinforces A-2: the distinction between in-context memory and external episodic memory is architecturally unaddressed.
 
-> ⚠️ NEEDS YOUR INPUT:
-> **空白价值评估**：
-> - **A-1（程序性记忆）**：本文GUI-KnowledgeBench（75.5）表明GUI知识QA已可处理，但跨任务的可重用技能库（如"如何打开Outlook附件"这类操作记忆）仍未被建模。若能在GUI-Owl-1.5级别的原生模型上增加procedural memory模块，MemGUI-Bench的差距（14pp）有可能大幅缩小。研究价值：高。
-> - **A-2（多模态情节记忆）**：截图流式记忆检索在本文中完全缺失，但MemGUI-Bench存在恰好是此类任务（recall interaction history over long horizons）。可将其作为评测目标。
-> - **A-4（离线经验进化）**：数据飞轮的思路（DAG + checkpoint验证 + repair）提供了经验进化pipeline的良好工程参考，但需要扩展到部署后的持续学习阶段。
+以当前主线判断，本文对三个 gap 的价值并不对称：A-1 与 A-4 是核心，A-2 是配套支撑。具体来说，MemGUI-Bench 的 14pp 差距直接强化了 A-1 的研究必要性；Hybrid Data Flywheel 则说明“更强训练 pipeline”并没有消除 A-4 所要求的部署后经验写回需求；A-2 在本文中的主要价值是提供 memory benchmark 与 negative evidence，而不是提供主方法对象。
 
 ### Reusable Elements
 - **Methodology**:
   - The **DAG-based trajectory synthesis** (directed acyclic graph over atomic subtasks with checkpoint predicates) is directly reusable as a structured memory encoding format: each DAG path can be stored as a procedural memory episode with verified subtask completion states.
   - The **CoT synthesis pipeline** (observation → memory extraction → reflection → progress update) defines a step-level memory annotation schema that could be adapted to build an episodic memory stream (A-2).
   - The **Notetaker role** in the multi-agent framework (`N_{t+1} = u_C(N_t, S_{t+1})` if success) is a lightweight persistent note mechanism that could be extended into a retrieval-augmented procedural memory bank.
-
-> ⚠️ NEEDS YOUR INPUT:
-> **如何复用到你的研究中**：
-> 1. **DAG结构作为程序性记忆骨架**：将GUI-Owl-1.5中的DAG任务图扩展为跨应用的"skill graph"，其中每个节点是可重用的操作单元，边代表前置条件，即可构建A-1所需的程序性记忆库。
-> 2. **CoT合成schema作为情节记忆的标注格式**：将step-level的observation+memory字段直接映射到multi-modal episodic memory的存储格式，支持基于截图向量的语义检索（A-2）。
-> 3. **Notetaker持久化机制**：Notetaker对成功步骤的选择性更新逻辑（只在SUCCESS时更新）是一个简洁的episodic consolidation机制，可作为A-4离线经验筛选策略的参考。
-> 4. **MemGUI-Bench**：本文将其作为memory能力评测，是A-1/A-2研究的理想评测基准。
+  对主线最有价值的复用不是整套 training recipe，而是三项局部资产：(1) DAG/checkpoint 表达可作为程序性经验的结构化容器；(2) CoT synthesis schema 可作为 step-level evidence extraction 格式；(3) MemGUI-Bench 可直接作为 A-1/A-2 的评测基准。相比之下，MRPO 本身更像工程能力建设，不是当前主线的核心方法组件。
 
 - **Experimental design**:
   - **MemGUI-Bench** (Liu et al., 2026) evaluates recall of interaction history over long horizons and is a directly transferable benchmark for A-1/A-2 research.
@@ -116,14 +100,10 @@ Xu et al. (Alibaba Tongyi) train GUI-Owl-1.5 (2B–235B) on a hybrid data flywhe
   - The ablation design (Table 10: ±CoT synthesis; Table 11: ±virtual environments) provides a clean template for ablating memory module contributions.
 
 ### Connections to Other Papers in Knowledge Base
-
-> ⚠️ NEEDS YOUR INPUT:
-> **与知识库其他文献的联系**：
-> 1. **GUI_Agent/00_survey-overview.md**：本文是综述中native agent models类别的最新代表，可作为多平台能力建设的基准参照。
-> 2. **Cross_Topic/gap-tracker.md（A-1/A-2 空白）**：本文的 MemGUI-Bench 结果（native model 27.1 vs workflow 41.7）直接佐证了 A-1“缺乏可重用程序性记忆”的空白；CoT 记忆提取方案也印证了 A-2（仅 in-context，无 episodic 检索）的不足。
-> 3. **Cross_Topic/gap-tracker.md（A-4 空白）**：Hybrid Data Flywheel 的 checkpoint-repair 机制与 Self_Evolve 综述中“经验过滤与整理”主题高度重叠，但仅限预部署阶段，没有部署后在线进化，印证 A-4 空白的真实性。
-> 4. **Agent_Memory/**：本文的Notetaker角色和hierarchical context compression对应Agent Memory综述中的"Working Memory"和"Episodic Memory"分类，但未引用该体系，说明GUI Agent研究与Agent Memory研究存在领域隔离，这本身是值得探索的融合机会。
-> 5. **Self_Evolve/**：MRPO的unstable-task-focused训练策略与Self-Evolving agents中"从失败经验学习"的主题有共鸣，但MRPO限于训练期，不是部署后进化。
+- 与 [GUI_Agent/00_survey-overview.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/00_survey-overview.md) 的关系是：它代表当前 native multi-platform 路线的能力上限。
+- 与 [gap-tracker.md](/Users/mac/studyspace/Knowledge-Markdown/Cross_Topic/gap-tracker.md) 的关系是：MemGUI-Bench 直接强化 A-1，context compression 的实现方式强化 A-2 的 negative evidence，而训练期 flywheel 则反证 A-4 仍未被解决。
+- 与 Agent_Memory 的术语对齐时，Notetaker 和 hierarchical compression 更接近 working memory / in-task summary memory，而非真正的 episodic store。
+- 与 Self_Evolve 的关系是：它展示了训练期经验闭环的强工程版本，但并未跨过部署后 memory evolution 这条线。
 
 ## Citation Tracking
 - [ ] Liu et al. (2026), "MemGUI-Bench: Benchmarking memory of mobile GUI agents in dynamic environments" — arXiv:2602.06075: 直接评测GUI agent记忆能力，与A-1/A-2研究高度相关

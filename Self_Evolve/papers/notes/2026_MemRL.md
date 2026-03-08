@@ -4,7 +4,7 @@
 - **Title**: MemRL: Self-Evolving Agents via Runtime Reinforcement Learning on Episodic Memory
 - **Authors**: Shengtao Zhang et al. | Shanghai Jiao Tong University, Xidian University, NUS, MemTensor
 - **Venue**: arXiv preprint, 2026-02-13 | arXiv:2601.13029
-- **Links**: [PDF](./MemRL.pdf) | [Code](位置待确认) | [Project](位置待确认)
+- **Links**: [PDF](../source/MemRL.pdf) | [Code](位置待确认) | [Project](位置待确认)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
 - **Priority**: P1 | **Reading progress**: Pass 2
 
@@ -70,11 +70,7 @@ MemRL 把 memory-augmented generation 形式化为 M-MDP，核心不是训练 LL
   - 低任务相似度时可能漂移到 reflection-like 行为，依赖高“task similarity density”（Section 6, p.8; Appendix G.3, p.25）。
   - 对反馈质量敏感，存在 reward hacking / memory pollution 风险（Appendix G.4, p.25）。
 - **My observed limitations**:
-> ⚠️ NEEDS YOUR INPUT: 初步观察，请结合你的 RQ 确认。  
-> 1. 主实验跨 benchmark 使用不同 backbone（GPT-4o、GPT-4o-mini、GPT-5-mini、Gemini-3-pro），虽然现实可行，但会弱化“同容量纯方法增益”的可解释性。  
-> 2. 结果强依赖任务分布的可迁移性；HLE 上 cross-task ablation 不占优，提示方法在“低相似、低可复用”场景的上限。  
-> 3. 论文强调 runtime non-parametric learning，但长期 memory 容量控制、检索延迟与污染恢复策略仍偏定性，缺少更长期在线运行实验（>10 epoch）证据。  
-> 4. 安全性只在附录提出风险与愿景，尚无系统性的攻击/防御实证。
+> MemRL 是非常强的 runtime non-parametric self-evolution 代表，但它也把当前主线的真正难点暴露得很清楚：价值学习只有在任务分布可迁移、反馈可信、memory 不被污染时才稳定成立。放到 GUI 语境里，它更像 A-1/A-4 的高级 blueprint，而不是现成可移植方案。
 - **Experimental design gaps**:
   - 缺少统一 backbone 的主表对比（仅在附录有补充统一容量实验）。
   - 缺少 memory budget/容量上限敏感性曲线（如固定 token budget 下的性能-开销权衡）。
@@ -84,7 +80,7 @@ MemRL 把 memory-augmented generation 形式化为 M-MDP，核心不是训练 LL
 
 ### Position in Survey
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: 建议放入 `Self_Evolve` 中的“Runtime non-parametric self-evolution / value-aware memory policy learning”子节；在 `Agent_Memory` 侧可作为“procedural memory 从检索系统升级为决策系统”的关键案例。
+> 这篇应放入 `Self_Evolve` 的 “Runtime non-parametric self-evolution / value-aware memory policy learning” 子节；在 memory 视角里，它可以作为 procedural memory 从检索系统升级到决策系统的关键案例。
 - **Role**: Positive example + Contrastive baseline（对比纯语义检索 memory）
 
 ### Gap Signals (extracted from this paper)
@@ -93,22 +89,15 @@ MemRL 把 memory-augmented generation 形式化为 M-MDP，核心不是训练 LL
 - Gap signal 3: 专用领域中 MEMRL 可能不足，作者提出 periodic fine-tuning + runtime memory hybrid（Appendix G.6, p.26） → implies “参数更新 vs 记忆更新”的混合式持续学习框架仍未定型。
 - Gap signal 4: HLE 上 cross-task 不优于 single-task（0.606 vs 0.610, Table 3, p.7）→ implies 跨任务迁移收益与任务内语义结构显著耦合。
 
-> ⚠️ NEEDS YOUR INPUT: 建议你给以上 gap 分证据等级：  
-> - Gap 1/4：A（有主文/表格直接证据）  
-> - Gap 2：A-（附录文本证据强，但缺系统实验）  
-> - Gap 3：B（前瞻性推断较多）
+> 对当前主线，最该保留的 gap 是三类：低相似任务上的迁移上限、memory contamination / reward hacking 风险，以及参数更新与记忆更新如何混合。这三点都直接决定 GUI 版 runtime memory 能否长期稳定运行。
 
 ### Reusable Elements
 - **Methodology**: Intent-Experience-Utility triplet + 两阶段检索（先召回再价值重排）可直接迁移到 GUI agent 的 skill/memory policy 层。
-> ⚠️ NEEDS YOUR INPUT: 你是否要把 GUI 任务中的“intent”定义为 `UI subgoal`（如登录、筛选、提交），并把 Q-value 绑定到 subgoal 级成功率？
+> 方法上最值得直接迁移的是 `Intent-Experience-Utility` triplet 与两阶段检索。若收缩到 GUI 版 main-line，intent 最自然的对应物就是 `UI subgoal`，utility 则应绑定到 subgoal 级成功率或失败恢复收益。
 - **Experimental design**: `SR + CSR + Forgetting Rate` 三指标组合可复用到你的 self-evolving 评测，尤其适合“持续交互 + 稳定性”场景。
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: 建议优先建立以下关联。  
-> 1. `/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/2026_SkillRL.md`：两者都做“经验驱动演化”，但 SkillRL 更偏 skill distillation + policy co-evolution，MemRL 更偏 memory retrieval policy RL。  
-> 2. `/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/2024_AWM.md`：AWM 强调 workflow abstraction；MemRL 强调 value-aware retrieval，可形成“抽象层级 vs 价值学习”对照。  
-> 3. `ExpeL.pdf`、`Reflexion.pdf`：可作为 single-task reflection 路线的参照，帮助刻画 cross-task memory reuse 的增益边界。  
-> 4. `EvoCUA.pdf`：可讨论是否把 MemRL 的 runtime utility learning 引入更真实 GUI 场景。
+> 它与 [2026_SkillRL.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2026_SkillRL.md) 的关系是 skill distillation/co-evolution vs retrieval-policy RL，与 [2024_AWM.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2024_AWM.md) 的关系则是 workflow abstraction vs value-aware retrieval。再与 [2024_ExpeL.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2024_ExpeL.md)、[2023_Reflexion.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2023_Reflexion.md) 和 [2026_EvoCUA.md](/Users/mac/studyspace/Knowledge-Markdown/Self_Evolve/papers/notes/2026_EvoCUA.md) 对照，就能刻画 single-task reflection、runtime memory policy 和大规模 GUI self-evolution 之间的边界。
 
 ## Citation Tracking
 - [ ] MemRL (Zhang et al., 2026): Runtime value-aware memory RL 主参考

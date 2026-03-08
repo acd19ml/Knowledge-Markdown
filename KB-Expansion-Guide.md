@@ -62,18 +62,20 @@ Main RQ（总研究问题）
    └── Sub-RQ 3（方法论层面：如何填补这个 Gap？）
 ```
 
-**当前草稿 RQ**（来自 taxonomy-draft.md）：
+**当前已升级 RQ**（来自 taxonomy-draft.md）：
 
-> "LLM-based GUI Agent 如何从经验中学习，以在不同任务、应用和用户之间积累可复用的操作知识？"
+> "LLM-based GUI Agent 如何把交互中获得、且超出基础模型先验的 experience-dependent procedural knowledge 表示成可检索、可修订、可跨任务复用的 memory，并通过 post-task -> cross-task 的 failure-aware write-back，使其在重复任务、同 app 跨任务与近邻 app-family 场景中稳定带来经验增益？"
 
-这是一个**研究方向**，尚不是严格意义的 RQ。形式化需要补充：
+这已经不是“方向性描述”，而是一个**通过 §1.2 五项检验的 Provisional-Final RQ**。相较于旧版，它已经补齐了：
 
-| 要素 | 当前状态 | 需要补充 |
+| 要素 | 当前状态 | 当前结论 |
 |------|---------|---------|
-| **范围边界** | "GUI Agent" 宽泛 | 哪类 GUI？哪类任务？哪类平台？ |
-| **可检验性** | 描述性问题 | 能被什么实验回答？ |
-| **现有工作对比** | 未说明 | 为什么现有工作无法回答这个 RQ？ |
-| **预期产出** | 未明确 | 理论框架？系统原型？性能评估？ |
+| **范围边界** | 已收紧 | 对象限定为 GUI 中的 `experience-dependent procedural knowledge`；评估场景限定为 repeated task / same-app transfer / near-domain app-family transfer |
+| **可检验性** | 已明确 | 可用 `no memory / raw retrieval / success-only / failure-aware update / fine-grained procedural memory` 等实验包回答 |
+| **现有工作对比** | 已明确 | 现有 GUI 系统仅在 `post-task/Skills/相似性检索×上下文注入` 等位置弱占位，尚未直接回答 `规则泛化 + 记忆改写` |
+| **预期产出** | 已明确 | taxonomy 定义 + gap 诊断 + 方法原型 + repeated-exposure / near-domain transfer 验证 |
+
+> **实践含义**：Stage 1 的目标不是永远停留在“Provisional RQ”，而是把它升级成一个可直接承接 Gap 分析与方法设计的 Provisional-Final RQ。后续 Stage 2/3 主要继续收紧方法和实验，不应再回到过宽的方向性表述。
 
 ### 1.2 RQ 质量检验清单
 

@@ -4,12 +4,12 @@
 - **Title**: Mobile-Agent-v3: Fundamental Agents for GUI Automation
 - **Authors**: Jiabo Ye, Xi Zhang, Haiyang Xu et al. | Alibaba Tongyi Lab
 - **Venue**: Preprint, September 2025 | arXiv:2508.15144
-- **Links**: [PDF](./Mobile-Agent-v3.pdf) | [Code](https://github.com/X-PLUG/MobileAgent)
+- **Links**: [PDF](../source/Mobile-Agent-v3.pdf) | [Code](https://github.com/X-PLUG/MobileAgent)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
 - **Priority**: P1 | **Reading progress**: Pass 2
 
 ## One-line Summary
-Alibaba Tongyi Lab 提出 GUI-Owl（7B/32B 基础模型）与 Mobile-Agent-v3 框架，通过 Self-Evolving GUI Trajectory Production 流水线 + TRPO 在线强化学习，在 AndroidWorld 达到 73.3、OSWorld-Verified 达到 37.7，成为开源模型 SOTA。
+Mobile-Agent-v3 以 GUI-Owl 为核心模型，通过 Self-Evolving GUI Trajectory Production 流水线和 TRPO 在线强化学习，在 AndroidWorld 达到 73.3、在 OSWorld-Verified 达到 37.7，成为当时的开源 SOTA。
 
 ## Problem Setting
 - **Core problem**: "The existing methods can be broadly divided into two categories. The first category builds agent frameworks based on closed-source models … however, these approaches struggle to handle unfamiliar tasks and adapt to dynamic environments. The second category focuses mainly on end-to-end model performance … but such methods often fail to follow instructions faithfully and lack compatibility with diverse agent frameworks, significantly limiting their practical utility." (Section 1, p.2)
@@ -57,14 +57,14 @@ GUI-Owl 以 Qwen2.5-VL 为基座，经三阶段训练：(1) **Pre-training Phase
 ## Limitations
 - **Author-stated limitations**: 论文未设置独立 Limitations 章节。结论仅提及 GUI-Owl 在 OSWorld-Verified 最大步数限制为 15 步（Section 5.2），以及 RL 实验仅在 OSWorld-Verified 验证。
 - **My observed limitations**:
-> ⚠️ NEEDS YOUR INPUT: (1) Self-Evolving 流水线依赖 GUI-Owl 自身能力滚出轨迹，模型初期能力弱时难以生成高质量正样本，存在自举冷启动问题。(2) 虽然 Notetaker Agent 维护了跨步骤的工作记忆，但属于 within-task 的短期上下文记录，**没有跨任务的持久化过程性记忆**（技能库/操作手册），每次任务重新从零规划，对应 A-1 缺口。(3) TRPO 在线 RL 仍依赖 OSWorld-Verified 的可程序验证奖励信号，难以推广到任意开放场景。
+  Mobile-Agent-v3 的核心增益来自训练期自演化，而不是部署期记忆。Self-Evolving 流水线依赖 GUI-Owl 先滚出足够好的轨迹，因此存在明显冷启动约束；Notetaker Agent 只是在单任务内累积 notes，属于 working-memory / summary-memory，而不是 `post-task -> cross-task` 的持久 procedural memory；TRPO 仍依赖 OSWorld-Verified 这类可程序验证奖励，说明它更像“训练期经验利用”，而不是开放场景下的 runtime write-back。
 - **Experimental design gaps**: Mobile-Agent-v3 框架未做模块消融（对比单纯 GUI-Owl 与加入 Manager/Reflector/Notetaker 各模块的贡献）；仅在 AndroidWorld + OSWorld-Verified 两个基准上做在线评估，未涵盖 Web 场景。
 
 ## ⭐ Relation to My Research
 
 ### Position in Survey
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: 属于 GUI Agent Survey 中 **Section 3（Task Automation Pipeline）→ 3.4 Memory & Knowledge** 与 **Section 5（Self-Evolving / Training）** 的交叉节点。GUI-Owl 的 Self-Evolving Trajectory Production 框架直接对应 Cross_Topic/gap-tracker.md 中 A-4（Offline Experience Evolution）的初步实例；Mobile-Agent-v3 的 Notetaker Agent 是 A-2（Episodic Memory）的轻量实现。
+  这篇应放在 GUI Agent survey 的 **Training / Self-Evolution** 主段，并在 **Memory & Knowledge** 中作为对照案例引用。按当前 `main-line`，它不是 A-1 / A-4 的解，而是证明“经验闭环可以在训练阶段成立”的强正例；Notetaker 只占到 A-2 的 session-level 边缘位置，不能当作跨任务 memory solution。
 - **Role**: Positive example（自演化数据生成 + RL 对齐的完整工程案例）/ Contrastive baseline（其 Notetaker 记忆方案与 A-1/A-2 理想方案对比）
 
 ### Gap Signals (extracted from this paper)
@@ -75,15 +75,15 @@ GUI-Owl 以 Qwen2.5-VL 为基座，经三阶段训练：(1) **Pre-training Phase
 
 - Gap signal 3: "GUI automation tasks operate in online interactive environments, which renders manual annotation of trajectory data exceedingly tedious and costly, posing significant challenges for GUI trajectory data collection." (Section 6, p.17) → 数据稀缺性直接驱动自演化设计，同时暗示**离线失败轨迹未被充分利用**（失败轨迹只用于 RL 的负样本，不提炼为可重用经验），对应 A-4。
 
-> ⚠️ NEEDS YOUR INPUT: 本文最大的研究价值信号在于：Self-Evolving 流水线证明了"模型可以从自身执行经验中持续学习"的可行性，但这种学习被限定在训练阶段（offline/online RL），**推理部署后的新任务经验无法反哺模型**。这正是 A-4（Offline Experience Evolution at inference time）和 A-1（runtime skill reuse）的研究切入点。
+  本文最大的研究价值信号是：GUI agent 的经验闭环并非不可做，但当前实现被锁在训练阶段。也就是说，它能支撑 A-4 的问题动机，却不能充当 A-4 的现成解法；真正缺的仍是部署后把新失败 / 新成功写回成可复用 procedural rule 的机制，并让这些规则在后续任务中被稳定检索和修订。
 
 ### Reusable Elements
 - **Methodology**: Trajectory Correctness Judgment Module（Step-Level Critic + Trajectory-Level Critic）可用于评估记忆片段的质量；TRPO 的轨迹级奖励归一化思路可用于设计记忆检索的奖励信号。
-> ⚠️ NEEDS YOUR INPUT: (1) Trajectory Correctness Judgment 的双通道评判机制可直接移植为"记忆条目质量评估"模块——在构建 GUI 过程性记忆库时，用类似机制筛选值得存储的成功轨迹。(2) Self-Evolving 流水线的 Query-specific Guidance Generation 模块（将成功轨迹蒸馏为步骤级指导）是构建 A-1 技能库的自然起点，可扩展为"跨任务可检索的操作手册"。
+  最值得复用的不是整套 RL scaffold，而是两步：先用双通道 judgment 筛掉不可靠轨迹，再把成功经验蒸馏成 query-specific guidance。若沿 `main-line` 继续收缩，这一步应进一步抽象成带触发条件、局部策略和失败信号的 procedural rule，而不是保留为 session guidance。
 - **Experimental design**: AndroidWorld + OSWorld-Verified 是当前主流 online 评估基准，应在我的研究中使用相同基准做对比；历史图像数量消融（Figure 9）为视觉记忆实验提供参考设计。
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: (1) **与 Self_Evolve/ 的联系**：GUI-Owl 的 Iterative Online Rejection Sampling 与 Self_Evolve/04_self-evolution-mechanisms.md 中的“经验驱动演化”高度对应，但 GUI-Owl 仍局限于训练阶段演化，未达到 Self_Evolve 文献中部署后持续演化的目标。(2) **与 Agent_Memory/ 的联系**：Notetaker Agent 对应 Agent_Memory 中的 Working Memory / Episodic Memory 概念，但缺乏长期存储与跨任务检索能力。(3) **与 Cross_Topic/gap-tracker.md 的联系**：可作为 A-2（Episodic Memory 缺口）的“当前最好实践但仍不足”的典型案例写入。(4) **与同目录 PC-Agent 的联系**：PC-Agent 同为层级多智能体框架，但专注 PC 场景感知与任务分解，两者互补——GUI-Owl 提供更强的底层感知模型，PC-Agent 提供更精细的多层代理协作设计。
+  它与 `Self_Evolve` 里的 AWM / ExpeL / SkillRL / EvoCUA 形成清晰对照：这些工作在文本或训练框架里讨论经验演化，Mobile-Agent-v3 则给出 GUI 侧的训练期工程化版本。与 `Agent_Memory` 的关系也很直接，Notetaker 更接近 working / summary memory，而不是长期 episodic 或 procedural memory。与 [2025_PCAgent.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2025_PCAgent.md) 一起看时，两篇共同说明多智能体分工和任务内记忆已经能做，但跨任务 procedural reuse 仍然空缺。
 
 ## Citation Tracking
 - [ ] Qin et al., 2025 (UI-TARS-1.5): 当前最强开源对比模型，需阅读了解其训练方法

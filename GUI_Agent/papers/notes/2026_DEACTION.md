@@ -4,7 +4,7 @@
 - **Title**: When Actions Go Off-Task: Detecting and Correcting Misaligned Actions in Computer-Use Agents
 - **Authors**: Yuting Ning et al. | The Ohio State University + Amazon AGI
 - **Venue**: Preprint, 2026 | arXiv:2602.08995
-- **Links**: [PDF](../source_todo/When-Actions-Go-Off-Task.pdf) | Project: https://osu-nlp-group.github.io/Misaligned-Action-Detection | Code: not listed in PDF
+- **Links**: [PDF](../source/When-Actions-Go-Off-Task.pdf) | Project: https://osu-nlp-group.github.io/Misaligned-Action-Detection | Code: not listed in PDF
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-06
 - **Priority**: P1 | **Reading progress**: Pass 2
 
@@ -47,14 +47,14 @@
 ## Limitations
 - **Author-stated limitations**: "these failure modes highlight promising directions for future work, such as more robust injection detection, fine-grained action understanding, and accurate intent-level reasoning." (Section 5.1, p.7)
 - **My observed limitations**: 
-> ⚠️ NEEDS YOUR INPUT: (1) DEACTION 的前提是仍有足够强的外部模型来做 alignment judgment，这在成本与 latency 上不会免费。(2) 它主要是 runtime guardrail，而不是从 misalignment 中持续学习的机制；失败经验没有被进一步沉淀成 memory/skill。(3) action alignment 仍由语言模型判断，遇到非常细粒度 GUI state 差异时可能会不稳。
+> DEACTION 解决的是 runtime guardrail，而不是经验学习。它依赖额外模型做 alignment judgment，带来成本和延迟；更关键的是，misalignment 被检测和纠正后并不会沉淀成跨任务 memory，因此它与 A-4 最相关的地方恰恰是“指出了应该写回什么”，而不是已经实现了 write-back。
 - **Experimental design gaps**: 还没有看到 guardrail 与 agent 内部 planner 更深耦合后的效果；也缺少对 benign-but-suboptimal exploratory actions 的更细颗粒分类。
 
 ## ⭐ Relation to My Research
 
 ### Position in Survey
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: 适合放在 GUI Agent survey 的 **Reliability / Safety / Guardrails** 小节，但注意它的 framing 比传统 safety paper 更偏“intent preservation”。
+> 这篇应放在 GUI Agent survey 的 **Reliability / Safety / Guardrails** 小节。它的独特之处是把问题表述成 intent preservation，而不是传统 policy violation，但仍属于 reliability 辅线，不是主线 memory solution。
 - **Role**: Positive example / Contrastive baseline
 
 ### Gap Signals (extracted from this paper)
@@ -62,15 +62,15 @@
 - Gap signal 2: MISACTBENCH 需要人工 action-level 标注才得以建立（Section 3, p.3-5）→ 高质量 misalignment 数据仍稀缺。
 - Gap signal 3: future work points to injection detection, action understanding, intent reasoning (Section 5.1, p.7) → 当前 guardrail 仍远未覆盖复杂开放世界偏移。
 
-> ⚠️ NEEDS YOUR INPUT: 如果你的知识库主线会碰到 memory / self-correction，这篇可作为“runtime guardrail”参照物，然后进一步问: guardrail 检出的 misalignment 能不能转化成可复用经验？
+> 对当前主线而言，这篇的价值在于把 failure signal 说清楚了。下一步自然问题不是“要不要 guardrail”，而是“guardrail 检出的 misalignment 能否进入 failure-driven write-back”，因此它更像 A-4 的前置检测器。
 
 ### Reusable Elements
 - **Methodology**: intent-centric alignment definition、narrative-summary history representation、detect-and-correct loop 都值得借鉴。
-> ⚠️ NEEDS YOUR INPUT: 我认为最值得复用的是 action alignment 的定义，而不是具体 prompt。它能作为后续 memory filtering 或 trajectory quality control 的判断标准。
+> 最值得复用的是 action alignment 定义本身，而不是具体 prompt。它可以直接变成 memory filtering、trajectory quality control 和 failure labeling 的判据。
 - **Experimental design**: 同时报 offline F1 / precision / recall 与 online ASR / UA / benign SR，非常完整。
 
 ### Connections to Other Papers in Knowledge Base
-> ⚠️ NEEDS YOUR INPUT: 可与 [2026_ActionEngine](./2026_ActionEngine.md) 对比 runtime reliability，一个偏 deterministic planning，一个偏 guardrail；也可与 [2026_ACuRL](./2026_ACuRL.md) 对比“检测错误”与“从错误中持续学习”的区别。
+> 它与 [2026_ActionEngine.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2026_ActionEngine.md) 形成 runtime reliability 的两条路线对照：一个偏 deterministic planning，一个偏 guardrail。与 [2026_ACuRL.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2026_ACuRL.md) 对照时，则能进一步区分“检测错误”和“持续吸收错误经验”。
 
 ## Citation Tracking
 - [ ] TaskShield / InferAct: action alignment baseline

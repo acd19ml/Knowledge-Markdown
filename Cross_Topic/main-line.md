@@ -59,6 +59,12 @@
 - **Revision Rule**: 失败后如何改写这条记忆
 - **Scope**: 适用范围是单 app、app family、还是更广
 
+这里有三个容易误判的相关工作，需要在主线里提前排除混淆：
+
+- **A-MEM** 证明了 memory 可以在新证据到来后 `rewrite` 旧条目，因此它是 `A-4` 的 write-back precedent；但它的 memory unit 是 note-centric semantic memory，不是 GUI procedural rule。
+- **Friday / OS-Copilot** 证明了 system-level self-improvement 与 tool accumulation 可行，因此它是 `A-3` 和 GUI self-improvement 的早期前驱；但它的 procedural memory 载体是 tool repository，不是 `experience-delta procedural memory`。
+- **AgentKB** 证明了 feedback-stage retrieval、interference control 与 cross-framework shared experience transfer 可行，因此它能补强 `B-2`；但它仍没有解决 GUI 场景所需的 visual grounding 与 cross-app rule abstraction。
+
 主方法框架收敛成四个模块：
 
 1. **经验筛选**

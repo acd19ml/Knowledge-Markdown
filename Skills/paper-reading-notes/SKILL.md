@@ -78,14 +78,15 @@ Rules for the clean text file:
 - Do NOT save multiple noisy variants like `_layout`, `_raw`, `_debug` unless the user explicitly asks
 - If `papers/text/` does not exist, create it
 
-### Step 2: Read the Note Template and Audit Checklist
+### Step 2: Read the Note Template, Audit Checklist, and Style Guide
 
 ```
 view /mnt/skills/paper-reading-notes/references/note-template.md
 view /mnt/skills/paper-reading-notes/references/quality-checklist.md
+view /mnt/skills/paper-reading-notes/references/style-guide.md
 ```
 
-The template defines the output structure. The checklist defines whether the note can remain `Pass 1`, be promoted to `Pass 2`, or be downgraded from an existing `Pass 2` label after audit. Read both before writing.
+The template defines the output structure. The checklist defines whether the note can remain `Pass 1`, be promoted to `Pass 2`, or be downgraded from an existing `Pass 2` label after audit. The style guide defines the note's positioning and language contract. Read all three before writing.
 
 ### Step 3: Fill the Template
 
@@ -146,20 +147,46 @@ In **Audit mode**, do not rewrite everything blindly. First identify which claim
 
 Only reopen and patch the sections whose evidence chain is weak, missing, or suspicious.
 
-### Step 4: Language Convention
+### Step 4: Positioning and Language Convention
 
-Follow this mixed-language convention:
-- **Template structure / headers / table headers**: English (matches the template)
-- **Extracted quotes and technical terms**: English (preserve original)
-- **Analytical commentary and observations**: Chinese (方便研究者思考)
-- **`⚠️ NEEDS YOUR INPUT` sections**: Chinese (这些是给研究者的提示)
+Treat the reading note as a **research intermediate artifact**, not as:
+
+- final survey prose
+- a generic summary
+- a temporary TODO draft
+
+Follow this language contract:
+
+- **Template structure / headers / table headers**: English
+- **Direct quotes / paper terminology / benchmark names / model names / metric names**: English
+- **Analytical commentary / observations / research linkage**: Chinese
+
+Default rule:
+
+> **Chinese for analysis, English for evidence fidelity.**
+
+Required style constraints:
+
+- Do not write mixed Chinese-English slang sentences
+- Do not switch terminology for the same concept within one note
+- Do not write `Relation to My Research` like a generic survey paragraph
+- Do not keep unresolved placeholders in notes that are meant to support KB sync
+
+If uncertainty remains:
+
+- write `原文未明确说明`
+- or write `当前判断基于 Table X + Section Y 的间接证据`
+
+instead of leaving vague placeholders or guesses.
 
 Example of correct style:
 ```markdown
 ## Limitations
 - **Author-stated limitations**: "Our method requires pre-defined action spaces and cannot handle novel UI elements" (Section 6, p.9)
-- **My observed limitations**: 
-> ⚠️ NEEDS YOUR INPUT: 初步观察——作者仅在 Android 平台测试，未验证跨平台泛化能力。此外，实验中的任务复杂度较低（平均步骤数 < 5），无法说明方法在长序列任务上的表现。请确认这些观察是否与你的 RQ 相关。
+- **My observed limitations**:
+  1. 该方法只在 Android 平台验证，跨平台泛化仍未证明。
+  2. 实验任务平均步骤数较短，因此对长序列任务的支持证据不足。
+- **Experimental design gaps**: 缺少与更强 recent baseline 的统一重跑对比。
 ```
 
 ### Step 5: Run the Pass 2 Audit
@@ -213,15 +240,10 @@ After saving, use `present_files` to share with the user.
 After presenting the file, remind the user:
 
 ```
-笔记已生成。以下部分标记了 ⚠️ NEEDS YOUR INPUT，需要你补充：
-1. Priority 和 Reading progress 确认
-2. "My observed limitations" 的验证和补充
-3. Survey 中的定位（章节/分类）
-4. Gap 信号的价值判断和证据等级
-5. 可借鉴元素的迁移思路
-6. 与知识库其他论文的关联
+笔记已生成。
 
-完成后，这篇笔记就可以并入你的知识库了。
+- 如果这是 `Pass 1` 草稿：请重点检查 `My observed limitations`、`Relation to My Research` 和 `Gap Signals` 是否需要进一步收口。
+- 如果这是 `Pass 2` 笔记：它应已可直接支持 KB 同步，不应再残留未收口占位。
 ```
 
 Also report the audit result in plain language:
@@ -239,8 +261,9 @@ Minimum quality checks before delivery:
 - [ ] Design Choices table is filled; ablation verification column is marked
 - [ ] Limitations include at least one observation NOT stated by the authors
 - [ ] Gap signals have original text evidence (Section + page), not just inference
-- [ ] All `⚠️ NEEDS YOUR INPUT` blocks contain a preliminary AI suggestion (not left blank)
 - [ ] Key Passages section has 1-3 critical quotes with exact locations
+- [ ] Language follows the rule: Chinese analysis + English evidence anchors
+- [ ] Research-facing sections are aligned with the current main line / gap tracker rather than generic commentary
 
 For `Pass 2` decisions, use the full audit in `references/quality-checklist.md` rather than only this short list.
 
@@ -253,3 +276,4 @@ For `Pass 2` decisions, use the full audit in `references/quality-checklist.md` 
 - The priority of this skill is **evidence extraction accuracy**. A shorter note with correct page references beats a longer note with vague attributions.
 - `Pass 2` is a readiness judgment, not a formatting judgment. A complete-looking note can still be only `Pass 1`.
 - For `Pass 2` re-audits, prefer false-negative over false-positive. If evidence feels shaky, re-open the PDF and verify.
+- In finalized notes, prefer fully written analytical judgments over `⚠️ NEEDS YOUR INPUT`. Placeholders are acceptable only for genuine unresolved researcher decisions, not as the default output style.

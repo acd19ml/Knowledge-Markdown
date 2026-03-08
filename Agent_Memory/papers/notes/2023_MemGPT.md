@@ -4,7 +4,7 @@
 - **Title**: MemGPT: Towards LLMs as Operating Systems
 - **Authors**: Charles Packer et al. | UC Berkeley
 - **Venue**: Preprint 2023 | arXiv:2310.08560
-- **Links**: [PDF](./MemGPT.pdf) | [Code](https://research.memgpt.ai)
+- **Links**: [PDF](../source/MemGPT.pdf) | [Code](https://research.memgpt.ai)
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
 - **Priority**: P0 | **Reading progress**: Pass 2
 
@@ -58,11 +58,10 @@ LLM 通过**函数调用**（function calls）主动管理记忆：`archival_sto
 
 - **Author-stated limitations**: 论文未专设 limitations 章节，但指出"MemGPT significantly degraded performance using GPT-3.5 due to its limited function calling capabilities" (Section 3.2.2, p.7)，且"the total number of documents available to MemGPT is no longer limited by the context window"——反向说明性能上限仍受 retriever 质量限制。
 - **My observed limitations**:
-> ⚠️ NEEDS YOUR INPUT: 初步观察：
-> 1. **纯文本记忆**：Archival 和 Recall Storage 均为文本，GUI 场景的截图存储需要多模态向量化扩展。
-> 2. **LLM 决策质量依赖**：记忆管理由 LLM 自主决策，低质量 backbone（GPT-3.5）显著降低效果——在资源受限的 GUI Agent 部署场景中这是实际问题。
-> 3. **无技能归纳**：MemGPT 管理的是原始信息（文档片段、对话历史），没有把经历归纳为可执行技能的机制——依然是情节/语义记忆，不是程序记忆。
-> 4. **仅限英文文本任务**：两个评估任务（document QA + multi-session chat）均为文本领域，对 GUI 操作序列的适用性未验证。
+  1. **记忆基底仍是文本**：Archival / Recall 都假设文本可直接写入与检索，GUI 场景必须额外处理截图、UI 树和动作轨迹的编码问题。
+  2. **自主管理依赖强 backbone**：GPT-3.5 的明显退化说明 memory management 并不“白送”，低质量模型难以稳定做出读写决策。
+  3. **擅长管理，不擅长抽象技能**：MemGPT 解决的是 information management，而不是 procedural abstraction，因此更适合支撑 A-2，而非直接回答 A-1/A-4。
+  4. **外推到 GUI 仍需中间层**：文本任务中的 working / archival / recall 分层很清楚，但在 GUI 中仍需一个把原始视觉轨迹压缩成可检索结构的中间层。
 
 - **Experimental design gaps**: 缺乏长时间（数十次会话）的纵向实验；multi-session chat 主要是定性展示，无系统性量化评估指标（如记忆准确率、更新延迟）。
 
@@ -71,9 +70,7 @@ LLM 通过**函数调用**（function calls）主动管理记忆：`archival_sto
 ### Position in Survey
 
 - **Corresponding survey section/category**:
-> ⚠️ NEEDS YOUR INPUT: 建议归属：
-> 1. **Agent_Memory 综述**：Working Memory 管理 + 长期外部存储架构的代表性实现，对应 Agent_Memory §3.2.2（Working Memory）和 §3.2.3（Episodic Memory）。
-> 2. **A-2 Gap 的技术组件**：MemGPT 的分层存储（Working/Archival/Recall）和自主检索机制，是"GUI 多模态 Episodic Memory"的存储管理参考蓝图——你需要为 GUI 场景解决"截图如何写入 Archival，任务历史如何存入 Recall，当前 UI 状态如何保留在 Working Context"。
+  MemGPT 应固定放在 Agent_Memory 线的 **working-memory management + long-term storage** 小节，并在跨主题上作为 A-2 的工程蓝图使用。它的价值不是定义主问题，而是提供“如何管 memory”这一层的方法论。
 
 - **Role**: Background reference（Working Memory + 长期外部存储架构） + A-2 技术组件
 
@@ -83,23 +80,22 @@ LLM 通过**函数调用**（function calls）主动管理记忆：`archival_sto
 - Gap signal 2: "working context is a fixed-size read/write block of unstructured text" and archival storage is "a read/write database storing arbitrary length text" (Section 2.1, p.3) → 现有记忆基底是文本；若记忆单元换成截图/UI 轨迹，需要另做多模态索引与压缩设计。
 - Gap signal 3: "The fixed-context baselines performance is capped roughly at the performance of the retriever." (Section 3.2.1, p.7) → 即使有虚拟内存式上下文管理，系统上限仍受 retrieval quality 约束，说明 memory management 之外还需要更强的 retrieval / consolidation 机制。
 
-> ⚠️ NEEDS YOUR INPUT: Gap 信号价值评估：Gap 2（多模态检索）对 A-2 直接相关，证据等级 B。Gap 3 指向 A-1/A-4 的归纳缺失，与 Generative Agents 的 gap 信号 2 联合构成 A 级证据。
+这些 gap signal 里，Gap 2 对 A-2 最直接，属于 B 级工程蓝图证据；Gap 3 更像一个边界提醒，说明即使把 memory management 做好，系统上限仍受 retrieval / consolidation 质量约束。它可以辅助解释为什么 A-1/A-4 不能只靠“更聪明的 memory manager”解决，但不应单独拿来充当主证。
 
 ### Reusable Elements
 
 - **Methodology**:
   - **三层存储架构**（Working Context / Archival / Recall）直接可作为 GUI Agent 记忆架构的设计蓝图：Working Context ← 当前 UI 状态 + 任务上下文；Archival ← 历史截图向量 + 操作序列摘要；Recall ← 完整任务轨迹（按会话索引）。
   - **内存压力警告 + 驱逐策略** 机制可用于 GUI Agent 的 token budget 管理：当截图历史过长时主动压缩为文本摘要。
-> ⚠️ NEEDS YOUR INPUT: Working Context 在 GUI 场景中应存储什么粒度的信息？当前 UI 截图还是已解析的 UI 元素结构？
+  对当前主线而言，GUI 的 Working Context 不应直接存整张原始截图，而应优先存 **已解析的 UI 元素结构 + 当前任务状态 + 少量关键视觉锚点**。原因是主线关心的是可复用的 experience-delta knowledge，而不是把高成本视觉帧原样堆进上下文；原始截图更适合进入 archival / episodic layer，经压缩或向量化后再检索回工作区。
 
 - **Experimental design**: Nested KV 嵌套检索任务可启发"GUI agent 能否检索跨 App 操作序列"的评估设计。
 
 ### Connections to Other Papers in Knowledge Base
 
-> ⚠️ NEEDS YOUR INPUT: 建议关联：
-> - 与 **Generative Agents**（同目录）：互补——Generative Agents 定义了记忆内容（三维检索 + 反思），MemGPT 定义了记忆管理（上下文窗口 + 外部存储分页）。GUI 场景的情节记忆方案需要两者结合。
-> - 与 **MobileGPT / AppAgent**（GUI_Agent/papers/）：对比——MobileGPT 的三层记忆（task/subtask/action）在设计思路上与 MemGPT 的分层存储类似，但缺少 MemGPT 的自主检索触发机制。
-> - 与 **Cross_Topic/taxonomy-draft.md / gap-tracker.md**：MemGPT 的两层管理（Working + Long-term）可直接作为 A-2（GUI Episodic Memory）工程蓝图中的外部存储层参考。
+- 与 [2023_GenerativeAgents.md](./2023_GenerativeAgents.md) 形成标准互补：前者回答 memory content / reflection，后者回答 storage / paging / self-directed retrieval。
+- 与 [2024_MobileGPT.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2024_MobileGPT.md) 和 [2023_AppAgent.md](/Users/mac/studyspace/Knowledge-Markdown/GUI_Agent/papers/notes/2023_AppAgent.md) 对比时，可以看出 GUI 侧已开始出现层级 memory，但仍缺 MemGPT 这种显式的长期存储管理机制。
+- 在 [taxonomy-draft.md](/Users/mac/studyspace/Knowledge-Markdown/Cross_Topic/taxonomy-draft.md) / [gap-tracker.md](/Users/mac/studyspace/Knowledge-Markdown/Cross_Topic/gap-tracker.md) 中，它最适合作为 A-2 的 storage-management blueprint，而不是 procedural-memory 本体。
 
 ## Citation Tracking
 
