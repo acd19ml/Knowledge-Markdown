@@ -11,3 +11,6 @@ web
 
 # Local scratch output
 tmp/
+
+# PDF source files
+**/*.pdf
