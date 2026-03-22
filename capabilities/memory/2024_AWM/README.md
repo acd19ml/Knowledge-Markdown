@@ -6,7 +6,7 @@
 - **Title**: AGENT WORKFLOW MEMORY
 - **Authors**: Zora Zhiruo Wang et al. | Carnegie Mellon University, MIT
 - **Venue**: arXiv preprint, 2024-09-11 | arXiv:2409.07429
-- **Links**: [PDF](../source/AWM.pdf) | [Code](https://github.com/zorazrw/agent-workflow-memory) | [Project](https://github.com/zorazrw/agent-workflow-memory)
+- **Links**: [arXiv](https://arxiv.org/abs/2409.07429) | [Code](https://github.com/zorazrw/agent-workflow-memory) |
 - **Citation count**: Check Semantic Scholar | **Read date**: 2026-03-05
 - **Priority**: P1 | **Reading progress**: Pass 2
 

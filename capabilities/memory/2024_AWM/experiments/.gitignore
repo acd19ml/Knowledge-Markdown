@@ -1,0 +1,10 @@
+# Downloaded by download_official_data.sh (Mind2Web dataset from HuggingFace)
+mind2web/data/train/
+mind2web/data/test_task/
+mind2web/data/test_website/
+mind2web/data/test_domain/
+mind2web/data/scores_all_data.pkl
+mind2web/data/_tmp_download/
+
+# Jupyter
+.ipynb_checkpoints/
