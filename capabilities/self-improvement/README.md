@@ -9,6 +9,7 @@ Agent 如何变强：从经验中学习、反思失败、积累可复用技能�
 - [survey/](./survey/) — 来自 "A Survey of Self-Evolving Agents" 的结构化笔记
 - [papers/](./papers/) — 单篇论文精读（Reflexion、ExpeL、SkillWeaver、EvolveR 等）
 - [CS6493-proposal.md](./CS6493-proposal.md) — CS6493 课程项目：Reflexion + ExpeL 复现与对比
+- [paper-research-playbook.md](./paper-research-playbook.md) — 研究任意单篇论文的通用工作流模板
 
 ## 实践
 

@@ -6,6 +6,11 @@
 # Thumbnails
 ._*
 
+# Python cache
+**/__pycache__/
+*.pyc
+*.pyo
+
 # Frontend
 web
 
@@ -14,3 +19,11 @@ tmp/
 
 # PDF source files
 **/*.pdf
+
+# LaTeX build artifacts
+*.aux
+*.fdb_latexmk
+*.fls
+*.out
+*.synctex.gz
+*.toc

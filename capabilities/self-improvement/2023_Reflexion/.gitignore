@@ -1,0 +1,6 @@
+experiments/alfworld_runs/data/
+experiments/alfworld_runs/root/
+experiments/hotpotqa_runs/root/
+experiments/programming_runs/root/
+experiments/webshop_runs/base_run_logs_*/
+experiments/webshop_runs/reflexion_run_logs_*/
