@@ -132,7 +132,7 @@ Reflexion 是典型的 test-time self-improvement 起点，但它依赖高质量
 
 ## 复现计划
 
-> CS6493 课程项目 [proposal](../CS6493-proposal.md) 包含此论文的复现规格，本节为独立深化框架。
+> 当前课程项目主线 proposal 见 [../proposal.md](../proposal.md)。本节保留 Reflexion 的独立复现与分析框架。
 
 ### 需要验证的核心声明
 
