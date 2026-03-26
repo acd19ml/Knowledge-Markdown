@@ -1,8 +1,8 @@
 # Experiment Framework for the Revised Topic 6 Proposal
 
-> Main proposal: [proposal.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/self-improvement/proposal.md)  
-> Critical rationale: [CS6493-proposal-analysis.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/self-improvement/CS6493-proposal-analysis.md)  
-> Progress narrative: [progress-report.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/self-improvement/progress-report.md)
+> Main proposal: [proposal.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2026_Epi2Lesson/proposal.md)  
+> Critical rationale: [proposal-analysis.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2026_Epi2Lesson/proposal-analysis.md)  
+> Progress narrative: [progress-report.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2026_Epi2Lesson/progress-report.md)
 
 ---
 

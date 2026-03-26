@@ -1,6 +1,6 @@
 ## Topic 6 - From Episodic Experience to Reusable Lessons
 
-> This document does not merely restate [proposal.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/self-improvement/proposal.md). Its purpose is to test whether the revised proposal is methodologically sound, sufficiently open-ended for Topic 6, and still bounded enough to become a defensible course project.
+> This document does not merely restate [proposal.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2026_Epi2Lesson/proposal.md). Its purpose is to test whether the revised proposal is methodologically sound, sufficiently open-ended for Topic 6, and still bounded enough to become a defensible course project.
 
 ---
 

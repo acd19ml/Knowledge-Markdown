@@ -119,7 +119,7 @@ ExpeL 把“学会做题”的过程拆成三个阶段：先在训练任务上�
 
 ## 复现计划
 
-> 当前课程项目主线 proposal 见 [../proposal.md](../proposal.md)。本节保留 ExpeL 的独立复现与分析框架。
+> 当前课程项目主线 proposal 见 [../../memory/2026_Epi2Lesson/proposal.md](../../memory/2026_Epi2Lesson/proposal.md)。本节保留 ExpeL 的独立复现与分析框架。
 
 ### 需要验证的核心声明
 
