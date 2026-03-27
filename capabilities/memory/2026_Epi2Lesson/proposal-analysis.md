@@ -1,272 +1,268 @@
-## Topic 6 - From Episodic Experience to Reusable Lessons
+## 课题 6：从情节经验到可复用教训（From Episodic Experience to Reusable Lessons）
 
-> This document does not merely restate [proposal.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2026_Epi2Lesson/proposal.md). Its purpose is to test whether the revised proposal is methodologically sound, sufficiently open-ended for Topic 6, and still bounded enough to become a defensible course project.
-
----
-
-## 1. What Changed
-
-The earlier project framing focused on **stress-testing Reflexion and ExpeL** through questions such as:
-
-- whether Reflexion correctly diagnosed failure causes,
-- whether ExpeL’s retrieved experiences were “truly relevant,”
-- whether reflective or experiential memory helped for the reasons claimed by the original papers.
-
-These are interesting questions, but they are methodologically unstable. They depend on:
-
-- subjective failure attribution,
-- latent reasoning correctness,
-- confounds between model ability, prompt design, retrieval quality, and environment protocol,
-- weakly defined ground truth for concepts such as “diagnostic correctness” or “true relevance.”
-
-The revised proposal moves away from such latent claims and instead studies a more controllable question:
-
-> **How does abstraction from episodic experience to reusable lessons affect cross-task reuse in LLM agents?**
-
-This change is not cosmetic. It fundamentally shifts the project from **interpreting internal cognition** to **measuring the behavioral effect of a manipulated memory representation**.
+> 本文档不重复 [proposal.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2026_Epi2Lesson/proposal.md) 的全文，目的在于检验：修订后的提案在方法论上是否成立、对课题 6 是否仍足够开放、又是否足够有边界以成为可辩护的课程项目。
 
 ---
 
-## 2. Why This New Direction Is Better
+## 1. 变更内容（what changed）
 
-### 2.1 It uses a controllable variable
+此前项目表述侧重 **对 Reflexion 与 ExpeL 的压力测试（stress-testing）**，问题包括：
 
-The key manipulated object is now the **same source experience expressed at different abstraction levels**:
+- Reflexion 是否正确诊断失败原因，
+- ExpeL 检索到的经验是否「真正相关」，
+- 反思式或经验式记忆是否如原论文所述那样起作用。
 
-- episodic memory,
-- lesson memory.
+这些问题有趣，但方法论上不稳定，依赖：
 
-This is much cleaner than asking whether a model’s explanation is “actually right.”
+- 主观失败归因（failure attribution），
+- 潜藏推理正确性（latent reasoning correctness），
+- 模型能力、提示设计、检索质量与环境协议之间的混杂（confounds），
+- 「诊断正确性（diagnostic correctness）」「真实相关性（true relevance）」等概念薄弱或缺失的真值（ground truth）。
 
-### 2.2 It aligns with the repo’s memory-theoretic foundations
+修订提案远离此类潜藏主张，转而研究更可操纵的问题：
 
-The repo’s memory survey already identifies the transition among:
+> **从情节经验（episodic experience）到可复用教训（reusable lessons）的抽象，如何影响大语言模型智能体（LLM agents）的跨任务复用（cross-task reuse）？**
 
-- **episodic memory**: concrete past experiences,
-- **semantic memory**: abstract stable knowledge,
-- **procedural memory**: reusable routines and strategies.
+这一变更并非表面措辞：项目从 **解释内部认知（interpreting internal cognition）** 转向 **测量被操纵的记忆表征（memory representation）的行为效应（behavioral effect）**。
 
-See:
+---
+
+## 2. 新方向为何更好（why this new direction is better）
+
+### 2.1 使用可操纵变量（controllable variable）
+
+关键操纵对象现为 **同一条源经验以不同抽象层次表达**：
+
+- 情节记忆（episodic memory），
+- 教训记忆（lesson memory）。
+
+这比追问模型解释是否「真的对」干净得多。
+
+### 2.2 与仓库内记忆理论基础对齐
+
+仓库内记忆综述已指出 **情节记忆（episodic memory）**、**语义记忆（semantic memory）**、**程序记忆（procedural memory）** 之间的过渡：
+
+- **情节记忆（episodic memory）**：具体过去经验，
+- **语义记忆（semantic memory）**：抽象稳定知识，
+- **程序记忆（procedural memory）**：可复用例程与策略。
+
+参见：
 
 - [2.2_cognitive-mechanisms.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/survey/02_taxonomy/2.2_cognitive-mechanisms.md)
 - [3.2_dynamic-experience.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/self-improvement/survey/03_env-centric/3.2_dynamic-experience.md)
 
-The revised proposal studies one specific step inside that broader memory ladder:
+修订提案研究该记忆阶梯中的一步：
 
-> **episodic experience -> semantic lesson**
+> **情节经验 → 语义化教训（episodic experience -> semantic lesson）**
 
-This makes the project theoretically grounded without becoming too large.
+使项目在理论上扎根而不致过大。
 
-### 2.3 It matches the style of the official course topics
+### 2.3 契合官方课程课题风格
 
-The five official topics are not asking students to solve fully open-ended unsolved frontier problems. They instead ask for:
+五个官方课题并非要求学生解决完全开放的未解前沿问题，而是要求：
 
-- a bounded empirical question,
-- controlled comparisons,
-- explicit metrics,
-- interpretable analysis,
-- limited but meaningful extension beyond direct reproduction.
+- 有边界的实证问题（bounded empirical question），
+- 受控对比（controlled comparisons），
+- 明确指标（metrics），
+- 可解释分析（interpretable analysis），
+- 在直接复现之外有限但有意义的扩展。
 
-The revised proposal follows this pattern. It does not claim to solve lifelong memory. It asks one narrower question that can be tested with a clear experimental matrix.
-
----
-
-## 3. Critical Reflection: Is This Still Too Broad?
-
-Yes, it could easily become too broad again if the scope is not explicitly constrained.
-
-### 3.1 Danger: “semantic abstraction” becomes a vague slogan
-
-If the project says only:
-
-> “I study semantic abstraction levels.”
-
-then the variable remains underspecified. Abstraction can remove many different kinds of information:
-
-- object identity,
-- environment-specific constraints,
-- failure cues,
-- preconditions,
-- action-order details.
-
-The revised proposal therefore avoids generic “low / medium / high abstraction” language and uses only two units:
-
-- **Episode**
-- **Lesson**
-
-This is deliberate. It keeps the problem interpretable.
-
-### 3.2 Danger: the project turns into retrieval research
-
-The user correctly identified that:
-
-- whether memory is triggered is mostly a retrieval problem,
-- progressive disclosure is mostly a context-engineering problem.
-
-If these become central, the main variable is no longer abstraction. The project therefore treats retrieval and injection style as **controlled background choices**, not the main contribution.
-
-### 3.3 Danger: the project turns into prompt engineering
-
-If lesson construction is informal or ad hoc, then any observed gain could simply reflect better writing style rather than a principled abstraction step.
-
-Therefore, the proposal must state clearly:
-
-- lesson construction will be **template-based or manually controlled**,
-- the project studies the **effect** of abstraction,
-- it does **not** attempt to solve automatic abstraction generation.
-
-This restriction is necessary, not a weakness.
+修订提案遵循该模式：不声称解决终身记忆（lifelong memory），而追问可通过清晰实验矩阵（experimental matrix）检验的更窄问题。
 
 ---
 
-## 4. Is This Problem Already Solved?
+## 3. 批判性反思：是否仍过宽？（critical reflection: is this still too broad?）
 
-Not fully, but parts of it have already been addressed indirectly.
+是——若范围不明确，很容易再次变宽。
 
-### 4.1 What AWM already answered
+### 3.1 风险：「语义抽象（semantic abstraction）」沦为空洞口号
 
-AWM already studies several questions about workflow representation:
+若项目只说：
 
-- LM-induced abstraction vs rule-based reuse,
-- code workflow vs text workflow,
-- NL environment description vs HTML-enhanced description.
+> 「我研究语义抽象层次。」
 
-These results already imply:
+则变量仍欠具体化。抽象可去除多种信息：
 
-- abstraction matters,
-- surface format matters less,
-- adding more concrete detail does not always help.
+- 对象身份（object identity），
+- 环境特定约束，
+- 失败线索（failure cues），
+- 前置条件（preconditions），
+- 动作顺序细节（action-order details）。
 
-So the revised proposal should **not** ask:
+修订提案因此避免泛用的「低/中/高抽象」用语，只使用两个单位：
 
-- whether workflow should be code or text,
-- whether more HTML detail improves memory,
-- whether sub-routine abstraction helps at all.
+- **Episode（情节）**，
+- **Lesson（教训）**。
 
-Those questions have already been substantially explored.
+这是刻意的，使问题可解释。
 
-### 4.2 What remains open
+### 3.2 风险：项目变成检索研究（retrieval research）
 
-AWM, ExpeL, and SkillWeaver all compare **different memory objects across systems**, but they do not cleanly isolate:
+你已指出：
 
-> the behavioral difference between an **episode** and a **lesson distilled from the same episode**.
+- 记忆是否被触发主要是检索（retrieval）问题，
+- 渐进披露（progressive disclosure）主要是上下文工程（context-engineering）问题。
 
-That is the gap this proposal uses.
+若这些成为中心，主变量不再是抽象。因此项目将检索与注入方式视为 **受控背景选择（controlled background choices）**，而非主要贡献。
 
-### 4.3 Why this gap is still meaningful
+### 3.3 风险：项目变成提示工程（prompt engineering）
 
-This is not a novelty claim of the form:
+若教训构造非正式或随意，任何增益可能仅反映文笔而非有原则的抽象步骤。
 
-> “nobody has ever discussed abstraction.”
+因此提案须明确：
 
-Instead, the claim is narrower and stronger:
+- 教训构造将 **基于模板或人工受控（template-based or manually controlled）**，
+- 项目研究抽象的 **效应（effect）**，
+- **不**试图解决自动抽象生成（automatic abstraction generation）。
 
-> existing work does not yet provide a controlled comparison of **same-source episodic vs lesson-level memory** and the information-loss tradeoff between them.
-
-That is enough for a course project.
-
----
-
-## 5. Experimental Logic
-
-The revised proposal should be evaluated as a controlled empirical study, not as a broad architecture project.
-
-### Experiment 1: Episode vs Lesson
-
-Compare:
-
-- no memory,
-- episode memory,
-- lesson memory.
-
-This experiment answers whether abstraction changes reuse performance.
-
-### Experiment 2: Information-loss analysis
-
-Track what information is dropped when converting an episode into a lesson, then analyze which types of removed information are associated with later failure.
-
-This is where the project becomes more than a benchmark table.
-
-### Experiment 3: Positive reuse vs over-generalization
-
-Evaluate episode and lesson memory on:
-
-- reusable targets,
-- near-miss targets,
-- unrelated targets.
-
-This prevents the project from degenerating into the simplistic claim that “more abstraction is better.”
+该限制是必要约束，而非弱点。
 
 ---
 
-## 6. Is ALFWorld a Reasonable Benchmark?
+## 4. 该问题是否已被解决？（is this problem already solved?）
 
-Yes, but only with explicit caveats.
+未完全解决，但部分已在间接意义上被讨论。
 
-### Why ALFWorld is attractive
+### 4.1 AWM 已回答的内容
 
-- already available in the current repo,
-- text-only and affordable,
-- supports controlled memory injection,
-- success/failure is easy to observe.
+AWM 已研究工作流表征（workflow representation）的多个问题：
 
-### Why ALFWorld is dangerous
+- 语言模型诱导的抽象（LM-induced abstraction）对比基于规则的复用（rule-based reuse），
+- 代码工作流（code workflow）对比文本工作流（text workflow），
+- 自然语言环境描述（NL environment description）对比 HTML 增强描述（HTML-enhanced description）。
 
-The current repo’s own pilot work has already shown that some failures are dominated by:
+这些结果已暗示：
 
-- formatting mismatch,
-- interaction protocol issues,
-- repetitive invalid command behavior.
+- 抽象重要，
+- 表面格式（surface format）较次要，
+- 更多具体细节并不总有益。
 
-This means ALFWorld can easily measure interface brittleness instead of reusable experience.
+修订提案因此 **不应** 再问：
 
-### Resulting design decision
+- 工作流应为代码还是文本，
+- 更多 HTML 细节是否改善记忆，
+- 子程序抽象是否根本有帮助。
 
-ALFWorld should be used only as a **controlled subset benchmark**:
+这些问题已有相当探索。
 
-- select task families where reusable lessons are interpretable,
-- exclude cases dominated by pure formatting collapse,
-- make the benchmark serve the question rather than define it.
+### 4.2 仍开放的部分
 
-This is consistent with the course-topic style: a project does not need to evaluate everything if a smaller controlled subset better matches the question.
+AWM、ExpeL、SkillWeaver 均在 **跨系统比较不同记忆对象**，但未能干净隔离：
 
----
+> **情节（episode）** 与同一条情节**蒸馏出的教训（lesson distilled from the same episode）** 之间的行为差异。
 
-## 7. Expected Contribution
+这是本提案利用的缺口（gap）。
 
-If executed well, the project can make a contribution at the following level:
+### 4.3 该缺口为何仍有意义
 
-> A controlled empirical analysis of how a concrete experience changes in utility when abstracted into a reusable lesson.
+这不是「无人讨论过抽象」式的新颖性主张，而是更窄、更强的主张：
 
-More specifically, it can clarify:
+> 已有工作尚未提供 **同源情节记忆对比教训级记忆（same-source episodic vs lesson-level memory）** 的受控比较，以及二者之间的信息损失权衡（information-loss tradeoff）。
 
-- whether lesson-level abstraction improves reuse over episode-level memory,
-- what information should not be abstracted away,
-- when abstraction begins to over-generalize.
-
-This is narrower than a general theory of agent memory, but strong enough for Topic 6 because it is:
-
-- theoretically grounded,
-- empirically testable,
-- clearly scoped,
-- not already fully answered by existing papers.
+这对课程项目已足够。
 
 ---
 
-## 8. What This Proposal Is Not
+## 5. 实验逻辑（experimental logic）
 
-To avoid repeating the problems of the earlier framing, the revised proposal should explicitly state that it is **not**:
+修订提案应作为受控实证研究评估，而非宽泛架构项目。
 
-- a project on whether an agent internally “understands” its own failures,
-- a retrieval-paper disguised as a memory paper,
-- a prompt-engineering study about staged context release,
-- a full skill-induction or lifelong-learning system,
-- a claim that episodic-to-semantic abstraction is universally optimal.
+### 实验一：情节对比教训（Episode vs Lesson）
 
-This matters because the project becomes stronger when it defines its non-goals clearly.
+比较：
+
+- 无记忆（no memory），
+- 情节记忆（episode memory），
+- 教训记忆（lesson memory）。
+
+回答抽象是否改变复用表现。
+
+### 实验二：信息损失分析（information-loss analysis）
+
+追踪情节转为教训时丢弃的信息，再分析哪类被去除信息与后续失败相关。
+
+这是项目超越基准表（benchmark table）的部分。
+
+### 实验三：正复用对比过度泛化（positive reuse vs over-generalization）
+
+在以下目标上评估情节记忆与教训记忆：
+
+- 可复用目标（reusable targets），
+- 近失目标（near-miss targets），
+- 无关目标（unrelated targets）。
+
+防止项目退化为「抽象越多越好」的简化论断。
 
 ---
 
-## 9. One-Sentence Judgment
+## 6. ALFWorld 是否是合理基准？（is ALFWorld a reasonable benchmark?）
 
-> The revised proposal is substantially more defensible than the original one because it replaces latent correctness claims with a controlled memory-representation question; however, it remains viable only if it stays tightly focused on the `episode -> lesson` abstraction step and does not expand into retrieval, orchestration, or full procedural-skill learning.
+是，但须明确注意事项。
+
+### ALFWorld 的吸引力
+
+- 当前仓库中已可用，
+- 纯文本、成本可承受，
+- 支持受控记忆注入，
+- 成败易于观察。
+
+### ALFWorld 的风险
+
+仓库内试点已表明部分失败由以下主导：
+
+- 格式不匹配（formatting mismatch），
+- 交互协议问题（interaction protocol issues），
+- 重复无效命令行为（repetitive invalid command behavior）。
+
+故 ALFWorld 很容易测到接口脆弱性（interface brittleness）而非可复用经验。
+
+### 设计结论
+
+ALFWorld 仅应作为 **受控子集基准（controlled subset benchmark）**：
+
+- 选择可复用教训可解释的任务族，
+- 排除纯格式崩溃主导的案例，
+- 使基准服务于问题而非反过来定义问题。
+
+这与课程课题风格一致：不必评估一切，较小受控子集若更贴合问题即可。
+
+---
+
+## 7. 预期贡献（expected contribution）
+
+若执行得当，项目可在以下层面贡献：
+
+> 具体经验（concrete experience）被抽象为可复用教训（reusable lesson）时，其效用（utility）如何变化的受控实证分析。
+
+更具体可澄清：
+
+- 教训级抽象是否较情节级记忆改善复用，
+- 哪些信息不应被抽象掉，
+- 抽象何时开始过度泛化（over-generalize）。
+
+比一般智能体记忆理论窄，但对课题 6 足够强，因具备：
+
+- 理论根基，
+- 可实证检验，
+- 范围清晰，
+- 已有文献尚未完全回答。
+
+---
+
+## 8. 本提案不是什么（what this proposal is not）
+
+为避免重蹈早期表述的问题，修订提案应明确 **不是**：
+
+- 关于智能体是否内心「理解」自身失败的项目，
+- 伪装成记忆论文的检索论文（retrieval-paper disguised as a memory paper），
+- 关于分阶段上下文释放的提示工程研究，
+- 完整技能归纳或终身学习系统，
+- 主张情节到语义抽象普遍最优。
+
+明确非目标（non-goals）时，项目反而更强。
+
+---
+
+## 9. 一句话判断（one-sentence judgment）
+
+> 修订提案较原提案可辩护得多，因用受控的记忆表征问题替代潜藏正确性主张；但其可行前提仍是 **紧扣 `episode -> lesson`（情节→教训）抽象步骤**，不扩张到检索（retrieval）、编排（orchestration）或完整程序性技能学习（procedural-skill learning）。

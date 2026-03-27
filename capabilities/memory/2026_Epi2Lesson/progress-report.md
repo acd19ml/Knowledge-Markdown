@@ -1,217 +1,217 @@
-# Progress Report for Topic 6
+# 课题 6 进展报告（progress report）
 
-## Abstract
+## 摘要（Abstract）
 
-This progress report documents both the empirical work already completed and the resulting revision of the project proposal. The original project aimed to study parameter-free self-improvement in LLM agents through Reflexion and ExpeL, with emphasis on reflection correctness, cross-task transfer, and retrieval utility. Pilot experiments succeeded in establishing runnable local pipelines for both systems and produced initial artifacts, including a 10-case Reflexion failure set and a smoke-train ExpeL run on ALFWorld. However, these pilots also revealed that the original research questions were difficult to answer cleanly because they depended on latent and confounded constructs such as “true failure cause” and “true transferability.” In response, the project was reformulated into a more bounded empirical study: how abstraction from episodic experience to reusable lessons affects cross-task reuse in LLM agents. This revised proposal better matches the style of the course topics because it uses a fixed benchmark, a controlled comparison, and interpretable metrics. The report therefore presents the project not as a failed first attempt, but as a methodologically informed narrowing process that now leads to a clearer final-study design.
+本进展报告（progress report）既记录已完成的实证工作，也记录由此对项目提案（project proposal）的修订。原项目旨在通过 **Reflexion** 与 **ExpeL** 研究大语言模型智能体（LLM agents）中的无参数自我改进（parameter-free self-improvement），侧重反思正确性（reflection correctness）、跨任务迁移（cross-task transfer）与检索效用（retrieval utility）。试点实验（pilot experiments）已成功搭建两套系统可运行的本地流水线（pipelines），并产出初步产物，包括 10 个案例的 Reflexion 失败集与在 ALFWorld 上的 ExpeL 冒烟训练（smoke-train）。但这些试点也表明：原研究问题难以干净回答，因其依赖「真实失败原因（true failure cause）」「真实可迁移性（true transferability）」等潜变量与混杂（confounded）构念。据此，项目改述为边界更清晰的实证研究：从情节经验（episodic experience）到可复用教训（reusable lessons）的抽象（abstraction），如何影响大语言模型智能体的跨任务复用（cross-task reuse）。修订后的提案更贴近课程课题风格：固定基准（benchmark）、受控对比、可解释指标。本报告将项目呈现为方法论上有依据的收窄过程，而非失败的第一次尝试，并指向更清晰的终稿研究设计。
 
-## 1. Project Context
+## 1. 项目背景（project context）
 
-The project originally focused on **parameter-free self-improvement** in LLM agents, using two representative systems:
+项目最初聚焦大语言模型智能体中的 **无参数自我改进（parameter-free self-improvement）**，使用两个代表性系统：
 
-- **Reflexion**, which stores natural-language self-reflections after failure and reuses them on retry
-- **ExpeL**, which stores trajectories, extracts reusable insights, and retrieves cross-task experience
+- **Reflexion**：失败后存储自然语言自我反思（self-reflections），在重试时复用
+- **ExpeL**：存储轨迹（trajectories），提取可复用洞见（insights），并进行跨任务经验检索
 
-The initial motivation was to move beyond overall benchmark scores and ask mechanism-level questions:
+初始动机是超越总体基准分数，追问机制层面问题：
 
-- Does Reflexion correctly diagnose why a task failed?
-- Do ExpeL’s extracted insights produce useful cross-task transfer?
-- Does retrieval similarity correspond to actual operational usefulness?
+- Reflexion 是否正确诊断任务失败原因？
+- ExpeL 提取的洞见是否产生有用的跨任务迁移？
+- 检索相似度（retrieval similarity）是否对应实际运行效用？
 
-This was a strong starting point because it aimed to evaluate agent memory and self-improvement more critically than a simple reproduction project. However, pilot work later showed that this framing was not well suited to a bounded course project.
+这是有力的起点，因它旨在比简单复现项目更批判地评估智能体记忆与自我改进。但后续试点表明，该表述不适合有边界的课程项目。
 
-## 2. Completed Work Under the Original Proposal
+## 2. 原提案下已完成工作（completed work under the original proposal）
 
-### 2.1 Reflexion Pipeline
+### 2.1 Reflexion 流水线（pipeline）
 
-The project successfully established a runnable local Reflexion pipeline for ALFWorld in a dedicated conda environment. Two stages were completed:
+项目在独立 conda 环境中为 ALFWorld 搭建了可运行的本地 Reflexion 流水线。已完成两阶段：
 
-- a no-memory smoke run
-- a memory-enabled smoke run with reflection generation and logging
+- 无记忆冒烟运行（no-memory smoke run）
+- 启用记忆、生成反思并记录的冒烟运行（memory-enabled smoke run）
 
-The no-memory smoke run used `num_trials = 1`, `num_envs = 2`, and `model = gpt-4o`, producing:
+无记忆冒烟使用 `num_trials = 1`、`num_envs = 2`、`model = gpt-4o`，得到：
 
 - `SUCCESS: 0`
 - `FAIL: 2`
 - `TOTAL: 2`
 
-The memory-enabled run confirmed that retry-with-reflection works end to end and that generated reflections are stored in the logs.
+启用记忆的运行确认端到端「重试+反思（retry-with-reflection）」可用，且生成的反思写入日志。
 
-### 2.2 Reflexion Failure Pilot
+### 2.2 Reflexion 失败试点（failure pilot）
 
-To move beyond anecdotal examples, a larger memory-enabled pilot was run on `8` ALFWorld environments. Together with the earlier 2-environment memory run, this produced a set of **10 failed Reflexion cases** with non-empty reflections.
+为超越轶事级样例，在 `8` 个 ALFWorld 环境上运行了更大规模的启用记忆试点；与此前 2 环境记忆运行合并，得到 **10 个失败的 Reflexion 案例**，且反思非空。
 
-The 10-case annotation set suggested the following early pattern:
+10 案例标注集（annotation set）的早期模式如下：
 
-- primary formatting / interaction protocol failure: `10 / 10`
-- secondary generic or non-actionable reasoning failure: `8 / 10`
-- reflections that mention the likely issue clearly: `6 / 10`
-- reflections that mention it only partially: `4 / 10`
-- reflections judged fully actionable: `0 / 10`
+- 主要格式/交互协议失败（formatting / interaction protocol failure）：`10 / 10`
+- 次要泛化或不可执行推理失败（generic or non-actionable reasoning failure）：`8 / 10`
+- 反思中较清晰提到可能问题：`6 / 10`
+- 仅部分提到：`4 / 10`
+- 判为完全可执行（fully actionable）：`0 / 10`
 
-This was already a meaningful pilot result: Reflexion often notices something close to the failure mode, but the reflection is usually too generic to function as an executable repair policy.
+这已是实质性试点结果：Reflexion 往往注意到接近失败模式的内容，但反思通常过于泛化，难以充当可执行修复策略（executable repair policy）。
 
-### 2.3 ExpeL Pipeline
+### 2.3 ExpeL 流水线（pipeline）
 
-ExpeL was also brought into a runnable local state, although it required more compatibility work than Reflexion. The project resolved issues involving OpenAI-compatible API routing, ALFWorld environment compatibility, package-version mismatches, `tiktoken` support for `gpt-4o`, and a hard-coded assumption that every run contains exactly 134 tasks.
+ExpeL 也已进入可运行状态，但兼容性工作多于 Reflexion。项目已解决与 OpenAI 兼容 API 路由、ALFWorld 环境兼容、包版本不一致、`gpt-4o` 的 `tiktoken` 支持，以及「每次运行恰好 134 个任务」的硬编码假设等问题。
 
-After these fixes, a 4-task ALFWorld smoke-train run completed successfully and produced standard ExpeL artifacts. The observed outcome was:
+修复后，4 任务 ALFWorld 冒烟训练（smoke-train）顺利完成并产出标准 ExpeL 产物。观测结果为：
 
 - `Success: 1`
 - `Fail: 2`
 - `Halted: 1`
 
-At this stage, ExpeL has not yet produced the evidence needed for the original transfer or retrieval analyses, but it has established a working train-stage path and persistent artifacts for later inspection.
+现阶段 ExpeL 尚未为原迁移或检索分析提供足够证据，但已建立可用的训练阶段路径与可持久化检视的产物。
 
-## 3. Why the Original Proposal Was Revised
+## 3. 为何修订原提案（why the original proposal was revised）
 
-The most important outcome of the pilot stage was not just engineering progress. It was methodological clarification.
+试点阶段最重要的产出不仅是工程进展，更是方法论澄清（methodological clarification）。
 
-The original proposal depended on questions such as:
+原提案依赖的问题包括：
 
-- whether a reflection was “truly” correct
-- whether an experience was “truly” transferable
-- whether retrieved memories were “really” relevant
+- 反思是否「真正」正确，
+- 经验是否「真正」可迁移，
+- 检索到的记忆是否「真的」相关。
 
-These turned out to be difficult to answer cleanly in the current setting because they rely on weakly defined or latent constructs:
+在当前设定下难以干净回答，因其依赖定义薄弱或潜藏的构念：
 
-- a task failure often has multiple plausible causes
-- interactive benchmarks can mix reasoning errors with interface and protocol failures
-- transferability is entangled with task wording, benchmark structure, and retrieval design
-- relevance can mean semantic similarity, procedural overlap, or causal usefulness
+- 任务失败往往有多种合理解释，
+- 交互式基准（interactive benchmarks）可能混合推理错误与接口、协议失败，
+- 可迁移性与任务措辞、基准结构、检索设计纠缠，
+- 相关性（relevance）可指语义相似、程序重叠或因果效用。
 
-As a result, scaling the original plan would likely have produced more annotations and more artifacts, but still a weak central claim. The problem was not insufficient engineering. The problem was that the original research question was not yet clean enough for a clear empirical answer.
+因此，放大原计划很可能产生更多标注与产物，但中心主张仍弱。问题不在于工程不足，而在于原研究问题对清晰实证答案而言尚不够干净。
 
-This point matters because the official course topics are not framed as broad interpretability problems. They are framed as bounded empirical studies with:
+这一点很重要，因官方课程课题并非宽泛的可解释性问题，而是有边界的实证研究，要求：
 
-- a fixed benchmark or system setting
-- a small number of controlled variables
-- and interpretable metrics
+- 固定基准或系统设定，
+- 少量受控变量（controlled variables），
+- 可解释指标。
 
-The original proposal was too close to asking whether the agent was internally correct. That is an interesting research question, but it is not the best fit for the course format.
+原提案过于接近「智能体内部是否正确」——这是有趣的研究问题，但不最契合课程形式。
 
-## 4. Revised Proposal
+## 4. 修订后的提案（revised proposal）
 
-The revised project is now:
+修订后的项目题为：
 
-> **From Episodic Experience to Reusable Lessons: Evaluating Experience Abstraction for Cross-Task Reuse in LLM Agents**
+> **从情节经验到可复用教训：评估大语言模型智能体跨任务复用中的经验抽象（From Episodic Experience to Reusable Lessons: Evaluating Experience Abstraction for Cross-Task Reuse in LLM Agents）**
 
-Its central question is:
+中心问题是：
 
-> **How does abstraction from episodic experience to reusable lessons affect cross-task reuse in LLM agents?**
+> **从情节经验到可复用教训的抽象，如何影响大语言模型智能体的跨任务复用？**
 
-This revised direction is narrower and more defensible because it replaces latent correctness with a controlled variable:
+该方向更窄、更可辩护，因用受控变量替代潜藏的正确性：
 
-- the abstraction level of stored experience
+- 所存储经验的抽象层次（abstraction level）
 
-The revised project is also grounded in the memory framework already developed in the repository:
+修订项目也与仓库中已有记忆框架对齐：
 
-- **episodic memory**: concrete past experiences
-- **semantic memory**: abstract stable knowledge
-- **procedural memory**: reusable routines and skills
+- **情节记忆（episodic memory）**：具体过去经验，
+- **语义记忆（semantic memory）**：抽象稳定知识，
+- **程序记忆（procedural memory）**：可复用例程与技能。
 
-The project now focuses only on the first transition:
+项目仅关注第一步过渡：
 
-> `episodic experience -> reusable lesson`
+> `episodic experience -> reusable lesson`（情节经验 → 可复用教训）
 
-This is a more precise and better-bounded question than the earlier mechanism-level critique of Reflexion and ExpeL.
+这比此前对 Reflexion 与 ExpeL 的机制层批判更精确、边界更清晰。
 
-## 5. Why the New Proposal Is Better
+## 5. 新提案为何更好（why the new proposal is better）
 
-The revised proposal is better in four specific ways.
+修订提案在四个方面更优。
 
-### 5.1 It Uses a Controllable Variable
+### 5.1 使用可操纵变量（controllable variable）
 
-The project no longer tries to judge whether the model’s internal diagnosis is correct. Instead, it compares two explicit memory forms:
+项目不再评判模型内部诊断是否正确，而是比较两种显式记忆形式：
 
-- **Episode memory**: a concrete, context-rich description of a past task event
-- **Lesson memory**: a reusable abstraction distilled from the same experience
+- **情节记忆（episode memory）**：对过去任务事件的具体、富含上下文的描述，
+- **教训记忆（lesson memory）**：从同一经验中蒸馏出的可复用抽象。
 
-### 5.2 It Asks a Bounded Open Question
+### 5.2 提出有边界但仍开放的问题（bounded open question）
 
-Existing work such as AWM, ExpeL, and SkillWeaver shows that abstraction matters, but these systems do not cleanly isolate the following question in the chosen setting:
+AWM、ExpeL、SkillWeaver 等工作表明抽象重要，但在所选设定下并未干净隔离：
 
-> For the same source experience, what changes when that experience is stored as a concrete episode rather than an abstract lesson?
+> 对同一条源经验，存为具体情节与存为抽象教训，有何不同？
 
-This is not a universally unsolved problem, but it is also not fully answered in the selected setting. That makes it appropriate for a course project.
+这不是普适未解难题，但在所选设定下也未被完全回答，适合课程项目。
 
-### 5.3 It Fits the Style of the Course Topics
+### 5.3 契合课程课题风格
 
-The official course topics generally ask students to investigate a bounded empirical problem by comparing methods, configurations, or strategies under a fixed benchmark. The revised proposal now follows the same structure:
+官方课题通常要求学生在固定基准下比较方法、配置或策略，调查有边界的实证问题。修订提案现遵循同一结构：
 
-- fixed benchmark
-- controlled comparison
-- small number of variables
-- interpretable metrics
+- 固定基准，
+- 受控对比，
+- 少量变量，
+- 可解释指标。
 
-### 5.4 It Gives the Final Report a Cleaner Research Story
+### 5.4 使终稿有更清晰的研究叙事（research story）
 
-The project can now be presented as:
+项目可叙述为：
 
-> initial hypothesis -> pilot evidence -> proposal reassessment -> sharper empirical question
+> 初始假设 → 试点证据 → 提案再评估 → 更尖锐的实证问题
 
-This is much clearer than a report that merely accumulates mechanism-oriented annotations without a strong final claim.
+这比堆积机制向标注却缺乏强终局主张的报告清晰得多。
 
-## 6. Revised Experimental Plan
+## 6. 修订后的实验计划（revised experimental plan）
 
-The benchmark remains **ALFWorld**, but not as a full-scale leaderboard reproduction. Instead, it will be used as a controlled subset benchmark in which reusable lessons are interpretable.
+基准仍为 **ALFWorld**，但不是完整榜单复现，而是作为**受控子集基准（controlled subset benchmark）**，使可复用教训可解释。
 
-The revised plan centers on three experiments.
+修订计划围绕三项实验。
 
-### 6.1 Experiment 1: Episode vs Lesson
+### 6.1 实验一：情节对比教训（Episode vs Lesson）
 
-Compare:
+比较：
 
-- `No memory`
-- `Episode memory`
-- `Lesson memory`
+- `No memory`（无记忆），
+- `Episode memory`（情节记忆），
+- `Lesson memory`（教训记忆）。
 
-Main metrics:
+主要指标：
 
-- success rate
-- transfer gain over the no-memory baseline
-- prompt length
+- 成功率（success rate），
+- 相对无记忆基线的迁移增益（transfer gain），
+- 提示长度（prompt length）。
 
-### 6.2 Experiment 2: Information-Loss Analysis
+### 6.2 实验二：信息损失分析（information-loss analysis）
 
-For each source experience, identify what information is removed when an episode is abstracted into a lesson, such as:
+对每条源经验，识别情节抽象为教训时去除了哪些信息，例如：
 
-- object-specific details
-- environment-specific constraints
-- preconditions
-- failure-specific cues
+- 对象特定细节，
+- 环境特定约束，
+- 前置条件（preconditions），
+- 失败特定线索（failure-specific cues）。
 
-Then analyze which kinds of removed information most often correspond to reuse failure.
+再分析哪类被去除信息最常与复用失败对应。
 
-### 6.3 Experiment 3: Reuse vs Over-Generalization
+### 6.3 实验三：复用对比过度泛化（reuse vs over-generalization）
 
-Test episode and lesson memory on three target types:
+在三类目标上测试情节记忆与教训记忆：
 
-- `Reusable`
-- `Near-miss`
-- `Unrelated`
+- `Reusable`（可复用），
+- `Near-miss`（近失），
+- `Unrelated`（无关）。
 
-Main metrics:
+主要指标：
 
-- positive transfer
-- negative transfer
-- net utility
+- 正迁移（positive transfer），
+- 负迁移（negative transfer），
+- 净效用（net utility）。
 
-## 7. Scope and Next Steps
+## 7. 范围与下一步（scope and next steps）
 
-The project deliberately does **not** make retrieval design, staged context injection, full workflow induction, or executable skill synthesis the main subject of study. Those are meaningful topics, but they would expand the scope too quickly.
+项目**刻意不**将检索设计、分阶段上下文注入（staged context injection）、完整工作流归纳或可执行技能合成作为研究主对象。这些主题有意义，但会过快扩大范围。
 
-The immediate next steps are:
+近期下一步：
 
-1. define a controlled ALFWorld subset in which reusable lessons are interpretable
-2. design a stable template for converting source experiences into episode and lesson memory
-3. run the first revised comparison among `No memory`, `Episode memory`, and `Lesson memory`
+1. 定义可复用教训可解释的受控 ALFWorld 子集，
+2. 设计将源经验转为情节记忆与教训记忆的稳定模板，
+3. 在 `No memory`、`Episode memory`、`Lesson memory` 间进行首次修订版对比实验。
 
-## 8. Conclusion
+## 8. 结论（conclusion）
 
-The current stage of the project has already produced both real empirical artifacts and a more mature research direction. Reflexion and ExpeL are now runnable locally, and the pilot evidence has done more than demonstrate feasibility: it has shown why the original proposal was too methodologically unstable for a clear course-project contribution.
+项目当前阶段已同时产出真实实证产物与更成熟的研究方向。Reflexion 与 ExpeL 现可在本地运行；试点证据不仅证明可行，更说明原提案对清晰课程贡献而言方法论上过于不稳。
 
-The revised proposal is therefore not a retreat from the original idea, but a better formulation of it. Instead of asking whether agents are internally correct about their own failures, the project now asks a more bounded and testable question:
+修订提案因此不是背离原想法，而是更好的表述：不问智能体是否内心正确理解自身失败，而问边界更清晰、可检验的问题：
 
-> **How does abstraction from episodic experience to reusable lessons affect cross-task reuse in LLM agents?**
+> **从情节经验到可复用教训的抽象，如何影响大语言模型智能体的跨任务复用？**
 
-This gives the project a stronger path toward a final report that is both technically executable and empirically defensible.
+这为终稿同时满足技术可执行与实证可辩护提供了更强路径。

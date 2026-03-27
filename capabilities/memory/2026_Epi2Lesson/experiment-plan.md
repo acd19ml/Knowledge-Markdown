@@ -1,321 +1,321 @@
-# Experiment Framework for the Revised Topic 6 Proposal
+# 修订后课题 6 提案的实验框架（experiment framework）
 
-> Main proposal: [proposal.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2026_Epi2Lesson/proposal.md)  
-> Critical rationale: [proposal-analysis.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2026_Epi2Lesson/proposal-analysis.md)  
-> Progress narrative: [progress-report.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2026_Epi2Lesson/progress-report.md)
-
----
-
-## 1. One-Sentence Project Definition
-
-This project asks:
-
-> **When the same source experience is stored as a concrete episode versus a reusable lesson, how does later cross-task reuse change?**
-
-The project does **not** study:
-
-- whether retrieval is optimal,
-- whether prompt orchestration is optimal,
-- whether the agent internally “understood” the failure correctly,
-- or how to automatically generate the best possible lesson at scale.
-
-It studies one controlled variable only:
-
-- **experience abstraction**: `episode` vs `lesson`
+> 主提案：[proposal.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2026_Epi2Lesson/proposal.md)  
+> 关键论证：[proposal-analysis.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2026_Epi2Lesson/proposal-analysis.md)  
+> 进展叙述：[progress-report.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2026_Epi2Lesson/progress-report.md)
 
 ---
 
-## 2. Why This Is the Right Experimental Scope
+## 1. 一句话项目定义（one-sentence project definition）
 
-The revised scope is chosen for three reasons.
+本项目追问：
 
-### 2.1 It is narrower than the original proposal
+> **当同一条源经验（source experience）分别以具体情节（concrete episode）与可复用教训（reusable lesson）两种形式存储时，后续的跨任务复用（cross-task reuse）会如何变化？**
 
-The original proposal asked mechanism questions about:
+本项目**不**研究：
 
-- reflection correctness,
-- transfer correctness,
-- retrieval relevance.
+- 检索（retrieval）是否最优，
+- 提示编排（prompt orchestration）是否最优，
+- 智能体是否在内部「正确」理解了失败，
+- 或如何大规模自动生成最优教训（lesson）。
 
-Those questions became too hard to close cleanly because they depend on latent or weakly defined ground truth.
+只操纵一个受控变量：
 
-### 2.2 It is still open, but not too open
-
-Existing work already shows:
-
-- abstraction helps in some form,
-- format alone is not the core issue,
-- workflows, insights, and skills can sometimes transfer.
-
-But existing work does **not** cleanly isolate:
-
-> the behavioral difference between an **episodic memory** and a **lesson distilled from the same episode**.
-
-This is therefore a reasonable course-project question:
-
-- not fully solved in the selected setting,
-- but clear enough to answer through controlled experiments.
-
-### 2.3 It matches the official topic style
-
-The official topics are built around:
-
-- a bounded empirical question,
-- explicit comparison conditions,
-- concrete metrics,
-- and interpretable tradeoffs.
-
-This proposal now fits that template.
+- **经验抽象（experience abstraction）**：`episode`（情节记忆）对比 `lesson`（教训记忆）
 
 ---
 
-## 3. Core Experimental Objects
+## 2. 为何这是合适的实验范围（experimental scope）
 
-### 3.1 Episode memory
+修订后的范围基于三点理由。
 
-A context-rich description of a specific past event.
+### 2.1 比原提案更窄
 
-Characteristics:
+原提案追问的机制问题包括：
 
-- retains specific task instance details,
-- retains concrete objects and local context,
-- preserves the original event framing.
+- 反思正确性（reflection correctness），
+- 迁移正确性（transfer correctness），
+- 检索相关性（retrieval relevance）。
 
-### 3.2 Lesson memory
+这些问题难以干净收尾，因其依赖潜变量或定义不清的真值（ground truth）。
 
-A reusable abstraction distilled from the same source experience.
+### 2.2 仍有开放性，但不过度开放
 
-Characteristics:
+已有工作已表明：
 
-- removes task-instance-specific details,
-- keeps the condition-action lesson,
-- aims for reuse beyond the original episode.
+- 抽象（abstraction）在某种形式上有帮助，
+- 单靠格式（format）往往不是核心，
+- 工作流（workflows）、洞见（insights）与技能（skills）有时可以迁移。
 
-### 3.3 Benchmark role
+但已有工作**未能**干净隔离：
 
-The benchmark is **ALFWorld**, but only as a **controlled subset benchmark**.
+> **情节记忆（episodic memory）** 与同一条情节**蒸馏（distill）**出的 **lesson（教训记忆）** 之间的行为差异。
 
-Why:
+因此这是合理的课程项目问题：
 
-- already available in the current infrastructure,
-- low execution cost,
-- easy success/failure interpretation,
-- suitable for controlled memory injection.
+- 在所选设定下尚未完全解决，
+- 但可通过受控实验（controlled experiments）给出清晰答案。
 
-But:
+### 2.3 符合官方课题风格
 
-- some ALFWorld failures are dominated by interaction-format issues,
-- so the benchmark must be filtered to task cases where reusable lessons are interpretable.
+官方课题通常围绕：
+
+- 有边界的实证问题（bounded empirical question），
+- 明确的对比条件（comparison conditions），
+- 具体指标（metrics），
+- 可解释的权衡（interpretable tradeoffs）。
+
+本提案现已贴合该模板。
 
 ---
 
-## 4. Experimental Matrix
+## 3. 核心实验对象（core experimental objects）
 
-The smallest useful experiment package is:
+### 3.1 情节记忆（episode memory）
 
-| Condition | Memory injected | Purpose |
+对某一具体过去事件的、富含上下文的描述。
+
+特点：
+
+- 保留具体任务实例（task instance）细节，
+- 保留具体对象与局部情境，
+- 保留原始事件框架。
+
+### 3.2 教训记忆（lesson memory）
+
+从同一条源经验中蒸馏出的、可复用的抽象。
+
+特点：
+
+- 去除任务实例特有细节，
+- 保留条件—行动式教训（condition-action lesson），
+- 旨在超越原情节（episode）而复用。
+
+### 3.3 基准（benchmark）角色
+
+基准为 **ALFWorld**，但仅作为**受控子集基准（controlled subset benchmark）**。
+
+原因：
+
+- 当前基础设施中已可用，
+- 执行成本较低，
+- 成败易于解释，
+- 适合受控记忆注入（memory injection）。
+
+但：
+
+- 部分 ALFWorld 失败由交互格式（interaction-format）问题主导，
+- 因此必须过滤任务，使可复用教训在语义上可解释。
+
+---
+
+## 4. 实验矩阵（experimental matrix）
+
+最小可用实验包为：
+
+| 条件（Condition） | 注入的记忆（Memory injected） | 目的（Purpose） |
 |---|---|---|
-| `C0` | No memory | baseline |
-| `C1` | Episode memory | concrete experience reuse |
-| `C2` | Lesson memory | abstracted experience reuse |
+| `C0` | 无记忆（No memory） | 基线（baseline） |
+| `C1` | 情节记忆（Episode memory） | 具体经验复用 |
+| `C2` | 教训记忆（Lesson memory） | 抽象经验复用 |
 
-Target tasks are divided into:
+目标任务（target tasks）分为：
 
-| Target type | Meaning |
+| 目标类型（Target type） | 含义（Meaning） |
 |---|---|
-| `T1 Reusable` | source lesson should plausibly help |
-| `T2 Near-miss` | superficially similar, but key constraint differs |
-| `T3 Unrelated` | no plausible reuse relation |
+| `T1 Reusable`（可复用） | 源教训理应能带来帮助 |
+| `T2 Near-miss`（近失） | 表面相似但关键约束不同 |
+| `T3 Unrelated`（无关） | 无合理复用关系 |
 
-This creates a minimal matrix:
+由此得到最小矩阵：
 
 - `C0/C1/C2 × T1/T2/T3`
 
-That is already enough to answer the revised proposal.
+已足以回答修订后的提案。
 
 ---
 
-## 5. Experiments
+## 5. 实验（experiments）
 
-## Experiment 1. Episode vs Lesson
+## 实验一：情节（episode）对比教训（lesson）
 
-### Question
+### 问题（Question）
 
-Does lesson memory help more than episode memory on later tasks?
+在后续任务上，教训记忆（lesson memory）是否比情节记忆（episode memory）更有帮助？
 
-### Design
+### 设计（Design）
 
-For each selected source case:
+对每个选定的源案例（source case）：
 
-1. collect one source experience,
-2. construct an `episode` version,
-3. construct a `lesson` version from the same case,
-4. evaluate on target tasks under `C0`, `C1`, and `C2`.
+1. 收集一条源经验（source experience），
+2. 构造 `episode`（情节）版本，
+3. 从同一案例构造 `lesson`（教训）版本，
+4. 在 `C0`、`C1`、`C2` 下对目标任务（target tasks）评估。
 
-### Metrics
+### 指标（Metrics）
 
-- **Success Rate (SR)**
-- **Transfer Gain** over `C0`
-- **Prompt Length**
+- **成功率（Success Rate, SR）**
+- 相对 `C0` 的 **迁移增益（Transfer Gain）**
+- **提示长度（Prompt Length）**
 
-### Why this experiment matters
+### 为何重要（Why this experiment matters）
 
-It isolates the project’s main variable directly.
+直接隔离本项目的主变量。
 
-### Critical reflection
+### 关键反思（Critical reflection）
 
-- This is meaningful and not redundant.
-- It is also the cleanest experiment in the proposal.
-- If this experiment fails to show interpretable differences, the whole revised proposal weakens.
-
----
-
-## Experiment 2. Information-Loss Analysis
-
-### Question
-
-When an episode is turned into a lesson, what information gets removed, and which removals hurt reuse most?
-
-### Design
-
-For each `episode -> lesson` conversion, annotate removed information categories such as:
-
-- object-specific details,
-- environment-specific constraints,
-- preconditions,
-- exception/failure cues,
-- local action-order details.
-
-Then examine which removed categories are associated with target-task failure.
-
-### Outputs
-
-- failure count by removed-information category,
-- representative episode/lesson comparison table,
-- compact qualitative discussion.
-
-### Why this experiment matters
-
-Without this step, the proposal becomes a simple winner-comparison.
-
-### Critical reflection
-
-- This is where the project gains depth.
-- But it also introduces manual judgment.
-- Therefore the sample must remain deliberately small.
+- 有意义且不冗余。
+- 也是提案中最干净的一组实验。
+- 若该实验无法呈现可解释差异，整个修订提案会整体变弱。
 
 ---
 
-## Experiment 3. Reuse vs Over-Generalization
+## 实验二：信息损失分析（information-loss analysis）
 
-### Question
+### 问题（Question）
 
-Does lesson memory transfer better than episode memory, but also over-generalize more often?
+当情节（episode）变为教训（lesson）时，哪些信息被去除，哪些去除最损害复用？
 
-### Design
+### 设计（Design）
 
-Compare `C1` and `C2` across:
+对每次 `episode -> lesson` 转换，标注被去除的信息类别，例如：
 
-- `T1 Reusable`
-- `T2 Near-miss`
-- `T3 Unrelated`
+- 对象特定细节（object-specific details），
+- 环境特定约束（environment-specific constraints），
+- 前置条件（preconditions），
+- 异常/失败线索（exception/failure cues），
+- 局部动作顺序细节（local action-order details）。
 
-### Metrics
+再检验哪些去除类别与目标任务失败相关。
 
-- **Positive Transfer Gain**
-- **Negative Transfer Count**
-- **Net Utility**
+### 产出（Outputs）
 
-### Why this experiment matters
+- 按「被去除信息」类别统计的失败次数（failure count），
+- 代表性的情节/教训对照表，
+- 简短的定性讨论。
 
-It prevents the project from reducing to “abstraction is better.”
+### 为何重要
 
-### Critical reflection
+没有这一步，提案会退化为简单的「谁赢」对比。
 
-- This experiment is essential.
-- Its validity depends on a stable definition of `Reusable / Near-miss / Unrelated`.
-- These labels must be decided before observing results.
+### 关键反思
+
+- 这是项目获得深度的部分。
+- 也会引入人工判断（manual judgment）。
+- 因此样本必须刻意保持较小。
 
 ---
 
-## 6. Evaluation Summary
+## 实验三：复用（reuse）对比过度泛化（over-generalization）
 
-The project should report:
+### 问题（Question）
 
-| Category | Metrics |
+教训记忆是否比情节记忆迁移更好，但也更常过度泛化？
+
+### 设计（Design）
+
+在以下类型上比较 `C1` 与 `C2`：
+
+- `T1 Reusable`（可复用），
+- `T2 Near-miss`（近失），
+- `T3 Unrelated`（无关）。
+
+### 指标（Metrics）
+
+- **正迁移增益（Positive Transfer Gain）**
+- **负迁移次数（Negative Transfer Count）**
+- **净效用（Net Utility）**
+
+### 为何重要
+
+避免项目退化为「抽象总是更好」。
+
+### 关键反思
+
+- 该实验必不可少。
+- 其有效性依赖 `Reusable / Near-miss / Unrelated` 的稳定定义。
+- 这些标签必须在观察结果**之前**确定。
+
+---
+
+## 6. 评估汇总（evaluation summary）
+
+项目应报告：
+
+| 类别（Category） | 指标（Metrics） |
 |---|---|
-| Main task outcome | `SR`, `Transfer Gain` |
-| Compactness | `Prompt Length` |
-| Failure tradeoff | `Negative Transfer Count`, `Net Utility` |
-| Mechanism analysis | failure breakdown by removed-information type |
+| 主任务结果 | `SR`，`Transfer Gain` |
+| 紧凑性 | `Prompt Length` |
+| 失败权衡 | `Negative Transfer Count`，`Net Utility` |
+| 机制分析 | 按被去除信息类型的失败分解 |
 
-The project should **not** claim more than these metrics support.
+项目**不应**声称超出上述指标所能支持的内容。
 
-In particular, it should not claim:
+尤其不应声称：
 
-- “the agent truly understood the lesson,”
-- “the lesson is objectively correct,”
-- or “this solves cross-task memory in general.”
-
----
-
-## 7. Risks
-
-### Risk 1: ALFWorld subset is too noisy
-
-If the chosen tasks are dominated by formatting or interface protocol failures, the experiment will measure interface brittleness instead of experience abstraction.
-
-Mitigation:
-
-- use a filtered subset,
-- document why selected tasks support interpretable lesson construction.
-
-### Risk 2: Lesson construction is too subjective
-
-If episode and lesson versions are written inconsistently, results may reflect wording quality rather than abstraction level.
-
-Mitigation:
-
-- use a fixed construction template,
-- keep lesson generation controlled,
-- avoid turning this into a free-form prompting problem.
-
-### Risk 3: The project becomes too ambitious again
-
-If retrieval, triggering, progressive disclosure, or procedural-skill induction are added back in, the proposal will lose its clean variable.
-
-Mitigation:
-
-- keep retrieval fixed,
-- keep injection style fixed,
-- keep the focus on `episode -> lesson`.
+- 「智能体真正理解了教训」，
+- 「教训在客观上正确」，
+- 或「本工作一般性地解决了跨任务记忆」。
 
 ---
 
-## 8. Expected Contribution
+## 7. 风险（risks）
 
-The strongest plausible contribution for this course project is:
+### 风险一：ALFWorld 子集噪声过大
 
-> a controlled empirical analysis of how a concrete experience changes in cross-task utility when abstracted into a reusable lesson.
+若所选任务主要由格式或接口协议（interface protocol）失败主导，实验测到的是接口脆弱性（interface brittleness），而非经验抽象。
 
-That contribution is modest, but it is:
+缓解：
 
-- clearly scoped,
-- empirically testable,
-- grounded in the repo’s memory theory,
-- and not already fully answered in the selected setting.
+- 使用过滤后的子集，
+- 文档说明所选任务为何支持可解释的教训构造。
+
+### 风险二：教训构造过于主观
+
+若情节版与教训版写法不一致，结果可能反映措辞质量而非抽象层次。
+
+缓解：
+
+- 使用固定构造模板（construction template），
+- 控制教训生成方式，
+- 避免变成自由形式的提示工程（prompting）问题。
+
+### 风险三：项目再次野心过大
+
+若把检索（retrieval）、触发（triggering）、渐进披露（progressive disclosure）或程序性技能归纳（procedural-skill induction）重新纳入主问题，提案会失去干净变量。
+
+缓解：
+
+- 检索固定，
+- 注入方式固定，
+- 聚焦 `episode -> lesson`。
 
 ---
 
-## 9. Immediate Next Action
+## 8. 预期贡献（expected contribution）
 
-Before any new large-scale runs, the project should complete:
+本课程项目最站得住脚的贡献是：
 
-1. a **task-subset definition** for ALFWorld,
-2. an **episode-to-lesson construction template**,
-3. a small pilot under:
-   - `No memory`
-   - `Episode memory`
-   - `Lesson memory`
+> 在受控实证下，分析具体经验（concrete experience）被抽象为可复用教训（reusable lesson）时，其跨任务效用（cross-task utility）如何变化。
 
-If that pilot yields interpretable differences, the revised proposal is validated as experimentally viable.
+该贡献在规模上适度，但：
+
+- 范围清晰，
+- 可实证检验，
+- 与仓库内记忆理论一致，
+- 在所选设定下尚未被完全回答。
+
+---
+
+## 9. 近期下一步（immediate next action）
+
+在任何大规模跑数之前，应先完成：
+
+1. 针对 ALFWorld 的 **任务子集定义（task-subset definition）**，
+2. **情节到教训的构造模板（episode-to-lesson construction template）**，
+3. 小规模试点（pilot），覆盖：
+   - 无记忆（No memory），
+   - 情节记忆（Episode memory），
+   - 教训记忆（Lesson memory）。
+
+若试点呈现可解释差异，则修订提案在实验上可行。
