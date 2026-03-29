@@ -19,6 +19,7 @@ tmp/
 
 # PDF source files
 **/*.pdf
+capabilities/grounding/papers/sources/
 
 # LaTeX build artifacts
 *.aux
