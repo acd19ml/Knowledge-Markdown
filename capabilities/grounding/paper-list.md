@@ -2,7 +2,7 @@
 
 **选题：** Visual Grounding and Spatial Understanding in MLLMs: Methods, Representations, and Failure Modes
 
-**总计：** 31 篇 | 精读 13 篇 | 略读 18 篇
+**总计：** 38 篇 | 精读 17 篇 | 略读 21 篇
 
 ---
 
@@ -109,7 +109,6 @@
 | 4-9 | **MM-Spatial: Exploring 3D Spatial Understanding in Multimodal LLMs**                               | Erik Daxberger et al. | Apple ML Research          | ICCV 2025         |     | ☐   |
 
 
-
 ### Section 4 空间关系类型覆盖矩阵
 
 
@@ -128,14 +127,47 @@
 
 ---
 
-## Section 5: 失败模式与 Grounding 幻觉（3 篇，已完成初稿）
+## Section 5: 失败模式与 Grounding 幻觉（10 篇）
 
 
-| #   | 论文                                                                                       | 作者                 | 团队/机构                      | 发表          | 状态      |
-| --- | ---------------------------------------------------------------------------------------- | ------------------ | -------------------------- | ----------- | ------- |
-| 5-1 | **Evaluating Object Hallucination in Large Vision-Language Models (POPE)**               | Yifan Li et al.    | RUC + PKU                  | EMNLP 2023  | ☑ 笔记待生成 |
-| 5-2 | **Hallu-PI: Evaluating Hallucination in MLLMs within Perturbed Inputs**                  | Peng Ding et al.   | Nanjing U (NJUNLP)         | ACM MM 2024 | ☑ 笔记已完成 |
-| 5-3 | **Analyzing and Mitigating Object Hallucination in Large Vision-Language Models (LURE)** | Yiyang Zhou et al. | UNC Chapel Hill + Stanford | ICLR 2024   | ☑ 笔记已完成 |
+| #    | 论文                                                                                                                                  | 作者                    | 团队/机构                          | 发表               | 精读  | 状态      |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------- | --------------------- | ------------------------------ | ---------------- | --- | ------- |
+| 5-1  | **Evaluating Object Hallucination in Large Vision-Language Models (POPE)**                                                          | Yifan Li et al.       | RUC + PKU                      | EMNLP 2023       |     | ☑ 笔记待生成 |
+| 5-2  | **Hallu-PI: Evaluating Hallucination in MLLMs within Perturbed Inputs**                                                             | Peng Ding et al.      | Nanjing U (NJUNLP)             | ACM MM 2024      |     | ☑ 笔记已完成 |
+| 5-3  | **Analyzing and Mitigating Object Hallucination in Large Vision-Language Models (LURE)**                                            | Yiyang Zhou et al.    | UNC Chapel Hill + Stanford     | ICLR 2024        |     | ☑ 笔记已完成 |
+| 5-4  | **HallusionBench: An Advanced Diagnostic Suite for Entangled Language Hallucination and Visual Illusion in LVLMs**                  | Tianrui Guan et al.   | UMD (Tianyi Lab) + ByteDance   | CVPR 2024        | ★   | ☐       |
+| 5-5  | **Mitigating Hallucination in Large Multi-Modal Models via Robust Instruction Tuning (LRV-Instruction)**                           | Fuxiao Liu et al.     | UMD                            | ICLR 2024        |     | ☐       |
+| 5-6  | **OPERA: Alleviating Hallucination in Multi-Modal LLMs via Over-Trust Penalty and Retrospection-Allocation**                       | Qidong Huang et al.   | Shanghai AI Lab + CUHK         | CVPR 2024 **Highlight** | ★   | ☐       |
+| 5-7  | **Mitigating Object Hallucinations in LVLMs through Visual Contrastive Decoding (VCD)**                                            | Sicong Leng et al.    | Alibaba DAMO + NTU             | CVPR 2024 **Highlight** |     | ☐       |
+| 5-8  | **RLHF-V: Towards Trustworthy MLLMs via Behavior Alignment from Fine-grained Correctional Human Feedback**                        | Tianyu Yu et al.      | Tsinghua (THUNLP) + NUS       | CVPR 2024        | ★   | ☐       |
+| 5-9  | **Woodpecker: Hallucination Correction for Multimodal Large Language Models**                                                       | Shaohan Huang et al.  | USTC (VITA-MLLM)               | Sci. China Info. Sci. 2024 | ★   | ☐       |
+| 5-10 | **ViGoR: Improving Visual Grounding of Large Vision Language Models with Fine-Grained Reward Modeling**                             | Siming Yan et al.     | Amazon Science + UT Austin     | ECCV 2024        |     | ☐       |
+
+
+### Section 5 按子章节覆盖
+
+
+| Skeleton 子章节                              | 对应论文                                                              |
+| ----------------------------------------- | ----------------------------------------------------------------- |
+| 5a. 失败分类（定位偏移、对象混淆、不存在对象）                 | POPE, HallusionBench, LRV-Instruction                            |
+| 5b. 传导机制（看错位置 → 说错内容 → 做错动作）              | OPERA (attention 传导), VCD (统计偏差), HallusionBench (illusion vs hallucination) |
+| 5c. 校准与置信度（模型对 grounding 结果的自信度是否可靠）       | RLHF-V (trustworthiness alignment), ViGoR (fine-grained reward)  |
+| 5d. 缓解方法（RLHF / grounding-aware / 外部验证）  | LURE (post-hoc), Hallu-PI (defensive prompting), LRV-Instruction (robust IT), VCD (contrastive decoding), RLHF-V (RLHF), Woodpecker (external verification), ViGoR (grounding-aware reward) |
+
+
+### Section 5 缓解方法对比矩阵
+
+
+| 论文              | 方法类型            | 需要训练  | 外部工具          | 核心机制                           |
+| --------------- | --------------- | ----- | ------------- | ------------------------------ |
+| LURE            | Post-hoc 修正     | 轻量    | ✗             | 基于 decoding uncertainty 的输出修订   |
+| Hallu-PI        | Defensive prompting | ✗     | ✗             | Perturbed-ICL / Perturbed-Reminder |
+| LRV-Instruction | Robust Instruction Tuning | ✓ (FT) | ✗             | 400K 正负样本 instruction 数据        |
+| OPERA           | Decoding 策略      | ✗     | ✗             | Over-trust penalty + rollback    |
+| VCD             | Decoding 策略      | ✗     | ✗             | 原始 vs 扭曲视觉输入的分布对比              |
+| RLHF-V          | RLHF            | ✓ (RL) | ✗             | Segment-level correctional feedback |
+| Woodpecker      | 外部验证管线          | ✗     | Grounding DINO + BLIP-2 | 5 阶段：提取→提问→视觉验证→事实校验→纠正 |
+| ViGoR           | Reward modeling  | ✓ (RL) | ✗             | Fine-grained visual grounding reward |
 
 
 ---
@@ -158,24 +190,30 @@
 | 11  | Grounding DINO                | 3       | 检测骨干基线，理解 grounding pipeline               |
 | 12  | What'sUp                      | 4       | 揭示 VLM 基础空间判断的系统性失败                        |
 | 13  | VSR                           | 4       | 空间关系理解的标准 benchmark                        |
+| 14  | HallusionBench                | 5       | 首个区分 visual illusion vs language hallucination 的诊断框架，CVPR 2024 |
+| 15  | OPERA                         | 5       | 揭示 attention 传导→幻觉机制，CVPR 2024 Highlight    |
+| 16  | RLHF-V                        | 5       | Fine-grained RLHF 对齐 MLLM 可信度，CVPR 2024     |
+| 17  | Woodpecker                    | 5       | 唯一 grounding-based 外部验证管线，5 阶段纠正流程          |
 
 
 ---
 
 ## 进度追踪
 
-- Section 2 论文精读（3 篇）
-- Section 2 论文略读（5 篇）
-- Section 3 论文精读（4 篇）
-- Section 3 论文略读（6 篇）
-- Section 4 论文精读（4 篇）
-- Section 4 论文略读（6 篇）
-- Section 5 POPE 笔记生成
-- Section 2 撰写
-- Section 3 撰写
-- Section 4 撰写
-- Section 1 Introduction 撰写
-- Section 6 Discussion 撰写
-- 全文整合与横向对比表
-- Presentation slides
+- [x] Section 2 论文精读（3 篇）
+- [x] Section 2 论文略读（5 篇）
+- [x] Section 3 论文精读（4 篇）
+- [x] Section 3 论文略读（6 篇）
+- [x] Section 4 论文精读（4 篇）
+- [x] Section 4 论文略读（5 篇）
+- [x] Section 2 撰写
+- [x] Section 3 撰写
+- [x] Section 4 撰写
+- [x] Section 1 Introduction 撰写
+- [x] Section 6 Discussion 撰写
+- [ ] Section 5 论文精读（4 篇新增：HallusionBench, OPERA, RLHF-V, Woodpecker）
+- [ ] Section 5 论文略读（3 篇新增：LRV-Instruction, VCD, ViGoR）
+- [ ] Section 5 重写（统一风格）
+- [ ] 全文整合与横向对比表
+- [ ] Presentation slides
 

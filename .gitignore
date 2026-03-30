@@ -21,6 +21,9 @@ tmp/
 **/*.pdf
 capabilities/grounding/papers/sources/
 
+# Grounding survey: local archive only (LaTeX sources / old section drafts), not pushed to GitHub
+capabilities/grounding/manuscript/archive/
+
 # LaTeX build artifacts
 *.aux
 *.fdb_latexmk

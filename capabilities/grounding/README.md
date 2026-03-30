@@ -8,3 +8,4 @@ Agent 如何感知世界：视觉定位（Visual Grounding）、空间推理、�
 
 - [CS6487-background.md](./CS6487-background.md) — CS6487 期末项目说明
 - [CS6487-skeleton.md](./CS6487-skeleton.md) — 选题：Visual Grounding and Spatial Understanding in MLLMs
+- [manuscript/](./manuscript/) — 综述稿（中文版 Markdown、引用链接表；LaTeX 与旧草稿在本地 `manuscript/archive/`，见该目录说明）
