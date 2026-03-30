@@ -113,38 +113,23 @@ Notably, the above datasets do not include any reasoning segmentation data sampl
 <a id="table:reason_seg"></a>
 **Table 1.** Reasoning segmentation results on the ReasonSeg benchmark.
 
-:::: table*
-
-::: tabular
-l \| c c \| c c \| c c \| c c
-
-\*Method & &\
-
-  & & & &\
-
-  & gIoU & cIoU & gIoU & cIoU & gIoU & cIoU & gIoU & cIoU\
-
-OVSeg [@liang2023open] & 28.5 & 18.6 & 18.0 & 15.5 & 28.7 & 22.5 & 26.1 & 20.8\
-GRES [@liu2023gres] & 22.4 & 19.9 & 17.6 & 15.0 & 22.6 & 23.8 & 21.3 & 22.0\
-X-Decoder [@zou2023generalized] & 22.6 & 17.9 & 20.4 & 11.6 & 22.2 & 17.5 & 21.7 & 16.3\
-SEEM [@zou2023segment] & 25.5 & 21.2 & 20.1 & 11.5 & 25.6 & 20.8 & 24.3 & 18.7\
-Grounded-SAM [@liu2023grounding] & 26.0 & 14.5 & 17.8 & 10.8 & 22.4 & 18.6 & 21.3 & 16.4\
-
-LISA-7B & 44.4 & 46.0 & 37.6 & 34.4 & 36.6 & 34.7 & 36.8 & 34.1\
-LISA-7B (ft) & 52.9 & 54.0 & 40.6 & 40.6 & 49.4 & 51.0 & 47.3 & 48.4\
-
-LISA-13B & 48.9 & 46.9 & 39.9 & 43.3 & 46.4 & 46.5 & 44.8 & 45.8\
-LISA-13B (ft) & 56.2 & 62.9 & 44.3 & 42.0 & 54.0 & 54.3 & 51.7 & 51.1\
-
-LLaVA1.5-7B + OVSeg & 38.2 & 23.5 & 24.2 & 18.7 & 44.6 & 37.1 & 39.7 & 31.8\
-LISA-7B-LLaVA1.5 & 53.6 & 52.3 & 47.1 & 48.5 & 49.2 & 48.9 & 48.7 & 48.8\
-LISA-7B-LLaVA1.5 (ft) & 61.3 & 62.9 & 48.3 & 46.3 & 57.9 & 59.7 & 55.6 & 56.9\
-
-LLaVA1.5-13B + OVSeg & 37.9 & 26.4 & 27.1 & 19.4 & 46.1 & 40.6 & 41.5 & 34.1\
-LISA-13B-LLaVA1.5 & 57.7 & 60.3 & 50.8 & 50.0 & 54.7 & 50.9 & 53.8 & 50.8\
-LISA-13B-LLaVA1.5 (ft) & **65.0** & **72.9** & **55.4** & **50.6** & **63.2** & **65.3** & **61.3** & **62.2**\
-:::
-::::
+| Method | Val gIoU | Val cIoU | Test Short gIoU | Test Short cIoU | Test Long gIoU | Test Long cIoU | Test Overall gIoU | Test Overall cIoU |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| OVSeg [@liang2023open] | 28.5 | 18.6 | 18.0 | 15.5 | 28.7 | 22.5 | 26.1 | 20.8 |
+| GRES [@liu2023gres] | 22.4 | 19.9 | 17.6 | 15.0 | 22.6 | 23.8 | 21.3 | 22.0 |
+| X-Decoder [@zou2023generalized] | 22.6 | 17.9 | 20.4 | 11.6 | 22.2 | 17.5 | 21.7 | 16.3 |
+| SEEM [@zou2023segment] | 25.5 | 21.2 | 20.1 | 11.5 | 25.6 | 20.8 | 24.3 | 18.7 |
+| Grounded-SAM [@liu2023grounding] | 26.0 | 14.5 | 17.8 | 10.8 | 22.4 | 18.6 | 21.3 | 16.4 |
+| LISA-7B | 44.4 | 46.0 | 37.6 | 34.4 | 36.6 | 34.7 | 36.8 | 34.1 |
+| LISA-7B (ft) | 52.9 | 54.0 | 40.6 | 40.6 | 49.4 | 51.0 | 47.3 | 48.4 |
+| LISA-13B | 48.9 | 46.9 | 39.9 | 43.3 | 46.4 | 46.5 | 44.8 | 45.8 |
+| LISA-13B (ft) | 56.2 | 62.9 | 44.3 | 42.0 | 54.0 | 54.3 | 51.7 | 51.1 |
+| LLaVA1.5-7B + OVSeg | 38.2 | 23.5 | 24.2 | 18.7 | 44.6 | 37.1 | 39.7 | 31.8 |
+| LISA-7B-LLaVA1.5 | 53.6 | 52.3 | 47.1 | 48.5 | 49.2 | 48.9 | 48.7 | 48.8 |
+| LISA-7B-LLaVA1.5 (ft) | 61.3 | 62.9 | 48.3 | 46.3 | 57.9 | 59.7 | 55.6 | 56.9 |
+| LLaVA1.5-13B + OVSeg | 37.9 | 26.4 | 27.1 | 19.4 | 46.1 | 40.6 | 41.5 | 34.1 |
+| LISA-13B-LLaVA1.5 | 57.7 | 60.3 | 50.8 | 50.0 | 54.7 | 50.9 | 53.8 | 50.8 |
+| LISA-13B-LLaVA1.5 (ft) | **65.0** | **72.9** | **55.4** | **50.6** | **63.2** | **65.3** | **61.3** | **62.2** |
 
 #### Trainable Parameters. 
 
@@ -172,29 +157,21 @@ As mentioned in Section 4.2, our training data is mainly composed of three types
 
 We follow most previous works on referring segmentation [@kazemzadeh2014referitgame; @mao2016generation] to adopt two metrics: gIoU and cIoU. gIoU is defined by the average of all per-image Intersection-over-Unions (IoUs), while cIoU is defined by the cumulative intersection over the cumulative union. Since cIoU is highly biased toward large-area objects and it fluctuates too much, gIoU is preferred.
 
-:::: table*
-::: tabular
-l \| c c c \| c c c \| c c
-
-\*Method & & &\
-
-  & val & testA & testB & val & testA & testB & val(U) & test(U)\
-
-MCN [@luo2020multi] & 62.4 & 64.2 & 59.7 & 50.6 & 55.0 & 44.7 & 49.2 & 49.4\
-VLT [@ding2021vision] & 67.5 & 70.5 & 65.2 & 56.3 & 61.0 & 50.1 & 55.0 & 57.7\
-CRIS [@wang2022cris] & 70.5 & 73.2 & 66.1 & 62.3 & 68.1 & 53.7 & 59.9 & 60.4\
-LAVT [@yang2022lavt] & 72.7 & 75.8 & 68.8 & 62.1 & 68.4 & 55.1 & 61.2 & 62.1\
-ReLA [@liu2023gres] & 73.8 & 76.5 & 70.2 & **66.0** & **71.0** & 57.7 & 65.0 & 66.0\
-X-Decoder [@zou2023generalized] & - & - & - & - & - & - & 64.6 & -\
-SEEM [@zou2023segment] & - & - & - & - & - & - & 65.7 & -\
-
-LISA-7B & 74.1 & 76.5 & 71.1 & 62.4 & 67.4 & 56.5 & 66.4 & 68.5\
-LISA-7B (fine-tuned on ReferSeg) & **74.9** & **79.1** & **72.3** & 65.1 & 70.8 & **58.1** & **67.9** & **70.6**\
-:::
-::::
-
 <a id="table:refer_seg"></a>
 **Table 2.** Vanilla referring segmentation results on refCOCO, refCOCO+, and refCOCOg.
+
+| Method | RefCOCO val | RefCOCO testA | RefCOCO testB | RefCOCO+ val | RefCOCO+ testA | RefCOCO+ testB | RefCOCOg val(U) | RefCOCOg test(U) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| MCN [@luo2020multi] | 62.4 | 64.2 | 59.7 | 50.6 | 55.0 | 44.7 | 49.2 | 49.4 |
+| VLT [@ding2021vision] | 67.5 | 70.5 | 65.2 | 56.3 | 61.0 | 50.1 | 55.0 | 57.7 |
+| CRIS [@wang2022cris] | 70.5 | 73.2 | 66.1 | 62.3 | 68.1 | 53.7 | 59.9 | 60.4 |
+| LAVT [@yang2022lavt] | 72.7 | 75.8 | 68.8 | 62.1 | 68.4 | 55.1 | 61.2 | 62.1 |
+| ReLA [@liu2023gres] | 73.8 | 76.5 | 70.2 | **66.0** | **71.0** | 57.7 | 65.0 | 66.0 |
+| X-Decoder [@zou2023generalized] | - | - | - | - | - | - | 64.6 | - |
+| SEEM [@zou2023segment] | - | - | - | - | - | - | 65.7 | - |
+| LISA-7B | 74.1 | 76.5 | 71.1 | 62.4 | 67.4 | 56.5 | 66.4 | 68.5 |
+| LISA-7B (fine-tuned on ReferSeg) | **74.9** | **79.1** | **72.3** | 65.1 | 70.8 | **58.1** | **67.9** | **70.6** |
+
 
 ## Reasoning Segmentation Results {#exp:reasonseg}
 
@@ -284,6 +261,18 @@ When fine-tuning the model on the reasoning segmentation data samples, we rephra
 
 <a id="table:ablation_training_data"></a>
 **Table 5.** Contribution of each type of training data to the final performance.
+
+| ID | ADE20K | COCO-Stuff | PartSeg | ReferSeg | VQA | ReasonSeg | gIoU | cIoU |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 |  | Check | Check | Check | Check | Check | 48.9 | 53.5 |
+| 2 | Check |  | Check | Check | Check | Check | 48.5 | 50.8 |
+| 3 | Check | Check |  | Check | Check | Check | 46.7 | 50.9 |
+| 4 |  |  | Check | Check | Check | Check | 46.6 | 46.7 |
+| 5 |  |  |  | Check | Check | Check | 30.4 | 20.4 |
+| 6 | Check | Check | Check |  | Check | Check | 47.7 | 51.1 |
+| 7 | Check | Check | Check | Check | Check |  | 44.4 | 46.0 |
+| 8 | Check | Check | Check | Check | Check | Check | **52.9** | **54.0** |
+
 
 In Table 5, we show the contribution of each type of data to the performance. We find that in Exp. 5, we do not use any semantic segmentation dataset, and the performance drops a lot. We conjecture that semantic segmentation datasets provide a large amount of ground-truth binary masks for training, since a multi-class label can induce multiple binary masks.
 

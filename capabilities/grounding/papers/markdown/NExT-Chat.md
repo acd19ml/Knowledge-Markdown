@@ -29,7 +29,7 @@ Large multimodal models (LMMs) are typically built on large language models (LLM
 
 ## LMM for Region Reasoning
 
-GPT4ROI [@zhang2023gpt4roi] proposes to encode the regions as features and thus can accept the region as input. Pix2seq [@chen2021pix2seq] first propose to represent object bounding box coordinates as text tokens and thus the language model can output the object locations in a token classification manner. However, pix2seq only validate its idea on traditional object detection tasks. UniTab [@yang2022unitab] and PEVL [@yao2022pevl] further extend the idea to vision&language tasks like visual grounding [@yu2016refcoco; @mao2016refcocog]. Following this line, Vision-LLM [@wang2023visionllm] and Kosmos-2 [@peng2023kosmos2] recently applies the token classification concept to LMMs. Take Kosmos-2 as an example, it discretize the whole image into 32$\times$`<!-- -->`{=html}32 bins, which can be used to represent the points lying in it. Additional 32$\times$`<!-- -->`{=html}32 tokens are introduced to the LLM's vocabulary for either coordinates input or output. Thus, the LMM can achieve the region-level reasoning. Shikra [@chen2023shikra] point out that introducing too much new tokens will inevitably increase the training difficulties. Thus, Shikra propose to reuse the LLM's original vocabulary and turn the box coordinates into normalized numerical values with certain precision like $[0.111, 0.111, 0.333, 0.333]$. Although avoiding introducing too much new tokens, it requries roughly 26 tokens to represent each bounding box, which is ineffective. Different from these works, we do not formulate the object localization problem as a token classification problem. Our NExT-Chat introduces an `<trigger>` token as the trigger for location decoding, and then use the hidden states to decode the bounding boxes and the segmentation masks.
+GPT4ROI [@zhang2023gpt4roi] proposes to encode the regions as features and thus can accept the region as input. Pix2seq [@chen2021pix2seq] first propose to represent object bounding box coordinates as text tokens and thus the language model can output the object locations in a token classification manner. However, pix2seq only validate its idea on traditional object detection tasks. UniTab [@yang2022unitab] and PEVL [@yao2022pevl] further extend the idea to vision&language tasks like visual grounding [@yu2016refcoco; @mao2016refcocog]. Following this line, Vision-LLM [@wang2023visionllm] and Kosmos-2 [@peng2023kosmos2] recently applies the token classification concept to LMMs. Take Kosmos-2 as an example, it discretize the whole image into 32$\times$32 bins, which can be used to represent the points lying in it. Additional 32$\times$32 tokens are introduced to the LLM's vocabulary for either coordinates input or output. Thus, the LMM can achieve the region-level reasoning. Shikra [@chen2023shikra] point out that introducing too much new tokens will inevitably increase the training difficulties. Thus, Shikra propose to reuse the LLM's original vocabulary and turn the box coordinates into normalized numerical values with certain precision like $[0.111, 0.111, 0.333, 0.333]$. Although avoiding introducing too much new tokens, it requries roughly 26 tokens to represent each bounding box, which is ineffective. Different from these works, we do not formulate the object localization problem as a token classification problem. Our NExT-Chat introduces an `<trigger>` token as the trigger for location decoding, and then use the hidden states to decode the bounding boxes and the segmentation masks.
 
 # Method
 
@@ -37,7 +37,7 @@ In this section, we present the NExT-Chat framework, starting with an introducti
 
 ## LMM Architecture {#sec:arch}
 
-For the LMM architecture, we adopt a LLaVA-like architecture. Specifically, we employ a CLIP ViT-L/14@336px [@radford2021clip] as the vision encoder. The input image is converted into 24$\times$`<!-- -->`{=html}24 patch embeddings and then projected to the same dimension as the word embeddings of the LLM. These patch embeddings serve as visual tokens. Then, the visual tokens will be fed into a decoder-only LLM for conditional text generation. Regarding the selection of LLMs, we opt for the recently released Vicuna-1.5 model [@zheng2023vicuna].
+For the LMM architecture, we adopt a LLaVA-like architecture. Specifically, we employ a CLIP ViT-L/14@336px [@radford2021clip] as the vision encoder. The input image is converted into 24$\times$24 patch embeddings and then projected to the same dimension as the word embeddings of the LLM. These patch embeddings serve as visual tokens. Then, the visual tokens will be fed into a decoder-only LLM for conditional text generation. Regarding the selection of LLMs, we opt for the recently released Vicuna-1.5 model [@zheng2023vicuna].
 
 ## Pix2Emb Method {#sec:method_emb}
 
@@ -83,38 +83,68 @@ We employ a three-stage training process, consisting of pre-training, instructio
 <a id="tab:pope_results"></a>
 **Table 1.** *Image Hallucination:* comparison between our NExT-Chat and current SOTA models on the POPE benchmark for image hallucination diagnosis.
 
+| Dataset Split | Metric | NExT-Chat | Shikra | InstructBLIP | MiniGPT-4 | LLaVA | MM-GPT | mPLUG-Owl |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Random | Accuracy | 87.70 | 86.90 | 88.57 | 79.67 | 50.37 | 50.10 | 53.97 |
+| Random | Precision | 93.46 | 94.40 | 84.09 | 78.24 | 50.19 | 50.05 | 52.07 |
+| Random | Recall | 81.87 | 79.27 | 95.13 | 82.20 | 99.13 | 100.00 | 99.60 |
+| Random | F1-Score | 87.28 | 86.19 | 89.27 | 80.17 | 66.64 | 66.71 | 68.39 |
+| Random | Yes | 45.15 | 43.26 | 56.57 | 52.53 | 98.77 | 99.90 | 95.63 |
+| Popular | Accuracy | 84.57 | 83.97 | 82.77 | 69.73 | 49.87 | 50.00 | 50.90 |
+| Popular | Precision | 86.54 | 87.55 | 76.27 | 65.86 | 49.93 | 50.00 | 50.46 |
+| Popular | Recall | 81.87 | 79.20 | 95.13 | 81.93 | 99.27 | 100.00 | 99.40 |
+| Popular | F1-Score | 84.14 | 83.16 | 84.66 | 73.02 | 66.44 | 66.67 | 66.94 |
+| Popular | Yes | 47.30 | 45.23 | 62.37 | 62.20 | 99.40 | 100.00 | 98.57 |
+| Adversarial | Accuracy | 81.93 | 83.10 | 72.10 | 65.17 | 49.70 | 50.00 | 50.67 |
+| Adversarial | Precision | 82.02 | 85.60 | 65.13 | 61.19 | 49.85 | 50.00 | 50.34 |
+| Adversarial | Recall | 81.80 | 79.60 | 95.13 | 82.93 | 99.07 | 100.00 | 99.33 |
+| Adversarial | F1-Score | 81.91 | 82.49 | 77.32 | 70.42 | 66.32 | 66.67 | 66.82 |
+| Adversarial | Yes | 49.87 | 46.50 | 73.03 | 67.77 | 99.37 | 100.00 | 98.67 |
+
 <a id="tab:res"></a>
 **Table 2.** *RES:* comparison between our NExT-Chat and baselines on RES. The evaluation metric is **cIoU**.
+
+| Method | RefCOCO val | RefCOCO testA | RefCOCO testB | RefCOCO+ val | RefCOCO+ testA | RefCOCO+ testB | RefCOCOg val | RefCOCOg test |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| MCN | 62.4 | 64.2 | 59.7 | 50.6 | 55.0 | 44.7 | 49.2 | 49.4 |
+| VLT | 67.5 | 70.5 | 65.2 | 56.3 | 61.0 | 50.1 | 55.0 | 57.7 |
+| CRIS | 70.5 | 73.2 | 66.1 | 65.3 | 68.1 | 53.7 | 59.9 | 60.4 |
+| LAVT | 72.7 | 75.8 | 68.8 | 62.1 | 68.4 | 55.1 | 61.2 | 62.1 |
+| GRES | 73.8 | 76.5 | 70.2 | 66.0 | 71.0 | 57.7 | 65.0 | 66.0 |
+| X-Decoder | - | - | - | - | - | - | 64.6 | - |
+| SEEM | - | - | - | - | - | - | 65.7 | - |
+| LISA-7B | 74.1 | 76.5 | 71.1 | 62.4 | 67.4 | 56.5 | 66.4 | 68.5 |
+| NExT-Chat (ours) | 74.7 | 78.9 | 69.5 | 65.1 | 71.9 | 56.7 | 67.0 | 67.0 |
 
 <a id="tab:rec"></a>
 **Table 3.** *REC:* comparison between our NExT-Chat and baselines on REC. The evaluation metric is **Acc@0.5**. `*` refers to the specialist or fine-tuned methods.
 
-::: {#tab:reg_cap}
-+--------------------------------------+---------------------+
-| Methods                              | RefCOCOg            |
-+:=====================================+:========:+:========:+
-| 2-3                                  | CIDEr    | METEOR   |
-+--------------------------------------+----------+----------+
-| GRIT [@wu2022grit]                   | 71.6     | **15.2** |
-+--------------------------------------+----------+----------+
-| Kosmos-2 [@peng2023kosmos2] (0-shot) | 60.3     | 12.2     |
-+--------------------------------------+----------+----------+
-| Kosmos-2 [@peng2023kosmos2] (2-shot) | 62.2     | 13.8     |
-+--------------------------------------+----------+----------+
-| Kosmos-2 [@peng2023kosmos2] (4-shot) | 62.3     | 14.1     |
-+--------------------------------------+----------+----------+
-| ASM [@wang2023allseeing]             | 41.9     | 13.6     |
-+--------------------------------------+----------+----------+
-| NExT-Chat (**ours**)                 | **79.6** | 12.0     |
-+--------------------------------------+----------+----------+
-|                                      |          |          |
-+--------------------------------------+----------+----------+
-
-: **Region Captioning**: comparison between our NExT-Chat and baselines on RefCOCOg.
-:::
+| Type | Method | RefCOCO val | RefCOCO testA | RefCOCO testB | RefCOCO+ val | RefCOCO+ testA | RefCOCO+ testB | RefCOCOg val | RefCOCOg test |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| non-LMM | MAttNet* | 76.4 | 80.4 | 69.3 | 64.9 | 70.3 | 56.0 | 66.7 | 67.0 |
+| non-LMM | OFA-L | 80.0 | 83.7 | 76.4 | 68.3 | 76.0 | 61.8 | 67.6 | 67.6 |
+| non-LMM | OFASys | - | 80.1 | - | - | - | - | - | - |
+| non-LMM | TransVG* | 81.0 | 82.7 | 78.4 | 64.8 | 70.7 | 56.9 | 68.7 | 67.7 |
+| non-LMM | UNITER* | 81.4 | 87.0 | 74.2 | 75.9 | 81.5 | 66.7 | 74.0 | 68.7 |
+| non-LMM | VILLA* | 82.4 | 87.5 | 74.8 | 76.2 | 81.5 | 66.8 | 76.2 | 76.7 |
+| non-LMM | UniTAB* | 86.3 | 88.8 | 80.6 | 78.7 | 83.2 | 69.5 | 80.0 | 80.0 |
+| non-LMM | G-DINO-L* | 90.6 | 93.2 | 88.2 | 82.8 | 89.0 | 75.9 | 86.1 | 87.0 |
+| LMM (pix2seq) | VisionLLM-H | - | 86.7 | - | - | - | - | - | - |
+| LMM (pix2seq) | Shikra-7B | 87.0 | 90.6 | 80.2 | 81.6 | 87.4 | 72.1 | 82.3 | 82.2 |
+| LMM (pix2seq) | Shikra-13B | 87.8 | 91.1 | 81.8 | 82.9 | 87.8 | 74.4 | 82.6 | 83.2 |
+| LMM (pix2emb) | NExT-Chat-7B (ours) | 85.5 | 90.0 | 77.9 | 77.2 | 84.5 | 68.0 | 80.1 | 79.8 |
 
 <a id="tab:reg_cap"></a>
 **Table 4.** *Region Captioning:* comparison between our NExT-Chat and baselines on RefCOCOg.
+
+| Method | CIDEr | METEOR |
+| --- | --- | --- |
+| GRIT | 71.6 | **15.2** |
+| Kosmos-2 (0-shot) | 60.3 | 12.2 |
+| Kosmos-2 (2-shot) | 62.2 | 13.8 |
+| Kosmos-2 (4-shot) | 62.3 | 14.1 |
+| ASM | 41.9 | 13.6 |
+| NExT-Chat (ours) | **79.6** | 12.0 |
 
 In this section, we begin by conducting a rigorous evaluation to validate the effectiveness of our pix2emb approach in a fair comparison setting. Following that, we demonstrate the potential of our NExT-Chat model by presenting a wide range of qualitative results from different scenarios. Finally, we provide quantitative results to compare the performance of our NExT-Chat model with the current SOTA methods on the image-level hallucination, referring expression segmentation, referring expression detection and region-level caption tasks.
 

@@ -95,7 +95,7 @@ In this section, we present GRIT, a **G**round-and-**R**efer **I**nstruction-**T
 <a id="sec:hierarchy"></a>
 ## Hierarchy {#sec:hierarchy}
 
-Spatial understanding can be characterized by varying levels of granularity and task formats. During our dataset creation, we look into the following categories based on two dimensions:
+Spatial understanding can be characterized by varying levels of granularity and task formats. During our dataset creation, we look into the following categories based on two dimensions. An overview of the GRIT dataset is shown in Figure 4.
 
 - In terms of *granularity*, we identify four main categories: ($i$) individual objects, ($ii$) relationships among objects, ($iii$) descriptions of specific regions, and ($iv$) region-based complex reasoning.
 
@@ -382,7 +382,7 @@ In Section 4.3, we conducted negative sample mining for two aspects: ($i$) *Imag
 
 ## Examples for Generating Refer-and-Ground datasets {#app:prompt}
 
-We provide some example prompts to generate refer-and-ground from ChatGPT/GPT-4. Prompt and the in-context example of multiple-round visual conversation data are shown in Tables 13 and 14. Prompt and the in-context example of one-round reasoning data are shown in Tables 15 and 16.
+We provide some example prompts to generate refer-and-ground from ChatGPT/GPT-4. The prompt for multiple-round visual conversation data is shown in Table 13, and the corresponding in-context example is shown in Table 14. The prompt for one-round reasoning data is shown in Table 15, and the corresponding in-context example is shown in Table 16.
 
 ::::: table*
 :::: minipage

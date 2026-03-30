@@ -1,169 +1,223 @@
 # Introduction
 
-Large multimodal models (LMMs) have become increasingly popular in the research community, as they are the key building blocks towards general-purpose assistants . Recent studies on LMMs are converging on a central concept known as visual instruction tuning . The results are promising, LLaVA  and MiniGPT-4  demonstrate impressive results on natural instruction-following and visual reasoning capabilities. To better understand the capability of LMMs, multiple benchmarks  have been proposed. Recent works further demonstrate improved performance by scaling up the pretraining data , instruction-following data , visual encoders , or language models , respectively. The LLaVA architecture is also leveraged in different downstream tasks and domains, including region-level  and pixel-level  understanding, biomedical assistants , image generation , adversarial studies .
+Large multimodal models (LMMs) have become increasingly popular in the research community, as they are key building blocks toward general-purpose assistants. Recent studies on LMMs are converging on a central concept known as visual instruction tuning. The results are promising: LLaVA and MiniGPT-4 demonstrate impressive natural instruction-following and visual reasoning capabilities. To better understand the capability of LMMs, multiple benchmarks have been proposed. Recent works further demonstrate improved performance by scaling up the pretraining data, instruction-following data, visual encoders, or language models, respectively. The LLaVA architecture is also leveraged in different downstream tasks and domains, including region-level and pixel-level understanding, biomedical assistants, image generation, and adversarial studies.
 
-<p><img src="../images/Visual%20Instruction%20Tuning_md_images/figs/llava_v1_5_radar.pdf.png"  /><br />
-<img src="../images/Visual%20Instruction%20Tuning_md_images/figs/bar_lmm_training_samples_transposed.pdf.png" style="height:31mm"  /> <img src="../images/Visual%20Instruction%20Tuning_md_images/figs/architecture.png" style="height:31mm" alt="image" /><br />
-</p>
-**Figure 1.** **LLaVA-1.5** achieves SoTA on a broad range of 11 tasks (Top), with high training sample efficiency (Left) and simple modifications to LLaVA (Right): an MLP connector and including academic-task-oriented data with response formatting prompts.
+![](../images/Visual%20Instruction%20Tuning_md_images/figs/llava_v1_5_radar.pdf.png)
+![](../images/Visual%20Instruction%20Tuning_md_images/figs/bar_lmm_training_samples_transposed.pdf.png)
+![](../images/Visual%20Instruction%20Tuning_md_images/figs/architecture.png)
+**Figure 1.** **LLaVA-1.5** achieves SoTA on a broad range of 11 tasks (top), with high training sample efficiency (left) and simple modifications to LLaVA (right): an MLP connector and academic-task-oriented data with response formatting prompts.
 
-However, despite many benchmarks and developments, it still remains unclear what the best recipe is to train LMMs towards the goal of general-purpose assistants. For example, LLaVA  excels in conversational-style visual reasoning and even outperforms later approaches like InstructBLIP  on such benchmarks , while InstructBLIP excels in traditional VQA benchmarks that demands single-word or short answers. Given the significant differences in the model architecture and training data between them, the root cause of the disparity in their capabilities remains elusive, despite conjectures : the amount of training data, the usage of resamplers like Qformer , . To this end, we present the first systematic study to investigate the design choices of LMMs in a controlled setting. Our study originates from LLaVA and builds a road map by carefully making effective contributions from the perspectives of the input, model, and data.
+However, despite many benchmarks and developments, it still remains unclear what the best recipe is to train LMMs toward the goal of general-purpose assistants. For example, LLaVA excels in conversational-style visual reasoning and even outperforms later approaches like InstructBLIP on such benchmarks, while InstructBLIP excels in traditional VQA benchmarks that demand single-word or short answers. Given the significant differences in the model architecture and training data between them, the root cause of the disparity in their capabilities remains elusive. To this end, the paper presents a systematic study to investigate the design choices of LMMs in a controlled setting. The study originates from LLaVA and builds a roadmap by carefully making effective contributions from the perspectives of the input, model, and data.
 
-First, we unveil that the fully-connected vision-language connector in LLaVA is surprisingly powerful and data-efficient, and we establish stronger and more feasible baselines built upon the LLaVA framework. We report that two simple improvements, namely, an MLP cross-modal connector and incorporating academic task related data such as VQA, are orthogonal to the framework of LLaVA, and when used with LLaVA, lead to better multimodal understanding capabilities. In contrast to InstructBLIP  or Qwen-VL , which trains specially designed visual resamplers on hundreds of millions or even billions of image-text paired data, LLaVA uses one of the simplest architecture design for LMMs and requires only training a simple fully-connected projection layer on merely 600K image-text pairs. Our final model can finish training in $`\sim`$<!-- -->1 day on a single 8-A100 machine and achieves state-of-the-art results on a wide range of benchmarks. Moreover, unlike Qwen-VL  that includes in-house data in training, LLaVA utilizes only publicly available data.
+First, the paper shows that the fully connected vision-language connector in LLaVA is surprisingly powerful and data-efficient, and establishes stronger yet more feasible baselines built upon the LLaVA framework. Two simple improvements, namely an MLP cross-modal connector and incorporating academic-task-related data such as VQA, are shown to be orthogonal to the LLaVA framework and jointly lead to better multimodal understanding capabilities. In contrast to InstructBLIP or Qwen-VL, which train specially designed visual resamplers on hundreds of millions or even billions of image-text pairs, LLaVA uses one of the simplest architecture designs for LMMs and requires training only a simple projection layer on merely 600K image-text pairs. The final model finishes training in about one day on a single 8-A100 machine and achieves state-of-the-art results on a wide range of benchmarks, while using only publicly available data.
 
-Next, we delve into an early exploration of other open problems of large multimodal models. Our findings include: (1) Scaling to high-resolution image inputs. We show that LLaVA’s architecture is versatile in scaling to higher resolutions by simply dividing images into grids and maintains its data efficiency; with the increased resolution, it improves the model’s detailed perception capabilities and reduces hallucination. (2) Compositional capabilities. We find that large multimodal models are capable of generalizing to compositional capabilities. For example, training on long-form language reasoning together with shorter visual reasoning can improve the model’s writing capability for multimodal questions. (3) Data efficiency. We show that randomly downsampling LLaVA’s training data mixture by up to 75% does not significantly decrease the model’s performance, suggesting that the possibility of a more sophisticated dataset compression strategy can further improve LLaVA’s already efficient training pipeline. (4) Data scaling. We provide empirical evidence for the scaling of data granularity in conjunction with the model’s capability is crucial for an improved capability without introducing artifacts like hallucination.
+Next, the paper explores several open problems of large multimodal models. The main findings include: (1) scaling to high-resolution image inputs, where simple image gridding improves detailed perception capabilities and reduces hallucination; (2) compositional capabilities, where training on long-form language reasoning together with shorter visual reasoning improves multimodal writing; (3) data efficiency, where random downsampling of the training mixture by up to 75% does not significantly hurt performance; and (4) data scaling, where the granularity of data and the capability of the model must be balanced to improve performance without introducing artifacts such as hallucination.
 
-In sum, we perform a systematic study on the training of large multimodal models, and introduce a simple yet effective approach to balance the multitask learning and effective scaling for large multimodal models. Our improved baselines, LLaVA-1.5, uses only *public* data, achieves the state-of-the-art on a broad range of 11 tasks, and is significantly more data-efficient than previous approaches. By rethinking the conventional approaches and exploring the open problems in visual instruction tuning, we pave the way for more robust and capable systems for LMMs. We hope these improved and easily-reproducible baselines will provide a reference for future research in open-source LMMs.
+In sum, the paper performs a systematic study on training large multimodal models and introduces a simple yet effective approach to balance multitask learning and effective scaling for large multimodal models. The improved baselines, LLaVA-1.5, use only *public* data, achieve state-of-the-art performance on a broad range of 11 tasks, and are significantly more data-efficient than previous approaches.
 
 # Related Work
 
-**Instruction-following large multimodal models (LMMs).** Common architectures include a pre-trained visual backbone to encode visual features, a pre-trained large language model (LLM) to comprehend the user instructions and produce responses, and a vision-language cross-modal connector to align the vision encoder outputs to the language models. As shown in Figure 1, LLaVA  is perhaps the simplest architecture for LMMs. Optionally, visual resamplers (Qformer ) are used to reduce the number of visual patches . Training an instruction-following LMM usually follows a two-stage protocol. First, the vision-language alignment pretraining stage leverages image-text pairs to align the visual features with the language model’s word embedding space. Earlier works utilize relatively few image-text pairs ($`\sim`$<!-- -->600K  or $`\sim`$<!-- -->6M ), while some recent works pretrain the vision-language connector for a specific language model on a large amount of image-text pairs (129M  and 1.4B ), to maximize the LMM’s performance. Second, the visual instruction tuning stage tunes the model on visual instructions , to enable the model to follow users’ diverse requests on instructions that involve the visual contents. Dealing with higher resolution with grids in LMM are studied in con-current works .
+**Instruction-following large multimodal models (LMMs).** Common architectures include a pre-trained visual backbone to encode visual features, a pre-trained large language model (LLM) to comprehend user instructions and produce responses, and a vision-language cross-modal connector to align the vision encoder outputs to the language model. As shown in Figure 1, LLaVA is perhaps the simplest architecture for LMMs. Optionally, visual resamplers such as QFormer are used to reduce the number of visual patches. Training an instruction-following LMM usually follows a two-stage protocol: vision-language alignment pretraining on image-text pairs, followed by visual instruction tuning on multimodal instruction data.
 
-**Multimodal instruction-following data.** In NLP, studies show that the quality of instruction-following data largely affects the capability of the resulting instruction-following models . For visual instruction tuning, LLaVA  is the pioneer to leverage text-only GPT-4 to expand the existing COCO  bounding box and caption dataset to a multimodal instruction-following dataset that contains three types of instruction-following data: conversational-style QA, detailed description, and complex reasoning. LLaVA’s pipeline has been employed to expand to textual understanding , million-scales , and region-level conversations . InstructBLIP  incorporates academic-task-oriented VQA datasets to further enhance the model’s visual capabilities. Conversely, identifies that such naive data merging can result in models that tend to overfit to VQA datasets and thus are unable to participate in natural conversations. The authors further propose to leverage the LLaVA pipeline to convert VQA datasets to a conversational style. While this proves effective for training, it introduces added complexities in data scaling. However, in NLP, the FLAN family  shows that adding a large number of academic language tasks for instruction tuning can effectively improve the generalization ability. In light of this, we consider investigating the root cause of the inability to balance between natural conversations and academic tasks in multimodal models.
+**Multimodal instruction-following data.** In NLP, studies show that the quality of instruction-following data strongly affects the resulting model. For visual instruction tuning, LLaVA pioneered the use of GPT-4 to expand COCO annotations into multimodal instruction-following data that contains conversational-style QA, detailed description, and complex reasoning. InstructBLIP incorporates academic-task-oriented VQA datasets to further enhance visual capabilities, but prior work also points out that naive data merging can overfit the model to short-answer academic tasks and degrade natural conversation quality.
 
 # Approach
 
 ## Preliminaries
 
-As the seminal work of visual instruction tuning, LLaVA  showcases commendable proficiency in visual reasoning capabilities, surpassing even more recent models on diverse benchmarks  for real-life visual instruction-following tasks. LLaVA uses a single linear layer to project the visual features to language space, and optimizes the whole LLM for visual instruction tuning. However, LLaVA falls short on academic benchmarks that typically require short-form answers (single-word), and tends to answer *yes* for yes/no questions due to the lack of such data in the training distribution.
+As the seminal work of visual instruction tuning, LLaVA showcases commendable proficiency in visual reasoning capabilities and surpasses even more recent models on diverse real-life visual instruction-following tasks. LLaVA uses a single linear layer to project visual features into language space and optimizes the whole LLM for visual instruction tuning. However, LLaVA falls short on academic benchmarks that typically require short-form answers and tends to answer *yes* for yes/no questions due to the lack of such data in the training distribution.
 
-On the other hand, InstructBLIP  is the pioneer to incorporate academic-task-oriented datasets like VQA-v2  along with LLaVA-Instruct , and demonstrates improved performance on VQA benchmarks. It pretrains Qformer  on 129M image-text pairs and only finetunes the instruction-aware Qformer for visual instruction tuning. However, recent studies  show that it does not perform as well as LLaVA on engaging in real-life visual conversation tasks. More specifically, as shown in Table 1, it can overfit to VQA training sets with short-answers, even on requests that require detailed responses.
+On the other hand, InstructBLIP incorporates academic-task-oriented datasets like VQA-v2 together with LLaVA-Instruct and demonstrates improved performance on VQA benchmarks. It pretrains QFormer on 129M image-text pairs and only finetunes the instruction-aware QFormer for visual instruction tuning. However, recent studies show that it does not perform as well as LLaVA on real-life visual conversation tasks. More specifically, as shown in Table 1, it can overfit to VQA training sets with short answers even on requests that require detailed responses.
 
-<div class="subtable">
-<div class="subtable">
 ## Response Format Prompting
 
-We find that the inability  to balance between short- and long-form VQA for approaches like InstructBLIP , which leverages instruction following data that includes both natural responses and short-answers, is mainly due to the following reasons. First, *ambiguous prompts on the response format*. For example, *Q: {Question} A: {Answer}*. Such prompts do not clearly indicate the desired output format, and can overfit an LLM behaviorally to short-form answers even for natural visual conversations. Second, *not finetuning the LLM*. The first issue is worsened by InstructBLIP only finetuning the Qformer for instruction-tuning. It requires the Qformer’s visual output tokens to control the length of the LLM’s output to be either long-form or short-form, as in prefix tuning , but Qformer may lack the capability of properly doing so, due to its limited capacity compared with LLMs like LLaMA.
+We find that the inability to balance between short- and long-form VQA for approaches like InstructBLIP is mainly due to two factors. First, *ambiguous prompts on the response format* do not clearly indicate the desired output style, which can behaviorally bias the LLM toward short-form answers even for natural conversations. Second, *not finetuning the LLM* makes it harder for the system to learn when to produce short or long outputs, because this burden falls entirely on the smaller visual resampler.
 
-Thus, to enable LLaVA to better handle short-form answers while addressing the issues of InstructBLIP, we propose to use a single response formatting prompt that clearly indicates the output format. It is appended at the end of VQA questions when promoting short answers: *Answer the question using a single word or phrase*. We find that when the LLM is *finetuned* with such prompts, LLaVA is able to properly adjust the output format according to the user’s instructions (see Table 1), and does not require additional processing of the VQA answers using ChatGPT , which further enables scaling to various data sources. As shown in Table 2, by merely including VQAv2  in training, LLaVA’s performance on MME significantly improves (1323.8 *vs* 809.6) and outperforms InstructBLIP by 111 points.
+Thus, to enable LLaVA to better handle short-form answers while addressing the issues of InstructBLIP, the paper uses a single response formatting prompt that clearly indicates the output format: *Answer the question using a single word or phrase*. When the LLM is finetuned with such prompts, LLaVA is able to properly adjust the output format according to the user’s instructions, and does not require additional processing of the VQA answers using ChatGPT. As shown in Table 2, merely including VQAv2 in training significantly improves MME performance.
 
-<p><img src="../images/Visual%20Instruction%20Tuning_md_images/figs/high_res_arch_v2.pdf.png"  /><br />
-</p>
-**Figure 2.** **LLaVA-1.5-HD.** Scaling LLaVA-1.5 to higher resolutions by splitting the image into grids and encoding them independently. This allows the model to scale to any resolution, without performing positional embedding interpolation for ViTs. We additionally concatenate the feature of a downsampled image to provide the LLM with a global context.
+<a id="tab:response_format_example"></a>
+**Table 1.** Visual input example to illustrate the challenge of (a) multitask balancing and (b) different format prompts. The same image input is used.
+
+![](../sources/Visual%20Instruction%20Tuning_source/figs/extreme_ironing.jpg)
+
+**(a) Multitask balancing problem.** Example of InstructBLIP (Vicuna-13B) having difficulty balancing between short- and long-form answers.
+- User: `Is this unusual? Please explain in detail.`
+- InstructBLIP: `yes`
+
+**(b) Different format prompts.** Comparison of how different prompts regularize the output format. The results are obtained zero-shot directly after LLaVA undergoes first-stage vision-language alignment pretraining, without second-stage visual instruction tuning.
+- Normal prompt: `What is the color of the shirt that the man is wearing?`
+- Response: `The man is wearing a yellow shirt.`
+- Ambiguous prompt: `Q: What is the color of the shirt that the man is wearing? A:`
+- Response: `The man is wearing a yellow shirt.`
+- Formatting prompt: `What is the color of the shirt that the man is wearing? Answer the question using a single word or phrase.`
+- Response: `Yellow.`
+
+![](../images/Visual%20Instruction%20Tuning_md_images/figs/high_res_arch_v2.pdf.png)
+**Figure 2.** **LLaVA-1.5-HD.** Scaling LLaVA-1.5 to higher resolutions by splitting the image into grids and encoding them independently. This allows the model to scale to any resolution, without performing positional embedding interpolation for ViTs. The model additionally concatenates the feature of a downsampled image to provide the LLM with global context.
+
+Figure 2 illustrates the split-encode-merge design used for LLaVA-1.5-HD.
 
 ## Scaling the Data and Model
 
-**MLP vision-language connector.** Inspired by the improved performance in self-supervised learning by changing from a linear projection to an MLP , we find that improving the vision-language connector’s representation power with a two-layer MLP can improve LLaVA’s multimodal capabilities, compared with the original linear projection.
+**MLP vision-language connector.** Improving the vision-language connector’s representation power with a two-layer MLP improves multimodal capability over the original linear projection.
 
-**Academic task oriented data.** We further include additional academic-task-oriented VQA datasets for VQA, OCR, and region-level perception, to enhance the model’s capabilities in various ways, as shown in Table 2. We first include four additional datasets that are used in InstructBLIP: open-knowledge VQA (OKVQA , A-OKVQA ) and OCR (OCRVQA , TextCaps ). A-OKVQA is converted to multiple choice questions and a specific response formatting prompt is used: *Answer with the option’s letter from the given choices directly*. With only a subset of the datasets InstructBLIP uses, LLaVA already surpasses it on all three tasks in Table 2, suggesting LLaVA’s effective design. Furthermore, we find further adding region-level VQA datasets (Visual Genome , RefCOCO ) improves the model’s capability of localizing fine-grained visual details.
+**Academic task oriented data.** The model further includes additional academic-task-oriented VQA datasets for VQA, OCR, and region-level perception. With only a subset of the datasets used by InstructBLIP, LLaVA already surpasses it on all three tracked tasks in Table 2, suggesting LLaVA’s effective design. Adding region-level VQA datasets such as Visual Genome and RefCOCO further improves the model’s capability of localizing fine-grained visual details.
 
-**Additional scaling.** We further scale up the input image resolution to 336$`^2`$ to allow the LLM to clearly “see” the details of images, by swapping the vision encoder to CLIP-ViT-L-336px (the highest resolution available for CLIP). In addition, we add the GQA dataset as an additional visual knowledge source. We also incorporate ShareGPT  data and scale up the LLM to 13B as in . Results on MM-Vet shows the most significant improvement when scaling the LLM to 13B, suggesting the importance of the base LLM’s capability for visual conversations.
+**Additional scaling.** The paper scales up the input image resolution to 336^2, adds GQA as an additional visual knowledge source, incorporates ShareGPT data, and scales up the LLM to 13B. Results on MM-Vet show the most significant improvement when scaling the LLM to 13B, suggesting the importance of the base LLM’s capability for visual conversations.
 
-**LLaVA-1.5.** We denote this final model with all the modifications as LLaVA-1.5 (the last two rows in Table 2), which achieves an impressive performance that significantly outperforms the original LLaVA .
+**LLaVA-1.5.** The final model with all modifications is denoted as LLaVA-1.5 and significantly outperforms the original LLaVA baseline.
 
-**Computational cost.** For LLaVA-1.5, we use the same pretraining dataset, and keep the training iterations and batch size roughly the same for instruction tuning as LLaVA . Due to the increased image input resolution to 336$`^2`$, the training of LLaVA-1.5 is $`\sim`$<!-- -->2$`\times`$ as long as LLaVA: $`\sim`$<!-- -->6 hours of pretraining and $`\sim`$<!-- -->20 hours of visual instruction tuning, using 8$`\times`$ A100s.
+**Computational cost.** For LLaVA-1.5, the paper uses the same pretraining dataset and roughly the same training iterations and batch size for instruction tuning as LLaVA. Due to the increased image input resolution to 336^2, LLaVA-1.5 takes about 2x as long as LLaVA: about 6 hours of pretraining and about 20 hours of visual instruction tuning using 8x A100 GPUs.
+
+**Table 2.** **Scaling results** on data, model, and resolution. GQA, MME, and MM-Vet are used to examine short-answer VQA, output formatting, and natural visual conversations, respectively. `*` means GQA training images were observed during training.
+
+| ID | Method change | LLM | Res. | GQA | MME | MM-Vet |
+| --- | --- | --- | --- | --- | --- | --- |
+| InstructBLIP baseline | InstructBLIP | 14B | 224 | 49.5 | 1212.8 | 25.6 |
+| 0 | LLaVA | 7B | 224 | -- | 809.6 | 25.5 |
+| 1 | +VQA-v2 | 7B | 224 | 47.0 | 1197.0 | 27.7 |
+| 2 | +Format prompt | 7B | 224 | 46.8 | 1323.8 | 26.3 |
+| 3 | +MLP VL connector | 7B | 224 | 47.3 | 1355.2 | 27.8 |
+| 4 | +OKVQA/OCR | 7B | 224 | 50.0 | 1377.6 | 29.6 |
+| 5 | +Region-level VQA | 7B | 224 | 50.3 | 1426.5 | 30.8 |
+| 6 | +Scale up resolution | 7B | 336 | 51.4 | 1450.0 | 30.3 |
+| 7 | +GQA | 7B | 336 | 62.0* | 1469.2 | 30.7 |
+| 8 | +ShareGPT | 7B | 336 | 62.0* | 1510.7 | 31.1 |
+| 9 | +Scale up LLM | 13B | 336 | **63.3*** | **1531.3** | **36.1** |
+
 ## Scaling to Higher Resolutions
 
-In Section 3.3, we observe the advantage that scaling up the input image resolution improves the model’s capabilities. However, the image resolution of the existing open source CLIP vision encoders is limited to 336$`^2`$, preventing the support of higher resolution images by simply replacing the vision encoder as we did in Section 3.3. In this section, we present an early exploration of scaling the LMM to higher resolutions, while maintaining the data efficiency of LLaVA-1.5.
+In Section 3.3, the paper observes that scaling up the input image resolution improves model capability. However, the image resolution of existing open-source CLIP vision encoders is limited to 336^2, preventing support for higher resolution images by simply replacing the vision encoder. The paper therefore presents an early exploration of scaling the LMM to higher resolutions while maintaining the data efficiency of LLaVA-1.5.
 
-When using ViT  as the vision encoder, to scale up the resolution, previous approaches mostly choose to perform positional embedding interpolation  and adapt the ViT backbone to the new resolution during finetuning. However, this usually requires the model to be finetuned on a large-scale image-text paired dataset , and limits the resolution of the image to a fixed size that the LMM can accept during inference.
-
-Instead, as shown in Figure 2, we overcome this by dividing the image into smaller image patches of the resolution that the vision encoder is originally trained for, and encode them independently. After obtaining the feature maps of individual patches, we then combine them into a single large feature map of the target resolution, and feed that into the LLM. To provide the LLM with the global context and to reduce the artifact of the split-encode-merge operation, we additionally concatenate the feature of a downsampled image to the merged feature map. This allows us to scale the input to any arbitrary resolution and maintain the data efficiency of LLaVA-1.5. We call this resulting model LLaVA-1.5-HD.
+Instead of positional embedding interpolation and full ViT adaptation, the method divides the image into smaller image patches of the resolution that the vision encoder was originally trained for and encodes them independently. After obtaining the feature maps of individual patches, it merges them into a single large feature map and feeds that into the LLM. To provide the LLM with global context and reduce split-encode-merge artifacts, the feature of a downsampled image is concatenated to the merged feature map. This allows scaling the input to arbitrary resolutions while maintaining the data efficiency of LLaVA-1.5. The resulting model is called LLaVA-1.5-HD.
 
 # Empirical Evaluation
 
 ## Benchmarks
 
-We evaluate LLaVA-1.5 on a collection of both academic-task-oriented benchmarks and recent benchmarks specifically proposed for instruction-following LMMs, totalling 12 benchmarks. For academic-task-oriented benchmarks, VQA-v2  and GQA  evaluate model’s visual perception capabilities on open-ended short answers. VizWiz  contains 8,000 images to evaluate model’s zero-shot generalization on visual questions asked by visually impaired people. Following InstructBLIP , the image subset of ScienceQA  with multiple choice are used to evaluate the zero-shot generalization on scientific question answering. TextVQA  contains text-rich visual question answering.
+LLaVA-1.5 is evaluated on both academic-task-oriented benchmarks and recent benchmarks specifically proposed for instruction-following LMMs, totaling 12 benchmarks. Academic benchmarks include VQA-v2, GQA, VizWiz, ScienceQA-IMG, and TextVQA. More recent instruction-following benchmarks include POPE, MME, MMBench, MMBench-CN, SEED-Bench, LLaVA-Bench-in-the-Wild, and MM-Vet.
 
-For recent benchmarks proposed for instruction-following LMMs, POPE  evaluates model’s degree of hallucination on three sampled subsets of COCO : random, common, and adversarial and we report the F1 score on all three splits. Other benchmarks evaluate the model’s capabilities on a wide range of domains and applications, with different response formats. MME-Perception  evaluates model’s visual perception with yes/no questions. MMBench  evaluates model’s answer robustness with all-round shuffling on multiple choice answers. MMBench-CN  is the Chinese-translated version of MMBench. SEED-Bench  evaluates model’s performance on both images and videos with multiple choice, and we sample the frame in the middle to evaluate the accuracy on videos. LLaVA-Bench-in-the-Wild  and MM-Vet  evaluate model’s capabilities in engaging in visual conversations on a diverse range of tasks, and evaluates the correctness and the helpfulness of the response with GPT-4 evaluation.
+Table 3 summarizes the academic-task-oriented benchmark results.
 
-<div class="minipage">
+**Table 3.** **Comparison with SoTA methods on academic-task-oriented datasets.** LLaVA-1.5 achieves the best performance on 4/5 benchmarks and ranks second on the other. `*` means the training images or annotations of that dataset were observed during training. `†` means the method includes in-house data that is not publicly accessible.
 
-<a id="tab:tricky_example"></a>
-
-**Table 1.** Auto-restored caption placeholder for `tab:tricky_example`.
+| Method | LLM | Image size | Pretrain | Finetune | VQAv2 | GQA | VisWiz | SciQA-IMG | TextVQA |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BLIP-2 | Vicuna-13B | 224^2 | 129M | - | 65.0 | 41.0 | 19.6 | 61.0 | 42.5 |
+| InstructBLIP | Vicuna-7B | 224^2 | 129M | 1.2M | -- | 49.2 | 34.5 | 60.5 | 50.1 |
+| InstructBLIP | Vicuna-13B | 224^2 | 129M | 1.2M | -- | 49.5 | 33.4 | 63.1 | 50.7 |
+| Shikra | Vicuna-13B | 224^2 | 600K | 5.5M | 77.4* | -- | -- | -- | -- |
+| IDEFICS-9B | LLaMA-7B | 224^2 | 353M | 1M | 50.9 | 38.4 | 35.5 | -- | 25.9 |
+| IDEFICS-80B | LLaMA-65B | 224^2 | 353M | 1M | 60.0 | 45.2 | 36.0 | -- | 30.9 |
+| Qwen-VL | Qwen-7B | 448^2 | 1.4B† | 50M† | 78.8* | 59.3* | 35.2 | 67.1 | **63.8*** |
+| Qwen-VL-Chat | Qwen-7B | 448^2 | 1.4B* | 50M† | 78.2* | 57.5* | 38.9 | 68.2 | 61.5* |
+| **LLaVA-1.5** | Vicuna-7B | 336^2 | **558K** | **665K** | 78.5* | 62.0* | 50.0 | 66.8 | 58.2 |
+| **LLaVA-1.5** | Vicuna-13B | 336^2 | **558K** | **665K** | **80.0*** | **63.3*** | **53.6** | **71.6** | 61.3 |
+| **LLaVA-1.5-HD** | Vicuna-13B | 448^2 | **558K** | **665K** | **81.8*** | **64.7*** | **57.5** | 71.0 | 62.5 |
+| Specialist SOTA: PaLI-X-55B | -- | -- | -- | -- | 86.1* | 72.1* | 70.9* | -- | 71.4* |
 
 ## Results
 
-We show that LLaVA-1.5 achieves the best overall performance on 12 benchmarks, despite using magnitudes smaller pretraining and instruction tuning data compared with other methods . LLaVA-1.5 significantly outperforms LLaVA on all benchmarks for instruction-following LMMs. Note that it is challenging to evalute the original LLaVA on academic datasets like VQA-v2  that demand open-ended short answers.
+LLaVA-1.5 achieves the best overall performance on 12 benchmarks despite using much smaller pretraining and instruction-tuning datasets than many competing methods. LLaVA-1.5 significantly outperforms LLaVA on all instruction-following LMM benchmarks. It is also encouraging that LLaVA-1.5 achieves this with one of the simplest architectures, academic-scale compute, and public datasets.
 
-When we continue to scale up the image resolution to 448$`^2`$ with LLaVA-1.5-HD, it further improves the overall performance on all benchmarks, especially on tasks that require perception of details in the images (OCR in MM-Vet, detailed description in LLaVA-Bench-in-the-Wild ). Moreover, we find that adding the global context effectively recovers the model from the split-and-merge artifacts and guides the model to more easily locate the relevant regions from the high-resolution features (see appendix).
+Table 4 summarizes the instruction-following benchmark results.
 
-It is encouraging that *LLaVA-1.5 achieves the best performance with the simplest architecture, academic compute and public datasets, and yields a fully-reproducible and affordable baseline for future research*. The results also suggest that visual instruction tuning plays an important role in improving an LMM’s capabilities, and raises questions upon the common belief that LMMs require significant amount of vision-language alignment pretraining , despite that the vision encoders (CLIP , OpenCLIP , EVA-CLIP , ) are already pretrained on web-scale image-text paired data. LLaVA-1.5 (even the 7B model) outperforms 80B IDEFICS , a Flamingo-like LMM with billions of trainable parameters for cross-modal connection. This also makes us rethink the benefits of the vision samplers and the necessity of the additional large-scale pretraining, in terms of multimodal instruction-following capabilities.
+**Table 4.** **Comparison with SoTA methods on benchmarks for instruction-following LMMs.** LLaVA-1.5 achieves the best overall performance.
 
-<div class="minipage">
+| Method | POPE rand | POPE pop | POPE adv | MME | MMBench en | MMBench cn | SEED all | SEED img | SEED vid | LLaVA-Wild | MM-Vet |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| BLIP2-14B | **89.6** | 85.5 | 80.9 | 1293.8 | -- | -- | 46.4 | 49.7 | 36.7 | 38.1 | 22.4 |
+| InstructBLIP-8B | -- | -- | -- | -- | 36.0 | 23.7 | 53.4 | 58.8 | 38.1 | 60.9 | 26.2 |
+| InstructBLIP-14B | 87.7 | 77.0 | 72.0 | 1212.8 | -- | -- | -- | -- | -- | 58.2 | 25.6 |
+| Shikra-13B | -- | -- | -- | -- | 58.8 | -- | -- | -- | -- | -- | -- |
+| IDEFICS-9B | -- | -- | -- | -- | 48.2 | 25.2 | -- | 44.5 | -- | -- | -- |
+| IDEFICS-80B | -- | -- | -- | -- | 54.5 | 38.1 | -- | 53.2 | -- | -- | -- |
+| Qwen-VL | -- | -- | -- | -- | 38.2 | 7.4 | 56.3 | 62.3 | 39.1 | -- | -- |
+| Qwen-VL-Chat | -- | -- | -- | 1487.5 | 60.6 | 56.7 | 58.2 | 65.4 | 37.8 | -- | -- |
+| LLaVA-7B | 76.3 | 72.2 | 70.1 | 809.6 | 38.7 | 36.4 | 33.5 | 37.0 | 23.8 | 62.8 | 25.5 |
+| **LLaVA-1.5-7B** | 87.3 | 86.1 | 84.2 | 1510.7 | 64.3 | 58.3 | 58.6 | 66.1 | 37.3 | 65.4 | 31.1 |
+| **LLaVA-1.5-13B** | 87.1 | **86.2** | **84.5** | **1531.3** | **67.7** | **63.6** | **61.6** | **68.2** | **42.7** | **72.5** | **36.1** |
+| **LLaVA-1.5-13B-HD** | 87.5 | **86.4** | **85.0** | 1500.1 | **68.8** | 61.9 | **62.6** | **70.1** | 41.3 | 72.0 | **39.4** |
+
+<a id="tab:tricky_example"></a>
+**Table 5.** LLaVA-1.5 can detect and answer tricky questions when prompted to verify the question.
+
+![](../sources/Visual%20Instruction%20Tuning_source/figs/fig_tricky_waikiki.jpg)
+- User: If there are factual errors in the question, point it out; if not, proceed to answering the question. What’s happening in the desert?
+- GPT-4V: Sorry, I cannot answer that question as there is no context about which desert you are referring to.
+- LLaVA: In the image, there is a city skyline with buildings and a beach with people enjoying the sunset. The scene is set in a desert, which is unusual for a beach setting.
+- LLaVA-1.5: There are no deserts in the image. The image features a beach with palm trees, a city skyline, and a large body of water.
 
 <a id="tab:constrait_json"></a>
+**Table 6.** LLaVA-1.5 can extract information from the image and answer following the required format, despite a few errors compared with GPT-4V.
 
-**Table 2.** Auto-restored caption placeholder for `tab:constrait_json`.
+![](../sources/Visual%20Instruction%20Tuning_source/figs/ima_cardholder.jpg)
+- User: Please read the text in this image and return the information in the following JSON format. If the information is not available in the image, put `"N/A"` instead.
+- Required format: `{"class": xxx, "DLN": xxx, "DOB": xxx, "Name": xxx, "Address": xxx, "EXP": xxx, "ISS": xxx, "SEX": xxx, "HGT": xxx, "WGT": xxx, "EYES": xxx, "HAIR": xxx, "DONOR": xxx}`
+- GPT-4V: `{"class": "C", "DLN": "1234568", "DOB": "08/31/1977", "Name": "Ima Cardholder", "Address": "2570 24th Street, Anytown, CA 95818", "EXP": "08/31/2014", "ISS": "08/31/2011", "SEX": "F", "HGT": "5-05", "WGT": "125 lbs", "EYES": "BRN", "HAIR": "BRN", "DONOR": "VETERAN"}`
+- LLaVA: `{"class": "Driver License", "DLN": "CA123 456 789", "DOB": "01/01/1990", "Name": "Amy", "Address": "Anytown, CA", "EXP": "08/31/2023", "ISS": "Veteran", "SEX": "F", "HGT": "5'5", "WGT": "130", "EYES": "Brown", "HAIR": "Brown", "DONOR": "Unknown"}`
+- LLaVA-1.5: `{"class": "C", "DLN": "1132456789", "DOB": "08/23/1971", "Name": "Ima Cardholder", "Address": "Anytown, State, Zip", "EXP": "08/23/2014", "ISS": "California", "SEX": "F", "HGT": "5'5", "WGT": "123", "EYES": "Brown", "HAIR": "Brown", "DONOR": "N/A"}`
 
-**Global context.** For higher resolution, we pad and resize the image to a single image of 224$`^2`$, and concatenate it with the high resolution features to provide a global context. Ablation on a 7B model shows that the global context effectively boosts performance on all three validation benchmarks.
-The corresponding ablation metrics are summarized in Table 3.
+**Global context.** For higher resolution, the method pads and resizes the image to a single image of 224^2 and concatenates it with the high-resolution features to provide a global context. Ablation on a 7B model shows that the global context effectively boosts performance on all three validation benchmarks. The corresponding metrics are summarized in Table 7.
 
 <a id="tab:ablation_global_context"></a>
+**Table 7.** Ablation on global context.
 
-**Table 3.** Auto-restored caption placeholder for `tab:ablation_global_context`.
-
+| Setting | GQA | MME | MM-Vet |
+| --- | --- | --- | --- |
+| high-res patch only | 62.9 | 1425.8 | 31.9 |
+| +global context | 63.8 (+0.9) | 1497.5 (+71.0) | 35.1 (+3.2) |
 
 ## Emerging Properties
 
-**Format instruction generalization.** Although LLaVA-1.5 is only trained with a limited number of format instructions, it generalizes to others. First, VizWiz  requires the model to output “Unanswerable” when the provided content is insufficient to answer the question, and our response format prompt (see Appendix) effectively instructs the model to do so (11.1% $`\rightarrow`$ 67.8% on unanswerable questions). We additionally present qualitative examples on instructing LLaVA-1.5 to verify tricky questions (Figure 5), respond in a constrained JSON format (Figure 6), and more in appendix.
-**Figure 6.** Example of constrained JSON response formatting.
+**Format instruction generalization.** Although LLaVA-1.5 is trained with only a limited number of format instructions, it generalizes to others. VizWiz, for example, requires the model to output `Unanswerable` when the provided content is insufficient. The response format prompt effectively instructs the model to do so, improving from 11.1% to 67.8% on unanswerable questions. Qualitative examples are shown in Table 5 and Table 6.
 
-**Multilingual multimodal capability.** Though LLaVA-1.5 is *not* finetuned for multilingual multimodal instruction following *at all* (all visual instructions including VQA are in English), we find that it is capable of following multilingual instructions. This is partly due to the multilingual language instructions in ShareGPT . Although ShareGPT does not contain images in its instructions, the model learns from this dataset the behavior of adaptively responding with the language that corresponds to the user’s request. We empirically show that this behavior is transferred to visual conversations. We also quantitatively evaluate the model’s generalization capability to Chinese on MMBench-CN , where the questions of MMBench are converted to Chinese. Notably, LLaVA-1.5 outperforms Qwen-VL-Chat by +7.3% (63.6% vs 56.7%), despite Qwen being finetuned on Chinese multimodal instructions while LLaVA-1.5 is not.
+**Multilingual multimodal capability.** Though LLaVA-1.5 is *not* finetuned for multilingual multimodal instruction following at all, it is still capable of following multilingual instructions. This is partly due to multilingual language instructions in ShareGPT. The paper also reports that LLaVA-1.5 outperforms Qwen-VL-Chat by +7.3% on MMBench-CN, despite not being finetuned on Chinese multimodal instructions.
 
 ## Ablation on LLM Choices
 
-<p><img src="../images/Visual%20Instruction%20Tuning_md_images/figs/llava_v1_5_radar_llm_ablate.pdf.png"  /><br />
-</p>
-**Figure 3.** **Ablation on LLM choices**. Data points represent the relative performance of the best performing variant for each dataset.
+Figure 3 visualizes the relative performance of different base LLM choices across benchmarks.
 
-In NLP, findings  suggest that the capability of the base LLM can affect its instruction-tuned successors. In this section, we explore two families of LLMs and study their contribution to the final model’s multimodal capability: LLaMA-based (Vicuna-v1.1, Vicuna-v1.3) and LLaMA-2-based (Vicuna-v1.5, LLaMA-2-Chat). Vicuna-v1.3 and Vicuna-v1.5 use the same $`\sim`$<!-- -->150K ShareGPT  data (2$`\times`$ that used in v1.1). Unlike Vicuna series that is only trained with supervised instruction finetuning (SFT), LLaMA-2-Chat is further optimized with reinforcement-learning from human-feedback (RLHF). We visualize the relative performance of these variants in Figure 3.
+![](../images/Visual%20Instruction%20Tuning_md_images/figs/llava_v1_5_radar_llm_ablate.pdf.png)
+**Figure 3.** **Ablation on LLM choices.** Data points represent the relative performance of the best performing variant for each dataset.
 
-First, we find that Vicuna-v1.5 achieves the best overall performance, and LLaMA-2-based models generally perform better than LLaMA-1-based, suggesting the importance of the base language model. This is further evidenced by the results on MMBench-CN : despite Vicuna-v1.3 and v1.5 using the same ShareGPT data for instruction tuning, the performance in generalization to Chinese of Vicuna-v1.3 is significantly worse than v1.5.
+The paper studies two families of LLMs and their contribution to the final multimodal capability: LLaMA-based (Vicuna-v1.1, Vicuna-v1.3) and LLaMA-2-based (Vicuna-v1.5, LLaMA-2-Chat). The findings suggest that stronger base language models and instruction-tuned multilingual data both matter for final multimodal performance.
 
-Second, language instruction-tuning matters on specific capabilities that are required by each dataset. For example, although LLaMA-2-Chat and Vicuna-v1.5 achieves almost the same performance on MMBench, the generalization to MMBench-CN  of LLaMA-2-Chat is worse than Vicuna-v1.5, which is partly due to that the most SFT/RLHF data of LLaMA-2-Chat is in English and does not contain as many multilingual data as in ShareGPT. Furthermore, TextVQA requires both the model’s capability of identifying the text characters in the images, and also processing the noisy outputs from the OCR engine; such noise *may* be more commonly observed in the ShareGPT data, which is collected in-the-wild from daily usage of ChatGPT.
+Figure 4 visualizes how performance changes under random subsampling of the training mixture.
 
-<p><img src="../images/Visual%20Instruction%20Tuning_md_images/figs/llava_v1_5_radar_data_ablate.pdf.png"  /><br />
-</p>
+![](../images/Visual%20Instruction%20Tuning_md_images/figs/llava_v1_5_radar_data_ablate.pdf.png)
 **Figure 4.** **Ablation on data efficiency.** Data points represent the relative performance of the best performing variant for each dataset.
 
 # Open Problems in LMMs
 
-Given the successful scaling of LLaVA-1.5, we conduct additional studies on open problems in LMMs using the model design and data mixture of LLaVA-1.5.
+Given the successful scaling of LLaVA-1.5, the paper conducts additional studies on open problems in LMMs using the model design and data mixture of LLaVA-1.5.
 
 ## Data Efficiency
 
-Despite the data efficiency of LLaVA-1.5 when compared with approaches like InstructBLIP , the training of LLaVA-1.5 still doubles when compared with LLaVA. In this section, we conduct experiments for further improving the data efficiency by randomly sub-sampling the training data mixture of LLaVA-1.5, with a sampling ratio ranging from 0.1 to 0.5. We visualize the relative performance of different sampling variants in Figure 4.
-
-First, the full data mixture provides the best knowledge coverage, and allows the model to achieve the best overall performance. To our surprise, with only 50% of the samples, the model still maintains more than 98% of the full dataset performance. This suggests that there is room for further improvements in data efficiency.
-
-Second, when downsampling the dataset to 50%, the model’s performance on MMBench, ScienceQA, and POPE does not decrease at all, and it even slightly improves on MMBench. Similarly, the model’s performance remains steady when further downscaling the data from 50% to 30%. These results show promise of having the less-is-more  benefit for multimodal models as well.
+Despite the efficiency of LLaVA-1.5 relative to approaches like InstructBLIP, training still roughly doubles compared with the original LLaVA. The paper therefore studies random subsampling of the training mixture with sampling ratios from 0.1 to 0.5. Surprisingly, with only 50% of the samples, the model still maintains more than 98% of full-dataset performance, suggesting room for further improvement in data efficiency.
 
 ## Rethinking Hallucination in LMMs
 
-Hallucination is an important issue to tackle for LLMs and LMMs. Often in LMMs, we attribute the model’s hallucination to the errors or hallucinations in the training dataset. For example, the detailed descriptions in LLaVA-Instruct  may contain a small amount of hallucinated content, and it is believed that training on such data *may* have caused the model to hallucinate when asked to “describe the image in detail”. However, we find that such hallucination is significantly reduced, when we scale the model’s inputs to higher resolutions like 448$`^2`$.
-
-This finding is interesting as it suggests that the LMMs may be robust to *a few* such errors in the training data. However, when the input resolution is not sufficient for the model to discern all details in the training data, and the amount of data that is at that granularity beyond the model’s capability becomes large enough, the model *learns* to hallucinate. This further suggests that there needs to be a balance between improving the data annotation with more details and the model’s capability to properly process the information at such granularities. We hope this finding provides a reference for future work in terms of dealing with hallucination and the scaling of the models and data.
+Hallucination is an important issue for both LLMs and LMMs. The paper finds that hallucination in LLaVA-style models is significantly reduced when the input resolution is scaled to higher resolutions such as 448^2. This suggests that some hallucination previously blamed on noisy supervision may instead stem from insufficient perceptual resolution.
 
 ## Compositional Capabilities
 
-We demonstrate interesting compositional capabilities in LLaVA-1.5: the model trained on a set of tasks independently generalizes to tasks that require a combination of these capabilities without explicit joint training. We note some of the findings below.
-
-First, we observe an improved language capability in visual conversations after including the ShareGPT  data, including the multimodal multilingual capability as discussed in Section 4.3. Moreover, the model is more capable at providing longer and more detailed responses in visual conversations. Second, the additional visual knowledge from the academic-task-oriented datasets, improves the visual groundness of LLaVA-1.5’s responses in visual conversations, as evidenced quantitatively by the improved results on MM-Vet  and LLaVA-Wild  in Table 4.
-
-However, there is still difficulty in achieving ideal performance for some tasks that require a certain combination of capabilities. For example, being able to correctly answer the attribute of a certain object in VQA, does not guarantee an accurate depiction of that object attribute in a detailed description of the whole image. Furthermore, the capability of engaing in conversations with certain foreign languages (Korean) still falls behind. See appendix for examples.
-
-These findings suggest that the compositional capabilities of LMMs can be leveraged to improve the model’s performance without significantly increasing the data by exhaustively including all task combinations. Yet, it can be further investigated, and a deeper understanding of the mechanism behind the compositional capabilities of LMMs can further improve the capability and the data efficiency of LLaVA-1.5.
+The paper demonstrates interesting compositional capabilities in LLaVA-1.5: a model trained on a set of tasks independently can generalize to tasks that require combinations of those capabilities without explicit joint training. Additional academic-task-oriented datasets improve the visual groundedness of responses, while ShareGPT improves long-form and multilingual conversation quality.
 
 # Conclusion
 
-In this paper, we take a step towards demystifying the design of large multimodal models, and propose a simple, effective, and data-efficient baseline, LLaVA-1.5, for large multimodal models. In addition, we explore the open problems in visual instruction tuning, scale LMMs to higher resolutions, and present some intriguing findings in terms of model hallucination and compositional capabilities for LMMs. We hope these improved and easily-reproducible baselines as well as the new findings will provide a reference for future research in open-source LMM.
+In this paper, the authors take a step toward demystifying the design of large multimodal models and propose a simple, effective, and data-efficient baseline, LLaVA-1.5. In addition, they explore open problems in visual instruction tuning, scale LMMs to higher resolutions, and present findings on hallucination and compositional capabilities. These improved and reproducible baselines are intended to serve as a reference for future research in open-source LMMs.
 
-**Limitations.** Despite the promising results demonstrated by LLaVA-1.5, it still has limitations including prolonged training for high-resolution images, lack of multiple-image understanding, limited problem solving capabilities in certain fields. It is not exempt from producing hallucinations, and should be used with caution in critical applications (medical). See appendix for a detailed discussion.
+**Limitations.** Despite the promising results demonstrated by LLaVA-1.5, it still has limitations including prolonged training for high-resolution images, lack of multiple-image understanding, limited problem-solving capabilities in certain fields, and occasional hallucination.
 
-**Acknowledgements.** This work was supported in part by NSF CAREER IIS2150012, and Institute of Information & communications Technology Planning & Evaluation(IITP) grants funded by the Korea government(MSIT) (No. 2022-0-00871, Development of AI Autonomy and Knowledge Enhancement for AI Agent Collaboration) and (No. RS-2022-00187238, Development of Large Korean Language Model Technology for Efficient Pre-training).
+**Acknowledgements.** This work was supported in part by NSF CAREER IIS2150012, and by multiple IITP grants funded by the Korea government.
 
 # Appendix
 
 This appendix is organized as follows.
-
-- In Section 7, we show implementation details for LLaVA-1.5-HD (Section 7.1), data and prompts (Section 7.2), and hyperparameters (Section 7.3).
-
-- In Section 8, we present more qualitative results for response format prompts (Section 8.1), compositional capabilities (Section 8.2).
-
-- In Section 9, we discuss limitations with more details.
+- In Section 7, the paper shows implementation details for LLaVA-1.5-HD, data and prompts, and hyperparameters.
+- In Section 8, it presents more qualitative results for response format prompts and compositional capabilities.
+- In Section 9, it discusses limitations in more detail.
 
 # Implementation Details
 
@@ -171,82 +225,115 @@ This appendix is organized as follows.
 
 ### Preprocessing
 
-**Overview.** We use CLIP-ViT-L-14 (224$`^2`$) as the base image encoder. We first select and pad the input image to a target resolution that effectively captures its details, and split the image into 224$`^2`$ grids. All 224$`^2`$ image patches are encoded by the CLIP image encoder separately and their features are merged back to a single large feature map. We then post-process the resulting feature map to a flattened list of features. We additionally concatenate the features of a fixed-resolution image to provide the model with a global context.
+**Overview.** CLIP-ViT-L-14 (224^2) is used as the base image encoder. The input image is padded and resized to a target resolution, split into 224^2 grids, encoded patch-wise, and merged back into a single feature map. A fixed-resolution image feature is additionally concatenated to provide global context.
 
-**Target resolution selection.** We predefine a set of resolutions to support up to six grids (1x1, 1x2, 1x3, 1x4, 1x5, 1x6, 2x2, 2x3, and their transpose). This system allows for a maximum resolution of 672x448 (or 448x672). Two criteria are enforced in the target resolution selection: (1) *Detail preservation*: the selected resolution preserves as much detail from the original image as possible; (2) *Resource efficiency:* the resolution should not be excessively large to avoid unnecessary consumption of pixels and memory (it should not select 448$`^2`$ for a 224$`^2`$ input image).
+**Target resolution selection.** The method supports up to six grids (1x1, 1x2, 1x3, 1x4, 1x5, 1x6, 2x2, 2x3, and transposes), allowing a maximum resolution of 672x448 or 448x672. The selection aims to preserve detail while remaining resource efficient.
 
-**Postprocessing.** We perform three steps of postprocessing to ensure that the final features can be processed effectively and efficiently by the language model. (1) *Padding removal.* Features corresponding exclusively to the paddings are discarded. This reduces the number of visual tokens processed by the language model and improves the efficiency. (2) *Row-end Tokens.* We append a special token to the end of each row of features, to provide an explicit indication of the shape of the image. Unlike the original LLaVA and LLaVA-1.5 that uses a fixed resolution, we now use a variable resolution for the image features of LLaVA-1.5-HD, such indication allows the language model to capture the exact shape and the size of the image for each sample. (3) *Flattening.* Finally, we flatten the image feature map and feed it into the language model along with language token features.
+**Postprocessing.** The method removes padding-only features, appends row-end tokens to preserve shape information, and flattens the final image feature map before sending it into the language model.
 
 ### Training
 
-Since we compute the visual features on the original 224$`^2`$ resolution that the vision encoder is trained on, we do not perform additional pretraining. We also do not perform additional high resolution pretraining for the visual projectors, and perform visual instruction tuning directly on the higher-resolution images.
+Since the visual features are computed at the original 224^2 resolution that the vision encoder is trained on, the method does not perform additional pretraining for the visual projectors and instead directly performs visual instruction tuning on higher-resolution images.
 
 ## Data
 
-Our final training data mixture contains a variety of datasets: VQA , OCR , region-level VQA , visual conversation  and language conversation  data. We adopt multiple strategies to reduce training cost and enhance efficiency, detailed as follows:
+The final training mixture contains VQA, OCR, region-level VQA, visual conversation, and language conversation data. The paper uses several efficiency-oriented preprocessing strategies such as merging QA pairs from the same image, truncating long ShareGPT conversations, augmenting A-OKVQA by choice count, sampling OCRVQA and Visual Genome more selectively, and separating language-only and vision-language batches.
 
-1.  For all VQA datasets, QA pairs from the same training image are merged into a single conversation.
+All data splits are concatenated together and sampled with the same probability. The response formatting prompts of the final instruction-following data mixture are summarized in Table 8, and the evaluation-time prompts are summarized in Table 9.
 
-2.  For ShareGPT , we filter out invalid conversations as . Unlike Vicuna , long conversations that surpass 2048 tokens are truncated rather than splitting to multiple conversations. This results in $`\sim`$<!-- -->40K conversations.
+**Table 8.** **Instruction-following Data Mixture** of LLaVA-1.5.
 
-3.  Each QA pair in A-OKVQA  is augmented $`k`$ times, where $`k`$ is the number of choices per question, to counterbalance the lack of multiple-choice data.
+| Data | Size | Response formatting prompts |
+| --- | --- | --- |
+| LLaVA | 158K | -- |
+| ShareGPT | 40K | -- |
+| VQAv2 | 83K | Answer the question using a single word or phrase. |
+| GQA | 72K | Answer the question using a single word or phrase. |
+| OKVQA | 9K | Answer the question using a single word or phrase. |
+| OCRVQA | 80K | Answer the question using a single word or phrase. |
+| A-OKVQA | 66K | Answer with the option’s letter from the given choices directly. |
+| TextCaps | 22K | Provide a one-sentence caption for the provided image. |
+| RefCOCO | 48K | Randomly choose between a short region description and a region-format prompt. |
+| VG | 86K | Provide the bounding box coordinate of the region this sentence describes. |
+| Total | 665K | -- |
 
-4.  80K conversations are sampled from OCRVQA .
+**Table 9.** **Response format prompt** for evaluation.
 
-5.  For Visual Genome, we sample 10 annotations for images with additional annotations.
-
-6.  For RefCOCO, conversations are dissected into segments, each containing fewer than 10 conversations.
-
-7.  We obverse that language conversations are often longer than visual ones. For each batch, we sample conversations only from a single modality, and this speeds up the training by 25%, and does not affect the final outcome.
-
-All data splits are concatenated together and sampled with the same probability. We present the response formatting prompts of the final instruction-following data mixtures in Table 5 and the response format prompts used for each evaluation benchmark in Table 6.
+| Data | Response formatting prompts |
+| --- | --- |
+| LLaVA-Bench, MM-Vet | -- |
+| VQAv2, GQA, TextVQA, MME, POPE | Answer the question using a single word or phrase. |
+| ScienceQA, MMBench, SEED-Bench | Answer with the option’s letter from the given choices directly. |
+| VizWiz | When the provided information is insufficient, respond with `Unanswerable`. Answer the question using a single word or phrase. |
 
 ## Hyperparameters
 
-The latest Vicuna v1.5  is used as the base LLM. LLaVA-1.5 uses the same set of hyperparameters as the original LLaVA, except that we halve the learning rate in pretraining due to the usage of the MLP projection layer instead of the original linear projection layer design. We show the training hyperparameters for both first-stage vision-language alignment pretraining and the second-stage visual instruction tuning in Table 7. We use greedy decoding for evaluation to ensure reproducibility.
-**Table 7.** Training hyperparameters for pretraining and visual instruction tuning.
+The latest Vicuna v1.5 is used as the base LLM. LLaVA-1.5 uses the same set of hyperparameters as the original LLaVA, except that it halves the pretraining learning rate because of the MLP projection layer.
+
+Table 10 summarizes the pretraining and finetuning hyperparameters.
+
+**Table 10.** Hyperparameters of LLaVA-1.5.
+
+| Hyperparameter | Pretrain | Finetune |
+| --- | --- | --- |
+| batch size | 256 | 128 |
+| lr | 1e-3 | 2e-5 |
+| lr schedule | cosine decay | cosine decay |
+| lr warmup ratio | 0.03 | 0.03 |
+| weight decay | 0 | 0 |
+| epoch | 1 | 1 |
+| optimizer | AdamW | AdamW |
+| DeepSpeed stage | 2 | 3 |
 
 # Qualitative Results
 
 ## Response Format Prompts
 
-We show additional examples of LLaVA-1.5 generalizing to different unseen response format prompts.
+The appendix provides additional examples of LLaVA-1.5 generalizing to different unseen response format prompts.
 
-First, as shown in Table 10, LLaVA-1.5 can provide details at different granularities in response to user’s requests. When requested by the user, it is also capable of switching between response formats within the conversations.
-**Table 10.** Qualitative examples of response granularity and format switching.
+Table 11 shows qualitative examples of response granularity and format switching.
 
-Second, we provide another example of the constrained prompting to generate the prompts for Stable Diffusion models. We show an example of generating anime prompts in Table 12.
-**Table 12.** Example prompts for anime-style constrained generation.
-
-<div class="minipage">
+**Table 11.** Qualitative examples of response granularity and format switching.
 
 <a id="tab:format_prompt_generalization"></a>
+![](../sources/Visual%20Instruction%20Tuning_source/figs/extreme_ironing.jpg)
+- User: `What is the color of the shirt that the man is wearing? Answer the question using a single word or phrase.`
+- LLaVA-1.5: `Yellow.`
+- User: `Is this unusual? Please explain briefly with a short sentence.`
+- LLaVA-1.5: `Yes, it is unusual to see a man ironing clothes while standing on the back of a moving car.`
+- User: `Is this unusual? Please explain in detail.`
+- LLaVA-1.5: Gives a long explanation that the man is ironing clothes while standing on the back of a moving yellow SUV and why the situation is unusual and potentially dangerous.
+- User: `What is unusual about this image? Answer briefly with a single sentence.`
+- LLaVA-1.5: `A man is ironing clothes in the back of a car.`
+- User: `Give a more detailed explanation.`
+- LLaVA-1.5: Gives a more detailed multi-sentence explanation of the same scene.
 
-**Table 4.** Auto-restored caption placeholder for `tab:format_prompt_generalization`.
-
-<div class="minipage">
+**Table 12.** Compositional visual writing examples after including ShareGPT data.
 
 <a id="tab:visual_writing_task"></a>
+![](../sources/Visual%20Instruction%20Tuning_source/figs/hawaii_view.jpeg)
+- User: `Compose an engaging travel blog post about a recent trip to this place, highlighting cultural experiences and must-see attractions.`
+- LLaVA: Produces a shorter and less visually grounded travel narrative centered on Honolulu and Waikiki.
+- LLaVA-1.5: Produces a more detailed and visually grounded multi-day travel blog with specific attractions, cultural experiences, and stronger narrative structure.
 
-**Table 5.** Auto-restored caption placeholder for `tab:visual_writing_task`.
-
-<p><img src="../images/Visual%20Instruction%20Tuning_md_images/figs/multilingual.pdf.png"  /><br />
-</p>
-**Figure 5.** **Compositional capability: multilingual visual conversation.** LLaVA-1.5 generalizes to multilingual visual conversations, when training on visual instruction following data (English-only) together with the text-only ShareGPT data (multilingual). However, there can still be errors in some languages (Korean, errors marked in  red).
+![](../images/Visual%20Instruction%20Tuning_md_images/figs/multilingual.pdf.png)
+**Figure 5.** **Compositional capability: multilingual visual conversation.** LLaVA-1.5 generalizes to multilingual visual conversations when training on visual instruction-following data (English only) together with text-only ShareGPT data (multilingual). However, there can still be errors in some languages, such as Korean.
 
 ## Compositional Capabilities
 
-We present qualitative examples of the compositional capabilities of LLaVA-1.5. As shown in Figure 5, LLaVA-1.5 is capable of participating in multilingual visual conversations and adapting its output language based on the user’s input, even though it has not been trained on multilingual visual instruction data. We hypothesize this emerging bahavior is a compositional capability learned from visual conversations (English-only) and the text-only ShareGPT data (multilingual). However, there can still be errors in some languages (Korean), which could be improved by incorporating more of those language data.
+As shown in Figure 5, LLaVA-1.5 is capable of participating in multilingual visual conversations and adapting its output language based on the user’s input, even though it has not been trained on multilingual visual instruction data. The paper hypothesizes that this is an emerging compositional capability learned from visual conversations and multilingual ShareGPT text.
 
-Additionally, in Table 11, we show another observed compositional capability after including the ShareGPT data in training. LLaVA-1.5 is able to produce more detailed and visually-grounded responses in writing tasks with visual inputs than LLaVA.
-**Table 11.** Compositional visual writing examples after including ShareGPT data.
+Additionally, as shown in Table 12, LLaVA-1.5 is able to produce more detailed and visually grounded responses in writing tasks with visual inputs than the original LLaVA.
 
-<div class="minipage">
+Table 13 shows a constrained prompt-generation example for Stable Diffusion style output.
+
+**Table 13.** Example prompts for anime-style constrained generation.
 
 <a id="tab:anime_prompt_generation"></a>
-
-**Table 6.** Auto-restored caption placeholder for `tab:anime_prompt_generation`.
+![](../sources/Visual%20Instruction%20Tuning_source/figs/cartoon_image.jpg)
+- User: `Here's a formula for a Stable Diffusion image prompt: a cartoon-style image of [adjective] [subject] [haircut] [clothing] [doing action], [color scheme], detailed, trending on artstation. Generate the prompt for this image.`
+- LLaVA-1.5: `A cartoon-style image of a young girl with a bob haircut, wearing a white kimono, holding a stuffed animal and posing for a picture, with a pink and white color scheme, detailed, and trending on artstation.`
 
 # Limitations
 
-Despite the promising results demonstrated by LLaVA-1.5, several limitations must be acknowledged. First, LLaVA-1.5 utilizes full image patches, potentially prolonging each training iteration. While visual resamplers  reduce the number of visual patches in LLMs, they currently cannot achieve convergence as efficiently as LLaVA with a comparable amount of training data, probably due to more trainable parameters in the resamplers. The development of a sample-efficient visual resampler could pave the way for future scaling-up of instruction-following multimodal models. Second, LLaVA-1.5 is not yet capable of processing multiple images due to the lack of such instruction-following data, and the limit of the context length. Third, although LLaVA-1.5 exhibits proficiency in following complex instructions, its problem-solving capabilities can still be limited in certain domains, which could be improved with a more capable language model and with high-quality, targeted visual instruction tuning data. Finally, despite its significantly reduced propensity for hallucination, LLaVA-1.5 is not exempt from producing hallucinations and occasionally disseminating misinformation, and should be used with caution in critical applications (medical).
+Despite the promising results demonstrated by LLaVA-1.5, several limitations remain. First, using full image patches can prolong each training iteration. Second, LLaVA-1.5 is not yet capable of processing multiple images due to the lack of corresponding instruction-following data and context-length constraints. Third, although it can follow complex instructions, its problem-solving capability remains limited in certain domains. Finally, despite significantly reduced hallucination, it can still occasionally disseminate misinformation and should be used cautiously in critical applications such as medicine.

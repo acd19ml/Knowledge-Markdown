@@ -22,7 +22,27 @@ Our work has three main contributions:
 
 - To facilitate model training and evaluation, we create Grounding-anything Dataset (GranD), a large-scale densely annotated dataset. Developed using an automatic annotation pipeline and verification criteria, it encompasses 7.5M unique concepts grounded in 810M regions. Additionally, we propose GranD$_f$, a high-quality dataset explicitly designed for the GCG task finetuning, by re-purposing existing open-source datasets.
 
-<!-- TABLE not converted from TeX source -->
+**Table 1.** **Comparison of recent Large Multimodal Models (LMMs)** emphasizing their capabilities for region-level understanding. `Region` and `Multi-Region` are shown as `input/output`, while `Region Enc./Dec.` denotes whether the method includes explicit region encoders or decoders.
+
+| Method | Image | Region (in/out) | Multi-Region (in/out) | Region Enc./Dec. | Pixel-Wise Grounding | Multi-turn Conversation | End-End Model |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| MM-REACT (arXiv-23) | yes | no/no | no/no | no/no | no | yes | no |
+| LLaVA (NeurIPS-23) | yes | no/no | no/no | no/no | no | yes | yes |
+| miniGPT4 (arXiv-23) | yes | no/no | no/no | no/no | no | yes | yes |
+| mPLUG-OWL (arXiv-23) | yes | no/no | no/no | no/no | no | yes | yes |
+| LLaMA-Adapter v2 (arXiv-23) | yes | no/no | no/no | no/no | no | yes | yes |
+| Otter (arXiv-23) | yes | no/no | no/no | no/no | no | no | yes |
+| Instruct-BLIP (arXiv-23) | yes | no/no | no/no | no/no | no | yes | yes |
+| InternGPT (arXiv-23) | yes | yes/no | no/no | no/no | no | yes | no |
+| Bubo-GPT (arXiv-23) | yes | no/yes | no/yes | no/no | no | yes | no |
+| Vision-LLM (arXiv-23) | yes | no/yes | no/yes | no/no | no | no | yes |
+| Det-GPT (arXiv-23) | yes | yes/yes | yes/yes | no/no | no | yes | yes |
+| Shikra (arXiv-23) | yes | yes/yes | no/no | no/no | no | no | yes |
+| Kosmos-2 (arXiv-23) | yes | yes/yes | yes/yes | no/no | no | no | yes |
+| GPT4RoI (arXiv-23) | yes | yes/no | yes/no | yes/no | no | yes | yes |
+| ASM (arXiv-23) | yes | yes/no | no/no | yes/no | no | no | yes |
+| LISA (arXiv-23) | yes | no/yes | no/no | no/yes | yes | no | yes |
+| GLaMM (ours) | yes | yes/yes | yes/yes | yes/yes | yes | yes | yes |
 
 # Related Work {#sec:related}
 
@@ -114,9 +134,30 @@ Level-4 builds on the scene graph from level-3 to obtain a more detailed visual 
 
 Utilizing our automated annotation pipeline, we annotate a corpus of 11M SAM images [@kirillov2023segment], which are inherently diverse, high-resolution, and privacy-compliant. The resulting dataset comprises 810M regions, each associated with a segmentation mask, and includes 7.5M unique concepts. Further, the dataset features 84M referring expressions, 22M grounded short captions, and 11M densely grounded captions. To our knowledge, this is the first dataset of this scale generated entirely through an automated annotation pipeline (see Tab. Table 2 for details and Fig. 15 in Appendix for dataset sample visualizations).
 
-<!-- TABLE not converted from TeX source -->
+**Table 2.** **GranD versus existing datasets.** GranD uniquely provides grounded captions per image with segmentation masks for every region.
 
-<!-- TABLE not converted from TeX source -->
+| Dataset | Images | Regions | Concepts | Tokens | Grounded Captions |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| COCO | 0.1M | 0.9M | 80 | - | - |
+| LVIS | 0.1M | 1.5M | 1,203 | - | - |
+| Objects365 | 0.6M | 10.1M | 365 | - | - |
+| Open Images | 1.5M | 14.8M | 600 | - | - |
+| BigDetection | 3.5M | 36.0M | 600 | - | - |
+| V3Det | 0.2M | 1.5M | 13,029 | - | - |
+| VG | 0.1M | 0.3M | 18,136 | 51.2M | - |
+| SA-1B | 11M | 1.1B | - | - | - |
+| AS-1B | 11M | 1.2B | 3.5M | 132.2B | - |
+| GranD (ours) | 11M | 810M | 7.5M | 5.0B | 33M |
+
+**Table 3.** **Performance on GCG Task.** Metrics include METEOR (`M`), CIDEr (`C`), AP50, mIoU, and mask recall. `LISA*` denotes LISA adapted for GCG, and `GLaMM†` excludes the 1K human-annotated images during training.
+
+| Model | Val M | Val C | Val AP50 | Val mIoU | Val Recall | Test M | Test C | Test AP50 | Test mIoU | Test Recall |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| BuboGPT | **17.2** | 3.6 | 19.1 | 54.0 | 29.4 | **17.1** | 3.5 | 17.3 | 54.1 | 27.0 |
+| Kosmos-2 | 16.1 | 27.6 | 17.1 | 55.6 | 28.3 | 15.8 | 27.2 | 17.2 | 56.8 | 29.0 |
+| LISA* | 13.0 | 33.9 | 25.2 | 62.0 | 36.3 | 12.9 | 32.2 | 24.8 | 61.7 | 35.5 |
+| GLaMM† | 15.2 | 43.1 | 28.9 | 65.8 | 39.6 | 14.6 | 37.9 | 27.2 | 64.6 | 38.0 |
+| GLaMM | 16.2 | **47.2** | **30.8** | **66.3** | **41.8** | 15.8 | **43.5** | **29.2** | **65.6** | **40.8** |
 
 <a id="sec:data_gcg"></a>
 
@@ -142,9 +183,47 @@ We perform quantitative evaluations of GLaMM on six benchmarks: i) Grounded Conv
 
 **Referring Expression Segmentation.** In this task, the model processes an image and a text-based referring expression to output a segmentation mask. The prompt used is, "`Please segment the ``<referring expression>`` in the image.`\" The model responds with "`Sure, it is ``<SEG>``.`\", where the `<SEG>` token is decoded to obtain the mask. We achieve better results over recent works like LISA on the refCOCO, refCOCO+, and refCOCOg validation and test sets in Tab. Table 4. This demonstrates the efficacy of our GranD dataset, offering the model extensive concept vocabulary during pre-training (refer to Fig. [5](#fig:downstream) (middle) and supplementary Fig. 8 for qualitative results).
 
+**Table 4.** **Qualitative Assessment of GLaMM in Referring-Expression Segmentation.** Performance across refCOCO, refCOCO+, and refCOCOg shows that GLaMM improves over prior referring-segmentation systems, including LISA.
+
+| Method | refCOCO val | refCOCO testA | refCOCO testB | refCOCO+ val | refCOCO+ testA | refCOCO+ testB | refCOCOg val(U) | refCOCOg test(U) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| CRIS | 70.5 | 73.2 | 66.1 | 65.3 | 68.1 | 53.7 | 59.9 | 60.4 |
+| LAVT | 72.7 | 75.8 | 68.8 | 62.1 | 68.4 | 55.1 | 61.2 | 62.1 |
+| GRES | 73.8 | 76.5 | 70.2 | 66.0 | 71.0 | 57.7 | 65.0 | 66.0 |
+| X-Decoder | - | - | - | - | - | - | 64.6 | - |
+| SEEM | - | - | - | - | - | - | 65.7 | - |
+| LISA-7B | 74.9 | 79.1 | 72.3 | 65.1 | 70.8 | 58.1 | 67.9 | 70.6 |
+| GLaMM | **79.5** | **83.2** | **76.9** | **72.6** | **78.7** | **64.6** | **74.2** | **74.9** |
+
 **Region Level Captioning.** In this task, models generate region-specific captions given an image, a user-specified region via a bounding box and related text. We utilize a prompt like, "`Can you provide a detailed description of the region ``<bbox>``?`", to instruct the model for this task, where the special token `<bbox>` is replaced with the actual region representations. We evaluate GLaMM on Visual Genome and refCOCOg, using METEOR and CIDEr metrics with results presented in Tab. Table 5. GLaMM shows improved results over GRiT and GPT4RoI after fine-tuning and demonstrates robust zero-shot performance, highlighting the significance of GranD's region-text pairs (refer to Fig.[5](#fig:downstream) (left) and supplementary Fig. 9 for qualitative results).
 
+**Table 5.** **Performance of GLaMM in Region-Level Captioning.** Metrics include METEOR and CIDEr on `refCOCOg` and `Visual Genome`.
+
+| Model | refCOCOg METEOR | refCOCOg CIDEr | Visual Genome METEOR | Visual Genome CIDEr |
+| --- | ---: | ---: | ---: | ---: |
+| GRIT | 15.2 | 71.6 | 17.1 | 142.0 |
+| Kosmos-2 | 14.1 | 62.3 | - | - |
+| GPT4RoI | - | - | 17.4 | 145.2 |
+| GLaMM (ZS) | **15.7** | **104.0** | **17.0** | **127.0** |
+| GLaMM (FT) | **16.2** | **106.0** | **19.7** | **180.5** |
+
 **Image Level Captioning.** For this task, GLaMM responds to queries like, "`Could you please give me a detailed description of the image?`\" with a textual description. We evaluate GLaMM's zero-shot performance on Flickr30k [@plummer2015flickr30k] and NoCap [@agrawal2019nocaps] datasets, with Tab. Table 6 showing its favorable performance against recent image captioning models and other LMMs (refer to Fig. [5](#fig:downstream) (right) and supplementary Fig. 10 for qualitative results).
+
+**Table 6.** **Performance of GLaMM in Zero-Shot Image Captioning.** Assessed on `NoCap` and `Flickr30k` using CIDEr and SPICE.
+
+| Model | NoCap CIDEr | NoCap SPICE | Flickr30k CIDEr | Flickr30k SPICE |
+| --- | ---: | ---: | ---: | ---: |
+| VinVLM | 95.5 | 13.5 | - | - |
+| LEMON | 106.8 | 14.1 | - | - |
+| SimVLM | 110.3 | 14.5 | - | - |
+| CoCa | 120.6 | 15.5 | - | - |
+| BLIP | 113.2 | 14.7 | - | - |
+| BLIP-2 | 121.6 | 15.8 | - | - |
+| InstructBLIP | **123.1** | - | 82.8 | - |
+| Shikra-13B | - | - | 73.9 | - |
+| Kosmos-1 | - | - | 67.1 | 14.5 |
+| Kosmos-2 | - | - | 66.7 | - |
+| GLaMM | 106.8 | **15.8** | **95.3** | **18.8** |
 
 # Conclusion {#sec:conclusion}
 
@@ -208,6 +287,15 @@ Our automated annotation pipeline utilizes only open-source models and incorpora
 
 **Landmark categorization**: We use LLaVA-v1.5-13B [@liu2023improvedllava] model to assign landmark categories to each image. Please refer to Tab. Table 7 for primary and fine categories used.
 
+**Table 7.** Summary of landmark categories and their corresponding fine-grained categories.
+
+| Main category | Fine category |
+| --- | --- |
+| Indoor scene | Living space, Work space, Public space, Industrial space |
+| Outdoor scene | Urban landscape, Rural landscape, Natural landscape |
+| Transportation scene | Road, Airport, Train station, Port and harbor |
+| Sports and recreation scene | Sporting venue, Recreational area, Gym and fitness center |
+
 **Dense Captioning**: We arrange objects, attributes and relationships hierarchically to construct a visual scene graph, that is used to query Vicuna-v1.5-13B [@vicuna] model along with in-context examples to generate dense captions. The designed prompt is shown in Fig. [6](#fig:dataset_promp) (a).
 
 **Extra Context**: We query Vicuna-v1.5-13B model to generate additional context about the visual scene. The prompt designed for this purpose is shown in Fig. [6](#fig:dataset_promp) (b).
@@ -218,17 +306,28 @@ Our automated annotation pipeline utilizes only open-source models and incorpora
 
 ## Phrase Grounding
 
-In order to adapt the GLaMM model for phrase grounding, we repurpose the GCG dataset to suit this particular task. Specifically, the answers in the GCG dataset are now used as questions, and the parts of the captions containing groundings are regarded as phrases. The model is subsequently trained to locate pixel-level groundings for these phrases, which are enclosed within \<p\> and \</p\> tokens. The results of this adaptation are shown in the following figure.
+In order to adapt the GLaMM model for phrase grounding, we repurpose the GCG dataset to suit this particular task. Specifically, the answers in the GCG dataset are now used as questions, and the parts of the captions containing groundings are regarded as phrases. The model is subsequently trained to locate pixel-level groundings for these phrases, which are enclosed within \<p\> and \</p\> tokens. The results of this adaptation are shown in Figure 7.
 
 <a id="fig:app_gcg2_phrase"></a>
 
 ![](../images/GLaMM_md_images/Figures/supp/phrase_grounding.png)
 
-**Figure 7.**
+**Figure 7.** **Qualitative results of GLaMM’s performance in phrase grounding.** The figure illustrates how the model repurposes grounded conversation annotations into phrase-grounding behavior, locating the regions associated with textual phrases enclosed by `<p>` and `</p>` tokens.
 
 ## Conversational Style Question Answering
 
 We evaluate our model on the LLaVA-Bench [@liu2023llava; @liu2023improvedllava] that uses GPT-4 for evaluation of models. This benchmark tests the model on three different types of tasks: conversation question-answering, detailed descriptions, and complex reasoning tasks. The evaluation provides insights into the model's conversational and reasoning capabilities. The results in Tab. Table 8 present a comparison of GLaMM with previous open-source models. We note that GLaMM performance is on par with the recently released LLaVA-1.5 which leverages additional data for vision-to-language alignment. Qualitative results are shown in Fig. [12](#fig:conv_main) and Fig. [14](#fig:app_conv_supp).
+
+**Table 8.** **Evaluation of GLaMM on conversational style QA using LLaVA-Bench.** The table compares `LLaVA^W` scores across open-source conversational models.
+
+| Method | LLM | LLaVA^W |
+| --- | --- | ---: |
+| BLIP-2 | Vicuna-13B | 38.1 |
+| InstructBLIP | Vicuna-7B | 60.9 |
+| Qwen-VL | Qwen-7B | 63.4 |
+| Qwen-VL-Chat | Qwen-7B | 58.6 |
+| LLaVA-1.5 | Vicuna-7B | 63.4 |
+| GLaMM | Vicuna-7B | 63.3 |
 
 <a id="fig:app_gcg2"></a>
 
@@ -335,25 +434,4 @@ Our Grounding-anything Dataset (GranD) utilizes SAM images that have de-identifi
 # Acknowledgement
 
 The computations were enabled by resources provided by the National Academic Infrastructure for Supercomputing in Sweden (NAISS) at Alvis partially funded by the Swedish Research Council through grant agreement no. 2022-06725, the LUMI supercomputer hosted by CSC (Finland) and the LUMI consortium, and by the Berzelius resource provided by the Knut and Alice Wallenberg Foundation at the National Supercomputer Centre.
-
-
-## Caption Normalization Notes
-
-**Table 1.**
-
-**Table 2.**
-
-**Table 3.**
-
-**Table 4.**
-
-**Table 5.**
-
-**Table 6.**
-
-**Table 7.**
-
-**Table 8.**
-
-For completeness, Figure 7 is retained for numbering consistency.
 

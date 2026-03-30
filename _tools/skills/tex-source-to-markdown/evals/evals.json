@@ -1,0 +1,61 @@
+{
+  "skill_name": "tex-source-to-markdown",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Use the tex-source-to-markdown skill to audit and repair `capabilities/grounding/papers/markdown/InternVL.md` so it becomes a human-verified TeX-to-Markdown artifact. Focus on any remaining long HTML table residue, placeholder captions, renumbered table references, and Markdown Preview Enhanced compatibility. Use the corresponding source files under `capabilities/grounding/papers/sources/InternVL_source/` as ground truth.",
+      "expected_output": "The paper Markdown is free of HTML table residue and placeholder captions, table numbering is aligned with the TeX source, and the final file passes the audit script without numbering mismatches.",
+      "files": [
+        "capabilities/grounding/papers/markdown/InternVL.md",
+        "capabilities/grounding/papers/sources/InternVL_source/"
+      ],
+      "assertions": [
+        "Final output reports whether any `<thead>`, `<tbody>`, `<tr>`, `<td>`, or placeholder caption stubs remain in `InternVL.md`.",
+        "Final output references the source TeX or `table/*.tex` files as the numbering authority for repaired table ranges.",
+        "Final output includes the result of `scripts/audit_refs.py` or an equivalent explicit statement about numbering and anchor integrity."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Use the tex-source-to-markdown skill to inspect `capabilities/grounding/papers/markdown/Osprey.md` and bring it up to human-verified quality. Pay special attention to broken figure and table captions, appendix prompt blocks that may need restructuring, anchor stability, and any HTML residue that still harms Markdown readability.",
+      "expected_output": "The Markdown is structurally readable, appendix blocks are normalized into stable Markdown forms where needed, anchors remain valid, and the audit script reports no numbering, anchor, or HTML residue issues.",
+      "files": [
+        "capabilities/grounding/papers/markdown/Osprey.md"
+      ],
+      "assertions": [
+        "Final output explicitly mentions whether appendix prompt blocks stayed as tables or were restructured into more stable Markdown forms.",
+        "Final output checks anchor stability or internal link target integrity rather than only prose readability.",
+        "Final output includes an audit result or equivalent verification for numbering, anchors, and HTML residue."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Use the tex-source-to-markdown skill to audit `capabilities/grounding/papers/markdown/Shikra.md` against its TeX source and decide whether it already meets the skill's deliverable standard. If not, repair the highest-value conversion artifacts first, especially missing numbered captions, unresolved labels, HTML table fragments, and broken internal links.",
+      "expected_output": "A clear repaired Markdown artifact or a justified pass result, backed by source-aware checks, with numbering and anchor integrity verified by the audit script and manual residue checks.",
+      "files": [
+        "capabilities/grounding/papers/markdown/Shikra.md",
+        "capabilities/grounding/papers/sources/Shikra_source/"
+      ],
+      "assertions": [
+        "Final output makes a clear pass-or-repair decision instead of assuming the Markdown is acceptable.",
+        "Final output describes at least one source-aware validation step beyond a superficial read of the Markdown file.",
+        "Final output includes an audit or residue-check conclusion about numbering, unresolved labels, or internal links."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Use the tex-source-to-markdown skill to repair `capabilities/grounding/papers/markdown/Grounding DINO.md` so it becomes a Markdown Preview Enhanced-safe TeX-to-Markdown artifact. Focus on residual ParseError causes, math fragments that may have been damaged by scripted rewrites, and figures that render from local files but still appear shifted, clipped, or incomplete. Use `capabilities/grounding/papers/sources/Grounding DINO_source/` and the figure PDFs under `capabilities/grounding/papers/images/Grounding_DINO_md_images/resources/` as ground truth.",
+      "expected_output": "The Markdown remains numbering-aligned to the TeX source, preview parse failures are eliminated, and figure assets are regenerated or corrected from the source PDFs rather than papered over by brittle crops.",
+      "files": [
+        "capabilities/grounding/papers/markdown/Grounding DINO.md",
+        "capabilities/grounding/papers/sources/Grounding DINO_source/",
+        "capabilities/grounding/papers/images/Grounding_DINO_md_images/resources/"
+      ],
+      "assertions": [
+        "Final output reports whether any control characters or damaged TeX escape sequences were found in `Grounding DINO.md`.",
+        "Final output explicitly distinguishes preview-layer failures from numbering/audit failures instead of treating a green audit as sufficient.",
+        "Final output states whether figure PNGs were regenerated from source PDFs and avoids presenting blind whitespace cropping as the default fix for clipped images."
+      ]
+    }
+  ]
+}

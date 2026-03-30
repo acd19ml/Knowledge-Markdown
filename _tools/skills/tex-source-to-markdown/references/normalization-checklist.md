@@ -37,10 +37,22 @@ Search for HTML table and wrapper residue:
 rg -n '<table\\b|<div class="table\\*">|<span\\b|<figure\\b|<embed\\b' /path/to/paper.md
 ```
 
+Search for lingering low-level HTML table fragments that can survive even when higher-level wrappers are gone:
+
+```bash
+rg -n '<thead>|<tbody>|<tr>|<td\\b|<th\\b' /path/to/paper.md
+```
+
 Search for duplicated reference prefixes:
 
 ```bash
 rg -n '\\b(Figure|Table|Section|Appendix)\\s+\\1\\b' /path/to/paper.md
+```
+
+Search for placeholder caption stubs that often remain after manual cleanup:
+
+```bash
+rg -n '^\\*\\*(Figure|Table|Algorithm) [0-9]+\\.\\*\\*$' /path/to/paper.md
 ```
 
 If the document still contains internal markdown links, verify that every target exists:
@@ -80,6 +92,19 @@ Run the audit script:
 python3 scripts/audit_refs.py /path/to/paper.md
 ```
 
+If the file was heavily rewritten by script, check for hidden control characters that can trigger preview parse failures:
+
+```bash
+python3 - <<'PY'
+from pathlib import Path
+text = Path('/path/to/paper.md').read_text()
+for i, line in enumerate(text.splitlines(), 1):
+    bad = [hex(ord(ch)) for ch in line if ord(ch) < 32 and ch not in '\n\r']
+    if bad:
+        print(i, bad, repr(line))
+PY
+```
+
 You should resolve:
 
 - prose references with no matching caption number
@@ -92,12 +117,23 @@ You should resolve:
 - missing internal link targets
 - duplicate anchors
 
+If you rebuilt a large table range or appendix block, also verify:
+
+- nearby explanatory prose was not accidentally deleted
+- placeholder captions for the rebuilt tables are gone
+- prose references after the edited block still point to the correct renumbered tables
+- Markdown table order still matches the source `\input{table/...}` order when the paper uses split table files
+- Markdown Preview Enhanced does not still show ParseError after the text cleanup
+
 ## Image Rules
 
 - Use `![alt](relative/path.png)` or `![alt](relative/path.jpg)`
 - Do not expect inline PDF embedding to work in MPE
 - If a source figure is a PDF, render a sufficiently large PNG for display
 - Keep the original source figure path available nearby if provenance matters
+- If an image appears shifted or incomplete, re-render the PNG from the source PDF before attempting whitespace crops
+- Compare suspicious PNG aspect ratios or framing against the source PDF page or crop box
+- Avoid blind bbox-based whitespace cropping unless you verified the fresh full-page PNG already matches the source correctly
 
 ## Caption Rules
 
@@ -113,6 +149,8 @@ You should resolve:
 - Reformat theorem-like blocks into readable Markdown
 - Reformat algorithms into ordered steps or fenced blocks if raw conversion is unreadable
 - Preserve numbering when the paper references the block elsewhere
+- If preview still throws ParseError, simplify fragile math notation into conservative renderer-friendly forms when the semantics are unchanged
+- After scripted rewrites, confirm TeX backslashes survived literally and were not consumed as escape sequences
 
 ## Table Cleanup
 
@@ -121,6 +159,9 @@ You should resolve:
 - Replace parse-breaking TeX such as nested `\mbox` fragments with readable text when the meaning is unchanged
 - Validate row order, grouped labels, and caption numbering against the source TeX
 - If appendix prompt tables are wide and cell content contains many escaped `\n` lines, prefer per-item blocks with headings and fenced code samples over a single giant table
+- If one long HTML block covers many tables, map the full table order from the source before editing so later references can be rechecked systematically
+- After replacing a multi-table block, search the body prose for the affected table numbers and fix stale references immediately
+- Preserve meaningful source symbols such as `†`, `‡`, `✓`, and `×` instead of rewriting them into placeholder words
 
 ## Anchor And Link Rules
 
@@ -136,3 +177,4 @@ You should resolve:
 - Relative paths are safer than absolute paths for shared Markdown files
 - Cached previews can hide fixes; reopen preview after major cleanup
 - Directories with spaces can be flaky in some setups; if needed, move generated assets to a no-space directory and update links consistently
+- A green audit is not enough; explicitly check that preview has no remaining ParseError and that images are fully visible

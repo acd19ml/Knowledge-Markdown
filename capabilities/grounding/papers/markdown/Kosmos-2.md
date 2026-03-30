@@ -1,12 +1,12 @@
 <a id="fig:kosmos"></a>
 ![](../images/Kosmos-2_md_images/figure/coverpage.pdf.png)
 
-**Figure 1.** [Kosmos-2]{.smallcaps} is a multimodal large language model that has new capabilities of multimodal grounding and referring. [Kosmos-2]{.smallcaps} can understand multimodal input, follow instructions, perceive object descriptions (*e.g.*, bounding boxes), and ground language to the visual world.
+**Figure 1.** Kosmos-2 is a multimodal large language model that has new capabilities of multimodal grounding and referring. Kosmos-2 can understand multimodal input, follow instructions, perceive object descriptions (*e.g.*, bounding boxes), and ground language to the visual world.
 
 <a id="fig:intro:example:1"></a>
-![](../images/Kosmos-2_md_images/figure/example_main_1.pdf.png){width="100.0%"}
+![](../images/Kosmos-2_md_images/figure/example_main_1.pdf.png)
 
-**Figure 2.** Selected examples generated from [Kosmos-2]{.smallcaps}. The examples include (1) visual grounding, (2)-(3) grounded question answering, (4)-(6) multimodal referring via bounding boxes, and (7) grounded image captioning.
+**Figure 2.** Selected examples generated from Kosmos-2. The examples include (1) visual grounding, (2)-(3) grounded question answering, (4)-(6) multimodal referring via bounding boxes, and (7) grounded image captioning.
 
 # Introduction {#sec:intro}
 
@@ -14,13 +14,13 @@ Multimodal Large Language Models (MLLMs) [@metalm; @flamingo; @kosmos-1; @palm_
 
 In this work, we unlock the grounding capability for multimodal large language models. Grounding capability can provide a more convenient and efficient human-AI interaction for vision-language tasks. It enables the user to point to the object or region in the image directly rather than input detailed text descriptions to refer to it, the model can understand that image region with its spatial locations. Grounding capability also enables the model to respond with visual answers (*i.e.*, bounding boxes), which can support more vision-language tasks such as referring expression comprehension. Visual answers are more accurate and resolve the coreference ambiguity compared with text-only responses. In addition, grounding capability can link noun phrases and referring expressions in the generated free-form text response to the image regions, providing more accurate, informational, and comprehensive answers.
 
-We introduce [Kosmos-2]{.smallcaps}, a multimodal large language model with grounding capability built upon [Kosmos-1]{.smallcaps}. [Kosmos-2]{.smallcaps} is a Transformer-based causal language model and is trained using the next-word prediction task. In order to unlock the grounding capability, we construct a web-scale dataset of grounded image-text pairs, and combine it with the multimodal corpora in [Kosmos-1]{.smallcaps} to train the model. The grounded image-text pairs are built upon a subset of image-text pairs from LAION-2B [@laion5b] and COYO-700M [@coyo700m]. We construct a pipeline to extract and link the text spans (*i.e.*, noun phrases and referring expressions) in the caption to the spatial locations (*e.g.*, bounding boxes) of its corresponding objects or regions in the image. We convert the spatial coordinates of the bounding boxes to a sequence of location tokens, which is then appended after its respective text spans. The data format serves as a "*hyperlink*" to connect the objects or regions of the image to the caption.
+We introduce Kosmos-2, a multimodal large language model with grounding capability built upon Kosmos-1. Kosmos-2 is a Transformer-based causal language model and is trained using the next-word prediction task. In order to unlock the grounding capability, we construct a web-scale dataset of grounded image-text pairs, and combine it with the multimodal corpora in Kosmos-1 to train the model. The grounded image-text pairs are built upon a subset of image-text pairs from LAION-2B [@laion5b] and COYO-700M [@coyo700m]. We construct a pipeline to extract and link the text spans (*i.e.*, noun phrases and referring expressions) in the caption to the spatial locations (*e.g.*, bounding boxes) of its corresponding objects or regions in the image. We convert the spatial coordinates of the bounding boxes to a sequence of location tokens, which is then appended after its respective text spans. The data format serves as a "*hyperlink*" to connect the objects or regions of the image to the caption.
 
-Experimental results demonstrate that [Kosmos-2]{.smallcaps} not only achieves competitive performance on language and vision-language tasks evaluated in [Kosmos-1]{.smallcaps}, but also achieves impressive performance on grounding tasks (phrase grounding and referring expression comprehension) and referring tasks (referring expression generation). As shown in Figure 2, integrating the grounding capability enables [Kosmos-2]{.smallcaps} to be used for more downstream tasks, such as grounded image captioning, and grounded visual question answering.
+Experimental results demonstrate that Kosmos-2 not only achieves competitive performance on language and vision-language tasks evaluated in Kosmos-1, but also achieves impressive performance on grounding tasks (phrase grounding and referring expression comprehension) and referring tasks (referring expression generation). As shown in Figure 2, integrating the grounding capability enables Kosmos-2 to be used for more downstream tasks, such as grounded image captioning, and grounded visual question answering.
 
-# Construction of Web-Scale Grounded Image-Text Pairs ([GrIT]{.smallcaps})
+# Construction of Web-Scale Grounded Image-Text Pairs (GrIT)
 
-We introduce [GrIT]{.smallcaps}[^2], a large-scale dataset of **Gr**ounded **I**mage-**T**ext pairs, which is created based on image-text pairs from a subset of COYO-700M [@coyo700m] and LAION-2B [@laion5b]). We construct a pipeline to extract and link text spans (*i.e.*, noun phrases and referring expressions) in the caption to their corresponding image regions. The pipeline mainly consists of two steps: generating noun-chunk-bounding-box pairs and producing referring-expression-bounding-box pairs. We describe these steps in detail below:
+We introduce GrIT[^2], a large-scale dataset of **Gr**ounded **I**mage-**T**ext pairs, which is created based on image-text pairs from a subset of COYO-700M [@coyo700m] and LAION-2B [@laion5b]). We construct a pipeline to extract and link text spans (*i.e.*, noun phrases and referring expressions) in the caption to their corresponding image regions. The pipeline mainly consists of two steps: generating noun-chunk-bounding-box pairs and producing referring-expression-bounding-box pairs. We describe these steps in detail below:
 
 #### Step-1: Generating noun-chunk-bounding-box pairs
 
@@ -33,14 +33,14 @@ In order to endow the model with the ability to ground complex linguistic descri
 Furthermore, we only retain referring expressions or noun chunks that are not contained by others. As shown in Figure 3, we keep the referring expression "*a dog in a field of flowers*" and drop "*a field of flowers*" (as it is entailed by "*a dog in a field of flowers*") and '*flowers*'. We assign the bounding box of the noun chunk ('*a dog*') to the corresponding generated referring expression ("*a dog in a field of flowers*").
 
 <a id="fig:data:generate"></a>
-![](../images/Kosmos-2_md_images/figure/generate-data.pdf.png){width="100.0%"}
+![](../images/Kosmos-2_md_images/figure/generate-data.pdf.png)
 
 **Figure 3.** The pipeline of constructing web-scale grounded image-text pairs.
 
-In the end, we obtain approximately 91M images, 115M text spans, and 137M associated bounding boxes. We compare [GrIT]{.smallcaps} with existing publicly accessible visual grounding datasets in Table 1. Data samples of [GrIT]{.smallcaps} are shown in the Appendix.
+In the end, we obtain approximately 91M images, 115M text spans, and 137M associated bounding boxes. We compare GrIT with existing publicly accessible visual grounding datasets in Table 1. Data samples of GrIT are shown in the Appendix.
 
 <a id="tbl:data:generate:stat"></a>
-**Table 1.** Comparison [GrIT]{.smallcaps} with existing visual grounding datasets.
+**Table 1.** Comparison GrIT with existing visual grounding datasets.
 
 | Dataset | Images | Objects | Text Spans | Avg Expression Length |
 | --- | ---: | ---: | ---: | ---: |
@@ -49,11 +49,11 @@ In the end, we obtain approximately 91M images, 115M text spans, and 137M associ
 | RefCOCO [@refcoco] | 19,994 | 50,000 | 142,209 | 3.61 |
 | RefCOCO+ [@refcoco] | 19,992 | 49,856 | 141,564 | 3.53 |
 | Visual Genome [@vg] | 108,077 | 4,102,818 | - | - |
-| **[GrIT]{.smallcaps} (Ours)** | **90,614,680** | **137,349,210** | **114,978,233** | **4.7** |
+| **GrIT (Ours)** | **90,614,680** | **137,349,210** | **114,978,233** | **4.7** |
 
-# [Kosmos-2]{.smallcaps}: A Grounded Multimodal Large Language Model {#sec:methods}
+# Kosmos-2: A Grounded Multimodal Large Language Model {#sec:methods}
 
-[Kosmos-2]{.smallcaps} is a grounded multimodal large language model, which integrates grounding and referring capabilities compared with [Kosmos-1]{.smallcaps}. The model can accept image regions selected by the user using bounding boxes as input, provide visual answers (*i.e.*, bounding boxes), and ground the text output to the visual world. [Kosmos-2]{.smallcaps} adopts the same model architecture and training objective as [Kosmos-1]{.smallcaps}. We add grounded image-text pairs into the training data to endow the model with grounding and referring capabilities. For a text span (such as noun phrase and referring expression) and its corresponding bounding boxes in a grounded image-text pair, We discretize continuous coordinates of bounding boxes into a sequence of location tokens to encode with text tokens in a unified way. Then we link the location tokens and their corresponding text span via a "*hyperlink*" data format. The model is trained to establish a mapping between image regions and their corresponding location tokens and connect the image regions with their associated text spans.
+Kosmos-2 is a grounded multimodal large language model, which integrates grounding and referring capabilities compared with Kosmos-1. The model can accept image regions selected by the user using bounding boxes as input, provide visual answers (*i.e.*, bounding boxes), and ground the text output to the visual world. Kosmos-2 adopts the same model architecture and training objective as Kosmos-1. We add grounded image-text pairs into the training data to endow the model with grounding and referring capabilities. For a text span (such as noun phrase and referring expression) and its corresponding bounding boxes in a grounded image-text pair, We discretize continuous coordinates of bounding boxes into a sequence of location tokens to encode with text tokens in a unified way. Then we link the location tokens and their corresponding text span via a "*hyperlink*" data format. The model is trained to establish a mapping between image regions and their corresponding location tokens and connect the image regions with their associated text spans.
 
 ## Grounded Input Representations
 
@@ -65,39 +65,37 @@ Then we arrange the text span and its associated location tokens in a format res
 
 For the example shown in Figure 1, the input representation is:
 
-:::: minipage
-::: tcolorbox
-\<s\> \<image\> Image Embedding \</image\> \<grounding\> `<p>` It `</p>``<box>``<loc`$_{44}$`>``<loc`$_{863}$`>``</box>` seats next to `<p>` a campfire `</p>``<box>``<loc`$_4$`>``<loc`$_{1007}$`>``</box>` \</s\>
-:::
-::::
+```text
+<s> <image> Image Embedding </image> <grounding> <p> It </p><box><loc_{44}><loc_{863}></box> seats next to <p> a campfire </p><box><loc_4><loc_{1007}></box> </s>
+```
 
-where `<s>` and `</s>` indicate start- and end-of-sequence, and `<image>` and `</image>` represent the beginning and end of encoded image embeddings. `<grounding>` is a special token to tell the model ground the text output to the visual world. We map input text tokens and location tokens to embeddings via a lookup table. Following [Kosmos-1]{.smallcaps}, a vision encoder and a resampler module are used to obtain image embeddings for input images.
+where `<s>` and `</s>` indicate start- and end-of-sequence, and `<image>` and `</image>` represent the beginning and end of encoded image embeddings. `<grounding>` is a special token to tell the model ground the text output to the visual world. We map input text tokens and location tokens to embeddings via a lookup table. Following Kosmos-1, a vision encoder and a resampler module are used to obtain image embeddings for input images.
 
-For language-only data, cross-modal paired data (*i.e.*, image-text pairs), and interleaved multimodal data, we use the same input representations as of [Kosmos-1]{.smallcaps}.
+For language-only data, cross-modal paired data (*i.e.*, image-text pairs), and interleaved multimodal data, we use the same input representations as of Kosmos-1.
 
 ## Grounded Multimodal Large Language Models
 
-Based on [Kosmos-1]{.smallcaps}, [Kosmos-2]{.smallcaps} enhances multimodal large language models by incorporating grounding and referring capabilities. [Kosmos-2]{.smallcaps} also uses a Transformer-based causal language model as the backbone and is trained with the next-token prediction task.
+Based on Kosmos-1, Kosmos-2 enhances multimodal large language models by incorporating grounding and referring capabilities. Kosmos-2 also uses a Transformer-based causal language model as the backbone and is trained with the next-token prediction task.
 
-In addition to multimodal corpora used in [Kosmos-1]{.smallcaps} (including text corpora, image-caption pairs, and interleaved image-text data), we add grounded image-text pairs into training. The training loss only considers discrete tokens, such as text tokens and location tokens. The model can learn to locate and understand image regions by their location tokens and the whole image, associate text spans to image regions, and output bounding boxes of the image region using location tokens.
+In addition to multimodal corpora used in Kosmos-1 (including text corpora, image-caption pairs, and interleaved image-text data), we add grounded image-text pairs into training. The training loss only considers discrete tokens, such as text tokens and location tokens. The model can learn to locate and understand image regions by their location tokens and the whole image, associate text spans to image regions, and output bounding boxes of the image region using location tokens.
 
-[Kosmos-2]{.smallcaps} shows new capabilities of grounding and referring. The referring capability enables us to point out image regions with bounding boxes. [Kosmos-2]{.smallcaps} can understand the image regions users refer to by the coordinates of bounding boxes. The referring capability provides a new interaction method. Different from previous MLLMs [@flamingo; @metalm; @kosmos-1], which can only provide text output, [Kosmos-2]{.smallcaps} can provide visual answers (*i.e.*, bounding boxes) and ground text output to the image. The grounding capability enables the model to provide more accurate, informative, and comprehensive responses. In addition to vision, language, and vision-language tasks evaluated in [Kosmos-1]{.smallcaps}, the model can be used for more downstream tasks, such as grounded image-captioning, grounded VQA, referring expression comprehension and generation.
+Kosmos-2 shows new capabilities of grounding and referring. The referring capability enables us to point out image regions with bounding boxes. Kosmos-2 can understand the image regions users refer to by the coordinates of bounding boxes. The referring capability provides a new interaction method. Different from previous MLLMs [@flamingo; @metalm; @kosmos-1], which can only provide text output, Kosmos-2 can provide visual answers (*i.e.*, bounding boxes) and ground text output to the image. The grounding capability enables the model to provide more accurate, informative, and comprehensive responses. In addition to vision, language, and vision-language tasks evaluated in Kosmos-1, the model can be used for more downstream tasks, such as grounded image-captioning, grounded VQA, referring expression comprehension and generation.
 
 ## Model Training
 
 #### Training Setup
 
-We train the model on newly added grounded image-text pairs, monomodal text corpora, image-caption pairs, and interleaved image-text data. Our training process involves a batch size of 419K tokens, consisting of 185K tokens from text corpora, 215K tokens from original and grounded image-caption pairs, and 19K tokens from interleaved data. We train [Kosmos-2]{.smallcaps} for 60k steps, equivalent to around 25 billion tokens. The AdamW optimizer is employed with $\beta=(0.9,0.98)$. We set the weight decay to 0.01 and the dropout rate to 0.1. The learning rate increases to 2e-4 during the first 375 warm-up steps and linearly decays to zero. We train the model on 256 V100 GPUs and the training takes approximately one day to complete. In order to tell the model when to ground text output to the visual world, we prepend the '`<grounding>`' token to the grounded caption during training.
+We train the model on newly added grounded image-text pairs, monomodal text corpora, image-caption pairs, and interleaved image-text data. Our training process involves a batch size of 419K tokens, consisting of 185K tokens from text corpora, 215K tokens from original and grounded image-caption pairs, and 19K tokens from interleaved data. We train Kosmos-2 for 60k steps, equivalent to around 25 billion tokens. The AdamW optimizer is employed with $\beta=(0.9,0.98)$. We set the weight decay to 0.01 and the dropout rate to 0.1. The learning rate increases to 2e-4 during the first 375 warm-up steps and linearly decays to zero. We train the model on 256 V100 GPUs and the training takes approximately one day to complete. In order to tell the model when to ground text output to the visual world, we prepend the '`<grounding>`' token to the grounded caption during training.
 
-Following [Kosmos-1]{.smallcaps}, the vision encoder has 24 layers with 1,024 hidden size and 4,096 FFN intermediate size. The multimodal large language model component is a 24-layer [Magneto]{.smallcaps} Transformer [@magneto; @torchscale] with 2,048 hidden dimensions, 32 attention heads, and 8,192 FFN intermediate size. The total number of trainable parameters amounts to approximately 1.6B. The image resolution is set to 224$\times$`<!-- -->`{=html}224 and the patch size is 14$\times$`<!-- -->`{=html}14. We divide the width and height of the image into 32 bins, with each bin consisting of 7$\times$`<!-- -->`{=html}7 pixels. A total of 32$\times$`<!-- -->`{=html}32 location tokens are added to the vocabulary. [Kosmos-2]{.smallcaps} uses the weights of [Kosmos-1]{.smallcaps} for initialization, the newly added word embeddings of location tokens are initialized randomly. We update all the parameters during training and instruction tuning.
+Following Kosmos-1, the vision encoder has 24 layers with 1,024 hidden size and 4,096 FFN intermediate size. The multimodal large language model component is a 24-layer Magneto Transformer [@magneto; @torchscale] with 2,048 hidden dimensions, 32 attention heads, and 8,192 FFN intermediate size. The total number of trainable parameters amounts to approximately 1.6B. The image resolution is set to 224$\times$224 and the patch size is 14$\times$14. We divide the width and height of the image into 32 bins, with each bin consisting of 7$\times$7 pixels. A total of 32$\times$32 location tokens are added to the vocabulary. Kosmos-2 uses the weights of Kosmos-1 for initialization, the newly added word embeddings of location tokens are initialized randomly. We update all the parameters during training and instruction tuning.
 
 #### Instruction Tuning
 
-After the model is trained, we perform instruct tuning to better align [Kosmos-2]{.smallcaps} with human instructions. we combine vision-language instruction dataset (*i.e.*, LLaVA-Instruct [@llava]) and language-only instruction datasets (*i.e.*, Unnatural Instructions [@unnatural] and FLANv2 [@flan2]) with the training data to tune the model. In addition, we construct grounded instruction data by utilizing the pairs of bounding boxes and expressions (*i.e.*, noun phrases, and referring expressions) in [GrIT]{.smallcaps}. Given an expression-bounding-box pair, we use "\<p\> *expression* \</p\>" as the input instruction, and prompt the model to generate the corresponding location tokens of the bounding boxes. We also use the prompt like "`<p>` *It* `</p>``<box>``<loc`$_1$`>``<loc`$_2$`>``</box>` *is*" to ask the model to generate expressions according to its bounding boxes. Table 9 in Appendix presents more templates.
+After the model is trained, we perform instruct tuning to better align Kosmos-2 with human instructions. we combine vision-language instruction dataset (*i.e.*, LLaVA-Instruct [@llava]) and language-only instruction datasets (*i.e.*, Unnatural Instructions [@unnatural] and FLANv2 [@flan2]) with the training data to tune the model. In addition, we construct grounded instruction data by utilizing the pairs of bounding boxes and expressions (*i.e.*, noun phrases, and referring expressions) in GrIT. Given an expression-bounding-box pair, we use "\<p\> *expression* \</p\>" as the input instruction, and prompt the model to generate the corresponding location tokens of the bounding boxes. We also use the prompt like "`<p>` *It* `</p>``<box>``<loc`$_1$`>``<loc`$_2$`>``</box>` *is*" to ask the model to generate expressions according to its bounding boxes. Table 9 in Appendix presents more templates.
 
 # Evaluation {#sec:eval}
 
-We first evaluate [Kosmos-2]{.smallcaps} on multimodal grounding and multimodal referring tasks to assess the new capabilities, and then test the model on language and perception-language tasks evaluated in [Kosmos-1]{.smallcaps}.
+We first evaluate Kosmos-2 on multimodal grounding and multimodal referring tasks to assess the new capabilities, and then test the model on language and perception-language tasks evaluated in Kosmos-1.
 
 - Multimodal grounding
 
@@ -123,51 +121,38 @@ We first evaluate [Kosmos-2]{.smallcaps} on multimodal grounding and multimodal 
 
 ## Multimodal Grounding {#sec:eval:grounding}
 
-In order to evaluate the ability of multimodal grounding, we test [Kosmos-2]{.smallcaps} on widely used phrase grounding and referring expression comprehension tasks in a generation manner. Phrase grounding task requires the model to predict a set of bounding boxes based on one or more given phrases that maybe interrelated within a single caption. Referring expression comprehension task encourages the model to locate the object described in a text referring expression within a given image.
+In order to evaluate the ability of multimodal grounding, we test Kosmos-2 on widely used phrase grounding and referring expression comprehension tasks in a generation manner. Phrase grounding task requires the model to predict a set of bounding boxes based on one or more given phrases that maybe interrelated within a single caption. Referring expression comprehension task encourages the model to locate the object described in a text referring expression within a given image.
 
-By testing [Kosmos-2]{.smallcaps} on these two tasks, we can assess how well the model performs in grounding text descriptions to the visual world, which is crucial for developing advanced AI systems capable of handling complex multimodal tasks.
+By testing Kosmos-2 on these two tasks, we can assess how well the model performs in grounding text descriptions to the visual world, which is crucial for developing advanced AI systems capable of handling complex multimodal tasks.
 
 <a id="fig:eval:grd"></a>
-![](../images/Kosmos-2_md_images/figure/eval_grd.pdf.png){width="98.0%"}
+![](../images/Kosmos-2_md_images/figure/eval_grd.pdf.png)
 
 **Figure 4.** Input format of evaluation on (1) phrase grounding and (2) referring expression comprehension.
 
-For both phrase grounding and referring expression comprehension tasks, [Kosmos-2]{.smallcaps} is required to generate location tokens which are then converted to bounding boxes for evaluation. The input format is "`<s>``<image>` Image Embedding `</image>``<grounding>`\...", where "`<grounding>`" is used to prompt the model to generate locations tokens.
+For both phrase grounding and referring expression comprehension tasks, Kosmos-2 is required to generate location tokens which are then converted to bounding boxes for evaluation. The input format is "`<s>``<image>` Image Embedding `</image>``<grounding>`\...", where "`<grounding>`" is used to prompt the model to generate locations tokens.
 
 ### Phrase Grounding
 
 We evaluate phrase grounding task on Flickr30k Entities [@flickr_entity] val and test splits. In order to reduce ambiguity, we do not prompt the model with individual phrases; instead, we use the current phrase along with the preceding words as input where preceding words serve as context: " \... `<p>` {*phrase*} `</p>`". For the example shown in Figure 4(1), the model needs to predict the locations of phrases "*A man*", "*a blue hard hat*", "*orange safety vest*" and "*an intersection*" in the caption "*A man in a blue hard hat and orange safety vest stands in an intersection.*". To generate the location tokens for the phrase "*A man*" that is the beginning of the caption, the prompt is "`<p>`*A man*`</p>`". For the phrase "*orange safety vest*", the prompt is "*A man in a blue hard hat and* `<p>`*orange safety vest*`</p>`". When multiple men are in the image, the context "*A man in a blue hard hat and*" explicitly helps the model locate the object to reduce ambiguity.
 
-We obtain the location tokens in "`<box>...</box>`" from the model response and then covert it into bounding boxes. The generated bounding box is correct if its intersection over union (IoU) with the ground-truth bounding box is greater than 0.5. If [Kosmos-2]{.smallcaps} generates a location sequence that can not be converted correctly (*e.g.*, "`<box><loc`$_1$`></box>`"), we treat it as a negative sample. We use [ANY-BOX]{.smallcaps} protocol in MDETR [@mdetr]. We report the R@1, R@5, and R@10 metrics, where R@1/5/10 means calculating the recall using the top 1/5/10 generated bounding boxes. If there are fewer than 5 or 10 bounding boxes generated by [Kosmos-2]{.smallcaps}, we use all available bounding boxes for the calculation.
+We obtain the location tokens in "`<box>...</box>`" from the model response and then covert it into bounding boxes. The generated bounding box is correct if its intersection over union (IoU) with the ground-truth bounding box is greater than 0.5. If Kosmos-2 generates a location sequence that can not be converted correctly (*e.g.*, "`<box><loc`$_1$`></box>`"), we treat it as a negative sample. We use ANY-BOX protocol in MDETR [@mdetr]. We report the R@1, R@5, and R@10 metrics, where R@1/5/10 means calculating the recall using the top 1/5/10 generated bounding boxes. If there are fewer than 5 or 10 bounding boxes generated by Kosmos-2, we use all available bounding boxes for the calculation.
 
 <a id="tbl:grd:flickr"></a>
 **Table 2.** Phrase grounding results on Flickr30k Entities. We report the R@1, R@5, and R@10 metrics, where R@1/5/10 means calculating the recall using the top 1/5/10 generated bounding boxes.
 
-::: {#tbl:grd:flickr}
-+--------------------------+---------------+-----------------------+--------------------------+---+
-| **Model**                | **Zero-shot** | **Val Split**         | **Test Split**           |   |
-+:=========================+:=============:+:=====:+:=====:+:=====:+:======:+:======:+:======:+:=:+
-| 3-8                      |               | R@1   | R@5   | R@10  | R@1    | R@5    | R@10   |   |
-+--------------------------+---------------+-------+-------+-------+--------+--------+--------+---+
-| VisualBert [@visualbert] |               | 70.4  | 84.5  | 86.3  | 71.3   | 85.0   | 86.5   |   |
-+--------------------------+---------------+-------+-------+-------+--------+--------+--------+---+
-| MDETR [@mdetr]           |               | 83.6  | 93.4  | 95.1  | 84.3   | 93.9   | 95.8   |   |
-+--------------------------+---------------+-------+-------+-------+--------+--------+--------+---+
-| GLIP [@glip]             |               | 86.7  | 96.4  | 97.9  | 87.1   | 96.9   | 98.1   |   |
-+--------------------------+---------------+-------+-------+-------+--------+--------+--------+---+
-| FIBER [@fiber]           |               | 87.1  | 96.1  | 97.4  | 87.4   | 96.4   | 97.6   |   |
-+--------------------------+---------------+-------+-------+-------+--------+--------+--------+---+
-| GRILL [@Jin2023GRILLGV]  |               | \-    | \-    | \-    | 18.9   | 53.4   | 70.3   |   |
-+--------------------------+---------------+-------+-------+-------+--------+--------+--------+---+
-| [Kosmos-2]{.smallcaps}   |               | 77.8  | 79.2  | 79.3  | 78.7   | 80.1   | 80.1   |   |
-+--------------------------+---------------+-------+-------+-------+--------+--------+--------+---+
-
-: Phrase grounding results on Flickr30k Entities. We report the R@1, R@5, and R@10 metrics, where R@1/5/10 means calculating the recall using the top 1/5/10 generated bounding boxes.
-:::
+| Model | Zero-shot | Val R@1 | Val R@5 | Val R@10 | Test R@1 | Test R@5 | Test R@10 |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| VisualBert [@visualbert] | No | 70.4 | 84.5 | 86.3 | 71.3 | 85.0 | 86.5 |
+| MDETR [@mdetr] | No | 83.6 | 93.4 | 95.1 | 84.3 | 93.9 | 95.8 |
+| GLIP [@glip] | No | 86.7 | 96.4 | 97.9 | 87.1 | 96.9 | 98.1 |
+| FIBER [@fiber] | No | 87.1 | 96.1 | 97.4 | 87.4 | 96.4 | 97.6 |
+| GRILL [@Jin2023GRILLGV] | Yes | - | - | - | 18.9 | 53.4 | 70.3 |
+| Kosmos-2 | Yes | 77.8 | 79.2 | 79.3 | 78.7 | 80.1 | 80.1 |
 
 #### Results
 
-Table 2 presents results on Flickr30k Entities [@flickr_entity] val and test splits. [Kosmos-2]{.smallcaps} achieves impressive zero-shot performance and outperforms GRILL [@Jin2023GRILLGV], which relies on an attached detector, by a large margin. Moreover, our model outperforms traditional finetuned VisualBert [@visualbert] model by 7.4% R@1 on both val and test splits. In contrast to other models, [Kosmos-2]{.smallcaps} does not involve prior designs (*e.g.*, object queries or proposals), leading to similar results among R@1, R@5, and R@10. These results demonstrate that [Kosmos-2]{.smallcaps} can generate high-quality locations without the need for post-processing redundant locations. This capability highlights the effectiveness of our model in handling phrase grounding tasks.
+Table 2 presents results on Flickr30k Entities [@flickr_entity] val and test splits. Kosmos-2 achieves impressive zero-shot performance and outperforms GRILL [@Jin2023GRILLGV], which relies on an attached detector, by a large margin. Moreover, our model outperforms traditional finetuned VisualBert [@visualbert] model by 7.4% R@1 on both val and test splits. In contrast to other models, Kosmos-2 does not involve prior designs (*e.g.*, object queries or proposals), leading to similar results among R@1, R@5, and R@10. These results demonstrate that Kosmos-2 can generate high-quality locations without the need for post-processing redundant locations. This capability highlights the effectiveness of our model in handling phrase grounding tasks.
 
 ### Referring Expression Comprehension
 
@@ -184,11 +169,11 @@ We assess the referring expression comprehension task using three well-establish
 | FIBER [@fiber] |  | 90.68 | 92.59 | 87.26 | 85.74 | 90.13 | 79.38 | 87.11 | 87.32 |
 | VisionLLM [@VisionLLM] |  | 86.7 | - | - | - | - | - | - | - |
 | GRILL [@Jin2023GRILLGV] | Yes | - | - | - | - | - | - | - | 47.5 |
-| [Kosmos-2]{.smallcaps} | Yes | 52.32 | 57.42 | 47.26 | 45.48 | 50.73 | 42.24 | 60.57 | 61.65 |
+| Kosmos-2 | Yes | 52.32 | 57.42 | 47.26 | 45.48 | 50.73 | 42.24 | 60.57 | 61.65 |
 
 #### Results
 
-Table 3 reports referring comprehension results on RefCOCO [@refcoco], RefCOCO+ [@refcoco] and RefCOCOg [@refcocog]. [Kosmos-2]{.smallcaps} also obtains promising zero-shot performance on the comprehension task, significantly outperforming previous zero-shot models on RefCOCOg benchmark. However, compared to previous finetuned works, [Kosmos-2]{.smallcaps} achieves slightly lower performance on RefCOCO and RefCOCO+ than on RefCOCOg. This discrepancy can be attributed to the data distribution present in RefCOCO and RefCOCO+, where they tend to use a shorter referring expression (*e.g.*, "left bottom") during the two-player game. Hence, one of our future goals is to enhance MLLMs' ability to accurately understand more types of human expressions.
+Table 3 reports referring comprehension results on RefCOCO [@refcoco], RefCOCO+ [@refcoco] and RefCOCOg [@refcocog]. Kosmos-2 also obtains promising zero-shot performance on the comprehension task, significantly outperforming previous zero-shot models on RefCOCOg benchmark. However, compared to previous finetuned works, Kosmos-2 achieves slightly lower performance on RefCOCO and RefCOCO+ than on RefCOCOg. This discrepancy can be attributed to the data distribution present in RefCOCO and RefCOCO+, where they tend to use a shorter referring expression (*e.g.*, "left bottom") during the two-player game. Hence, one of our future goals is to enhance MLLMs' ability to accurately understand more types of human expressions.
 
 ## Multimodal Referring
 
@@ -197,88 +182,71 @@ In addition to multimodal grounding tasks, we evaluate the model's ability to un
 We evaluate the model on the referring expression generation task, which aims to generate unambiguous text descriptions of specific objects or regions within the bounding box. We employ the widely used RefCOCOg dataset [@refcocog] to evaluate the model's performance under both zero-shot and few-shot settings, showcasing its adaptability in different scenarios.
 
 <a id="fig:eval:gen"></a>
-![](../images/Kosmos-2_md_images/figure/eval_gen.pdf.png){width="98.0%"}
+![](../images/Kosmos-2_md_images/figure/eval_gen.pdf.png)
 
 **Figure 5.** The input format of referring expression generation evaluation under (1) zero-shot and (2) few-shot settings. The bounding boxes shown in the image are for visualization purposes.
 
 ### Evaluation Setup
 
-The model is tasked with generating an associated text description for an object or region given its location tokens of the bounding boxes (*e.g.*, "`<box>``<loc`$_1$`>``<loc`$_2$`>``</box>`"). Benefiting from the unified input format, we use "`<p>` *It* `</p>``<box>``<loc`$_1$`>``<loc`$_2$`>``</box>` *is*" as prompt to encourage the model to predict its text description. Figure 5(1) and (2) demonstrate the input format for zero-shot and few-shot referring expression generation, respectively. Following previous works, we report results using METEOR and CIDEr metrics. The image resolution is 224$\times$`<!-- -->`{=html}224. Greedy search is used for decoding.
+The model is tasked with generating an associated text description for an object or region given its location tokens of the bounding boxes (*e.g.*, "`<box>``<loc`$_1$`>``<loc`$_2$`>``</box>`"). Benefiting from the unified input format, we use "`<p>` *It* `</p>``<box>``<loc`$_1$`>``<loc`$_2$`>``</box>` *is*" as prompt to encourage the model to predict its text description. Figure 5(1) and (2) demonstrate the input format for zero-shot and few-shot referring expression generation, respectively. Following previous works, we report results using METEOR and CIDEr metrics. The image resolution is 224$\times$224. Greedy search is used for decoding.
 
 ### Results
 
-Table 4 presents the zero-shot and few-shot results of referring expression generation on RefCOCOg. We compare [Kosmos-2]{.smallcaps} with a finetuned listener-speaker model, which introduces an added reward-based module (SLR). Our model obtains impressive zero-shot performance on referring expression generation, and even outperforms finetuned SLR by 1.1 CIDEr scores. Moreover, when prompted with fewshot demonstrations, [Kosmos-2]{.smallcaps} shows further improvements, highlighting its in-context learning ability.
+Table 4 presents the zero-shot and few-shot results of referring expression generation on RefCOCOg. We compare Kosmos-2 with a finetuned listener-speaker model, which introduces an added reward-based module (SLR). Our model obtains impressive zero-shot performance on referring expression generation, and even outperforms finetuned SLR by 1.1 CIDEr scores. Moreover, when prompted with fewshot demonstrations, Kosmos-2 shows further improvements, highlighting its in-context learning ability.
 
 <a id="tbl:expgen:refcocog"></a>
 **Table 4.** Results of referring expression generation on RefCOCOg.
 
-::: {#tbl:expgen:refcocog}
-+:-----------------------+:------------------+:------:+:------:+:-:+:-:+:-:+
-| **Model**              | **Setting**       | **RefCOCOg**    |   |   |   |
-|                        |                   +--------+--------+---+---+---+
-|                        |                   | Meteor | CIDEr  |   |   |   |
-+------------------------+-------------------+--------+--------+---+---+---+
-| SLR[@slr2017]          | Finetuning        | 15.4   | 59.2   |   |   |   |
-+------------------------+-------------------+--------+--------+---+---+---+
-| SLR+Rerank[@slr2017]   | Finetuning        | 15.9   | 66.2   |   |   |   |
-+------------------------+-------------------+--------+--------+---+---+---+
-| [Kosmos-2]{.smallcaps} | Zero-shot         | 12.2   | 60.3   |   |   |   |
-|                        +-------------------+--------+--------+---+---+---+
-|                        | Few-shot ($k=2$)  | 13.8   | 62.2   |   |   |   |
-|                        +-------------------+--------+--------+---+---+---+
-|                        | Few-shot ($k=4$)  | 14.1   | 62.3   |   |   |   |
-+------------------------+-------------------+--------+--------+---+---+---+
-
-: Results of referring expression generation on RefCOCOg.
-:::
+| Model | Setting | METEOR | CIDEr |
+| --- | --- | ---: | ---: |
+| SLR [@slr2017] | Finetuning | 15.4 | 59.2 |
+| SLR+Rerank [@slr2017] | Finetuning | 15.9 | 66.2 |
+| Kosmos-2 | Zero-shot | 12.2 | 60.3 |
+| Kosmos-2 | Few-shot ($k=2$) | 13.8 | 62.2 |
+| Kosmos-2 | Few-shot ($k=4$) | 14.1 | 62.3 |
 
 ## Perception-Language Tasks {#sec:eval:vl}
 
-In addition to multimodal grounding and referring tasks, we also evaluate [Kosmos-2]{.smallcaps} on the vision-language tasks following [Kosmos-1]{.smallcaps}. In particular, we perform zero-shot evaluations on two popular tasks, including image captioning and visual question answering. Image captioning requires the model to generate a text description of the given image, whereas visual question answering seeks to answer a natural language question based on an image. In order to have a fair comparison with [Kosmos-1]{.smallcaps}, we report results without instruction tuning.
+In addition to multimodal grounding and referring tasks, we also evaluate Kosmos-2 on the vision-language tasks following Kosmos-1. In particular, we perform zero-shot evaluations on two popular tasks, including image captioning and visual question answering. Image captioning requires the model to generate a text description of the given image, whereas visual question answering seeks to answer a natural language question based on an image. In order to have a fair comparison with Kosmos-1, we report results without instruction tuning.
 
 ### Evaluation Setup
 
 For image captioning, we evaluate the model on the widely used Flickr30k *Karpathy split* test set. We employ beam search for caption generation, with a beam size of 5. We report results using CIDEr [@cider] metrics evaluated by COCOEvalCap[^3]. We use the prompt *"An image of"* to generate the image description.
 
-For visual question-answering, we evaluate zero-shot performance on the test-dev set of VQAv2. Greedy search is used for decoding. We report VQA scores obtained from VQAv2 evaluation server[^4]. *"Question: {question} Answer: {answer}"* is used as the prompt for the dataset. The image resolution is 224$\times$`<!-- -->`{=html}224 for both two tasks.
+For visual question-answering, we evaluate zero-shot performance on the test-dev set of VQAv2. Greedy search is used for decoding. We report VQA scores obtained from VQAv2 evaluation server[^4]. *"Question: {question} Answer: {answer}"* is used as the prompt for the dataset. The image resolution is 224$\times$224 for both two tasks.
 
 ### Results
 
-We present the zero-shot performance on Flickr30k and VQAv2 in Table 5. [Kosmos-2]{.smallcaps} exhibites comparable overall performance to the [Kosmos-1]{.smallcaps}, showing a slight improvement on Flickr30k while experiencing a marginal decrease on VQA. While [Kosmos-2]{.smallcaps} introduces new capabilities of grounding and referring, the model still achieves competitive performance on perception-language tasks.
+We present the zero-shot performance on Flickr30k and VQAv2 in Table 5. Kosmos-2 exhibites comparable overall performance to the Kosmos-1, showing a slight improvement on Flickr30k while experiencing a marginal decrease on VQA. While Kosmos-2 introduces new capabilities of grounding and referring, the model still achieves competitive performance on perception-language tasks.
 
 <a id="tbl:vl:zs-caption-vqa"></a>
-**Table 5.** Zero-shot image captioning results on Flickr30k test set and zero-shot visual question answering results on VQAv2 test-dev set. We report results of [Kosmos-2]{.smallcaps} and [Kosmos-1]{.smallcaps} without instruction tuning.
+**Table 5.** Zero-shot image captioning results on Flickr30k test set and zero-shot visual question answering results on VQAv2 test-dev set. We report results of Kosmos-2 and Kosmos-1 without instruction tuning.
 
-::: {#tbl:vl:zs-caption-vqa}
-  **Model**                         **Flickr30k**   **VQAv2**  
-  -------------------------------- --------------- ----------- --
-  2-3                                   CIDEr       VQA acc.   
-  FewVLM [@fewvlm]                      31.0           \-      
-  [MetaLM]{.smallcaps} [@metalm]        43.4          41.1     
-  Flamingo-3B [@flamingo]               60.6          49.2     
-  Flamingo-9B [@flamingo]               61.5          51.8     
-  [Kosmos-1]{.smallcaps}                65.2          46.7     
-  [Kosmos-2]{.smallcaps}                66.7          45.6     
-
-  : Zero-shot image captioning results on Flickr30k test set and zero-shot visual question answering results on VQAv2 test-dev set. We report results of [Kosmos-2]{.smallcaps} and [Kosmos-1]{.smallcaps} without instruction tuning.
-:::
+| Model | Flickr30k CIDEr | VQAv2 VQA acc. |
+| --- | ---: | ---: |
+| FewVLM [@fewvlm] | 31.0 | - |
+| MetaLM [@metalm] | 43.4 | 41.1 |
+| Flamingo-3B [@flamingo] | 60.6 | 49.2 |
+| Flamingo-9B [@flamingo] | 61.5 | 51.8 |
+| Kosmos-1 | 65.2 | 46.7 |
+| Kosmos-2 | 66.7 | 45.6 |
 
 ## Language Tasks {#sec:eval:language}
 
-We evaluate [Kosmos-2]{.smallcaps} on eight language tasks, such as cloze and completion tasks (StoryCloze, HellaSwag), Winograd-style tasks (Winograd, Winogrande), commonsense reasoning (PIQA), and three SuperGLUE benchmark [@superglue] datasets (BoolQ, CB, and COPA). We report the zero-shot results in Table 6. Compared with [Kosmos-1]{.smallcaps}, [Kosmos-2]{.smallcaps} achieves similar performance on StoryCloze, HellaSwag, Winograd, Winogrande, and PIQA, experiences a decrease in performance on CB, but shows improvement on BoolQ and COPA. In summary, [Kosmos-2]{.smallcaps} demonstrates the acquisition of new capabilities while experiencing comparable performance on language tasks. This illustrates the potential of the model in balancing and expanding its skills across different domains.
+We evaluate Kosmos-2 on eight language tasks, such as cloze and completion tasks (StoryCloze, HellaSwag), Winograd-style tasks (Winograd, Winogrande), commonsense reasoning (PIQA), and three SuperGLUE benchmark [@superglue] datasets (BoolQ, CB, and COPA). We report the zero-shot results in Table 6. Compared with Kosmos-1, Kosmos-2 achieves similar performance on StoryCloze, HellaSwag, Winograd, Winogrande, and PIQA, experiences a decrease in performance on CB, but shows improvement on BoolQ and COPA. In summary, Kosmos-2 demonstrates the acquisition of new capabilities while experiencing comparable performance on language tasks. This illustrates the potential of the model in balancing and expanding its skills across different domains.
 
 <a id="tbl:lang:zero_shot"></a>
-**Table 6.** Zero-shot performance comparisons of language tasks between [Kosmos-2]{.smallcaps}, [Kosmos-1]{.smallcaps}, and LLM. LLM uses the same text data and training setup to reimplement a language model as [Kosmos-1]{.smallcaps}. We report results of [Kosmos-2]{.smallcaps} and [Kosmos-1]{.smallcaps} without instruction tuning. Results of [Kosmos-1]{.smallcaps} and the LLM baseline are from [@kosmos-1].
+**Table 6.** Zero-shot performance comparisons of language tasks between Kosmos-2, Kosmos-1, and LLM. LLM uses the same text data and training setup to reimplement a language model as Kosmos-1. We report results of Kosmos-2 and Kosmos-1 without instruction tuning. Results of Kosmos-1 and the LLM baseline are from [@kosmos-1].
 
 | Model | Story Cloze | Hella Swag | Winograd | Winogrande | PIQA | BoolQ | CB | COPA |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | LLM | 72.9 | 50.4 | 71.6 | 56.7 | 73.2 | 56.4 | 39.3 | 68.0 |
-| [Kosmos-1]{.smallcaps} | 72.1 | 50.0 | 69.8 | 54.8 | 72.9 | 56.4 | 44.6 | 63.0 |
-| [Kosmos-2]{.smallcaps} | 72.0 | 49.4 | 69.1 | 55.6 | 72.9 | 62.0 | 30.4 | 67.0 |
+| Kosmos-1 | 72.1 | 50.0 | 69.8 | 54.8 | 72.9 | 56.4 | 44.6 | 63.0 |
+| Kosmos-2 | 72.0 | 49.4 | 69.1 | 55.6 | 72.9 | 62.0 | 30.4 | 67.0 |
 
 # Conclusion
 
-We present [Kosmos-2]{.smallcaps}, a multimodal large language modal, that can ground to the visual world. Specifically, we pre-train [Kosmos-2]{.smallcaps} by augmenting the multimodal corpora used in [Kosmos-1]{.smallcaps} with [GrIT]{.smallcaps}, a large-scale dataset of Grounded Image-Text pairs, which is created by extracting and associating noun phrases and referring expressions in the caption to the objects or regions in the scene. [Kosmos-2]{.smallcaps} enables new capabilities of perceiving image regions and grounding text output to the visual world, which makes grounding as a foundation capability of MLLMs in many downstream applications. Experimental results demonstrate that [Kosmos-2]{.smallcaps} achieves impressive results on language and vision-language tasks evaluated in [Kosmos-1]{.smallcaps}, grounding tasks including phrase grounding and referring expression comprehension, and referring tasks such as referring expression generation.
+We present Kosmos-2, a multimodal large language modal, that can ground to the visual world. Specifically, we pre-train Kosmos-2 by augmenting the multimodal corpora used in Kosmos-1 with GrIT, a large-scale dataset of Grounded Image-Text pairs, which is created by extracting and associating noun phrases and referring expressions in the caption to the objects or regions in the scene. Kosmos-2 enables new capabilities of perceiving image regions and grounding text output to the visual world, which makes grounding as a foundation capability of MLLMs in many downstream applications. Experimental results demonstrate that Kosmos-2 achieves impressive results on language and vision-language tasks evaluated in Kosmos-1, grounding tasks including phrase grounding and referring expression comprehension, and referring tasks such as referring expression generation.
 
 # Acknowledgement {#acknowledgement .unnumbered}
 
@@ -290,35 +258,31 @@ The model presented in this paper is intended for academic and research purposes
 
 # Hyperparameters {#app:hyperparam}
 
-The training hyperparameters of [Kosmos-2]{.smallcaps} are listed in Table 7.
+The training hyperparameters of Kosmos-2 are listed in Table 7.
 
 <a id="tbl:hyperparam:vl:pt:opt"></a>
-**Table 7.** Training hyperparameters of [Kosmos-2]{.smallcaps}.
+**Table 7.** Training hyperparameters of Kosmos-2.
 
-::: {#tbl:hyperparam:vl:pt:opt}
-  **Hyperparameters**                          
-  -------------------------------------------- -------------
-  Image embedding number                            64
-  Location tokens                                  1,024
-  Training steps                                  60,000
-  Warmup steps                                      375
-  Optimizer                                        AdamW
-  Learning rate                                    2e-4
-  Learning rate decay                             Linear
-  Adam $\beta$                                  (0.9, 0.98)
-  Weight decay                                     0.01
-  Batch size of text corpora                        93
-  Batch size of original image-caption pairs       1,117
-  Batch size of grounded image-text pairs          1,117
-  Batch size of interleaved data                    47
-
-  : Training hyperparameters of [Kosmos-2]{.smallcaps}
-:::
+| Hyperparameter | Value |
+| --- | --- |
+| Image embedding number | 64 |
+| Location tokens | 1,024 |
+| Training steps | 60,000 |
+| Warmup steps | 375 |
+| Optimizer | AdamW |
+| Learning rate | 2e-4 |
+| Learning rate decay | Linear |
+| Adam beta | (0.9, 0.98) |
+| Weight decay | 0.01 |
+| Batch size of text corpora | 93 |
+| Batch size of original image-caption pairs | 1,117 |
+| Batch size of grounded image-text pairs | 1,117 |
+| Batch size of interleaved data | 47 |
 
 The instruction tuning hyperparameters are listed in Table 8.
 
 <a id="tbl:hyperparam:vl:instruct:opt"></a>
-**Table 8.** Instruction tuning hyperparameters of [Kosmos-2]{.smallcaps}.
+**Table 8.** Instruction tuning hyperparameters of Kosmos-2.
 
 | Hyperparameters | Value |
 | --- | ---: |
@@ -350,57 +314,57 @@ Table 9 presents the instruction templates of expression generation based on its
 
 - \"`<p>` The object `</p>``<box>``<loc`$_1$`>``<loc`$_2$`>``</box>` is {*expression*}.\"
 
-# Examples of [GrIT]{.smallcaps} {#app:examples_grounded_pairs}
+# Examples of GrIT {#app:examples_grounded_pairs}
 
-We present some examples of the [GrIT]{.smallcaps} corpus in Figure 6, Figure 7, Figure 8, and Figure 9. The grounded image-text pairs span over various domains and contain different numbers of objects.
+We present some examples of the GrIT corpus in Figure 6, Figure 7, Figure 8, and Figure 9. The grounded image-text pairs span over various domains and contain different numbers of objects.
 
 <a id="fig:data:generate_samples:1"></a>
 ![](../images/Kosmos-2_md_images/figure/generate_samples/vegetable_salad.png)
 
-**Figure 6.** Example from [GrIT]{.smallcaps}. Caption: "*A serving of kale and roasted vegetable salad on an aluminium tray served with a small white bowl filed with creamy light green avocado Caesar dressing*".
+**Figure 6.** Example from GrIT. Caption: "*A serving of kale and roasted vegetable salad on an aluminium tray served with a small white bowl filed with creamy light green avocado Caesar dressing*".
 
 <a id="fig:data:generate_samples:2"></a>
 ![](../images/Kosmos-2_md_images/figure/generate_samples/chicken_nugget.png)
 
-**Figure 7.** Example from [GrIT]{.smallcaps}. Caption: "*A Keto Chicken Nugget being dipped into a bowl of keto honey mustard.*"
+**Figure 7.** Example from GrIT. Caption: "*A Keto Chicken Nugget being dipped into a bowl of keto honey mustard.*"
 
 <a id="fig:data:generate_samples:3"></a>
 ![](../images/Kosmos-2_md_images/figure/generate_samples/sydney_solar.png)
 
-**Figure 8.** Example from [GrIT]{.smallcaps}. Caption: "*Solar cells on a red roof are in the foreground. The Sydney skyline is in the background.*"
+**Figure 8.** Example from GrIT. Caption: "*Solar cells on a red roof are in the foreground. The Sydney skyline is in the background.*"
 
 <a id="fig:data:generate_samples:4"></a>
 ![](../images/Kosmos-2_md_images/figure/generate_samples/woman_girl.png)
 
-**Figure 9.** Example from [GrIT]{.smallcaps}. Caption: "*Woman standing outdoors in a city landscape and wearing a hijab. Her arm is around a young girl who is hugging her side. The background is blurred.*"
+**Figure 9.** Example from GrIT. Caption: "*Woman standing outdoors in a city landscape and wearing a hijab. Her arm is around a young girl who is hugging her side. The background is blurred.*"
 
-# More Examples of [Kosmos-2]{.smallcaps}
+# More Examples of Kosmos-2
 
 As illustrated in Figure 10, multimodal referring capability used for visual dialogue can unlock potential in human-AI interaction. In Figure 11, our approach demonstrates its in-context learning ability for fine-grained object detection using both text and image descriptions. Figure 12 and Figure 13 showcase more selected examples, including grounded visual question answering, grounded image captioning, and multimodal referring.
 
 <a id="fig:app:example:dialogue"></a>
-![](../images/Kosmos-2_md_images/figure/example_dialogue.pdf.png){width="65.0%"}
+![](../images/Kosmos-2_md_images/figure/example_dialogue.pdf.png)
 
-**Figure 10.** Examples of visual dialogue generated from [Kosmos-2]{.smallcaps}.
+**Figure 10.** Examples of visual dialogue generated from Kosmos-2.
 
 <a id="fig:app:example:descrip"></a>
-![](../images/Kosmos-2_md_images/figure/example_descrip.pdf.png){width="60.0%"}
+![](../images/Kosmos-2_md_images/figure/example_descrip.pdf.png)
 
-**Figure 11.** Examples of object detection with multimodal descriptions from [Kosmos-2]{.smallcaps}.
+**Figure 11.** Examples of object detection with multimodal descriptions from Kosmos-2.
 
 <a id="fig:app:example:2"></a>
-![](../images/Kosmos-2_md_images/figure/example_2.pdf.png){width="100.0%"}
+![](../images/Kosmos-2_md_images/figure/example_2.pdf.png)
 
-**Figure 12.** Examples generated from [Kosmos-2]{.smallcaps}.
+**Figure 12.** Examples generated from Kosmos-2.
 
 <a id="fig:app:example:3"></a>
-![](../images/Kosmos-2_md_images/figure/example_3.pdf.png){width="100.0%"}
+![](../images/Kosmos-2_md_images/figure/example_3.pdf.png)
 
-**Figure 13.** Examples of grounded image captioning generated from [Kosmos-2]{.smallcaps}.
+**Figure 13.** Examples of grounded image captioning generated from Kosmos-2.
 
 [^1]:  Equal contribution. $\dagger$ Corresponding author.
 
-[^2]: A subset of [GrIT]{.smallcaps} can be downloaded at <https://aka.ms/kosmos-2>.
+[^2]: A subset of GrIT can be downloaded at <https://aka.ms/kosmos-2>.
 
 [^3]: <https://github.com/salaniz/pycocoevalcap>
 

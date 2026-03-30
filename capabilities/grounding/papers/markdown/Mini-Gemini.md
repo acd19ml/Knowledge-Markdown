@@ -11,7 +11,7 @@ To answer this question, we explore the potential of VLMs from three strategic a
 
 In general, our method employs an any-to-any paradigm, which is adept at handling both image and text as input and output. In particular, we introduce an efficient visual token enhancement pipeline for input images, featuring a dual-encoder system. It comprises twin encoders, one for high-resolution images and the other for low-resolution visual embedding, mirroring the cooperative functionality of the Gemini constellation. During inference, they work in an attention mechanism, where the low-resolution one generates visual queries, and the high-resolution counterpart provides candidate keys and values for reference. To augment the data quality, we collect and produce more data based on public resources, including high-quality responses , task-oriented instructions , and generation-related data . The increased amount and quality improve the overall performance and extend the capability of model. Additionally, our model supports concurrent image and text generation, facilitated by the seamless integration of our VLM with advanced generative models . It leverages VLM guidance for image generation by providing the generated text from LLMs.
 
-The Mini-Gemini framework, can be easily instantiated with a range of LLMs from 2B to 34B parameter scales, as detailed elaborated in Section 3. Extensive empirical studies are conducted in Section 4 to reveal the effectiveness of the proposed method. Remarkably, our approach attains leading performance in various settings and even surpasses the well-developed Gemini Pro , Qwen-VL-Plus , and GPT 4V  in the complex MMB  and MMU  dataset, respectively. These results underscore Mini-Gemini’s potential to set new benchmarks in the realm of VLMs, highlighting its advanced capabilities in handling complex multi-modal tasks.
+The Mini-Gemini framework can be easily instantiated with a range of LLMs from 2B to 34B parameter scales, as elaborated in Section 3. Extensive empirical studies in Section 4 reveal the effectiveness of the proposed method. Remarkably, our approach attains leading performance in various settings and even surpasses well-developed models such as Gemini Pro, Qwen-VL-Plus, and GPT-4V on challenging benchmarks like MMB and MMMU. Figure 1 provides an overall teaser of Mini-Gemini's capabilities across diverse vision-related tasks. These results underscore Mini-Gemini's potential to set new benchmarks in the realm of VLMs, highlighting its advanced capabilities in handling complex multimodal tasks.
 
 # Related Work
 
@@ -41,10 +41,8 @@ The framework of Mini-Gemini is conceptually simple: dual vision encoders are ut
  <a id="sec:sub_encoder"></a> In the Mini-Gemini framework, both text and image inputs can be processed, with the option to handle them individually or in combination. For illustrative clarity, we consider the concurrent processing of both modalities. As depicted in Figure 2, the processing begins with a high-resolution image $`X_H\in\mathbb{R}^{H\times W\times 3}`$, from which a corresponding low-resolution image $`X_L\in\mathbb{R}^{H'\times W'\times 3}`$ is generated via bilinear interpolation, ensuring $`H'\leq H`$. Then, we process them and encode into multi-grid visual embeddings in two parallel image flows. In particular, for the low-resolution (LR) flow, we maintain the traditional pipeline  and employ a CLIP-pretrained ViT  to encode the visual embedding $`X'_L\in\mathbb{R}^{N\times C}`$, where $`N`$ denotes the number of visual patches. In this way, the long-range relation among $`N`$ visual patches can be well preserved for subsequent interaction in LLMs. As for the high-resolution (HR) flow, we adopt the CNN-based encoder for adaptive and efficient HR image processing. For instance, to align with the LR visual embedding, the LAION-pretrained  ConvNeXt  is used to serve as an HR vision encoder. Therefore, we can obtain the HR feature map $`X'_H\in\mathbb{R}^{N'\times N'\times C}`$ by upsampling and concatenating the features from different convolutional stages to 1/4 input scale. Here, $`N'=H/4\times W/4=N\times M^2`$ denotes the number of HR features, where $`M`$ reflects the pixel-wise feature count within each HR segment, as illustrated in Figure 2.
 
 <img src="../images/Mini-Gemini_md_images/Figure/infomine_v2.pdf.png"  />
-**Figure 3.** Details in patch info mining.
 <img src="../images/Mini-Gemini_md_images/Figure/hrinput_v2.pdf.png"  />
-**Figure 4.** Details in visual token extension.
-More details in patch info mining and visual token extension.
+**Figure 3.** **More details in patch info mining and visual token extension.** Left: details in patch info mining. Right: details in visual token extension.
 
 ## 3.2 Patch Info Mining
 
@@ -57,7 +55,7 @@ T_V= {\mathrm {MLP}}(Q + {\mathrm {Softmax}}(\phi(Q) \times \phi(K)^T) \times \p
 ```
 where $`\phi`$ and $`{\mathrm {MLP}}`$ indicate a projection layer and a multi-layer perceptron, respectively. As presented in Figure 3, this formula encapsulates the process of synthesizing and refining the visual cues, leading to generation of enhanced visual tokens $`T_V`$ for subsequent LLM processing. It ensures that the mining for each query is confined to its corresponding sub-region in $`X'_H`$ with $`M^2`$ features, thus preserving efficiency. This design allows for the extraction of HR details without expanding the visual token count of $`T_V`$, maintaining a balance between richness of detail and computational feasibility.
 
-Furthermore, visual token extension is also supported in the designed patch info mining. As depicted in Figure 4, we can extend the visual token to $`5N`$ to capture more details. This is achieved by incorporating the original image along with its $`2\times`$ upscaled counterpart, resulting in a batched input $`X_L\in\mathbb{R}^{5\times H'\times W'\times 3}`$. And we can get the encoded visual embedding $`X'_L\in\mathbb{R}^{5\times N\times C}`$ with the LR vision encoder, as detailed in Section 3.1. Thanks to the flexible design of CNN-based HR vision encoder, it can adeptly handle the augmented visual token count during the patch info mining. The only difference in the aforementioned procedure is the sub-region in $`X'_H`$ should be changed according to the expanded visual embedding $`X'_L`$. We can also upsample the HR input to better support the higher resolution if needed, as experimentally analyzed in Table 2.
+Furthermore, visual token extension is also supported in the designed patch info mining. As depicted in Figure 3, we can extend the visual token to $`5N`$ to capture more details. This is achieved by incorporating the original image along with its $`2\times`$ upscaled counterpart, resulting in a batched input $`X_L\in\mathbb{R}^{5\times H'\times W'\times 3}`$. And we can get the encoded visual embedding $`X'_L\in\mathbb{R}^{5\times N\times C}`$ with the LR vision encoder, as detailed in Section 3.1. Thanks to the flexible design of the CNN-based HR vision encoder, it can adeptly handle the augmented visual token count during patch info mining. The only difference in the aforementioned procedure is that the sub-region in $`X'_H`$ should be changed according to the expanded visual embedding $`X'_L`$. We can also upsample the HR input to better support higher resolution if needed, as experimentally analyzed in Table 2.
 
 ## 3.3 Text and Image Generation
 
@@ -72,7 +70,7 @@ For better cross-modality alignment and instruction finetuning, we collect high-
 
 #### Generation-related Instructions.
 
-To support image generation, we further construct a 13K instruction-following dataset using GPT-4 Turbo. As depicted in Figure 6, the training data encompasses two tasks: (a) Simple instruction re-caption: we adopt 8K descriptive image captions from LAION-GPT-4V  and let GPT-4 inversely infer the corresponding user’s short input and the target caption in the Stable Diffusion (SD) domain. (b) In-context prompt generation: based on a few high-quality real-world conversation contexts in LIMA  and OpenAssistant2 , we generate prompts that produce images suitable for the conversation context, bringing 5K instructions in total. For both kinds of data, in each query to GPT-4, we randomly sample 5 high-quality SD text-to-image prompts from GigaSheet  as in-context examples to obtain target prompts for generation. We format our data to use `<GEN>` as a trigger to initiate the generation process and wrap the target caption within `<h>...</h>`. Following text generation, Mini-Gemini extracts target captions and utilizes SDXL  to generate the corresponding image. More details are discussed in Appendix 6.
+To support image generation, we further construct a 13K instruction-following dataset using GPT-4 Turbo. As depicted in Figure 4, the training data encompasses two tasks: `(a)` simple instruction re-caption, where we adopt 8K descriptive image captions from LAION-GPT-4V and let GPT-4 inversely infer the corresponding user's short input and the target caption in the Stable Diffusion (SD) domain; and `(b)` in-context prompt generation, where, based on a few high-quality real-world conversation contexts in LIMA and OpenAssistant2, we generate prompts that produce images suitable for the conversation context, bringing 5K instructions in total. For both kinds of data, in each query to GPT-4, we randomly sample 5 high-quality SD text-to-image prompts from GigaSheet as in-context examples to obtain target prompts for generation. We format our data to use `<GEN>` as a trigger to initiate the generation process and wrap the target caption within `<h>...</h>`. Following text generation, Mini-Gemini extracts target captions and utilizes SDXL to generate the corresponding image. More details are discussed in the appendix.
 
 # 4 Experiments
 
@@ -80,7 +78,41 @@ To support image generation, we further construct a 13K instruction-following da
 
 <a id="tab:main_result"></a>
 
-**Table 1.**
+**Table 1.** **Comparison with leading methods on zero-shot benchmarks.** `*` and `dagger` denote that images in the train subset are included and the data are not publicly available, respectively.
+
+| Method | LLM | Res. | VQA^T | MMB | MME | MM-Vet | MMMU_v | MMMU_t | MathVista |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Normal resolution setting |  |  |  |  |  |  |  |  |  |
+| MobileVLM | MLLaMA 2.7B | 336 | 47.5 | 59.6 | 1289 | -- | -- | -- | -- |
+| InstructBLIP | Vicuna-7B | 224 | 50.1 | 36.0 | -- | 26.2 | -- | -- | 25.3 |
+| InstructBLIP | Vicuna-13B | 224 | 50.7 | -- | 1213 | 25.6 | -- | -- | -- |
+| Qwen-VL dagger | Qwen-7B | 448 | 63.8* | 38.2 | -- | -- | -- | -- | -- |
+| Qwen-VL-Chat dagger | Qwen-7B | 448 | 61.5* | 60.6 | 1488 | -- | 35.9 | 32.9 | -- |
+| Shikra | Vicuna-13B | 224 | -- | 58.8 | -- | -- | -- | -- | -- |
+| IDEFICS-80B | LLaMA-65B | 224 | 30.9 | 54.5 | -- | -- | -- | -- | -- |
+| LLaMA-VID | Vicuna-7B | 336 | -- | 65.1 | 1521 | -- | -- | -- | -- |
+| LLaMA-VID | Vicuna-13B | 336 | -- | 66.6 | 1542 | -- | -- | -- | -- |
+| LLaVA-1.5 | Vicuna-7B | 336 | 58.2 | 65.2 | 1511 | 31.1 | -- | -- | -- |
+| LLaVA-1.5 | Vicuna-13B | 336 | 61.3 | 69.2 | 1531/295 | 36.1 | 36.4 | 33.6 | 27.6 |
+| **Mini-Gemini** | Gemma-2B | 336 | 56.2 | 59.8 | 1341/312 | 31.1 | 31.7 | 29.1 | 29.4 |
+| **Mini-Gemini** | Vicuna-7B | 336 | 65.2 | 69.3 | 1523/316 | 40.8 | 36.1 | 32.8 | 31.4 |
+| **Mini-Gemini** | Vicuna-13B | 336 | 65.9 | 68.5 | 1565/322 | 46.0 | 38.1 | 33.5 | 37.0 |
+| **Mini-Gemini** | Mixtral-8x7B | 336 | 69.2 | 75.6 | 1639/379 | 45.8 | 41.8 | 37.1 | **41.8** |
+| **Mini-Gemini** | Hermes-2-Yi-34B | 336 | **70.1** | **79.6** | **1666/439** | **53.0** | **48.7** | **43.6** | 38.9 |
+| High resolution setting |  |  |  |  |  |  |  |  |  |
+| OtterHD | Fuyu-8B | 1024 | -- | 53.6 | 1314 | -- | -- | -- | -- |
+| CogVLM-Chat | Vicuna-7B | 490 | 70.4* | 63.7 | -- | 51.1 | 41.1 | -- | 34.5 |
+| LLaVA-NeXT | Vicuna-7B | 672 | 64.9 | 68.1 | 1519/332 | 43.9 | 35.8 | -- | 34.6 |
+| LLaVA-NeXT | Vicuna-13B | 672 | 67.1 | 70.7 | 1575/326 | 48.4 | 36.2 | -- | 35.3 |
+| LLaVA-NeXT | Hermes-2-Yi-34B | 672 | 69.5 | 79.6 | 1631/397 | 57.4 | **51.1** | 44.7 | **46.5** |
+| **Mini-Gemini-HD** | Vicuna-7B | 672 | 68.4 | 65.8 | 1546/319 | 41.3 | 36.8 | 32.9 | 32.2 |
+| **Mini-Gemini-HD** | Vicuna-13B | 672 | 70.2 | 68.6 | 1597/320 | 50.5 | 37.3 | 35.1 | 37.0 |
+| **Mini-Gemini-HD** | Mixtral-8x7B | 672 | 71.9 | 74.7 | 1633/356 | 53.5 | 40.0 | 37.0 | 43.1 |
+| **Mini-Gemini-HD** | Hermes-2-Yi-34B | 672 | **74.1** | **80.6** | **1659/482** | **59.3** | 48.0 | **44.9** | 43.3 |
+| Private models |  |  |  |  |  |  |  |  |  |
+| Gemini Pro | Private | -- | 74.6 | 75.2 | -- | 64.3 | 47.9 | -- | 45.2 |
+| Qwen-VL-Plus | Private | -- | 78.9 | 66.2 | -- | -- | 45.2 | 40.8 | 43.3 |
+| GPT-4V | Private | -- | 78.0 | 75.1 | -- | 67.6 | 56.8 | 55.7 | 49.9 |
 
 In this section, we first outline our experimental framework, commencing with the experimental setup. Subsequently, we compare Mini-Gemini with leading methods on various benchmarks. Component-wise analysis and qualitative results are given at the end of this section.
 
@@ -106,11 +138,33 @@ To validate the framework for extended visual tokens, we perform experiments wit
 
 <a id="tab:abla_token_type"></a>
 
-**Table 2.**
+**Table 2.** **Comparison with different info mining settings.** The baseline is LLaVA-1.5 with Vicuna-7B using the same training data and strategy. `Token Num` indicates the number of visual tokens `T_V` in Equation (1). Results with patch info mining are the non-baseline rows.
+
+| Method | VE-HR | LR | HR | Token Num | VQA^T | Delta | MME | Delta | MM-Vet | Delta |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Baseline | -- | 224 | -- | 256 | 54.1* | -- | 1467.1 | -- | 30.7 | -- |
+| + Info mining | ConvX-L | 224 | 512 | 256 | 58.1* | +4.0 | **1485.2** | +18.1 | 31.3 | +0.6 |
+| + Higher res. | ConvX-L | 224 | 768 | 256 | **59.8*** | +1.7 | 1478.3 | -6.9 | **31.9** | +0.6 |
+| Baseline | -- | 336 | -- | 576 | 58.2* | -- | 1510.7 | -- | 31.1 | -- |
+| + Info mining | ConvX-B | 336 | 768 | 576 | 58.4* | +0.2 | 1451.7 | -59.0 | 33.8 | +2.7 |
+| + Larger VE-HR | ConvX-L | 336 | 768 | 576 | 61.5* | +3.1 | **1517.0** | +6.3 | **34.6** | +0.8 |
+| + Larger VE-HR | ConvX-XXL | 336 | 768 | 576 | **62.0*** | +0.5 | 1505.7 | -11.3 | 33.8 | -0.8 |
 
 <a id="tab:abla_data_type"></a>
 
-**Table 3.**
+**Table 3.** **Comparison with different models and data settings.** The baseline is LLaVA-1.5 with Vicuna-7B. `Token Num` indicates the number of visual tokens `T_V` in Equation (1). `*` denotes images in the train subset are included.
+
+| Method | LR | HR | Token Num | VQA^T | Delta | MME | Delta | MM-Vet | Delta |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Baseline | 336 | -- | 576 | 58.2* | -- | 1510.7 | -- | 31.1 | -- |
+| + Info mining | 336 | 768 | 576 | 61.5* | +3.3 | 1517.0 | +6.3 | 34.6 | +3.5 |
+| + ShareGPT4V | 336 | 768 | 576 | 63.2* | +1.7 | 1527.6 | +10.6 | 34.2 | -0.4 |
+| -- TextCaps | 336 | 768 | 576 | 59.0 | -4.2 | 1465.2 | -62.4 | 35.0 | +0.8 |
+| + LAION-GPT-4V | 336 | 768 | 576 | 58.7 | -0.3 | 1521.8 | +56.6 | 33.4 | -1.6 |
+| + OCR-related | 336 | 768 | 576 | 61.6 | +2.9 | 1523.5 | +1.7 | 33.7 | +0.3 |
+| + Gen-related | 336 | 768 | 576 | 62.2 | +0.6 | 1521.2 | -2.3 | 37.0 | +3.3 |
+| + ALLaVA | 336 | 768 | 576 | 65.2 | +3.0 | 1523.3 | +2.1 | 40.8 | +3.8 |
+| + Token extension | 672 | 1536 | 2880 | **68.4** | +3.2 | **1546.2** | +22.9 | **41.3** | +0.5 |
 
 ## Component-wise Analysis
 
@@ -128,17 +182,17 @@ In this era, the significance of high-quality data for enhancing the capabilitie
 
 #### Visual Token Extension.
 
-As depicted in Figure 4, the proposed patch info mining is adeptly designed to accommodate extended visual tokens, thereby generalizing its utility across different input resolutions. We validate the effectiveness of the token extension in Table 3. When increasing LR and HR input resolution, the model achieves significant gain in all benchmarks. Notably, in detail-oriented tasks such as TextVQA, we observe a performance uplift of over 3%, indicating a significant enhancement in the model’s ability to handle complex visual data. Our empirical observations suggest that the increase in resolution significantly diminishes visual hallucinations, leading to more accurate and reliable image comprehension. Generally, with the increased visual token number, Mini-Gemini can be scaled up towards better capability. We can also draw the same conclusion from high-resolution results in Table 1.
+As depicted in Figure 3, the proposed patch info mining is adeptly designed to accommodate extended visual tokens, thereby generalizing its utility across different input resolutions. We validate the effectiveness of token extension in Table 3. When increasing LR and HR input resolution, the model achieves significant gains in all benchmarks. Notably, in detail-oriented tasks such as TextVQA, we observe a performance uplift of over 3%, indicating a significant enhancement in the model's ability to handle complex visual data. Our empirical observations suggest that the increase in resolution significantly diminishes visual hallucinations, leading to more accurate and reliable image comprehension. Generally, with the increased visual token number, Mini-Gemini can be scaled up toward better capability. We can draw the same conclusion from the high-resolution results in Table 1.
 
 ## Qualitative Results
 
 #### Visual Understanding.
 
-To ascertain the visual comprehension prowess of Mini-Gemini in real-world settings, we apply it to a variety of understanding and reasoning tasks in Figure 7. Thanks to the patch info mining and high-quality data, Mini-Gemini can well solve several complex cases. For example, it is capable of recognizing plotted curves in graphical data and directly translating them into Python code for immediate application. Beyond mere recognition, it exhibits a keen attention to detail, accurately describing intricate elements within complex indoor scenes, and demonstrating a nuanced understanding of character associations in memes. Moreover, Mini-Gemini’s analytical capabilities extend to chart analysis and practical problem-solving, such as intelligence tests.
+To ascertain the visual comprehension prowess of Mini-Gemini in real-world settings, we apply it to a variety of understanding and reasoning tasks in Figure 5. Thanks to patch info mining and high-quality data, Mini-Gemini can solve several complex cases well. For example, it is capable of recognizing plotted curves in graphical data and directly translating them into Python code for immediate application. Beyond mere recognition, it exhibits keen attention to detail, accurately describing intricate elements within complex indoor scenes and demonstrating a nuanced understanding of character associations in memes. Moreover, Mini-Gemini's analytical capabilities extend to chart analysis and practical problem-solving, such as intelligence tests.
 
 #### Image Generation.
 
-In Figure 8, we provide a comprehensive evaluation of Mini-Gemini’s generation capabilities. Compared with recent studies such as AnyGPT  and ChatIllusion , our stronger multi-modal understanding ability allows us to generate text-to-image captions that better align with the given instructions, resulting in more contextually appropriate image-text answers. A noteworthy point, as shown in Figures <a href="#fig:teaser" data-reference-type="ref" data-reference="fig:teaser">1</a> and <a href="#fig:gen_result" data-reference-type="ref" data-reference="fig:gen_result">8</a>, is its proficiency in generating high-quality content based on multi-modal human instructions, with text-only training data. This capability underscores Mini-Gemini’s robust image-text alignment and semantic interpretation skills, which come into play effectively in the inference stage. By leveraging the powerful reasoning ability of the LLM, it can produce reasonable image-text outputs in single or multi-round conversations.
+In Figure 6, we provide a comprehensive evaluation of Mini-Gemini's generation capabilities. Compared with recent studies such as AnyGPT and ChatIllusion, our stronger multimodal understanding ability allows us to generate text-to-image captions that better align with the given instructions, resulting in more contextually appropriate image-text answers. A noteworthy point, as shown in Figures 1 and 6, is its proficiency in generating high-quality content based on multimodal human instructions with text-only training data. This capability underscores Mini-Gemini's robust image-text alignment and semantic interpretation skills, which come into play effectively in the inference stage. By leveraging the powerful reasoning ability of the LLM, it can produce reasonable image-text outputs in single- or multi-round conversations.
 
 <img src="../images/Mini-Gemini_md_images/Figure/understanding_ocr_v2.pdf.png"  />
 **Figure 5.** Qualitative results in visual understanding with Mini-Gemini.
@@ -162,13 +216,13 @@ In this section, we delve into the specifics of OCR-related data collection. Nat
 
 #### Generation Data Collection.
 
-For the data generation collection described in Section 3.3, we provide specific examples of query prompts and their corresponding reference data sources for two generation tasks in Figure 9. We commence with a corpus comprising 10K GPT4V caption data and 6K English-only LLM SFT data. After filtering out results that did not meet the format requirements, we ultimately obtained 13K data points. To enhance the contextuality and quality of the queries, we incorporate two distinct types of in-context examples: `get_example_captions()` and `get_example_queries()`. The former function randomly selects 5 high-quality Stable Diffusion (SD) Text-to-Image (T2I) prompts, while the latter extracts 3 instances from a repository of simple instructional templates. These in-context examples serve as a foundational guide, providing diverse and representative prompts that significantly enrich the generation process. This strategic approach ensures the production of high-quality, relevant data, effectively supporting the generative capabilities.
+For the generation-data collection described in Section 3.3, we provide specific examples of query prompts and their corresponding reference data sources for two generation tasks in Figure 7. We commence with a corpus comprising 10K GPT4V caption data and 6K English-only LLM SFT data. After filtering out results that did not meet the format requirements, we ultimately obtained 13K data points. To enhance the contextuality and quality of the queries, we incorporate two distinct types of in-context examples: `get_example_captions()` and `get_example_queries()`. The former function randomly selects 5 high-quality Stable Diffusion (SD) text-to-image prompts, while the latter extracts 3 instances from a repository of simple instructional templates. These in-context examples serve as a foundational guide, providing diverse and representative prompts that significantly enrich the generation process. This strategic approach ensures the production of high-quality, relevant data, effectively supporting the generative capabilities.
 
 # Extended Showcases
 
-In this section, we further provide more cases to validate the generality and capability of Mini-Gemini in various environments. As presented in Figures <a href="#fig:supp_understanding_case" data-reference-type="ref" data-reference="fig:supp_understanding_case">10</a> and <a href="#fig:supp_understanding_case_1" data-reference-type="ref" data-reference="fig:supp_understanding_case_1">11</a>, Mini-Gemini can well answer detail-oriented questions and solve OCR-related and scientific problems. For image generation, we present more examples in Figure 10 that include direct T2I generation, multi-round conversation, reasoning-based generation, storytelling, and in-context generation. They further prove the superiority of Mini-Gemini in both visual comprehension and generation.
+In this section, we provide more cases to validate the generality and capability of Mini-Gemini in various environments. Figure 8 shows that Mini-Gemini can answer detail-oriented questions well and solve OCR-related and scientific problems in challenging high-resolution scenes. Figure 9 provides further high-resolution understanding cases that reinforce the same conclusion. For image generation, we present more examples in Figure 10 that include direct text-to-image generation, multi-round conversation, reasoning-based generation, storytelling, and in-context generation. These examples further demonstrate the superiority of Mini-Gemini in both visual comprehension and generation.
 
-For completeness, the overall benchmark snapshot, additional generation ablations, and extended generation showcases are illustrated in Figure 1, Figure 5, and Figure 10.
+For completeness, the overall benchmark snapshot, additional generation ablations, and extended generation showcases are illustrated in Figures 1, 7, and 10. Figure 8 and Figure 9 further complement these examples with additional high-resolution understanding cases.
 
 <img src="../images/Mini-Gemini_md_images/Figure/supp_gen_prompt.pdf.png"  />
 **Figure 7.** A detailed prompt design and data source illustration used for allocating image generation data. The total cost for the GPT-4 API to get all 13K data is around 80$.

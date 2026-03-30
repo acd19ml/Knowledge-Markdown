@@ -93,10 +93,8 @@ Figure source: `../sources/Hallu-PI_source/figs/statistic.pdf`
 
 **Table 2.** The results under noise, blur, weather, and digital perturbations. Before/After means before/after perturbation.
 
-| Model | Before | Before | After | After | After | After | After | After | After | After |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Model | Before | Before | Noise | Noise | Blur | Blur | Weather | Weather | Digital | Digital |
-| Model | ACC+ ↑ | CHAIR ↓ | ACC+ ↑ | CHAIR ↓ | ACC+ ↑ | CHAIR ↓ | ACC+ ↑ | CHAIR ↓ | ACC+ ↑ | CHAIR ↓ |
+| Model | Before ACC+ | Before CHAIR | Noise ACC+ | Noise CHAIR | Blur ACC+ | Blur CHAIR | Weather ACC+ | Weather CHAIR | Digital ACC+ | Digital CHAIR |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | CogVLM | 49.0 | 62.0 | 48.5 | 68.2 | 47.4 | 68.6 | 42.8 | 67.9 | 48.4 | 69.8 |
 | Multi-GPT | 13.3 | 73.5 | 9.6 | 73.6 | 12.8 | 76.1 | 11.2 | 73.4 | 9.2 | 77.8 |
 | LLaVA | 6.3 | 68.5 | 4.33 | 67.7 | 5.0 | 70.6 | 4.17 | 69.8 | 3.6 | 74.2 |
@@ -109,10 +107,8 @@ Figure source: `../sources/Hallu-PI_source/figs/statistic.pdf`
 
 **Table 3.** The results under image concatenation, image cropping, and prompt misleading perturbations.
 
-| PI-Score ↑ | PI-Score ↑ | PI-Score ↑ | PI-Score ↑ | PI-Score ↑ | PI-Score ↑ | PI-Score ↑ |
-| --- | --- | --- | --- | --- | --- | --- |
-| MLLMs | Concat | Concat | Cropping | Cropping | Prompt Mislead | Prompt Mislead |
-| MLLMs | Before | After | Before | After | Before | After |
+| MLLM | Concat Before PI-Score | Concat After PI-Score | Cropping Before PI-Score | Cropping After PI-Score | Prompt Mislead Before PI-Score | Prompt Mislead After PI-Score |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | CogVLM | 45.4 | 22.5 | 10.0 | 5.0 | 39.6 | 11.4 |
 | Multi-GPT | 8.3 | 15.0 | 11.7 | 0.0 | 18.9 | 7.2 |
 | LLaVA | 6.5 | 2.2 | 3.4 | 6.7 | 14.4 | 5.2 |
@@ -152,10 +148,8 @@ We first introduce the metrics used for generative task and discriminative task.
 
 **Table 4.** The results of generative task on image concatenation, cropping, and prompt misleading.
 
-| MLLMs | Image Concatenation | Image Concatenation | Image Concatenation | Image Concatenation | Image Concatenation | Image Concatenation | Image Concatenation | Image Concatenation | Image Cropping | Image Cropping | Prompt Misleading | Prompt Misleading |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2-13 | CHAIR ↓ | CHAIR ↓ | Cover ↑ | Cover ↑ | Hal ↓ | Hal ↓ | Cog ↓ | Cog ↓ | Hal ↓ | Hal ↓ | Hal ↓ | Hal ↓ |
-| 2-13 | Before | After | Before | After | Before | After | Before | After | Before | After | Before | After |
+| MLLM | Concat CHAIR Before | Concat CHAIR After | Concat Cover Before | Concat Cover After | Concat Hal Before | Concat Hal After | Concat Cog Before | Concat Cog After | Cropping Hal Before | Cropping Hal After | Prompt Misleading Hal Before | Prompt Misleading Hal After |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | CogVLM | 62.0 | 69.0 | 55.3 | 48.3 | 58.3 | 97.1 | 4.3 | 5.9 | 80.0 | 90.0 | 36.7 | 93.3 |
 | Multi-GPT | 73.5 | 97.5 | 22.5 | 2.0 | 96.7 | 86.3 | 30.8 | 77.1 | 76.7 | 100.0 | 63.3 | 93.3 |
 | LLaVA | 68.5 | 92.3 | 38.8 | 7.4 | 93.3 | 96.7 | 4.3 | 14.9 | 93.3 | 86.7 | 66.7 | 93.3 |
@@ -247,10 +241,8 @@ Our experiments reveal that MLLMs exhibit more severe hallucinations in *image c
 
 **Table 5.** The results of discriminative task on image concatenation, cropping, and prompt misleading.
 
-| MLLMs | Image Concatenation | Image Concatenation | Image Concatenation | Image Concatenation | Image Concatenation |   | Image Cropping | Image Cropping | Image Cropping | Image Cropping | Image Cropping |   | Prompt Misleading | Prompt Misleading | Prompt Misleading |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 2-16 | Before | Before | Before | After | After | After | Before | Before | Before | After | After | After | After | After | After |
-|   | ACC ↑ | ACC+ ↑ | F1 ↑ | ACC ↑ | ACC+ ↑ | F1 ↑ | ACC ↑ | ACC+ ↑ | F1 ↑ | ACC ↑ | ACC+ ↑ | F1 ↑ | ACC ↑ | ACC+ ↑ | F1 ↑ |
+| MLLM | Concat ACC Before | Concat ACC+ Before | Concat F1 Before | Concat ACC After | Concat ACC+ After | Concat F1 After | Cropping ACC Before | Cropping ACC+ Before | Cropping F1 Before | Cropping ACC After | Cropping ACC+ After | Cropping F1 After | Prompt Misleading ACC After | Prompt Misleading ACC+ After | Prompt Misleading F1 After |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | CogVLM | 69.9 | 49.0 | 74.4 | 67.2 | 42.0 | 73.1 | 50.0 | 0.0 | 66.7 | 50.0 | 0.0 | 66.7 | 56.7 | 33.3 | 51.9 |
 | Multi-GPT | 46.8 | 13.3 | 52.4 | 41.8 | 16.3 | 48.9 | 48.3 | 0.0 | 65.2 | 45.0 | 0.0 | 62.1 | 28.3 | 6.7 | 41.1 |
 | LLava | 51.5 | 6.3 | 57.2 | 50.3 | 1.0 | 54.0 | 50.0 | 0.0 | 66.7 | 50.0 | 0.0 | 66.7 | 1.7 | 0.0 | 3.2 |
@@ -423,6 +415,8 @@ Figure source: `../sources/Hallu-PI_source/figs/prompt_templates.pdf`
 
 ![Some case studies of perturbation scenarios include image concatenation, image cropping, and prompt misleading. MLLMs adopt CogVLM2-Chat-En (W. Wang et al. 2023), which can be accessed at http://36.103.203.44:7861.](../images/Hallu-PI_md_images/figs/case_study.png)
 Figure source: `../sources/Hallu-PI_source/figs/case_study.pdf`
+
+Representative case studies for these perturbation scenarios are shown in Figure 11.
 
 **Figure 11.** Some case studies of perturbation scenarios include image concatenation, image cropping, and prompt misleading. MLLMs adopt CogVLM2-Chat-En (W. Wang et al. 2023), which can be accessed at http://36.103.203.44:7861.
 

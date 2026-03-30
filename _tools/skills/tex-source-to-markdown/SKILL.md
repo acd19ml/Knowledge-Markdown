@@ -100,6 +100,9 @@ Rules:
 - Replace HTML remnants such as `<figure>`, `<embed>`, or custom blocks with plain Markdown
 - If a figure asset is only available as PDF, render it to a sufficiently large PNG and store it under `<Paper>_md_images/`
 - Keep the original source asset path visible near the figure when traceability matters
+- If a rendered PNG shows the figure shifted, clipped, or only partially visible, treat that as an asset-generation problem, not just a Markdown-link problem
+- Prefer re-rendering a fresh full-page PNG from the source PDF before attempting any manual crop of an existing PNG
+- Do not blindly crop PNG whitespace by a simple non-white bounding box; that can change the effective page framing and make wide or pale figures look incomplete in preview
 
 On macOS, `qlmanage` is usually a pragmatic PDF-to-PNG fallback for Markdown Preview Enhanced. In sandboxed environments it may require escalation because it invokes Quick Look outside the workspace.
 
@@ -108,6 +111,7 @@ For MPE compatibility:
 - prefer relative paths, not absolute paths
 - avoid broken HTML wrappers
 - if directory names contain spaces and rendering is flaky, either URL-encode them or rename the generated asset directory to a no-space variant and update links consistently
+- if a figure still looks clipped after path fixes, compare the PNG aspect ratio and visible framing against the source PDF page before declaring the image pipeline done
 
 ### 5. Restore Figure, Table, Algorithm, And Section Numbering
 
@@ -131,6 +135,8 @@ Normalization rules:
 Recover numbers from the source project, not by guessing. Use the TeX structure, nearby captions, and compiled numbering artifacts when available.
 
 Combination figures are allowed: one `Figure N` may correspond to multiple images. In that case, keep the images grouped and attach one explicit `Figure N.` caption for the group.
+
+Do not flatten semantically meaningful symbols into placeholder words during cleanup. If the paper uses markers such as `†`, `‡`, `✓`, or `×` in captions, tables, or footnotes, preserve them as readable symbols unless the renderer truly cannot handle them. Do not degrade them into literal words like `dagger`, `check`, or `x` just because the surrounding Markdown was rewritten.
 
 ### 5a. Stabilize Internal Anchors Before Final Prose Cleanup
 
@@ -166,6 +172,13 @@ Fix these into Markdown-friendly forms:
 - display math as `$$ ... $$`
 - readable ordered or fenced blocks for algorithms
 - explicit theorem/proposition labels when numbering matters
+
+When ParseError-like preview failures remain after the structure looks correct, inspect whether the Markdown text itself was damaged during cleanup:
+
+- scan for control characters such as tabs or backspaces accidentally introduced by scripted rewrites of TeX-heavy lines
+- prefer conservative math commands that common Markdown math renderers handle reliably
+- if a formula only needs simple linear algebra notation, prefer forms like `\mathbf{X}`, `\mathbb{R}`, and `^\top` over more fragile formatting commands such as `\textsc`, `\texttt`, or exotic TeX wrappers
+- if you rewrote the file with Python or another scripting language, verify that backslashes in TeX fragments were preserved as literal backslashes rather than consumed as string escapes
 
 The goal is not typographic perfection; the goal is structural fidelity and readable Markdown.
 
@@ -216,6 +229,52 @@ Important limitation:
 - if the audit output says captions exist but prose refs are missing, manually inspect whether the document uses linked numeric references rather than treating the audit as ground truth
 
 Then manually inspect any reported mismatch.
+
+Do not stop at a green audit alone. A paper can still be unqualified when:
+
+- large HTML table fragments such as `<thead>`, `<tbody>`, `<tr>`, or `<td>` remain
+- placeholder caption stubs like `**Table N.**` or `**Figure N.**` survive in a cleanup notes section
+- a big appendix or dataset-introduction block was moved into Markdown but prose references still point to pre-renumbered table numbers
+- a large block replacement silently deleted nearby explanatory prose, leaving captions present but no natural textual introduction to the table or figure
+- Markdown Preview Enhanced still shows a ParseError because a math line or escaped TeX fragment was damaged during rewriting
+- figures resolve to local files but still appear shifted, cropped, or partially visible because the PNG assets themselves were generated or cropped incorrectly
+
+When a paper had major HTML residue or many appendix tables, use this validation order:
+
+1. run `scripts/audit_refs.py`
+2. separately search for HTML table residue and placeholder captions
+3. inspect the last large rewritten block against the source TeX
+4. if the file was rewritten by script, scan it for accidental control characters or consumed TeX backslashes
+5. reopen the preview and check for remaining ParseError or visibly clipped figures
+6. if the paper uses `\input{table/...}` or split table files, verify the source table inclusion order against the Markdown table order
+7. re-check nearby prose references for renumbering drift
+8. only then declare the Markdown aligned
+
+### 7a. Recovering Large HTML Table Blocks
+
+When the remaining damage is concentrated in one long appendix block, dataset-introduction section, or supplementary table cluster, do not nibble at individual tags.
+
+Prefer this recovery path:
+
+1. map the exact table order from the source entry TeX and any supplementary TeX files
+2. read the source `table/*.tex` files for the affected table range
+3. replace one bounded Markdown block at a time using stable start and end markers
+4. immediately remove any now-obsolete placeholder captions for the same table numbers
+5. preserve meaningful source symbols such as `†`, `✓`, and `×` when reconstructing captions, tables, and footnotes
+6. re-run the audit and then inspect whether surrounding prose references need renumbering
+
+This is usually more reliable than trying to patch nested `<tbody>` fragments in place.
+
+### 7b. Recovering Preview Parse Errors And Clipped Images
+
+Use this when the numbering is aligned and the Markdown looks plausible in plain text, but Markdown Preview Enhanced still fails or renders figures incorrectly.
+
+1. identify whether the problem is text parsing, image generation, or both
+2. scan the Markdown for control characters introduced by scripted rewrites, especially around equations and TeX-heavy prose
+3. simplify fragile math notation into conservative renderer-friendly forms when the semantics stay the same
+4. if figures are incomplete, return to the source PDF and re-render a fresh full-page PNG instead of cropping the existing PNG first
+5. only crop whitespace after verifying against the source PDF page framing; do not use blind non-white bbox cropping as the default fix
+6. reopen the preview after asset regeneration and confirm the figure now renders fully
 
 For the exact cleanup checklist, read [references/normalization-checklist.md](references/normalization-checklist.md).
 For recurring failure modes and the preferred fallback path, read [references/failure-modes.md](references/failure-modes.md).
