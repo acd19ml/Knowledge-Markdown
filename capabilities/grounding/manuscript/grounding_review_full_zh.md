@@ -1,21 +1,14 @@
-# Multimodal Large Language Models 中的 Visual Grounding 与 Spatial Understanding：方法、表征与 Failure Modes
-
-**英文题名（与 `grounding_review.tex` 一致）**  
+# 多模态大模型中的视觉 Grounding 与空间理解：方法、表征与失效模式
 *Visual Grounding and Spatial Understanding in Multimodal Large Language Models: Methods, Representations, and Failure Modes*
 
-> 本文档由 `manuscript/archive/` 下的 `grounding_review.tex` / `grounding_review_body.tex`（本地，**不提交 GitHub**）**全文**整理为中文（技术术语保留英文）。结构与小节标题与 TeX **一一对应**；表格与论断尽量逐段覆盖原文。引用键与 `grounding_review_refs.bib` 一致，便于对照。
+> 本文档由本地 `manuscript/archive/` 中的 TeX 源整理。正文以**中文叙述为主**；**grounding** 等与文献一致的术语保留英文。  
+> **术语说明：** **visual grounding（视觉 grounding）** 在文献中常定义为：根据**自然语言描述**在图像中**定位对应物体或区域**（及相关的框、分割等预测）。下文用 **grounding** 专指该能力，不单译为「对齐」——「对齐」在文中仅用于表示特征匹配、图文对比学习、人类偏好学习等含义。
 
 ---
 
 ## Abstract
 
-**English（与 `grounding_review.tex` 一致）**
-
-This literature review examines how visual grounding and spatial understanding emerge in multimodal large language models (MLLMs), and why these capabilities still fail under realistic conditions. We organize the recent literature as a capability chain: visual representations determine what spatial structure is preserved, grounding methods convert that structure into usable alignment between language and image regions, spatial reasoning builds on that alignment, and hallucination exposes the failure regime when the chain weakens. Across representative work on encoders, connectors, grounding outputs, spatial benchmarks, and hallucination mitigation, a consistent picture emerges: grounding is the intermediate capability linking multimodal perception to spatial reasoning, while current failures are driven less by a lack of fluent generation than by unstable visual anchoring. The review concludes by highlighting open problems in unified evaluation, 3D-aware reasoning, compositional spatial understanding, and calibration.
-
-**中文**
-
-本综述讨论 **multimodal large language models（MLLMs）** 中 **visual grounding** 与 **spatial understanding** 如何出现，以及为何在真实条件下仍会失效。我们将近期文献组织为一条 **capability chain**：**visual representations** 决定保留何种 **spatial structure**；**grounding methods** 将该结构转化为 **language** 与 **image regions** 之间可用的对齐；**spatial reasoning** 建立在该对齐之上；当链条变弱时，**hallucination** 暴露其 **failure regime**。在 **encoders**、**connectors**、**grounding outputs**、**spatial benchmarks** 与 **hallucination mitigation** 等代表性工作中，反复出现的图景是：**grounding** 是连接 **multimodal perception** 与 **spatial reasoning** 的中间能力；当前失败更多来自 **unstable visual anchoring**，而非单纯缺乏流利的 **generation**。文末强调 **unified evaluation**、**3D-aware reasoning**、**compositional spatial understanding** 与 **calibration** 等开放问题。
+本综述讨论多模态大模型（MLLM）中的**视觉 grounding** 与**空间理解**如何形成，以及为何在真实场景下仍会失效。我们将文献串成一条**能力链**：视觉表征决定还能保留多少空间结构；**grounding** 方法把这种结构变成语言与图像区域之间的可用对应；空间推理建立在这种对应之上；链条变弱时，**幻觉**（hallucination）便暴露出系统的失效方式。在编码器、连接器、**grounding** 输出、空间类评测与幻觉缓解等工作中，反复出现的结论是：**grounding** 是连接「看见」与「推理空间关系」的中间环节；当前短板往往不在于话说不流利，而在于**语言与图像绑得不稳**。文末讨论统一评测、三维感知式推理、组合式空间理解与置信度校准等方向。
 
 **Keywords:** multimodal large language models, visual grounding, spatial reasoning, hallucination, multimodal alignment
 
@@ -23,70 +16,70 @@ This literature review examines how visual grounding and spatial understanding e
 
 ## 1. Introduction {#sec:introduction}
 
-**Multimodal Large Language Models（MLLMs）** 已从 **captioning** 与 **visual question answering** 快速推进到需要精确 **spatial awareness** 的任务：定位物体、理解物体间的 **spatial relationships**、推理场景的 **3D structure**。从「描述图像里有什么」到「指明在哪里、与其他物体如何相关」，并非小幅增量，而是能力重心从通用 **visual-language interaction** 转向 **grounded perception**。**GUI agent** 必须点到正确按钮，**robotic manipulator** 必须伸向目标物体，**autonomous system** 必须判断行人是在障碍物前还是后。若无可靠的 **grounding** 与 **spatial reasoning**，MLLMs 仍是「碰巧能看见」的流利 **language generators**。
+多模态大模型早已不满足于图像描述与视觉问答，而是被要求**精确定位物体**、判断**物体之间的空间关系**、理解场景的**三维结构**。从「图里有什么」到「在哪、和谁相邻」，是能力上的跃迁：从泛泛的图文交互，到**以视觉为依据的表述**。界面智能体要点中按钮，机械臂要伸向正确物体，无人系统要判断行人在障碍物前还是后——若**grounding**（按描述定位图像中的对象或区域）与**空间推理**不可靠，模型就只是「会说话、顺带看了眼图」的文本生成器。
 
-然而近期工作揭示出强烈悖论：MLLMs 能生成细致且语境合理的场景描述，却在基本 **spatial judgments** 上失败——例如哪一物体在另一物体之上、某实体是否真实存在于图像中。**Benchmarks** 显示在基础 **spatial relation** 任务上接近 **chance**（Liu et al., VSR; Kamath et al., What'sUp），**encoder** 层面对 **spatial reasoning** 关键视觉模式「视而不见」（Tong et al., Eyes Wide Shut），并持续 **hallucinate** 图像中不支持的物体、属性与关系（Li et al., POPE; Guan et al., HallusionBench）。这些失败并非孤立病理，而是更深层 **pipeline** 问题：**spatially reliable behavior** 取决于 **representation stack** 保留了何种视觉信息、该信息如何被转化为 **grounding outputs**、以及模型在后续 **reasoning** 与 **generation** 中能否保持 **visual anchoring**。
+然而近期研究揭示强烈反差：模型能写出细腻的场景描述，却在**最基本的空间判断**上频频出错（谁在上、谁在下、某物是否真的在图中）。多项基准测试表明，简单空间关系任务上表现接近随机猜测（Liu et al., VSR; Kamath et al., What'sUp）；视觉编码器对推理所需的模式近乎「视而不见」（Tong et al., Eyes Wide Shut）；还会**编造**图中没有的物体、属性或关系（Li et al., POPE; Guan et al., HallusionBench）。这些不是孤立故障，而是整条**处理流程**的问题：能否稳定地依赖视觉，取决于上游保留了什么信息、如何变成**grounding** 输出、以及后续推理与**长文本生成**时是否还能**紧扣图像**。
 
-因此本文核心论断：**grounding 是连接 visual representation 与 spatial reasoning 的中间能力；hallucination 最宜理解为该 pipeline 的 failure regime。** 这一视角决定综述结构：我们不把 **visual encoders**、**grounding methods**、**spatial reasoning** 与 **hallucination** 当作彼此割裂的主题，而将其视为 **spatially grounded MLLM behavior** 之出现与崩溃的相继阶段。
+本文的核心观点是：**视觉 grounding 是连接「表征」与「空间推理」的中间层；幻觉最宜理解为这条链在弱化时的典型失效方式。** 因此下文不把编码器、**grounding** 方法、空间推理与幻觉当作四块互不相关的题目，而把它们看作**同一套空间相关行为**如何形成、又如何一起崩掉。
 
 ### 1.1 Scope and Contributions {#subsec:intro-scope}
 
-本综述梳理 **MLLMs 中 visual grounding 与 spatial understanding** 的近期工作，聚焦决定 **spatially grounded behavior** 是否出现的架构、表征与训练选择。范围刻意以 **capability** 为中心，而非以应用为中心：我们主要关心下游 **robotics** 或 **GUI agents** 等系统**得以成立的技术条件**，而非这些系统本身。
+本综述梳理多模态大模型中**视觉 grounding 与空间理解**的近期工作，关注架构、表征与训练如何决定模型能否**稳定地依图说话**。我们以**能力**为主线，不展开具体产品：更关心机器人、界面助手等系统**在技术上要满足什么条件**，而非系统实现细节。
 
-综述围绕四个相互关联的问题：
+全文围绕四个问题：
 
-1. **何种 visual representations 支撑 grounding？**（第 2 节）  
-   考察三阶段 **representation pipeline**：**vision encoder**、**resolution strategy**、**vision-language connector**，它们共同决定从像素到 **LLM token space** 有多少 **spatial structure** 得以保留。在代表性架构中，反复出现的发现是：**grounding** 不仅依赖更强的 **encoder**，还依赖能保留局部 **spatial detail** 的 **connectors** 与 **resolution schemes**，而非一味压缩。
+1. **怎样的视觉表征能支撑 grounding？**（第 2 节）  
+   考察视觉编码器、分辨率与多尺度策略、图文连接器这一条线，看从像素到语言模型输入之间还能剩下多少空间结构。共识是：**grounding** 不仅靠「更大的编码器」，还要靠**少压缩局部细节**的连接器与分辨率设计。
 
-2. **MLLMs 如何完成 grounding？**（第 3 节）  
-   追溯 **grounding methods** 从 **coordinate prediction** 作为 **language generation**、到 **region-level grounded interaction**、再到 **segmentation-level outputs** 的演变。贯穿这些范式的是：**保持 MLLM 灵活的 text-in/text-out 接口** 与 **grounding 所需的结构化 spatial prediction** 之间的张力。
+2. **模型如何把 grounding 做出来？**（第 3 节）  
+   从把坐标当文本生成、到区域级交互、再到分割级输出，方法不断变强；张力始终在于：既要保留「文本进、文本出」的灵活接口，又要能做**结构化的空间预测**。
 
-3. **MLLMs 能否推理 spatial relations？**（第 4 节）  
-   综述诊断性 **benchmarks** 以及针对 **topological**、**directional**、**depth-aware** 推理的近期方法。主要结论是：**grounding** 与 **spatial reasoning** 紧密耦合；显式 **region grounding** 能显著帮助 **spatial reasoning**，但一旦任务涉及 **depth**、**distance** 或 **compositional spatial inference**，仅有 **grounding** 仍不足。
+3. **模型能否推理空间关系？**（第 4 节）  
+   介绍诊断性评测与拓扑、方向、深度等相关方法。结论是：**grounding** 与空间推理绑得很紧；显式 **grounding** 到区域往往有助于推理，但一旦涉及深度、距离或组合推断，仅有「指对物体/区域」仍不够。
 
-4. **grounding failures 如何表现、传播并化为 hallucination？**（第 5 节）  
-   从 **grounding** 视角分析 **hallucination**：**object-existence probing**、**perturbation stress tests**、**language hallucination** 与 **visual illusion** 的诊断分离、**calibration** 与 **confidence**、以及从 **decoding-time correction** 到细粒度 **reward alignment** 的缓解策略。更广泛的含义是：**hallucination** 往往不仅是 **language-generation artifact**，而常反映 **unstable** 或被覆盖的 **grounding**。
+4. **grounding 失败如何表现并变成幻觉？**（第 5 节）  
+   从 **grounding** 视角看「胡说」：物体是否存在、输入扰动、语言型幻觉与视觉型错觉的区分、置信度，以及解码时修正、人类反馈与奖励学习等缓解手段。要点是：很多「幻觉」本质是 **grounding** 不稳或被生成过程冲掉。
 
-上述四个问题共同构成 **capability chain**：**visual representation** 约束可编码的空间信息上界；**grounding methods** 决定编码结构如何成为 **words** 与 **regions** 之间的可用对齐；**spatial reasoning** 在该对齐之上进行比较、推断与规划；**failure modes** 揭示在歧义、弱证据或长文本 **generation** 下链条在何处断裂。第 6 节回到该链条，归纳共享瓶颈与开放问题。
+这四个问题连成一条**能力链**：表征决定上限；**grounding** 方法决定词与区域如何对应；空间推理在对应之上展开；第 5 节的失效模式则说明歧义、弱证据或长文生成时链在哪里断。第 6 节归纳瓶颈与展望。
 
-### 1.2 Positioning Within the Literature {#subsec:intro-positioning}
+### 1.2 与既有综述的关系 {#subsec:intro-positioning}
 
-若干近期综述触及相邻领域，但往往只覆盖问题的一侧。TPAMI **visual grounding** 综述（Xiao et al.）给出 broad **taxonomy of grounding tasks**，但重心仍在经典 **detection-era pipeline**，而非 **MLLM-native grounding**。通用 MLLM 综述将 **grounding** 列为众多能力之一，却未追溯其对 **encoder**、**connector**、**resolution** 的架构依赖。**Spatial reasoning** 综述与 **benchmark** 论文则常聚焦 **evaluation**，而未将性能缺口回连到上游 **representation** 与 **grounding** 选择。
+近期工作有的侧重「视觉 grounding」任务分类（Xiao et al.），但重心仍在传统检测流水线，较少谈多模态大模型**原生**的 **grounding** 方式。通用多模态综述常把 **grounding** 列为一项能力，却很少追到编码器、连接器与分辨率。空间推理或基准测试论文多谈**评什么**，却很少把分数差归因到上游表征与 **grounding**。
 
-本综述填补该空白：将 **grounding** 视为 **perception** 与 **reasoning** 之间的 **middle layer**。贡献并非罗列所有 **multimodal capabilities**，而是解释 **spatially grounded behavior** 如何出现、在何处失败、以及为何在看似不同的任务上失败会重复出现。因此，相较既有综述：范围更窄（聚焦 **visual grounding** 与 **spatial understanding**），但更整合——沿 **representation→failure** 的端到端链条，而非孤立讨论各阶段。
+本文把 **grounding** 放在**感知**与**推理**之间，不追求覆盖所有多模态能力，而解释**空间上靠谱的行为**如何出现、为何在多种任务上会一起翻车。范围比「全能多模态综述」窄，但把**从表征到失效**串成一条线。
 
 ---
 
-## 2. Visual Representations: The Foundation of Grounding {#sec:representations}
+## 2. 视觉表征：作为 grounding 的基础 {#sec:representations}
 
-若 MLLM 欲将 **language** 锚定到具体 **image regions**，首先必须构建足够丰富的 **visual representation** 以保留细粒度 **spatial detail**。三类架构选择共同决定视觉信息到达 **language model** 时尚存多少 **spatial information**：**(i)** 从原始像素提取特征的 **vision encoder**；**(ii)** 控制 **encoder** 可见细节量的 **resolution** 与 **multi-scale strategy**；**(iii)** 将视觉特征投影到 **LLM token space** 的 **vision-language connector**。本节在八个代表性 MLLM 上逐一考察这些选择，并特别关注其对下游 **grounding** 与 **localization** 的促进或限制。
+若要把语言**锚到**图像里的具体区域，首先要有足够丰富的视觉表征，以保留细粒度空间细节。三类设计共同决定「传到语言模型里时还剩多少空间信息」：**(i)** 从像素提特征的**视觉编码器**；**(ii)** 分辨率与多尺度策略（决定「能看清多细」）；**(iii)** 把视觉特征送进大语言模型输入空间的**图文连接器**。本节以八个代表性多模态大模型为例，看这些选择如何影响下游 **grounding** 与定位。
 
 ### 2.1 Vision Encoder Selection {#subsec:rep-encoders}
 
-#### 2.1.1 Language-Supervised Encoders Dominate {#subsubsec:rep-language-supervised}
+#### 2.1.1 语言监督编码器仍占主流 {#subsubsec:rep-language-supervised}
 
-当前绝大多数 MLLM 以 **CLIP** 家族的 **Vision Transformers（ViTs）** 为视觉骨干。**LLaVA-1.5** 使用 **336 px** 的 **CLIP ViT-L/14**，仍是广泛采用的默认之一。**Qwen-VL** 采用 OpenCLIP 的更大 **ViT-bigG**；**CogVLM** 使用 **EVA2-CLIP-E**——容量更高，但仍属 **language-supervised** 范式。**LLaVA-OneVision** 改用 **SigLIP ViT-SO400M**，以 **sigmoid contrastive loss** 替代 CLIP 的 softmax **InfoNCE**，并报告下游 MLLM 性能一致提升。共同点很明确：经 **contrastive learning** 与 **language** 预对齐的 **encoder**，其特征空间已部分与 **LLM word embedding space** 匹配，因而享有显著先发优势。
+当前绝大多数多模态大模型以 **CLIP** 系 **Vision Transformer（ViT）** 为视觉骨干。例如 **LLaVA-1.5** 用 336 像素的 CLIP ViT-L/14；**Qwen-VL** 用 OpenCLIP 的更大 ViT-bigG；**CogVLM** 用 EVA2-CLIP-E。**LLaVA-OneVision** 则换用 SigLIP，用 sigmoid 对比损失替代 CLIP 常用的 InfoNCE，并报告下游全面提升。共同点：这些编码器都先用**图文对比学习**与语言对齐过，特征空间与词向量更接近，后续接大语言模型更省事。
 
-#### 2.1.2 Scaling the Vision Encoder {#subsubsec:rep-scaling}
+#### 2.1.2 放大视觉编码器 {#subsubsec:rep-scaling}
 
-**InternVL** 挑战「约 1B 参数 **vision encoder**」的主流做法，将规模扩展至 **InternViT-6B**（约 5.9B 参数的 ViT），首次在参数规模上接近 **LLM** 组件。其 **progressive alignment**（先在约 5B **image-text pairs** 上做 **contrastive pre-training**，再做 **generative fine-tuning**）在 **perception**（ImageNet linear probing：88.2%）与 **pixel-level understanding**（ADE20K **mIoU**：58.9%，全量微调）上均取得 SOTA 级结果。这些结果暗示：**vision encoder capacity** 在既往 MLLM 中可能是被低估的约束瓶颈——多数系统将约 0.3–1.8B 的 **vision encoder** 与 7–13B 的 **LLM** 配对，导致大量 **LLM capacity** 未被充分利用。
+**InternVL** 把视觉编码器做到约 **InternViT-6B**（约 59 亿参数），规模上首次接近旁边的大语言模型。训练上先在大规模图文对上对比学习，再生成式微调；在 ImageNet、ADE20K 分割等任务上表现很强。这说明：**视觉侧容量**在以往多模态系统里常被低估——很多方案用 0.3–1.8B 的视觉编码器配 7–13B 的语言模型，语言侧算力未必能充分发挥。
 
 #### 2.1.3 Beyond Language Supervision: Self-Supervised and Hybrid Encoders {#subsubsec:rep-self-supervised-hybrid}
 
-**Cambrian-1** 在受控 MLLM 训练条件下系统评估 **23 种 vision backbones**，涵盖 CLIP 变体、**DINOv2**（**self-supervised**）、**ConvNeXt**、**depth-supervised** 模型与 **diffusion-based representations**。主要发现包括：
+**Cambrian-1** 在相同训练设置下系统比较了 **23 种**视觉骨干，包括 CLIP 变体、自监督的 **DINOv2**、**ConvNeXt**、带深度监督的模型等。主要结论：
 
-- **Language-supervised models** 在通用、知识与 OCR 等 **benchmarks** 上一致优于 **self-supervised**，很大程度上因为 CLIP 训练数据包含大量 **text-heavy images**。
-- **DINOv2** 作为最强的 **self-supervised** 模型，在 **vision-centric benchmarks**（**spatial relationship**、**depth order**）上达到有竞争力表现，有时超过较弱 CLIP 变体，说明 **SSL representations** 可捕获 **language-supervised encoders** 可能忽略的 **geometric** 与 **spatial structure**。
-- **ConvNet-based architectures**（如 OpenCLIP **ConvNeXt-XXL**）因 **translation-equivariant inductive bias**，天然适合 **high-resolution processing**，在 OCR 与 **vision-centric** 任务上表现突出。
-- 通过扩大 **instruction tuning** 数据（0.7M→5M）并在微调时 **unfreeze vision encoder**，**DINOv2** 与 CLIP 的差距可显著**收窄**。
+- 在通用、知识、OCR 等评测上，**语言监督**模型整体仍强于**纯自监督**，与 CLIP 类数据里「带文字的图」更多有关。
+- **DINOv2** 在**偏视觉**的评测（空间关系、深度顺序等）上很强，有时超过弱 CLIP，说明自监督表征能补几何与结构信息。
+- **ConvNeXt** 等卷积结构适合高分辨率，OCR 等任务上常有优势。
+- 扩大指令微调数据、微调时解冻视觉编码器，可明显缩小 DINOv2 与 CLIP 的差距。
 
-这些发现与 **grounding** 直接相关：准确定位需要保留 **spatial structure**，而仅靠 **language-supervised contrastive objectives** 并不能保证这一点。
+这些与 **grounding** 直接相关：定位要保留空间结构，而仅靠「图文对比」目标并不保证学到足够几何信息。
 
-**Mini-Gemini** 采用互补的 **dual-encoder** 设计：**CLIP ViT-L** 以低分辨率编码产生 **visual queries**；**ConvNeXt-L** 对同图更高分辨率版本编码以提供丰富 **spatial candidates**。两路通过 **patch-level cross-attention**（「**patch info mining**」）交互：每个低分辨率 query 仅 attend 对应高分辨率子区域，从而在不过度增加送入 **LLM** 的 **token count** 的前提下，用细粒度细节增强 **visual tokens**。
+**Mini-Gemini** 用**双编码器**：低分辨率一路用 CLIP ViT 产生查询，高分辨率一路用 ConvNeXt 提供细节，两路在 patch 级做交叉注意力（论文称 patch info mining），在**不大幅增加**送入语言模型的序列长度前提下增强视觉 token。
 
 ### 2.2 High-Resolution and Multi-Scale Strategies {#subsec:rep-resolution}
 
-对 **grounding** 而言，**resolution**  arguably 是最具影响力的单一因素。在 **224 px** 输入中仅占据少数像素的物体，对模型几乎「不可见」。表 **Resolution strategies across representative MLLMs** 汇总如下。
+对 **grounding** 任务而言，**输入分辨率**往往是最敏感的因素之一：在 224 像素输入里只占极少数像素的物体，模型几乎「看不见」。下表汇总各代表模型的分辨率策略。
 
 **Table. Resolution strategies across representative MLLMs**
 
@@ -101,32 +94,32 @@ This literature review examines how visual grounding and spatial understanding e
 | Cambrian-1 | 随 encoder 而异 | Multi-encoder, multi-scale | Up to 1024 px（ConvNeXt） |
 | Mini-Gemini | 336 / 672 px（LR） | Dual-encoder：LR query + HR candidate | 1536 px（HR encoder） |
 
-主要可归纳为以下范式（与 TeX 中 **Fixed / Dynamic tiling / Dual-encoder / Stage-wise** 的并列一致）：
+主要可归纳为以下范式：
 
-- **Fixed resolution**：最简单。**BLIP-2** 为 **224 px**，早期 **LLaVA** 为 **336 px**。计算便宜，但严重限制细粒度感知。**LLaVA-1.5** 表明从 **224 px** 增至 **336 px** 即可在 **hallucination reduction** 上获得可测增益，说明部分曾归因于「噪声训练数据」的 **hallucinations** 实为 **perceptual resolution** 不足所致。
-- **Dynamic tiling / AnyRes**：将输入切为多个 **crops**，每块以 **encoder native resolution** 处理，再合并特征图。**LLaVA-1.5-HD** 率先将图像分为最多六块 **224 px grid** 并拼接全局（下采样）上下文视图。**LLaVA-OneVision** 将其推广为 **Higher AnyRes**，用 **bilinear interpolation** 做 **token compression**，支持最多 **384×36 crops** 等配置，并按场景（单图、多图、视频）自适应 **token budget**。关键设计洞见是：**scaling resolution** 往往比单纯 **scaling token count** 更有效——有利于在 **pixel level** 保留 **spatial detail**，而非仅增加可能冗余的 **tokens**。
-- **Dual / multi-encoder**：用不同尺度的独立 **encoder** 规避 **resolution–token** 权衡。**Mini-Gemini** 将低分辨率 ViT（336 或 672 px）与高分辨率 **ConvNeXt**（768 或 1536 px）配对，通过 **cross-attention** 从 HR 流挖掘 **spatial detail** 而不膨胀 **LLM input sequence**。**Cambrian-1** 组合最多四个 **encoder**（CLIP、SigLIP、ConvNeXt、DINOv2）于各自 **native resolution**，以发挥各自所长。
-- **Stage-wise resolution increase**：**Qwen-VL**（**224→448**，**multi-task pre-training**）与 **CogVLM**（**224→490**，**pre-training** 最后 30K iterations）采用课程式策略：先学粗对齐，再细化 **spatial detail**，避免全程高分辨率训练的计算成本。
+- **固定分辨率**：最简单。**BLIP-2** 用 224 像素，早期 **LLaVA** 用 336 像素。算力省，但细粒度差。**LLaVA-1.5** 表明仅从 224 提到 336，就能**明显减少**幻觉式描述，说明不少「数据噪声」问题，其实是**看得不够细**。
+- **动态切块 / AnyRes**：把图切成多块，每块用编码器原生分辨率处理，再合并特征。**LLaVA-1.5-HD** 等将图像分成多块网格并加全局视图；**OneVision** 等进一步支持多裁剪、对词元做压缩，并按单图/多图/视频等场景控制序列长度。经验上：**提高分辨率**往往比**盲目加长序列**更有效。
+- **双编码器或多编码器**：用不同尺度两路编码，缓解「分辨率 vs 序列长度」矛盾。**Mini-Gemini** 低分辨率 ViT 配高分辨率 ConvNeXt；**Cambrian-1** 可组合多路骨干，各取所长。
+- **分阶段提高分辨率**：**Qwen-VL**、**CogVLM** 等在预训练中先低分辨率再抬高，先学粗粒度 grounding 再细化，避免全程高分辨率训练太贵。
 
-### 2.3 Vision-Language Connectors {#subsec:rep-connectors}
+### 2.3 图文连接器 {#subsec:rep-connectors}
 
-**Connector** 将视觉特征映射到 **LLM token space**；其设计直接决定保留与压缩 **spatial information** 的权衡，因而对 **grounding** 影响深远。
+连接器把视觉特征送进大语言模型的输入空间；**保留多少位置信息、压缩多少**，直接决定 grounding 质量。
 
-#### 2.3.1 Linear Projection and MLP {#subsubsec:rep-linear-mlp}
+#### 2.3.1 线性层与 MLP {#subsubsec:rep-linear-mlp}
 
-**LLaVA-1.5** 表明 **two-layer MLP** 是「**surprisingly powerful and data-efficient**」的 **connector**：仅用约 558K **pre-training** 样本与 665K **instruction tuning** 样本，即可与在数亿 **image-text pairs** 上训练的系统竞争。**MLP** 通过 **ViT patch** 与 **LLM token** 的一一对应维持 **spatial structure**——每个 **patch** 对应一个 **LLM input token**。这既利于 **grounding**，也意味着 **visual tokens** 随分辨率近似平方增长，在 **spatial detail** 与 **context length** 之间形成张力。
+**LLaVA-1.5** 表明两层 MLP 就很好用：用较少数据也能与海量图文预训练的系统竞争。做法是让 **ViT 的每个 patch 对应语言模型侧的一个词元**，空间结构保留得好，但**词元数随分辨率近似平方涨**，细节与上下文长度之间要权衡。
 
 #### 2.3.2 Q-Former {#subsubsec:rep-q-former}
 
-**BLIP-2** 引入 **Q-Former**（轻量 **transformer**，188M 参数，自 **BERT_base** 初始化），使用 32 个可学习 **query embeddings** 与冻结图像特征通过 **cross-attention** 交互，输出固定长度 **32×768**，与输入分辨率无关。这构成 **information bottleneck**：**queries** 被迫通过 **ITC / ITM / ITG** 三目标 **pre-training** 提取最与文本相关的视觉特征。优点是计算高效——仅 32 个 **tokens** 送入 **LLM**；缺点是 **spatial structure** 基本被丢弃：**queries** 全局 attend 整张特征图，难以精确定位。这也解释 **BLIP-2** 本身不支持 **bounding box prediction** 或 **grounding tasks**。
+**BLIP-2** 的 **Q-Former** 用 32 个可学习查询与图像特征做交叉注意力，输出固定长度向量，**与分辨率无关**。这是典型的**信息瓶颈**：算力省，但空间结构被冲掉，**难以精确定位**，所以 **BLIP-2** 本身不好直接做框预测或 **grounding** 任务。
 
-#### 2.3.3 Cross-Attention Resampler with Positional Encoding {#subsubsec:rep-cross-attn-resampler}
+#### 2.3.3 带位置编码的交叉注意力压缩 {#subsubsec:rep-cross-attn-resampler}
 
-**Qwen-VL** 采用 **single-layer cross-attention module**，将视觉序列压缩为固定 **256 tokens**；关键是在 **cross-attention** 的 **query-key pairs** 中融入 **2D absolute positional encodings**，以缓解压缩过程中的位置信息损失。该设计直接支撑 **Qwen-VL** 的 **grounding**：模型可将 **bounding box coordinates** 输出为归一化文本串（格式 `(X_top_left, Y_top_left), (X_bottom_right, Y_bottom_right)` 归一化到 [0,1000)），**tokenize** 为普通文本，无需专用 **detection head**。
+**Qwen-VL** 用一层交叉注意力把视觉序列压到固定长度，**但在注意力里加入二维位置编码**，减轻压缩丢位置信息的问题。因此可以把**边界框坐标**写成归一化数字串，当普通文本输出，无需单独接检测头。
 
-#### 2.3.4 Deep Fusion via Visual Expert {#subsubsec:rep-deep-fusion}
+#### 2.3.4 视觉专家（深层融合）{#subsubsec:rep-deep-fusion}
 
-**CogVLM** 在 **LLM** 每一层 **transformer** 中增加可训练的 **visual expert module**：对 **image tokens** 使用独立 **QKV** 与 **FFN**，**text tokens** 仍用原始（冻结）**LLM 权重**。参数量翻倍，但 **FLOPs** 不变（图像与文本使用不同权重集）。**Deep fusion** 在 **grounding** 上达到 SOTA：**CogVLM-Grounding** 在 **RefCOCO val** 达 92.76%，甚至超过专用 **detection** 模型。**Ablation** 表明：**shallow alignment**（仅调 **adapter**）显著弱于 **deep fusion**，因为视觉特征需在多层中逐步变换以匹配各层深度的 **LLM internal representation**。
+**CogVLM** 在语言模型每一层为图像词元加**视觉专家**（独立注意力与前馈层），文本仍走原权重。**CogVLM-Grounding** 在 RefCOCO 等上很强，甚至超过专用检测模型。**消融**表明：只训浅层适配器，远不如**层层融合**——视觉特征需要逐层变换才能与语言内部表示对齐。
 
 **Table. Ablation: impact of connector depth on CogVLM performance**
 
@@ -137,13 +130,13 @@ This literature review examines how visual grounding and spatial understanding e
 | Visual Expert every 4th layer | 1.7 B | 117.4 | 77.6 |
 | Visual Expert every layer（full） | 6.6 B | 120.1 | 80.0 |
 
-#### 2.3.5 Spatial Vision Aggregator (SVA) {#subsubsec:rep-sva}
+#### 2.3.5 空间视觉聚合器 SVA {#subsubsec:rep-sva}
 
-**Cambrian-1** 提出 **Spatial Vision Aggregator（SVA）**，面向 **multi-encoder** 设置：**learnable 2D latent queries** 通过 **cross-attention** 与多路 **encoder** 特征交互，含两项关键创新：(1) **Spatial inductive bias**：每个 **query token** 显式与所有 **encoder feature maps** 上的 **spatial sub-region** 对齐，缓解 vanilla **resampler** 的 **global attention collapse**；(2) **Multi-layer aggregation**：在 **LLM** 中每隔 3 层插入 **cross-attention**，使 **LLM** 在处理更深表示时仍能反复访问未压缩的视觉特征。在受控比较中，**SVA** 在各类 **benchmark** 上均优于朴素拼接与标准 **resampler**，在 OCR 与图表等需高分辨率 **spatial understanding** 的任务上增益尤大；将 576 **tokens** 压到 36 时，**SVA** 比基于插值的方法或 **C-Abstractor** 保留更多 **spatial information**。
+**Cambrian-1** 提出 **SVA**，面向多编码器：用可学习的二维查询与多路特征交互，**强调每个查询对应一块空间区域**，减轻「全局注意力」把空间冲掉的问题；并在语言模型中每隔几层再插交叉注意力，让深层仍能访问较完整的视觉信息。强压缩时（例如 576 词元压到 36）比简单插值更省空间信息。
 
-#### 2.3.6 Patch Info Mining {#subsubsec:rep-patch-info-mining}
+#### 2.3.6 Patch 信息挖掘 {#subsubsec:rep-patch-info-mining}
 
-**Mini-Gemini** 的 **connector** 通过 **dual-encoder streams** 之间的 **cross-attention** 运作：低分辨率视觉嵌入为 **queries**，高分辨率 **ConvNeXt feature map** 为 **keys/values**；每个 **query** 仅 attend 其在 HR 特征图中的空间对应子区域，在保留局部性的同时 enrich 每个 **token**。「挖掘」后的 **visual tokens** 与 LR 编码 **token count** 相同，即使 **effective resolution** 很高也能控制 **LLM input length**。
+**Mini-Gemini** 连接器在双编码器之间做交叉注意力：低分辨率为查询，高分辨率为键值，**每个查询只看对应空间子区域**，在**不增加序列长度**的前提下增强细节。
 
 ### 2.4 Comparative Analysis: Impact on Grounding {#subsec:rep-comparative}
 
@@ -162,21 +155,21 @@ This literature review examines how visual grounding and spatial understanding e
 
 **归纳：**
 
-1. **Grounding 需要在 connector 中保留 spatial structure。** 强 **grounding** 模型（**Qwen-VL**、**CogVLM**、**InternVL**）均使用**保留 per-patch 空间信息**（**deep fusion**、**positional-aware resampler**）或维持高 **spatial resolution** 的 **connector**；相反，**BLIP-2** 的 **Q-Former** 将信息压缩到 32 个全局 **query**，无法支持 **grounding**。
-2. **Resolution 必要但不充分。** **LLaVA-OneVision** 通过 **AnyRes** 达到极高分辨率，但未包含 **grounding-specific** 训练数据，故不执行 **grounding** 任务；**Qwen-VL** 仅在 **448 px** 结合 **positional-aware compression** 与 **multi-task pre-training** 中的显式 **grounding** 数据（**GRIT**、**RefCOCO**），即可取得有竞争力的 **grounding**。
-3. **Training data 与 objectives 与架构同等重要。** **CogVLM** 的 **grounding** 不仅来自 **deep fusion**，还来自将图像与约 40M **noun-phrase-to-bounding-box** 标注配对的专用 **pre-training**。**Cambrian-1** 的高 **vision-centric** 分数既来自 **multi-encoder**，也来自约 7M 样本的 **curated instruction dataset**。
-4. **Self-supervised features** 在 **spatial tasks** 上可补充 **language-supervised** 特征。**Cambrian-1** 表明在 **CLIP** 系中加入 **DINOv2** 可提升 **vision-centric benchmarks**（**spatial relationship**、**depth order**），与 **grounding** 最相关。
-5. **Vision encoder scale** 的不对称仍在。尽管 **InternVL** 证明 **6B vision encoder** 同时改善 **perception** 与 **pixel-level** 任务，后续多数模型（**LLaVA-OneVision**、**Cambrian-1**、**Mini-Gemini**）仍采用 0.3–1.8B **encoder** 配 7–34B **LLM**；该不对称是否限制密集或小物体场景下的 **grounding accuracy** 仍是开放问题。
+1. **Grounding 依赖连接器里是否保留空间结构。** **Qwen-VL**、**CogVLM**、**InternVL** 等要么层层融合、要么带位置感知的压缩，**BLIP-2** 式 32 个全局查询则很难支持精细 **grounding**。
+2. **分辨率高不等于具备 grounding 能力。** **OneVision** 分辨率很高，但若没有 grounding 数据，仍不会做框任务；**Qwen-VL** 在适中分辨率下配合 grounding 数据与多任务预训练，仍能取得强 **grounding** 表现。
+3. **数据与目标与架构同样重要。** 例如 **CogVLM** 除架构外，还有大规模「名词短语—框」预训练；**Cambrian-1** 也依赖大规模指令数据。
+4. **自监督骨干**（如 **DINOv2**）可补空间关系、深度顺序等，**Cambrian-1** 等有实证。
+5. **视觉编码器与语言模型规模**仍常不对称：大语言模型配小视觉编码器是否限制密集场景与小物体，仍是开放问题。
 
-### 2.5 Summary {#subsec:rep-summary}
+### 2.5 小结 {#subsec:rep-summary}
 
-MLLM 从 **encoder** 到 **resolution strategy** 再到 **connector** 的 **visual representation pipeline** 如同 **information funnel**，决定其 **grounding capability** 的上界。趋势包括：(a) 通过 **dynamic tiling** 或 **dual-encoder** 提高输入分辨率；(b) **connector** 显式保留 **spatial structure**，而非压缩为固定长度的全局表示；(c) 组合多种 **encoder** 范式（**language-supervised + self-supervised + ConvNet**）以捕获互补视觉属性。但**仅凭表征质量**并不能自动产生 **grounded behavior**——它只决定何种 **spatial structure** 仍可供模型使用。下一节（第 3 节）讨论 MLLM 如何将保留的结构转化为可用的 **grounding outputs**（**coordinates**、**regions**、**masks**）。
+从编码器、分辨率到连接器，这条链路像**漏斗**，决定 grounding **理论上**能好到什么程度。趋势是：提高分辨率（切块或双编码器）、连接器少吞掉空间结构、多种骨干互补。但**表征好**不等于**输出一定足够 ground**，只决定「还能用什么空间信息」。下一节讨论：如何把保留的结构变成**坐标、区域、分割**等可用输出。
 
 ---
 
-## 3. Grounding Methods: From Coordinates to Regions {#sec:grounding-methods}
+## 3. Grounding 方法：从坐标到区域 {#sec:grounding-methods}
 
-若第 2 节问的是 MLLM 能保留多少 **spatial detail**，第 3 节则问这些细节如何被**操作化**为可用的 **grounding behavior**。近期 MLLM 文献中，**grounding methods** 沿三种表达力递增的 **output paradigms** 演进：**(i)** 作为文本生成的 **coordinates**；**(ii)** 将用户指定区域视为对话一等公民的 **region-aware interaction**；**(iii)** 将语言链接到 **pixel masks** 而非框的 **segmentation-level grounding**。贯穿这些范式的核心设计问题不仅是「如何预测位置」，而是**如何表示位置**，使其仍兼容 **next-token generation**、**instruction following** 与 **multi-task training**。参照近期 **visual grounding** 综述（Xiao et al.）的 **taxonomy**，本节聚焦从经典单框 **grounding** 向对话式、**open-vocabulary**、日益 **dense** 的 **grounding systems** 的 MLLM 时代转变。
+第 2 节问「还能保留多少空间细节」；第 3 节问这些细节如何变成**可用的 grounding 行为**。近年工作大致沿三条越来越强的输出形式：**(i)** 把坐标当文本生成；**(ii)** 让用户框选区域参与多轮对话；**(iii)** 把语言与**像素级 mask** 绑定，而不仅是矩形框。核心难点不只是「预测在哪」，而是**位置怎么表示**，才能既兼容「下一个词」式生成，又便于指令微调与多任务。本节从单框经典设定，写到对话式、开放词表、越来越密的 grounding 系统。
 
 ### 3.1 Coordinate Prediction as Language Generation {#subsec:grounding-coordinates}
 
@@ -186,7 +179,7 @@ MLLM 从 **encoder** 到 **resolution strategy** 再到 **connector** 的 **visu
 
 **Shikra** 保持自回归哲学，但取消专用 **coordinate vocabulary**，直接将框写为归一化自然语言数字 `[x_min, y_min, x_max, y_max]`。位置成为句中普通短语，无需额外 **tokenizer** 或 **position encoders**；对 **referential dialogue** 极灵活。**Ablation** 表明该数值表示在 **REC benchmarks** 上稳定优于「扩展词表」方案——将 **grounding** 压入 **LLM** 原生文本空间不仅更简单，往往更有效。代价是 **token efficiency**：单框展开为长数字串，**dense grounding** 或多物体输出笨重。
 
-**NExT-Chat** 揭示 **text-as-coordinate** 范式瓶颈：**coordinates** 并非真正的 **language**，纯 **token classification** 难以支持 **masks** 等更丰富格式。其答案是 **pix2emb**：引入 **`<trigger>` token**，由其 **hidden state** 经轻量 **heads** 解码为 **bounding box** 或 **segmentation mask**；配对的 **location encoder** 将给定框映射回单一嵌入以作区域输入，**cycle loss** 保持编解码对齐。位置仍嵌入自回归对话循环，但不再仅是字面文本；可用 **L1**、**GIoU** 等标准回归损失，同时保留统一对话接口。权衡是优化更微妙：平衡 **language loss** 与 **localization loss** 难于纯 **pix2seq** 表述，**REC** 在标准 **RefCOCO** 划分上略低于 **Shikra**。
+**NExT-Chat** 揭示 **text-as-coordinate** 范式瓶颈：**coordinates** 并非真正的 **language**，纯 **token classification** 难以支持 **masks** 等更丰富格式。其答案是 **pix2emb**：引入 **`<trigger>` token**，由其 **hidden state** 经轻量 **heads** 解码为 **bounding box** 或 **segmentation mask**；配对的 **location encoder** 将给定框映射回单一嵌入以作区域输入，**cycle loss** 保持编解码一致（encoder–decoder consistency）。位置仍嵌入自回归对话循环，但不再仅是字面文本；可用 **L1**、**GIoU** 等标准回归损失，同时保留统一对话接口。权衡是优化更微妙：平衡 **language loss** 与 **localization loss** 难于纯 **pix2seq** 表述，**REC** 在标准 **RefCOCO** 划分上略低于 **Shikra**。
 
 三者揭示 **coordinate modeling** 的演进：从 **discrete location tokens**（Kosmos-2）到 **plain-text numbers**（Shikra）再到 **hidden-state-triggered regression**（NExT-Chat）。**grounding** 只有部分是「语言」的：任务越像结构化 **spatial prediction** 而非普通续写，越需要将部分负担移出纯 **token generation**。
 
@@ -208,13 +201,13 @@ MLLM 从 **encoder** 到 **resolution strategy** 再到 **connector** 的 **visu
 
 **Ferret-v2** 强调 **region understanding** 根本上是 **resolution-sensitive**：**AnyRes** 缩放一致优于直接上采样，在细粒度识别、OCR、**REC**、**Ferret-Bench** 上均如此。架构上用 CLIP 全局视图 + DINOv2 局部高分辨率块并融合；并引入 **three-stage coarse-to-fine curriculum**（含 LVIS 式物体数据的中间 **dense alignment**）。将 **region grounding** 重构为 **dense local alignment** 问题，而非仅 **instruction following**；小物体 **referring/grounding** 的实证增益印证更好区域表征与更好训练课程可相互强化。
 
-**Osprey** 进一步认为框作为区域输入常过粗：框必然包含背景杂波，削弱训练与推理中区域与文本的对齐。故以 **mask-level referring** 替代框级输入，用 **mask-aware visual extractor** 在多级特征上从精确 **mask** 池化特征；训练数据 **Osprey-724K** 含物体级描述、对话、部件属性、平衡正/负鲁棒样本与短答指令。输入粒度改变带来部件级分类、细区域描述与 **region captioning** 的显著提升：例如 RefCOCOg **region captioning** 上 **108.3** **CIDEr**，在 Ferret-Bench **referring description** 与 **reasoning** 上亦优于所对比的 MLLM。局限是依赖可用 **mask**（标注或上游 **SAM** 等）。
+**Osprey** 进一步认为框作为区域输入常过粗：框必然包含背景杂波，削弱训练与推理中的 region–text **grounding**。故以 **mask-level referring** 替代框级输入，用 **mask-aware visual extractor** 在多级特征上从精确 **mask** 池化特征；训练数据 **Osprey-724K** 含物体级描述、对话、部件属性、平衡正/负鲁棒样本与短答指令。输入粒度改变带来部件级分类、细区域描述与 **region captioning** 的显著提升：例如 RefCOCOg **region captioning** 上 **108.3** **CIDEr**，在 Ferret-Bench **referring description** 与 **reasoning** 上亦优于所对比的 MLLM。局限是依赖可用 **mask**（标注或上游 **SAM** 等）。
 
 共同模式：**region-level grounding** 随区域不仅表示「在哪」，还表示「含何视觉内容」而改善。纯坐标对粗 **REC** 尚可，但对 **region captioning**、区域比较、部件推理与 **grounded conversation** 越来越脆。**Ferret** 与 **Osprey** 在不放弃 MLLM **instruction-following** 优势的前提下，将局部视觉特征重新引入交互循环。
 
 ### 3.3 Segmentation-Level Grounding {#subsec:grounding-segmentation}
 
-**Bounding boxes** 仍是有损接口：近似物体范围，难以描述非矩形部件，也不便用于提及多属性、**stuff regions** 或物体部件的对话输出。第三类方法将 **grounding** 从区域级框对齐升级为 **pixel-level grounding**，输出与语言绑定的 **segmentation mask**。
+**Bounding boxes** 仍是有损接口：近似物体范围，难以描述非矩形部件，也不便用于提及多属性、**stuff regions** 或物体部件的对话输出。第三类方法将 **grounding** 从区域级框预测升级为 **pixel-level grounding**，输出与语言绑定的 **segmentation mask**。
 
 **LISA** 给出简洁表述：词表增加 **`<SEG>` token**，将其最后一层 **hidden state** 解释为 **SAM-style mask decoder** 的 **prompt embedding**（**embedding-as-mask**）。**Segmentation** 可端到端纳入标准多模态 **LLM**，无需外部流水线；也避免将 **mask** 序列化为长多边形串。**Reasoning segmentation** 同时需要语义推理与 **mask** 输出；训练以语义分割、**referring segmentation**、**VQA** 为主，已展现强零样本 **reasoning segmentation**；仅在 **239 ReasonSeg samples** 上微调亦有大幅提升——说明一旦能将语言 **hidden state** 映射为 **mask prompts**，剩余缺口常在高层推理而非低层 **mask generation**。
 
@@ -226,7 +219,7 @@ MLLM 从 **encoder** 到 **resolution strategy** 再到 **connector** 的 **visu
 
 ### 3.4 Training Strategies: Data Construction, Curriculum, and Multi-Task Transfer {#subsec:grounding-training}
 
-代表性模型间的性能差异同样来自 **data design** 与 **training curriculum**。**grounding** 难以仅从通用 **image-caption alignment** 可靠涌现；必须通过显式将语言与 **spatial supervision** 耦合的数据来教授。
+代表性模型间的性能差异同样来自 **data design** 与 **training curriculum**。**Grounding** 难以仅从通用 **image-caption alignment** 可靠涌现；必须通过显式将语言与 **spatial supervision** 耦合的数据来教授。
 
 **模式一：自动大规模 grounding 数据构建。** Kosmos-2 的 **GrIT**、GLaMM 的 **GranD** 将网络 **image-text** 与自动标注结合，噪声相对 **RefCOCO** 类人工语料更大，但以覆盖与多样性补偿，利于学习开放词表下 **text spans** 与视觉区域的广泛关联。
 
@@ -256,11 +249,11 @@ MLLM 从 **encoder** 到 **resolution strategy** 再到 **connector** 的 **visu
 | Osprey | Mask-aware region tokens | Region description / reasoning text | Mask-level input, text output | Osprey-724K + multi-stage tuning | Precise mask-conditioned semantic understanding | Requires a usable upstream mask proposal |
 | Grounding DINO | Image-text fusion in detector pipeline | Detector boxes + phrases | Box | Grounded pre-training + optional RefCOCO fine-tuning | Highest localization accuracy and strong open-set transfer | Not a native conversational MLLM |
 
-**结论要点：** (1) **grounding methods** 离纯 **token generation** 越远，表达力通常越强——更丰富区域交互与 **mask** 输出往往需 **hidden-state decoding**、混合区域特征或显式 **decoder**。(2) **Region input** 与 **region output** 同等重要：输出框有用；**Ferret/Osprey** 表明更难的是**精确理解**所指区域，**mask-aware** 或混合区域表征持续改善 **region captioning** 与 **grounded reasoning**。(3) **Segmentation-level grounding** 不仅是更密的 **REC**——**LISA/GLaMM** 表明 **mask** 进入输出空间后，**grounding** 从物体定位扩展到短语级视觉解释。(4) **Accuracy** 与对话灵活性仍有权衡：**Grounding DINO** 在 **REC** 类 **benchmark** 微调后仍常强于多数 MLLM 式方法，因 **detector head** 对精确定位仍是更好工具；MLLM 以 **referential dialogue**、**grounded captioning** 等弥补部分差距，但权衡未消失。(5) **Data engineering** 决定性：**GrIT**、**GRIT**、**GranD**、**Osprey-724K**、**Shikra-RD** 等是实现 **instruction-following**、**open-vocabulary** 与鲁棒 **grounding** 的机制，方法论分歧不仅在架构，也在**可规模化合成的结构化 spatial supervision** 有多少。
+**结论要点：** (1) **grounding 方法** 离纯 **token generation** 越远，表达力通常越强——更丰富区域交互与 **mask** 输出往往需 **hidden-state decoding**、混合区域特征或显式 **decoder**。(2) **Region input** 与 **region output** 同等重要：输出框有用；**Ferret/Osprey** 表明更难的是**精确理解**所指区域，**mask-aware** 或混合区域表征持续改善 **region captioning** 与 **grounded reasoning**。(3) **Segmentation-level grounding** 不仅是更密的 **REC**——**LISA/GLaMM** 表明 **mask** 进入输出空间后，**grounding** 从物体定位扩展到短语级视觉解释。(4) **Accuracy** 与对话灵活性仍有权衡：**Grounding DINO** 在 **REC** 类 **benchmark** 微调后仍常强于多数 MLLM 式方法，因 **detector head** 对精确定位仍是更好工具；MLLM 以 **referential dialogue**、**grounded captioning** 等弥补部分差距，但权衡未消失。(5) **Data engineering** 决定性：**GrIT**、**GRIT**、**GranD**、**Osprey-724K**、**Shikra-RD** 等是实现 **instruction-following**、**open-vocabulary** 与鲁棒 **grounding** 的机制，方法论分歧不仅在架构，也在**可规模化合成的结构化 spatial supervision** 有多少。
 
 ### 3.6 Summary {#subsec:grounding-summary}
 
-MLLM **grounding methods** 可读作 **spatial output vocabulary** 的稳步扩张：从 **tokenized coordinates** → **content-aware regions** → **pixel-aligned masks**。Kosmos-2 与 Shikra 确立 **grounding** 可表述为 **language generation**；Ferret/Ferret-v2 表明区域特征与分辨率缩放对 **grounded interaction** 必不可少；LISA、GLaMM、NExT-Chat 表明 **hidden-state-triggered mask decoding** 使与 **segmentation** 兼容的 **grounding** 可行；Osprey 强调 **mask-level** 区域输入对细粒度语义理解的重要性。更好 **grounding** 来自表征、输出格式、数据构建与训练课程的**联合**改进。同时也划清 **grounding** 边界：定位区域尚不等于理解区域在空间中的关系，或在长文本 **generation** 中保持视觉忠实——这两方面驱动第 4、5 节。
+MLLM 的 **grounding** 方法可读作 **spatial output vocabulary** 的稳步扩张：从 **tokenized coordinates** → **content-aware regions** → **pixel-aligned masks**。Kosmos-2 与 Shikra 确立 **grounding** 可表述为 **language generation**；Ferret/Ferret-v2 表明区域特征与分辨率缩放对 **grounded interaction** 必不可少；LISA、GLaMM、NExT-Chat 表明 **hidden-state-triggered mask decoding** 使与 **segmentation** 兼容的 **grounding** 可行；Osprey 强调 **mask-level** 区域输入对细粒度语义理解的重要性。更强 **grounding** 来自表征、输出格式、数据构建与训练课程的**联合**改进。同时也划清 **grounding** 的边界：定位区域尚不等于理解区域在空间中的关系，或在长文本 **generation** 中保持视觉忠实——这两方面驱动第 4、5 节。
 
 ---
 
@@ -367,11 +360,11 @@ MLLM **grounding methods** 可读作 **spatial output vocabulary** 的稳步扩�
 
 本综述的一个核心问题是：**spatial reasoning** 应被视为 **grounding** 的延伸，还是独立能力？证据给出清晰但**有条件**的答案。
 
-**Grounding 是 spatial reasoning 的必要条件。** **SpatialRGPT** 等区域感知方法表明：当模型显式锚定到相关物体或区域时，**spatial QA** 更可靠。**Spatial-MM** 得到类似结论：**bounding boxes** 与 **scene-graph** 式结构有帮助，因为许多错误发生在「正式推理」之前——在识别**哪些实体应进入比较**的阶段就已出错。
+**Grounding 是空间推理的必要条件。** **SpatialRGPT** 等区域感知方法表明：当模型显式锚定到相关物体或区域时，**spatial QA** 更可靠。**Spatial-MM** 得到类似结论：**bounding boxes** 与 **scene-graph** 式结构有帮助，因为许多错误发生在「正式推理」之前——在识别**哪些实体应进入比较**的阶段就已出错。
 
-**Grounding 不是 spatial reasoning 的充分条件。** **CV-Bench**、**SpatialVLM**、**MM-Spatial** 均表明：仅靠准确的 **2D localization** 无法解决 **depth**、**distance** 或 **occlusion**；一旦任务需要度量或 **3D** 判断，模型需要的不仅是 **region alignment**，而是**几何结构**。
+**Grounding 不是空间推理的充分条件。** **CV-Bench**、**SpatialVLM**、**MM-Spatial** 均表明：仅靠准确的 **2D localization** 无法解决 **depth**、**distance** 或 **occlusion**；一旦任务需要度量或 **3D** 判断，模型需要的不仅是 **region alignment**，而是**几何结构**。
 
-最有生产力的解释是：**grounding** 与 **spatial reasoning** 构成**依赖链**而非单一合并技能。**Grounding** 提供相关实体与区域；**spatial reasoning** 在其上进行关系与几何推断。这也澄清了向下一节的过渡：即使模型能定位区域并回答部分空间问题，在 **open-ended generation** 中仍可能失去 **visual anchoring**，产生流利但**弱支持**的主张。
+最有生产力的解释是：**grounding** 与 **spatial reasoning** 构成**依赖链**而非单一合并技能。**grounding** 提供相关实体与区域；**空间推理**在其上进行关系与几何推断。这也澄清了向下一节的过渡：即使模型能定位区域并回答部分空间问题，在 **open-ended generation** 中仍可能失去 **visual anchoring**，产生流利但**弱支持**的主张。
 
 ### 4.6 Summary {#subsec:spatial-summary}
 
@@ -399,17 +392,17 @@ MLLM **grounding methods** 可读作 **spatial output vocabulary** 的稳步扩�
 
 综合第 5 节所涉论文，宜将 **hallucination** 视为在不同感知与 **generation** 阶段出现的 **grounding failures** 家族，而非单一错误类型。
 
-**1. Unsupported object claims（不支持的物体断言）。** 即 **POPE** 研究的典型 **object hallucination**：模型断言图像中**不存在**的物体。用 **grounding** 语言说，即语言被绑定到**不存在的 referent**。**LRV-Instruction** 表明：当 **training data** 以**正样本指令**为主时，当前 MLLM 特别容易陷入此类失败——模型被鼓励像「被查询实体总存在」那样作答。
+**1. Unsupported object claims（不支持的物体断言）。** 即 **POPE** 研究的典型 **object hallucination**：模型断言图像中**不存在**的物体。用 grounding 的话说，即语言被绑定到**不存在的 referent**。**LRV-Instruction** 表明：当 **training data** 以**正样本指令**为主时，当前 MLLM 特别容易陷入此类失败——模型被鼓励像「被查询实体总存在」那样作答。
 
 **2. Misgrounded attributes and relations（错置的属性与关系）。** 模型可能找对物体，却在颜色、计数、位置、动作或关系上出错。**Hallu-PI** 显式将 **hallucination** 扩展到 **perturbation** 下的属性与关系错误。**LRV-Instruction** 也表明：**hallucination** 不仅是「不存在的物体」；操纵**已存在物体**的属性或高层知识，有时比简单拒答**更难**。
 
 **3. Prior-dominated answers（先验主导的回答）。** **HallusionBench** 区分 **visual illusion** 与 **language hallucination**：后者指模型从**参数记忆**或**语言先验**而非实际图像作答；在编辑图像或**知识密集型**问题上尤其明显——模型重复「通常成立」之事，而非「视觉上成立」之事。从 **grounding** 视角，模型不仅是「看错」，而是**不再把图像当作决定性证据**。
 
-**4. Visually induced misinterpretation（视觉诱导的误读）。** **HallusionBench** 的第二类 **visual illusion** 指相反失败：模型**确实尝试**使用图像，却从中提取错误信息。对 **grounding** 综述而言这很关键：**并非所有 hallucination 都来自语言先验**；部分源于弱感知判别、差的几何阅读，或无法正确解析编辑图、图表式输入或强错觉刺激。
+**4. Visually induced misinterpretation（视觉诱导的误读）。** **HallusionBench** 的第二类 **visual illusion** 指相反失败：模型**确实尝试**使用图像，却从中提取错误信息。对 grounding 综述而言这很关键：**并非所有 hallucination 都来自语言先验**；部分源于弱感知判别、差的几何阅读，或无法正确解析编辑图、图表式输入或强错觉刺激。
 
 **5. Robustness under degraded evidence（退化证据下的鲁棒性失败）。** **Hallu-PI** 表明：在裁剪、拼接、模糊或**误导性 prompt** 下，**hallucination** 率上升。未必是全新错误类型，但揭示**条件性**：即便在干净数据上看似 **grounded**，一旦 **visual evidence** 变得部分、嘈杂或结构上具有干扰性，**grounding** 仍可能崩溃。
 
-该 **taxonomy** 是跨论文综合，而非某一 **benchmark** 的封闭标签集；其用处在于将 **hallucination** 文献与更广泛的 **grounding pipeline** 对齐。核心问题不仅是回答是否错误，而是**语言与视觉证据之间的绑定**以何种方式、在何处断裂。
+该 **taxonomy** 是跨论文综合，而非某一 **benchmark** 的封闭标签集；其用处在于将 **hallucination** 文献与更广泛的 **grounding pipeline** 衔接起来。核心问题不仅是回答是否错误，而是**语言与视觉证据之间的绑定**以何种方式、在何处断裂。
 
 ### 5.2 Benchmarks and Diagnostic Frameworks {#subsec:failure-benchmarks}
 
@@ -440,7 +433,7 @@ MLLM **grounding methods** 可读作 **spatial output vocabulary** 的稳步扩�
 
 **LURE** 用统计方法识别 **object hallucination** 的三类驱动因素：**co-occurrence bias**（与真实物体共现的物体更易被 **hallucinate**）、**decoding uncertainty**、**object position**（**hallucinated** 提及常出现在低置信 **decoding** 步与生成描述的后段）。这表明 **hallucination** 常在模型到达语义上**似 plausible** 但视觉上**弱支持**的片段时产生，且模型选择**继续生成**而非**弃权**。
 
-**OPERA** 在 **token** 层面解释这种漂移：在 **self-attention** 中反复出现 **knowledge aggregation** 或 **partial over-trust**——后续 **tokens** 过度依赖邻近摘要式 **tokens**，对序列前端的原始 **visual tokens** 依赖减弱。由于当前 MLLM 常把 **image tokens** 放在上下文**前部**，长 **generation** 会随时间**削弱**视觉证据。用 **grounding** 话说：回复**起始于** **visually anchored**，随后**越来越多地**由**已生成文本**中介。
+**OPERA** 在 **token** 层面解释这种漂移：在 **self-attention** 中反复出现 **knowledge aggregation** 或 **partial over-trust**——后续 **tokens** 过度依赖邻近摘要式 **tokens**，对序列前端的原始 **visual tokens** 依赖减弱。由于当前 MLLM 常把 **image tokens** 放在上下文**前部**，长 **generation** 会随时间**削弱**视觉证据。用 grounding 的话说：回复**起始于** **visually anchored**，随后**越来越多地**由**已生成文本**中介。
 
 **VCD** 补充以 **visual uncertainty** 为中心的因果叙事：**当图像被扰动**时，**MLLMs** 更易回退到语言先验与数据集级统计偏置；高频或共现物体在噪声输入下更常被 **hallucinate**。弱感知**并非**仅增加随机性，而是**系统性**推模型走向其**已预期**的物体与属性。
 
@@ -497,15 +490,15 @@ MLLM **grounding methods** 可读作 **spatial output vocabulary** 的稳步扩�
 
 ### 5.6 Summary {#subsec:failure-summary}
 
-近期第 5 节文献**大幅拓宽**了 MLLM 中 **「hallucination」** 的含义。**POPE** 稳定探测**不支持的物体断言**；**Hallu-PI** 表明这些失败在扰动下**恶化**；**LURE** 将 **hallucination** 与 **co-occurrence bias**、不确定性与**位置**联系起来；**HallusionBench** 分离 **language hallucination** 与 **visual illusion**；**LRV-Instruction** 表明**平衡负监督**重要；**OPERA** 与 **VCD** 表明 **inference-time decoding** 可**部分**对抗先验驱动 **generation**；**RLHF-V** 与 **ViGoR** 将可信性框定为**细粒度对齐**问题；**Woodpecker** 展示**外部验证**闭环的潜力。
+近期第 5 节文献**大幅拓宽**了 MLLM 中 **「hallucination」** 的含义。**POPE** 稳定探测**不支持的物体断言**；**Hallu-PI** 表明这些失败在扰动下**恶化**；**LURE** 将 **hallucination** 与 **co-occurrence bias**、不确定性与**位置**联系起来；**HallusionBench** 分离 **language hallucination** 与 **visual illusion**；**LRV-Instruction** 表明**平衡负监督**重要；**OPERA** 与 **VCD** 表明 **inference-time decoding** 可**部分**对抗先验驱动 **generation**；**RLHF-V** 与 **ViGoR** 将可信性框定为**细粒度 grounding / 偏好对齐**问题；**Woodpecker** 展示**外部验证**闭环的潜力。
 
-对本综述而言，主结论是：**hallucination** 应读作 **grounding** 的 **failure regime**。模型可能因从未学会拒绝无支持断言**而**失去 **grounding**；可能因 **visual uncertainty** **放大**先验；可能因长 **decoding** **偏离**早期 **image tokens**；也可能因对齐信号过粗**无法**教可靠 **abstention**。这也澄清未来工作的开放问题：强 **MLLM** 不仅要**能生成** **grounded outputs**，还要在 **generation** 全程**对 grounding 的限度保持校准**。
+对本综述而言，主结论是：**hallucination** 应读作 **grounding** 的 **failure regime**。模型可能因从未学会拒绝无支持断言**而**失去 **grounding**；可能因 **visual uncertainty** **放大**先验；可能因长 **decoding** **偏离**早期 **image tokens**；也可能因 **grounding** 监督信号过粗**无法**教可靠 **abstention**。这也澄清未来工作的开放问题：强 **MLLM** 不仅要**能生成** **grounded outputs**，还要在 **generation** 全程**对 grounding 的限度保持校准**。
 
 ---
 
 ## 6. Discussion and Future Directions {#sec:discussion}
 
-前几节沿 **capability chain** 展开，而非孤立任务列表：**visual representations** 决定保留何种 **spatial structure**；**grounding methods** 决定该结构如何转化为 **language** 与 **image regions** 之间的可用对齐；**spatial reasoning** 建立在该对齐之上；**hallucination** 则在链条变弱时暴露 **failure regime**。本节综合跨阶段**共享瓶颈**，并给出对领域现状的**总体判断**。
+前几节沿 **capability chain** 展开，而非孤立任务列表：**visual representations** 决定保留何种 **spatial structure**；**grounding 方法** 决定该结构如何转化为 **language** 与 **image regions** 之间的可用对应；**spatial reasoning** 建立在该 **grounding** 之上；**hallucination** 则在链条变弱时暴露 **failure regime**。本节综合跨阶段**共享瓶颈**，并给出对领域现状的**总体判断**。
 
 ### 6.1 Shared Bottlenecks Across the Pipeline {#subsec:discussion-bottlenecks}
 
@@ -521,9 +514,9 @@ MLLM **grounding methods** 可读作 **spatial output vocabulary** 的稳步扩�
 
 本综述最清晰的结论之一是：**grounding** 与 **spatial reasoning** **既非同一**也**非独立**。
 
-**Grounding 是 reasoning 的必要条件。** **SpatialRGPT** 等区域感知方法表明：当模型显式锚定到相关物体或区域时，**spatial reasoning** **显著**改善。更一般地，许多 **spatial reasoning** 失败**部分**是**识别失败**：若模型尚未定位**哪两个物体**应进入关系比较，就无法对二者关系做正确推断。
+**Grounding 是推理的必要条件。** **SpatialRGPT** 等区域感知方法表明：当模型显式锚定到相关物体或区域时，**spatial reasoning** **显著**改善。更一般地，许多 **spatial reasoning** 失败**部分**是**识别失败**：若模型尚未定位**哪两个物体**应进入关系比较，就无法对二者关系做正确推断。
 
-**但 grounding 不是 reasoning 的充分条件。** 精确定位**不保证**对 **depth**、**distance**、**occlusion** 或多步 **spatial composition** 的成功判断。**SpatialVLM** 与 **MM-Spatial** 均表明：一旦任务超越 **2D region alignment**，常需显式 **3D** 或 **depth-aware** 监督。在此意义上，**grounding** 提供推理的**实体**，但**不提供**完整**几何**。
+**但 grounding 不是 reasoning 的充分条件。** 精确定位**不保证**对 **depth**、**distance**、**occlusion** 或多步 **spatial composition** 的成功判断。**SpatialVLM** 与 **MM-Spatial** 均表明：一旦任务超越 **2D region alignment**，常需显式 **3D** 或 **depth-aware** 监督。在此意义上，**grounding** 提供推理所依赖的**实体**，但**不提供**完整**几何**。
 
 **失败在阶段间级联。** 最有用的综合是**级联视角**：部分失败始于 **encoder**（相关 **spatial information** 表征弱）；部分始于 **grounding**（错定位区域或在长文 **generation** 中丢失局部证据）；部分始于 **reasoning**（已有正确区域但缺乏关系或几何机制）；第 5 节增加**最后阶段**：链条已弱时，模型仍可能产生**流利且高置信**的语言，将上游 **spatial** 错误转化为下游 **hallucination**。
 
@@ -555,7 +548,7 @@ MLLM **grounding methods** 可读作 **spatial output vocabulary** 的稳步扩�
 
 第二，**当前 MLLM 的主要弱点较少在于缺乏流利 generation，而在于缺乏 stable visual anchoring。** 模型往往能**令人印象深刻地**描述场景，但从 **encoder** 表征到 **grounded reasoning** 的链条在小物体、杂乱、深度歧义、扰动与长文 **generation** 下**仍脆**。
 
-第三，**未来进展不太可能来自任何单一干预层。** 更好的 **encoder**、更丰富的 **grounding** 输出、更强的 **spatial** 监督、改进的 **decoding** 与更细粒度对齐**都重要**，但其效果**只有**在**整条 capability chain** 上被**联合**考虑时才**compound**。
+第三，**未来进展不太可能来自任何单一干预层。** 更好的 **encoder**、更丰富的 **grounding** 输出、更强的 **spatial** 监督、改进的 **decoding** 与更细粒度的偏好/人类反馈对齐（如 RLHF）**都重要**，但其效果**只有**在**整条 capability chain** 上被**联合**考虑时才**compound**。
 
 领域因此处于重要**转折点**：**visual grounding** 与 **spatial understanding** 在 **MLLM** 中**已非缺席**，但也**远未解决**。下一步进展取决于将 **grounded perception**、**spatial reasoning** 与 **calibration** 视为**同一多模态系统**中**紧密耦合**的性质，而非彼此独立的插件。
 
@@ -567,7 +560,7 @@ MLLM **grounding methods** 可读作 **spatial output vocabulary** 的稳步扩�
 - **正文**：`.../archive/grounding_review_body.tex`（**§1–§6** 与小节 `\label{...}` 与本 Markdown 标题对应）
 - **参考文献**：`.../archive/grounding_review_refs.bib`（`\citep{...}` 键与 TeX 正文一致）
 
-**覆盖说明**：本文件已包含 **Abstract**（中英）、**Keywords**、**第 1–6 节**及全部 **subsubsection** 主题；**longtable** 均已转为 Markdown 表格；第 4 节 **SpatialVLM / SpatialRGPT / MM-Spatial** 与第 5 节 **taxonomy / propagation / mitigation** 等与 `grounding_review_body.tex` **逐段对齐补全**。编译 PDF 时仍以 `\bibliography{grounding_review_refs}` 为准。
+**覆盖说明**：本文件已包含 **Abstract**（中英）、**Keywords**、**第 1–6 节**及全部 **subsubsection** 主题；**longtable** 均已转为 Markdown 表格；第 4 节 **SpatialVLM / SpatialRGPT / MM-Spatial** 与第 5 节 **taxonomy / propagation / mitigation** 等与 `grounding_review_body.tex` **逐段对应补全**。编译 PDF 时仍以 `\bibliography{grounding_review_refs}` 为准。
 
 如需 **arXiv** 链接对照，可参见同目录 **`citation_arxiv_links.md`**（与本中文版一并提交仓库）。
 
