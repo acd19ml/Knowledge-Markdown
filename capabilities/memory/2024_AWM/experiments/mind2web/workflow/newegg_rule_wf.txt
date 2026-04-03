@@ -1,0 +1,224 @@
+## Workflow 1: Concrete Trajectory for Remove the SSD on my cart
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Shopping Cart -> CLICK
+- [button]  trash REMOVE -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 2: Concrete Trajectory for Upgrade the count of the current SSD in my cart to 10
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Shopping Cart -> CLICK
+- [textbox]  qty -> TYPE: 10
+- [textbox]  qty -> ENTER
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 3: Concrete Trajectory for Find a projector which accepts crypto currency as payment.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [searchbox]  Search Site -> TYPE: projectors
+- [button]   -> CLICK
+- [label]  ON -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 4: Concrete Trajectory for Find a gaming desktop with an rtx4000 GPU, available in stock.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]   Computer Systems  -> HOVER
+- [link]  Gaming Desktops -> CLICK
+- [span]  NVIDIA GeForce RTX 4000 -> CLICK
+- [label]  ON -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 5: Concrete Trajectory for Find a gaming pc which can run Call of Duty Warzone at 4k.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [generic]  Site Menu -> CLICK
+- [link]  icon of Gaming PC Finder Gaming PC Finder -> CLICK
+- [button]  4K -> CLICK
+- [div]  Remove -> CLICK
+- [button]  VIEW RESULTS -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 6: Concrete Trajectory for Find the cheapest power supply unit with at least 600W power output.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [searchbox]  Search Site -> TYPE: 600w power supply
+- [button]   -> CLICK
+- [generic]  600 W -> CLICK
+- [combobox]  Featured Items  -> SELECT: Lowest Price
+- [img]  Hercules DUAL FAN 600w-Max ATX Power Supply SATA, ... -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 7: Concrete Trajectory for Find a wireless keyboard and mouse combo under $100.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [searchbox]  Search Site -> TYPE: wireless keyboard mouse
+- [button]   -> CLICK
+- [textbox]  price to -> TYPE: 100
+- [button]  APPLY -> CLICK
+- [link]  Logitech MK270 Wireless Keyboard And Mouse Combo F... -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 8: Concrete Trajectory for Browse bluetooth headphones with active noise-cancellation.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [searchbox]  Search Site -> TYPE: headphones
+- [button]   -> CLICK
+- [span]  Active -> CLICK
+- [button]  APPLY -> CLICK
+- [span]  Bluetooth -> CLICK
+- [button]  APPLY -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 9: Concrete Trajectory for Find a Lenovo laptop under $800 and create a price alert for $400.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [searchbox]  Search Site -> TYPE: lenovo laptop
+- [button]   -> CLICK
+- [div]  Newest Lenovo Ideapad 3i Laptop, 14" FHD Display, ... -> CLICK
+- [div]  Price Alert -> CLICK
+- [textbox]  price from -> TYPE: 400
+- [button]  SUBMIT -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 10: Concrete Trajectory for Show the Recommended Gaming PCs for someone who plays Fortnite, Overwatch and GTA V at 4k
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [generic]  Site Menu -> CLICK
+- [link]  icon of Gaming PC Finder Gaming PC Finder -> CLICK
+- [div]  Remove -> CLICK
+- [div]  Remove -> CLICK
+- [p]  Remove -> CLICK
+- [button]  4K -> CLICK
+- [button]  VIEW RESULTS -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 11: Concrete Trajectory for Find an LED TV below $1000.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [generic]  Site Menu -> CLICK
+- [link]  TV & Home Theater  -> CLICK
+- [div]  TV & Accessories -> CLICK
+- [link]  LED TV -> CLICK
+- [dt]  Price -> CLICK
+- [textbox]  price to -> TYPE: 1000
+- [button]  APPLY -> CLICK
+- [img]  Samsung 65" Class Q80B Series QLED 4K Smart TV (QN... -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 12: Concrete Trajectory for Compare two wireless printers that are rated above 4 stars.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [searchbox]  Search Site -> TYPE: wireless printer
+- [button]   -> CLICK
+- [dt]  Customer Ratings -> CLICK
+- [i]   -> CLICK
+- [button]  APPLY -> CLICK
+- [span]  Compare -> CLICK
+- [span]  Compare -> CLICK
+- [button]  COMPARE -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 13: Concrete Trajectory for add a motherboard under $200 and a compatible processor at any price to the shopping cart.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [searchbox]  Search Site -> TYPE: motherboard
+- [button]   -> CLICK
+- [textbox]  price to -> TYPE: 200
+- [button]  APPLY -> CLICK
+- [link]  GIGABYTE B450M DS3H WIFI AM4 AMD B450 SATA 6Gb/s M... -> CLICK
+- [a]  Processors - Desktops -> CLICK
+- [div]  AMD Ryzen 5 5600 - Ryzen 5 5000 Series Vermeer (Ze... -> CLICK
+- [button]  ADD 2 ITEMS TO CART  -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 14: Concrete Trajectory for Find the most expensive Sony controller compatible with PS5 with free shipping and add it to my cart.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]   Gaming & VR  -> HOVER
+- [link]  PS5 Accessories -> CLICK
+- [generic]  Controller -> CLICK
+- [span]  Sony -> CLICK
+- [button]  APPLY -> CLICK
+- [span]  Free Shipping -> CLICK
+- [button]  APPLY -> CLICK
+- [combobox]  Featured Items  -> SELECT: Highest Price
+- [button]  ADD TO CART  -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 15: Concrete Trajectory for Find the lowest-priced single pack of Xerox genuine magenta toner sold by Newegg with free shipping.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]   Computer Peripherals  -> CLICK
+- [link]  Printer Ink & Toner  -> CLICK
+- [link]  Xerox Toner -> CLICK
+- [span]  Newegg -> CLICK
+- [button]  APPLY -> CLICK
+- [span]  Magenta -> CLICK
+- [button]  APPLY -> CLICK
+- [span]  Single Pack -> CLICK
+- [button]  APPLY -> CLICK
+- [combobox]  Featured Items  -> SELECT: Lowest Price
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 16: Concrete Trajectory for Find the cheapest unused wireless Logitech Keyboard under $70.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [searchbox]  Search Site -> TYPE: wireless keyboard
+- [button]   -> CLICK
+- [span]  New -> CLICK
+- [button]  APPLY -> CLICK
+- [span]  Logitech -> CLICK
+- [button]  APPLY -> CLICK
+- [textbox]  price to -> TYPE: 70
+- [button]  APPLY -> CLICK
+- [combobox]  Featured Items  -> SELECT: Lowest Price
+- [link]  Logitech K120 Wired Keyboard for Windows, Plug and... -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 17: Concrete Trajectory for Find the cheapest Samsung-made and larger than 11-inch screen Android tablet, in the price range of 200 to 300 dollars and add it to the cart.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]   Electronics  -> CLICK
+- [link]  Tablets -> CLICK
+- [img]  Samsung -> CLICK
+- [span]  11" & Larger -> CLICK
+- [button]  APPLY -> CLICK
+- [span]  8.7" -> CLICK
+- [button]  APPLY -> CLICK
+- [span]  $200 - $300 -> CLICK
+- [button]  APPLY -> CLICK
+- [combobox]  Featured Items  -> SELECT: Lowest Price
+- [button]  ADD TO CART  -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 18: Concrete Trajectory for Add Western Digital internal SSD with 1TB storage and 8GB Ram DDR to the cart.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [searchbox]  Search Site -> CLICK
+- [searchbox]  Search Site -> TYPE: Western Digital internal SSD 1 TB
+- [button]   -> CLICK
+- [link]  Western Digital WD_BLACK SN770 M.2 2280 1TB PCIe G... -> CLICK
+- [button]  ADD TO CART  -> CLICK
+- [button]  NO, THANKS -> CLICK
+- [button]  Close -> CLICK
+- [searchbox]  Search Site -> TYPE: 8GB Ram
+- [button]   -> CLICK
+- [img]  8GB (1x8GB) DDR3L 1600 (PC3L-12800) Desktop Memory... -> CLICK
+- [button]  ADD TO CART  -> CLICK
+- [button]  NO, THANKS -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 19: Concrete Trajectory for Build a PC with Intel i9 Raptor Lake 24 cores, Asus ROG strix Z790 motherboard, Asus TUF Rtx 4090 and remaining all compatible products with SSD.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [generic]  Site Menu -> CLICK
+- [link]  icon of Build Your Own Custom PC Build Your Own Cu... -> CLICK
+- [link]   CPU -> CLICK
+- [button]  START A NEW BUILD -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [link]  SSD Storage -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [link]  Fan & Heatsink CPU Cooler -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [button]   SELECT -> CLICK
+- [link]  Gaming Monitors Accessories -> CLICK
+- [button]   SELECT -> CLICK
+- [button]  SAVE LIST -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.

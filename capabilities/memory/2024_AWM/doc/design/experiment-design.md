@@ -2,7 +2,7 @@
 
 > 本文档的目标不是提出新的批判性问题，而是**完整复现论文已经报告的核心实验结论**。
 > 只有在这些结论被尽可能完整地验证之后，才进入第二阶段的批判性扩展。
-> 具体命令、脚本入口、代码改动与运行顺序，统一放到 [experiment-protocol.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/experiment-protocol.md)。
+> 具体命令、脚本入口、代码改动与运行顺序，统一放到 [experiment-protocol.md](experiment-protocol.md)。
 
 ---
 
@@ -271,7 +271,7 @@
 - 输出目录规范
 - 需要修改哪些脚本
 
-这些都放在 [experiment-protocol.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/experiment-protocol.md)。
+这些都放在 [experiment-protocol.md](experiment-protocol.md)。
 
 本文件是“这一阶段要复现哪些论文结论”；
-[experiment-protocol.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/experiment-protocol.md) 是“如何把这些复现实验跑出来”。
+[experiment-protocol.md](experiment-protocol.md) 是“如何把这些复现实验跑出来”。

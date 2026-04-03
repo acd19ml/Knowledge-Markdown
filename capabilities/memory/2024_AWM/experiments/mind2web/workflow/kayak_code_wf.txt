@@ -1,0 +1,34 @@
+def enter_search_location(location_field, location_name, location_suggestion):
+    """Given that you are on the Kayak search page, this workflow enters a city, airport, or landmark into the location field and selects the autocomplete suggestion."""
+    TYPE(location_field, location_name)
+    CLICK(location_suggestion)
+
+def select_calendar_date(date_input, date_day):
+    """Given that you are on the Kayak search page, this workflow opens the date picker and selects a specific travel date."""
+    CLICK(date_input)
+    CLICK(date_day)
+
+def apply_amenity_filter(filter_menu, filter_option):
+    """Given that you are on the Kayak search results or filter page, this workflow opens a filter menu and selects a specific amenity option."""
+    CLICK(filter_menu)
+    CLICK(filter_option)
+
+def sort_search_results(current_sort, desired_sort):
+    """Given that you are on the Kayak search results page, this workflow changes the sorting order of the results."""
+    CLICK(current_sort)
+    CLICK(desired_sort)
+
+def set_flight_trip_type(trip_type_menu, trip_type):
+    """Given that you are on the Kayak flight search page, this workflow changes the flight trip type (e.g. to One-way)."""
+    CLICK(trip_type_menu)
+    CLICK(trip_type)
+
+def adjust_guests_rooms(increment, confirm_close):
+    """Given that you are on the Kayak search page, this workflow increments the number of guests or rooms and confirms the selection."""
+    CLICK(increment)
+    CLICK(confirm_close)
+
+def book_selected_option(price_option, view_deal):
+    """Given that you are on the Kayak search results page, this workflow selects a specific price option and proceeds to view the deal."""
+    CLICK(price_option)
+    CLICK(view_deal)

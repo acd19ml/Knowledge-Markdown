@@ -1,0 +1,35 @@
+### Workflow 3: find_trip_by_confirmation
+**Description:** This workflow finds a trip using a confirmation number and passenger name.
+- [tab] MY TRIPS -> CLICK
+- [link or combobox] Find trip by confirmation number -> CLICK
+- [textbox/input] Confirmation or ticket number -> TYPE: {confirmation-number}
+- [textbox/input] Last Name -> TYPE: {passenger-last-name}
+- [button] SUBMIT/SEARCH -> CLICK
+
+### Workflow 4: view_baggage_information
+**Description:** Navigates to baggage information and calculates fees or views charges.
+- [tab] TRAVEL INFO -> CLICK
+- [link] Baggage info or Baggage fee calculator -> CLICK
+- [textbox/input] Confirmation number or Details -> TYPE: {confirmation-number} (if applicable)
+- [textbox/input] Last Name -> TYPE: {passenger-last-name} (if applicable)
+- [button] View my bag charges or Calculate fee -> CLICK
+
+### Workflow 5: search_flight_status
+**Description:** Searches for flight status using various parameters.
+- [heading or tab] Flight status -> CLICK
+- [textbox/input] Flight number or Departure city -> TYPE: {flight-number or departure-city}
+- [option or button] Date of flight or Destination city -> CLICK/SELECT: {date or destination-city}
+- [button] Search/Check status -> CLICK
+
+### Workflow 6: book_car_rental
+**Description:** Books a car rental using a city and specific dates.
+- [heading] CAR -> CLICK
+- [combobox] Enter pick-up city, airport name, or airport code -> TYPE: {pick-up-city}
+- [best suggestion] {pick-up-city} -> CLICK
+- [textbox/button] Pick-up date -> CLICK
+- [button] {start-date} -> CLICK
+- [textbox/button] Drop-off date -> CLICK
+- [button] {end-date} -> CLICK
+- [button] Find cars button -> CLICK
+
+These workflows cover the common and repetitive navigational tasks observed in the provided instructions. They provide a structured method to perform frequent subtasks such as entering flight details, selecting travel dates, searching for trip details, viewing baggage info, checking flight status, and booking car rentals.

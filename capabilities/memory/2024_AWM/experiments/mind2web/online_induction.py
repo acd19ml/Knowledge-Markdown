@@ -4,7 +4,7 @@ import os
 import json
 import argparse
 from utils.data import load_json, format_examples, filter_workflows
-from utils.openai_client import build_openai_client
+from utils.openai_client import build_openai_client, create_chat_completion_with_retry
 
 client = build_openai_client()
 
@@ -33,7 +33,14 @@ def main():
     print(f"Filtering down to #{len(samples)} examples on website [{args.website}]")
     
     # load model predictions and format examples
-    result_files = [os.path.join(args.results_dir, f) for f in os.listdir(args.results_dir)]
+    result_files = sorted(
+        [
+            os.path.join(args.results_dir, f)
+            for f in os.listdir(args.results_dir)
+            if f.endswith(".json") and f[:-5].isdigit()
+        ],
+        key=lambda p: int(os.path.basename(p).split(".")[0]),
+    )
     result_list = [get_trajectory(rf) for rf in result_files]
     examples = []
     for r, s in zip(result_list, samples):
@@ -48,7 +55,8 @@ def main():
     ONE_SHOT = open(args.one_shot_path, 'r').read()
     domain, subdomain, website = samples[0]["domain"], samples[0]["subdomain"], samples[0]["website"]
     prompt = '\n\n'.join([INSTRUCTION, ONE_SHOT, f"Website: {domain}, {subdomain}, {website}\n{prompt}"])
-    response = client.chat.completions.create(
+    response = create_chat_completion_with_retry(
+            client,
             model=args.model_name,
             messages=[{"role": "user", "content": prompt}],
             temperature=args.temperature,

@@ -1,0 +1,38 @@
+## search_and_apply_filters
+Given that you are on the search page of Newegg, this workflow performs a search and applies multiple filters to narrow down the results.
+1. [searchbox]  Search Site -> TYPE: {search-term}
+2. [button]   -> CLICK
+3. {multiple filters applied with clicks and applies}
+   - [element]  {filter-category} -> CLICK
+   - [button]  APPLY -> CLICK
+
+## add_item_to_cart
+Given that you are on the product page in Newegg, this workflow adds an item to the shopping cart.
+1. [button]  ADD TO CART  -> CLICK
+2. [button]  NO, THANKS -> CLICK (Optional: if a popup for extended warranty or additional service appears)
+
+## build_custom_pc
+Given that you want to build a custom PC on Newegg, this workflow navigates through and selects components.
+1. [generic]  Site Menu -> CLICK
+2. [link]  icon of Build Your Own Custom PC Build Your Own Cu... -> CLICK
+3. [link]  Select Component Category -> CLICK
+4. [button]   SELECT -> CLICK (Multiple times, depending on number of components)
+
+## shopping_cart_management
+Given that you have navigated to your shopping cart on Newegg, this workflow manages items within the cart.
+1. [link]  Shopping Cart -> CLICK
+2. [button]  {desired-action} -> CLICK (to remove or update items)
+   - For example, to remove an item: [button]  trash REMOVE -> CLICK
+
+## search_and_sort_items
+Given that you are on Newegg's search page, this combines searching and sorting relevant items.
+1. [searchbox]  Search Site -> TYPE: {search-key}
+2. [button]   -> CLICK
+3. [combobox]  Featured Items  -> SELECT: {Sorting criterion}
+   - Examples include selecting 'Lowest Price' or 'Highest Price'.
+
+## custom_pc_finder
+Given that you are on the Gaming PC Finder page of Newegg, this workflow selects gaming settings and fetches available results.
+1. [link]  icon of Gaming PC Finder Gaming PC Finder -> CLICK
+2. [button]  Choose gaming setting -> CLICK (e.g., 4K)
+3. [button]  VIEW RESULTS -> CLICK

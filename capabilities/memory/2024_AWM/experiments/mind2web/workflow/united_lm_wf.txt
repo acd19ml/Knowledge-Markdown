@@ -1,0 +1,32 @@
+## Summary Workflows:
+
+## enter_flight_locations
+Given that you are on the United Airlines booking or search page, this workflow enters the departure and destination city/airport for your flight.
+[combobox]  Enter your departing city, airport name, or airpor... -> TYPE: {origin-city}
+[button]  {origin-option} -> CLICK
+[combobox]  Enter your destination city, airport name, or airp... -> TYPE: {destination-city}
+[button]  {destination-option} -> CLICK
+
+## select_travel_dates
+Given that you are on the United Airlines booking or search page, this workflow selects the travel date(s) from the calendar.
+[textbox]  {date-field} -> CLICK
+[button]  {start-date} -> CLICK
+[button]  {end-date} -> CLICK
+
+## navigate_travel_info
+Given that you are on the United Airlines homepage, this workflow navigates to a specific travel information page.
+[tab]  TRAVEL INFO -> CLICK
+[link]  {info-link} -> CLICK
+
+## search_rental_car
+Given that you are on the United Airlines homepage, this workflow initiates a car rental search with a specific pickup location.
+[heading]  CAR -> CLICK
+[combobox]  Enter pick up city, airport name, or airport code. -> TYPE: {city}
+[div]  {city-option} -> CLICK
+[button]  Find cars button. -> CLICK
+
+## enter_trip_credentials
+Given that you are on a trip retrieval or check-in page, this workflow enters the confirmation number and passenger last name to access trip details.
+[textbox]  {confirmation-field} -> TYPE: {confirmation-number}
+[textbox]  {last-name-field} -> TYPE: {last-name}
+[button]  {submit-button} -> CLICK

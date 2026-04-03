@@ -1,0 +1,42 @@
+## Workflow 1: Enter Location for Car or Hotel Search
+Given that you are on the car or hotel search page, this workflow enters the pick-up/drop-off location or city for your search.
+- [textbox] Pick-up/Enter location -> CLICK
+- [textbox] Pick-up/Enter location -> TYPE: {your-location}
+- [span] {best-popup-option} -> CLICK
+
+## Workflow 2: Select Travel Dates
+Given that you are on the search page for flights, cars, or hotels, this workflow selects the travel dates.
+- [generic/button] Start date/End date -> CLICK
+- [div/gridcell] {start-date} -> CLICK
+- [div/gridcell] {end-date} -> CLICK
+
+## Workflow 3: Select One-Way Flight
+Given that you are on the flight search page, this workflow changes the flight to be one-way.
+- [tab] One-way -> CLICK
+
+## Workflow 4: Search for Vacation Packages
+Given that you are on the package search page, this workflow searches for vacation packages.
+- [link] Search for packages -> CLICK
+- [button] Search packages -> CLICK
+
+## Workflow 5: Search Flights
+Given that you are on the flight search page, this workflow searches flights by the origin and destination.
+- [textbox] Flight origin input -> TYPE: {origin-city}
+- [span] {best-popup-option} -> CLICK
+- [textbox] Flight destination input -> TYPE: {destination-city}
+- [span] {best-popup-option} -> CLICK
+
+## Workflow 6: Select Flight Filters
+Given that you are on the flight results page, this workflow selects filters such as non-stop and airline preference.
+- [button/label] {filter} -> CLICK
+
+## Workflow 7: Select Hotel Filters
+Given that you are on the hotel results page, this workflow selects filters such as amenities and rating.
+- [checkbox/tab] {filter} -> CLICK
+
+## Workflow 8: View and Select Deals
+Given that you are on a search results page, this workflow hovers and/or clicks to view and select available deals.
+- [div] View Deal -> HOVER
+- [div] View Deal -> CLICK
+
+These workflows represent common actions that are repeated across multiple tasks, optimized to avoid overlap.

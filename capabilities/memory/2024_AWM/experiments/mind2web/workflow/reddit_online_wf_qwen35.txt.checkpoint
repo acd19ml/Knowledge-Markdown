@@ -1,0 +1,25 @@
+# Summary Workflows:
+## search_community
+Given that you are on the Reddit homepage, this workflow searches for a specific community and navigates to it.
+[searchbox]  search reddit -> TYPE: {community_name}
+[link]  {community_result} -> CLICK
+
+## join_community
+Given that you are on the Reddit community search results or page, this workflow navigates to the community and joins it.
+[link]  {community_link} -> CLICK
+[button]  Join -> CLICK
+
+## search_posts
+Given that you are on the Reddit homepage, this workflow searches for posts or comments using keywords.
+[searchbox]  search reddit -> TYPE: {keyword}
+[button]  Search for {keyword} -> CLICK
+
+## sort_content
+Given that you are on a Reddit search result or community page, this workflow changes the sorting criteria of the content.
+[button]  Sort -> CLICK
+[menuitem]  {sort_option} -> CLICK
+
+## filter_by_time
+Given that you are on a Reddit search result or community page, this workflow filters the content by a specific time range.
+[button]  Time -> CLICK
+[menuitem]  {time_range} -> CLICK

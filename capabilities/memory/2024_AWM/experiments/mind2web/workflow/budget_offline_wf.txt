@@ -1,0 +1,56 @@
+The following workflows are extracted based on repetitive actions across the car rental queries:
+
+## search_and_select_location
+Given that you are on the Budget car rental page, this workflow searches for a rental location based on city, airport, zip code, or attraction and selects the best matching option.
+1. [button] Locations or Reservations -> CLICK
+2. [link] Find a Location or Make a Reservation -> CLICK
+3. [textbox] Search by Airport, City, Zip, Address or Attraction -> TYPE: {location}
+4. [span] {best-matching-option} -> CLICK
+
+## choose_vehicle_type_with_extras
+Given that you are on the Budget car rental page after selecting or searching a location, this workflow selects a vehicle type and adds optional extras.
+1. [generic] Vehicle Type * or [button] Select My Car -> CLICK
+2. [p] {vehicle-type} -> CLICK
+3. [link] Pay Now -> CLICK
+4. [checkbox] {extra-option} -> CLICK
+
+## enter_pickup_and_return_dates_and_times
+Given that you are on the Budget car reservation page, this workflow enters the pickup and return dates and times.
+1. [textbox] mm/dd/yyyy -> CLICK
+2. [link] {pickup-date} -> CLICK
+3. [combobox] Pick Up Time -> SELECT: {pickup-time}
+4. [textbox] mm/dd/yyyy -> CLICK
+5. [link] {return-date} -> CLICK
+6. [combobox] Return Time -> SELECT: {return-time}
+
+## find_and_view_reservation
+Given that you are on the Budget car reservation page, this workflow finds and views an existing reservation using a confirmation number and customer's last name.
+1. [button] Reservations -> CLICK
+2. [link] View / Modify / Cancel -> CLICK
+3. [combobox] Select Residency -> SELECT: {country}
+4. [input] {last-name} -> TYPE: {last-name}
+5. [input] {confirmation-number} -> TYPE: {confirmation-number}
+6. [button] Find Reservation -> CLICK
+
+## search_for_job_in_usa_finance
+Given that you are on the Budget Careers page, this workflow searches for a full-time finance job in the USA.
+1. [link] Careers -> CLICK
+2. [link] Openings -> CLICK
+3. [button] Country -> CLICK
+4. [searchbox] Search -> CLICK
+5. [option] United States of America -> CLICK
+6. [button] Team -> CLICK
+7. [searchbox] Search -> CLICK
+8. [option] Finance -> CLICK
+9. [button] Time Type -> CLICK
+10. [searchbox] Search -> CLICK
+11. [option] Full time -> CLICK
+12. [button] SEARCH BY JOB TITLE OR KEYWORD -> CLICK
+
+## learn_about_deals_and_offers
+Given that you are on the Budget deals page, this workflow allows you to save or view more information about deals.
+1. [button] Deals -> CLICK
+2. [link] {specific-deal} -> CLICK
+3. [button] Learn More or Save Now -> CLICK
+
+These workflows condense repetitive sequences of actions from the car rental tasks on the identified website, ensuring streamlined and efficient interactions for users attempting to achieve similar goals.

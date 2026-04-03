@@ -1,0 +1,186 @@
+======================================================================
+AWM LM vs Rule Workflow Text Comparison
+======================================================================
+
+======================================================================
+  LM vs Rule Workflow Comparison: kayak
+======================================================================
+
+  Metric                            LM       Rule      Delta
+  ---------------------------------------------------------
+  Num workflows                      8         17         -9
+  Total steps                       14        213       -199
+  Avg steps/workflow               1.8       12.5           
+  Placeholders                      13          0        +13
+  Unique placeholders               13          0        +13
+  Concrete values                    0         25        -25
+  Task-specific WFs                  0         17        -17
+  Abstract/reusable WFs              8          0         +8
+
+  [Action Type Distribution]
+  Type           LM   Rule
+  ------------------------
+  CLICK          13    187
+  TYPE            1     25
+
+  [Abstraction Indicators]
+  + LM uses more placeholders (13 vs 0)
+    Examples: ['{location_field}', '{location_suggestion}', '{filter_menu}', '{date_input}', '{filter_option}']
+  + Rule retains more concrete values (25 vs 0)
+    Examples: ['Las Vegas', 'Seattle', 'Santa Fe', 'Chennai', 'Miami Airport']
+  + LM workflows are more compact (1.8 vs 12.5 steps/wf)
+  + LM has more abstract/reusable workflows (8 vs 0)
+
+  [Paper Claim: 'LM induction produces more abstract, reusable sub-routines']
+  -> SUPPORTED (4/4 indicators)
+
+  [LM Workflows — kayak] (8 total)
+    1. Summary Workflows:
+       Steps: 
+    2. enter_search_location
+       Steps: [textbox]  {location_field} -> TYPE: {location_name}; [span]  {location_suggestion} -> CLICK
+    3. select_calendar_date
+       Steps: [button]  {date_input} -> CLICK; [div]  {date_day} -> CLICK
+    4. apply_amenity_filter
+       Steps: [button]  {filter_menu} -> CLICK; [checkbox]  {filter_option} -> CLICK
+    5. sort_search_results
+       Steps: [div]  {current_sort} -> CLICK; [tab]  {desired_sort} -> CLICK
+    6. set_flight_trip_type
+       Steps: [svg]  {trip_type_menu} -> CLICK; [tab]  {trip_type} -> CLICK
+    7. adjust_guests_rooms
+       Steps: [button]  Increment -> CLICK; [path]  {confirm_close} -> CLICK
+    8. book_selected_option
+       Steps: [div]  {price_option} -> CLICK; [div]  View Deal -> CLICK
+
+  [Rule Workflows — kayak] (17 total, showing first 5)
+    1. Workflow 1: Concrete Trajectory for Find vacation packages to Hawaii.
+       Steps: [link]  Search for packages -> CLICK; [link]  Hawaii Vacations -> CLICK; [button]  Search packages -> CLICK
+    2. Workflow 2: Concrete Trajectory for Find hotels in Las Vegas, NV that offer free
+       Steps: [link]  Search for hotels -> CLICK; [textbox]  Enter a city, hotel, airport, address or landmark -> CLICK; [textbox]  En
+    3. Workflow 3: Concrete Trajectory for Search for rental cars in Seattle, WA and fi
+       Steps: [link]  Search for cars -> CLICK; [textbox]  Pick-up location -> CLICK; [textbox]  Pick-up location -> TYPE: Seattle ...
+    4. Workflow 4: Concrete Trajectory for Browse for places to stay in Santa Fe, New M
+       Steps: [link]  Search for hotels -> CLICK; [textbox]  Enter a city, hotel, airport, address or landmark -> TYPE: Santa Fe; [spa
+    5. Workflow 5: Concrete Trajectory for Get the hotel with highest review score havi
+       Steps: [link]  Search for hotels -> CLICK; [textbox]  Enter a city, hotel, airport, address or landmark -> TYPE: Chennai; [opti
+    ... and 12 more workflows
+
+======================================================================
+  LM vs Rule Workflow Comparison: newegg
+======================================================================
+
+  Metric                            LM       Rule      Delta
+  ---------------------------------------------------------
+  Num workflows                      6         19        -13
+  Total steps                       10        149       -139
+  Avg steps/workflow               1.7        7.8           
+  Placeholders                       6          0         +6
+  Unique placeholders                6          0         +6
+  Concrete values                    0         16        -16
+  Task-specific WFs                  0         19        -19
+  Abstract/reusable WFs              6          0         +6
+
+  [Action Type Distribution]
+  Type           LM   Rule
+  ------------------------
+  CLICK           8    125
+  SELECT          0      5
+  TYPE            2     16
+
+  [Abstraction Indicators]
+  + LM uses more placeholders (6 vs 0)
+    Examples: ['{filter-option}', '{menu-option}', '{category-link}', '{search-term}', '{max-price}']
+  + Rule retains more concrete values (16 vs 0)
+    Examples: ['10', 'projectors', '600w power supply', 'wireless keyboard mouse', '100']
+  + LM workflows are more compact (1.7 vs 7.8 steps/wf)
+  + LM has more abstract/reusable workflows (6 vs 0)
+
+  [Paper Claim: 'LM induction produces more abstract, reusable sub-routines']
+  -> SUPPORTED (4/4 indicators)
+
+  [LM Workflows — newegg] (6 total)
+    1. Summary Workflows:
+       Steps: 
+    2. search_product
+       Steps: [searchbox]  Search Site -> TYPE: {search-term}; [button]   -> CLICK
+    3. apply_price_filter
+       Steps: [textbox]  price to -> TYPE: {max-price}; [button]  APPLY -> CLICK
+    4. apply_selection_filter
+       Steps: [span]  {filter-option} -> CLICK; [button]  APPLY -> CLICK
+    5. navigate_category_links
+       Steps: [link]  {category-link} -> CLICK; [link]  {subcategory-link} -> CLICK
+    6. open_site_menu_and_select
+       Steps: [generic]  Site Menu -> CLICK; [link]  {menu-option} -> CLICK
+
+  [Rule Workflows — newegg] (19 total, showing first 5)
+    1. Workflow 1: Concrete Trajectory for Remove the SSD on my cart
+       Steps: [link]  Shopping Cart -> CLICK; [button]  trash REMOVE -> CLICK
+    2. Workflow 2: Concrete Trajectory for Upgrade the count of the current SSD in my c
+       Steps: [link]  Shopping Cart -> CLICK; [textbox]  qty -> TYPE: 10; [textbox]  qty -> ENTER
+    3. Workflow 3: Concrete Trajectory for Find a projector which accepts crypto curren
+       Steps: [searchbox]  Search Site -> TYPE: projectors; [button]   -> CLICK; [label]  ON -> CLICK
+    4. Workflow 4: Concrete Trajectory for Find a gaming desktop with an rtx4000 GPU, a
+       Steps: [link]   Computer Systems  -> HOVER; [link]  Gaming Desktops -> CLICK; [span]  NVIDIA GeForce RTX 4000 -> CLICK ... (+
+    5. Workflow 5: Concrete Trajectory for Find a gaming pc which can run Call of Duty 
+       Steps: [generic]  Site Menu -> CLICK; [link]  icon of Gaming PC Finder Gaming PC Finder -> CLICK; [button]  4K -> CLICK ... (+2
+    ... and 14 more workflows
+
+======================================================================
+  LM vs Rule Workflow Comparison: united
+======================================================================
+
+  Metric                            LM       Rule      Delta
+  ---------------------------------------------------------
+  Num workflows                      6         24        -18
+  Total steps                       16        217       -201
+  Avg steps/workflow               2.7        9.0           
+  Placeholders                      15          0        +15
+  Unique placeholders               15          0        +15
+  Concrete values                    0         41        -41
+  Task-specific WFs                  0         24        -24
+  Abstract/reusable WFs              6          0         +6
+
+  [Action Type Distribution]
+  Type           LM   Rule
+  ------------------------
+  CLICK          11    174
+  SELECT          0      2
+  TYPE            5     41
+
+  [Abstraction Indicators]
+  + LM uses more placeholders (15 vs 0)
+    Examples: ['{start-date}', '{last-name-field}', '{info-link}', '{last-name}', '{end-date}']
+  + Rule retains more concrete values (41 vs 0)
+    Examples: ['1234', '123456', 'John', 'Phoenix', 'Atas']
+  + LM workflows are more compact (2.7 vs 9.0 steps/wf)
+  + LM has more abstract/reusable workflows (6 vs 0)
+
+  [Paper Claim: 'LM induction produces more abstract, reusable sub-routines']
+  -> SUPPORTED (4/4 indicators)
+
+  [LM Workflows — united] (6 total)
+    1. Summary Workflows:
+       Steps: 
+    2. enter_flight_locations
+       Steps: [combobox]  Enter your departing city, airport name, or airpor... -> TYPE: {origin-city}; [button]  {origin-option} -> C
+    3. select_travel_dates
+       Steps: [textbox]  {date-field} -> CLICK; [button]  {start-date} -> CLICK; [button]  {end-date} -> CLICK
+    4. navigate_travel_info
+       Steps: [tab]  TRAVEL INFO -> CLICK; [link]  {info-link} -> CLICK
+    5. search_rental_car
+       Steps: [heading]  CAR -> CLICK; [combobox]  Enter pick up city, airport name, or airport code. -> TYPE: {city}; [div]  {city-op
+    6. enter_trip_credentials
+       Steps: [textbox]  {confirmation-field} -> TYPE: {confirmation-number}; [textbox]  {last-name-field} -> TYPE: {last-name}; [butt
+
+  [Rule Workflows — united] (24 total, showing first 5)
+    1. Workflow 1: Concrete Trajectory for Show me the page with information about Wi-F
+       Steps: [tab]  TRAVEL INFO -> CLICK; [link]  Pre-paid Wi-Fi -> CLICK; [p]  Wi-Fi subscriptions -> CLICK
+    2. Workflow 2: Concrete Trajectory for Search the status of flight from Columbus, n
+       Steps: [heading]  Flight status -> CLICK; [textbox]  Flight number -> TYPE: 1234; [button]  Search -> CLICK
+    3. Workflow 3: Concrete Trajectory for Browse check in with confirmation number 123
+       Steps: [heading]  Check-in -> CLICK; [textbox]  Confirmation or ticket number* -> TYPE: 123456; [textbox]  Last name* -> TYPE: 
+    4. Workflow 4: Concrete Trajectory for Find the TSA Guidelines to travel with Child
+       Steps: [tab]  TRAVEL INFO -> CLICK; [link]  Traveling with children -> CLICK; [link]  sit on a parent’s lap -> CLICK ... (+2 mo
+    5. Workflow 5: Concrete Trajectory for Find a round trip from Phoenix to Miami with
+       Steps: [combobox]  Flying from -> TYPE: Phoenix; [button]  Phoenix, AZ, US (PHX) -> CLICK; [button]  Search -> CLICK ... (+2 mo
+    ... and 19 more workflows

@@ -1,0 +1,26 @@
+## search_for_cars_kayak
+This workflow navigates to the car rental search section on the Kayak website.
+1. [link]  Search for cars -> CLICK
+
+## select_location_kayak
+This workflow selects a location for car rentals on the Kayak website.
+1. [input] Pick-up location -> TYPE: {desired-location}
+2. [option] {best-popup-option} -> CLICK
+
+## select_dates_for_rental_kayak
+This workflow selects both start and end dates for a car rental on the Kayak website.
+1. [button] Start date -> CLICK
+2. [button] {start-date} -> CLICK
+3. [button] End date -> CLICK
+4. [button] {end-date} -> CLICK
+
+## search_flights_kayak
+This workflow allows the user to track a flight on the Kayak website.
+1. [input] Airline -> TYPE: {airline-name}
+2. [textbox] Flight number -> TYPE: {flight-number}
+3. [button] Track Flight -> CLICK
+
+## browse_car_type_kayak
+This workflow allows the user to browse available car types on the Kayak website.
+1. [button] Submit click to search cars -> CLICK
+2. [button] Click to select "{car-type}" car -> CLICK

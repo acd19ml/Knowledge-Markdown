@@ -24,6 +24,13 @@ capabilities/grounding/papers/sources/
 # Grounding survey: local archive only (LaTeX sources / old section drafts), not pushed to GitHub
 capabilities/grounding/manuscript/archive/
 
+# AWM experiment result logs (large, reproducible)
+capabilities/memory/2024_AWM/experiments/mind2web/results/gpt-4o/
+capabilities/memory/2024_AWM/experiments/mind2web/results/qwen/
+
+# Personal CV
+CV/
+
 # LaTeX build artifacts
 *.aux
 *.fdb_latexmk

@@ -59,6 +59,12 @@ if __name__ == "__main__":
     parser.add_argument("--subdomain", type=str, default=None)
     parser.add_argument("--workflow_path", type=str, required=True)
     parser.add_argument("--suffix", type=str, default="workflow")
+    parser.add_argument(
+        "--obs_mode",
+        type=str,
+        default="html_only",
+        choices=["desc_only", "html_only", "desc_html"],
+    )
 
     # ablation
     parser.add_argument("--mode", type=str, default="memory", choices=["memory", "action"])

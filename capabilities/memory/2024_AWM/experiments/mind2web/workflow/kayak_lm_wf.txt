@@ -1,0 +1,35 @@
+## Summary Workflows:
+## enter_search_location
+Given that you are on the Kayak search page, this workflow enters a city, airport, or landmark into the location field and selects the autocomplete suggestion.
+[textbox]  {location_field} -> TYPE: {location_name}
+[span]  {location_suggestion} -> CLICK
+
+## select_calendar_date
+Given that you are on the Kayak search page, this workflow opens the date picker and selects a specific travel date.
+[button]  {date_input} -> CLICK
+[div]  {date_day} -> CLICK
+
+## apply_amenity_filter
+Given that you are on the Kayak search results or filter page, this workflow opens a filter menu and selects a specific amenity option.
+[button]  {filter_menu} -> CLICK
+[checkbox]  {filter_option} -> CLICK
+
+## sort_search_results
+Given that you are on the Kayak search results page, this workflow changes the sorting order of the results.
+[div]  {current_sort} -> CLICK
+[tab]  {desired_sort} -> CLICK
+
+## set_flight_trip_type
+Given that you are on the Kayak flight search page, this workflow changes the flight trip type (e.g. to One-way).
+[svg]  {trip_type_menu} -> CLICK
+[tab]  {trip_type} -> CLICK
+
+## adjust_guests_rooms
+Given that you are on the Kayak search page, this workflow increments the number of guests or rooms and confirms the selection.
+[button]  Increment -> CLICK
+[path]  {confirm_close} -> CLICK
+
+## book_selected_option
+Given that you are on the Kayak search results page, this workflow selects a specific price option and proceeds to view the deal.
+[div]  {price_option} -> CLICK
+[div]  View Deal -> CLICK

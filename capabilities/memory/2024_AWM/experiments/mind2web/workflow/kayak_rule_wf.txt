@@ -1,0 +1,280 @@
+## Workflow 1: Concrete Trajectory for Find vacation packages to Hawaii.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Search for packages -> CLICK
+- [link]  Hawaii Vacations -> CLICK
+- [button]  Search packages -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 2: Concrete Trajectory for Find hotels in Las Vegas, NV that offer free airport shuttle service.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Search for hotels -> CLICK
+- [textbox]  Enter a city, hotel, airport, address or landmark -> CLICK
+- [textbox]  Enter a city, hotel, airport, address or landmark -> TYPE: Las Vegas
+- [span]  Las Vegas, Nevada, United States -> CLICK
+- [svg]   -> CLICK
+- [checkbox]  Free airport shuttle -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 3: Concrete Trajectory for Search for rental cars in Seattle, WA and filter the results by the Best score.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Search for cars -> CLICK
+- [textbox]  Pick-up location -> CLICK
+- [textbox]  Pick-up location -> TYPE: Seattle
+- [span]  Seattle, Washington, United States -> CLICK
+- [svg]   -> CLICK
+- [svg]   -> CLICK
+- [tab]  Best score -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 4: Concrete Trajectory for Browse for places to stay in Santa Fe, New Mexico for a weekend starting on Jun 16th for 3 guests and 2 rooms.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Search for hotels -> CLICK
+- [textbox]  Enter a city, hotel, airport, address or landmark -> TYPE: Santa Fe
+- [span]  Santa Fe, New Mexico, United States -> CLICK
+- [div]  16 -> CLICK
+- [div]  18 -> CLICK
+- [button]  Increment -> CLICK
+- [button]  Increment -> CLICK
+- [path]   -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 5: Concrete Trajectory for Get the hotel with highest review score having free internet and free cancelation in Chennai for 20/03/23
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Search for hotels -> CLICK
+- [textbox]  Enter a city, hotel, airport, address or landmark -> TYPE: Chennai
+- [option]  Chennai, Tamil Nadu, India -> CLICK
+- [button]  Monday March 20, 2023 -> CLICK
+- [button]  Search -> CLICK
+- [svg]   -> CLICK
+- [tab]  Review score -> CLICK
+- [checkbox]  Free internet -> CLICK
+- [checkbox]  Free cancellation -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 6: Concrete Trajectory for Search for a rental car in Miami, FL for pick up at the airport and drop off at a different location within the same city.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Search for cars -> CLICK
+- [svg]   -> CLICK
+- [tab]  Different drop-off -> CLICK
+- [textbox]  Pick-up location -> CLICK
+- [textbox]  Pick-up location -> TYPE: Miami Airport
+- [span]  Miami -> CLICK
+- [textbox]  Drop-off location -> CLICK
+- [textbox]  Drop-off location -> TYPE: Miami
+- [span]  Miami, Florida, United States -> CLICK
+- [svg]   -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 7: Concrete Trajectory for Search for flights from New York City to London and filter the results to show only non-stop flights.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [svg]   -> CLICK
+- [tab]  One-way -> CLICK
+- [path]   -> CLICK
+- [textbox]  Flight origin input -> TYPE: New York City
+- [input]   -> CLICK
+- [textbox]  Flight destination input -> CLICK
+- [textbox]  Flight destination input -> TYPE: London
+- [input]   -> CLICK
+- [svg]   -> CLICK
+- [div]   -> CLICK
+- [div]   -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 8: Concrete Trajectory for Find the fastest single stop flight fron JFK airport in New York to Male in Maldives on March 13
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [span]  Round-trip -> CLICK
+- [tab]  One-way -> CLICK
+- [textbox]  Flight origin input -> TYPE: new york
+- [div]  John F Kennedy Intl -> CLICK
+- [textbox]  Flight destination input -> TYPE: male
+- [span]  Malé, Maldives -> CLICK
+- [button]  Start date calendar input -> CLICK
+- [div]  13 -> CLICK
+- [button]  Search -> CLICK
+- [div]   -> CLICK
+- [div]  Quickest -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 9: Concrete Trajectory for Find a cheapest SUV in Brooklyn for 1 day.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Search for cars -> CLICK
+- [textbox]  Pick-up location -> CLICK
+- [textbox]  Pick-up location -> TYPE: Brooklyn
+- [span]  Brooklyn, New York, United States -> CLICK
+- [span]  Different drop-off -> CLICK
+- [tab]  Same drop-off -> CLICK
+- [button]  End date -> CLICK
+- [button]  May 22, 2023 -> CLICK
+- [svg]   -> CLICK
+- [img]  SUV -> CLICK
+- [div]  $75 -> CLICK
+- [div]  View Deal -> HOVER
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 10: Concrete Trajectory for book the cheapest hotel in Le maraise neighborhood in paris with 2 room for 3 adult on March 27th to April 2nd.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Search for hotels -> CLICK
+- [textbox]  Enter a city, hotel, airport, address or landmark -> TYPE: Le maraise
+- [span]  Le Marais, Paris, France -> CLICK
+- [div]  27 -> CLICK
+- [div]  2 -> CLICK
+- [button]  Search -> CLICK
+- [button]  Number of rooms and guests -> CLICK
+- [button]  Increment -> CLICK
+- [button]  Increment -> CLICK
+- [div]  Update -> CLICK
+- [div]  Distance -> CLICK
+- [tab]  Price (low to high) -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 11: Concrete Trajectory for Find a cheapest one way flight from Mumbai to Dubai on 24 May.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [button]  Remove -> CLICK
+- [textbox]  Flight origin input -> TYPE: Mumbai
+- [span]  Chhatrapati Shivaji Intl -> CLICK
+- [textbox]  Flight destination input -> TYPE: Dubai
+- [span]  Dubai, United Arab Emirates -> CLICK
+- [svg]   -> CLICK
+- [tab]  One-way -> CLICK
+- [generic]  Thursday May 18th -> CLICK
+- [div]  24 -> CLICK
+- [button]  Search -> CLICK
+- [div]  $141 -> CLICK
+- [div]  View Deal -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 12: Concrete Trajectory for From Birmingham (BHX) to Paris search for packages with casinos, restaurant, fitness and a free internet from April 7th to 11th.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Search for packages -> CLICK
+- [textbox]  From -> TYPE: Birmingham
+- [span]  Birmingham, England, United Kingdom -> CLICK
+- [textbox]  Enter destination or airport -> TYPE: Paris
+- [span]  City -> CLICK
+- [generic]  Tuesday April 4th -> CLICK
+- [div]  7 -> CLICK
+- [button]  Tuesday April 11, 2023 -> CLICK
+- [svg]   -> CLICK
+- [checkbox]  Free internet -> CLICK
+- [button]  Amenities -> CLICK
+- [checkbox]  Casino -> CLICK
+- [checkbox]  Restaurant -> CLICK
+- [checkbox]  Fitness -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 13: Concrete Trajectory for check cheap flights from NYC to London on 23rd of April for students over 18 years.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Search for flights -> CLICK
+- [svg]   -> CLICK
+- [tab]  One-way -> CLICK
+- [button]  1 adult -> CLICK
+- [button]  Increment -> CLICK
+- [path]   -> CLICK
+- [textbox]  Flight destination input -> CLICK
+- [textbox]  Flight origin input -> TYPE: new york
+- [button]  Remove -> CLICK
+- [span]  New York, United States -> CLICK
+- [textbox]  Flight destination input -> TYPE: london
+- [span]  All airports -> CLICK
+- [generic]  Thursday April 20th -> CLICK
+- [div]  23 -> CLICK
+- [path]   -> CLICK
+- [span]  Cheapest -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 14: Concrete Trajectory for Find the cheapest Hawaii package for two adults from June 18 to 21, and the hotel must be near a beach, have a beachfront, hot tub, and pool, and provides towels.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Search for packages -> CLICK
+- [link]  Hawaii Vacations -> CLICK
+- [generic]  Departure date input -> CLICK
+- [button]  Next month -> CLICK
+- [gridcell]  June 18 -> CLICK
+- [gridcell]  June 21 -> CLICK
+- [button]  Search packages -> CLICK
+- [button]  Amenities -> CLICK
+- [checkbox]  Beachfront -> CLICK
+- [checkbox]  Hot tub -> CLICK
+- [checkbox]  Pool -> CLICK
+- [checkbox]  Towels -> CLICK
+- [button]  Property style -> CLICK
+- [checkbox]  Beach -> CLICK
+- [div]  Recommended -> CLICK
+- [tab]  Price (low to high) -> CLICK
+- [div]  View Deal -> CLICK
+- [button]  Next: Final details -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 15: Concrete Trajectory for Search for the cheapest two rooms near Kashi Vishwanath Temple in India for three adults and a 7-year-old kid from June 6 to 10 in any 3-star and up air-conditioned family hotel with a review score of at least 8, free internet.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Search for hotels -> CLICK
+- [textbox]  Enter a city, hotel, airport, address or landmark -> TYPE: kashi vishwanath temple
+- [span]  Kashi Vishwanath Temple, Varanasi, Uttar Pradesh, ... -> CLICK
+- [path]   -> CLICK
+- [div]  6 -> CLICK
+- [div]  10 -> CLICK
+- [button]  Increment -> CLICK
+- [button]  Increment -> CLICK
+- [button]  Increment -> CLICK
+- [span]  0 -> TYPE: 7
+- [tab]  7 -> CLICK
+- [path]   -> CLICK
+- [div]  8+ -> CLICK
+- [div]  3 -> CLICK
+- [checkbox]  Free internet -> CLICK
+- [button]  Style -> CLICK
+- [checkbox]  Family -> CLICK
+- [button]  Amenities -> CLICK
+- [checkbox]  Air-conditioned -> CLICK
+- [div]  Distance -> CLICK
+- [tab]  Price (low to high) -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 16: Concrete Trajectory for search four door SUVs from Avis while traveling from New Orleans, L, to New York that isn't more than $1000 in total price from Mar 25th to Apr 1st, pickup at 2PM.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Search for cars -> CLICK
+- [textbox]  Pick-up location -> TYPE: new orleans
+- [span]  New Orleans, Louisiana, United States -> CLICK
+- [textbox]  Drop-off location -> TYPE: new york
+- [span]  New York, United States -> CLICK
+- [generic]  Saturday March 25th -> CLICK
+- [button]  Saturday March 25, 2023 -> CLICK
+- [generic]  Saturday April 1st -> CLICK
+- [button]  Saturday April 1, 2023 -> CLICK
+- [button]  Noon -> CLICK
+- [option]  2:00 pm -> CLICK
+- [svg]   -> CLICK
+- [div]   -> CLICK
+- [checkbox]  SUV -> CLICK
+- [svg]   -> CLICK
+- [div]   -> CLICK
+- [checkbox]  Avis -> CLICK
+- [button]  More filters -> CLICK
+- [checkbox]  4+ doors -> CLICK
+- [spinbutton]  Maximum price -> TYPE: 1000
+- [button]  Show results -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 17: Concrete Trajectory for Find the quickest one-way flight from New York To Paris on June 4 for two adults with one carry-on and one check-in bag in business class.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [svg]   -> CLICK
+- [tab]  One-way -> CLICK
+- [svg]   -> CLICK
+- [button]  Increment -> CLICK
+- [path]   -> CLICK
+- [textbox]  Flight origin input -> TYPE: NEW YORK
+- [span]  All airports -> CLICK
+- [textbox]  Flight destination input -> TYPE: PARIS
+- [span]  All airports -> CLICK
+- [path]   -> CLICK
+- [div]  4 -> CLICK
+- [svg]   -> CLICK
+- [button]  Increment -> CLICK
+- [button]  Increment -> CLICK
+- [svg]   -> CLICK
+- [span]  Quickest -> CLICK
+- [button]  Cabin -> CLICK
+- [div]   -> CLICK
+- [div]   -> CLICK
+- [div]   -> CLICK
+- [div]   -> CLICK
+- [div]  View Deal -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.

@@ -6,7 +6,11 @@ import tiktoken
 
 logger = logging.getLogger("main")
 
-from utils.openai_client import DEFAULT_MAX_TOKENS, build_openai_client
+from utils.openai_client import (
+    DEFAULT_MAX_TOKENS,
+    build_openai_client,
+    create_chat_completion_with_retry,
+)
 
 client = build_openai_client()
 
@@ -116,7 +120,8 @@ def generate_response(
     gen_kwargs = {}
 
     if get_mode(model) == "chat":
-        response = client.chat.completions.create(
+        response = create_chat_completion_with_retry(
+            client,
             model=model,
             messages=messages,
             temperature=temperature,

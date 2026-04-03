@@ -1,0 +1,147 @@
+============================================================
+AWM Cross-Site Degradation Diagnosis
+============================================================
+
+
+############################################################
+  Target: gpt-4o/test_website/tripadvisor
+############################################################
+
+  [Target Baseline Profile]
+  Total steps: 225, Skip rate: 44.9%
+    CLICK       EA= 76.2%  AF= 97.0%  SR= 75.2%  n=101
+    SKIP        EA=  0.0%  AF=  0.0%  SR=  0.0%  n=101
+    TYPE        EA= 30.4%  AF= 36.8%  SR=  8.7%  n=23
+
+  [Source Baseline Profile: budget]
+  Total steps: 99, Skip rate: 28.3%
+    CLICK       EA= 63.8%  AF= 79.3%  SR= 56.9%  n=58
+    SELECT      EA=100.0%  AF= 64.3%  SR= 50.0%  n=2
+    SKIP        EA=  0.0%  AF=  0.0%  SR=  0.0%  n=28
+    TYPE        EA= 90.9%  AF= 68.0%  SR= 54.5%  n=11
+
+
+############################################################
+  Target: qwen/qwen3.5-397b-a17b/test_domain/reddit
+############################################################
+
+  [Target Baseline Profile]
+  Total steps: 180, Skip rate: 33.9%
+    CLICK       EA= 84.2%  AF= 98.0%  SR= 82.2%  n=101
+    SKIP        EA=  0.0%  AF=  0.0%  SR=  0.0%  n=61
+    TYPE        EA= 94.4%  AF= 68.1%  SR= 44.4%  n=18
+
+  [Source Baseline Profile: kayak]
+  Total steps: 48, Skip rate: 29.2%
+    CLICK       EA= 75.0%  AF=100.0%  SR= 75.0%  n=28
+    SKIP        EA=  0.0%  AF=  0.0%  SR=  0.0%  n=14
+    TYPE        EA= 83.3%  AF= 60.8%  SR= 50.0%  n=6
+
+  [Degradation Profile: online_wf]
+  Positive: 2, Negative: 5, Ineffective: 87, Redundant: 86
+
+  [Negative Cases by Task]
+    Task 15: 1 negative step(s)
+      step 0: TYPE target=TYPE [67] [covid], base_pred=TYPE [67] [covid], treat_pred=TYPE [67] covid
+    Task 18: 1 negative step(s)
+      step 1: CLICK target=CLICK [12370], base_pred=CLICK [12370], treat_pred=CLICK [12307]
+    Task 20: 1 negative step(s)
+      step 3: CLICK target=CLICK [22093], base_pred=CLICK [22093], treat_pred=CLICK [19198]
+    Task 26: 1 negative step(s)
+      step 0: CLICK target=CLICK [316], base_pred=CLICK [316], treat_pred=CLICK [3725]
+    Task 31: 1 negative step(s)
+      step 5: CLICK target=CLICK [72067], base_pred=CLICK [72067], treat_pred=CLICK [72066]
+
+============================================================
+  Hypothesis Test: qwen/qwen3.5-397b-a17b/test_domain/reddit/online_wf
+============================================================
+
+  [Hypothesis B: Element grounding collapse]
+  Skip rate (target baseline): 33.9%
+  Skip rate (source baseline): 29.2%
+  CLICK Elem Acc (target baseline): 84.2%
+  CLICK Elem Acc (source baseline): 75.0%
+  -> No strong B evidence (baseline performs similarly)
+
+  [Hypothesis A: Workflow content mismatch]
+  Negative steps: 5
+    CLICK: 4  TYPE: 1
+    CLICK share of negatives: 80%
+  Workflow keywords (10): ['search reddit', '{community_result}', '{community_link}', 'Join', 'search reddit', 'Search for {keyword}', 'Sort', '{sort_option}', 'Time', '{time_range}']
+  -> A evidence: Negatives dominated by CLICK (element-level mismatch, not value mismatch)
+
+  [Preliminary Verdict]
+  -> Primarily Hypothesis A: workflow content is mismatched
+
+
+############################################################
+  Target: qwen/qwen3.5-397b-a17b/test_website/tripadvisor
+############################################################
+
+  [Target Baseline Profile]
+  Total steps: 225, Skip rate: 44.9%
+    CLICK       EA= 81.2%  AF= 97.0%  SR= 81.2%  n=101
+    SKIP        EA=  0.0%  AF=  0.0%  SR=  0.0%  n=101
+    TYPE        EA= 65.2%  AF= 63.6%  SR= 34.8%  n=23
+
+  [Source Baseline Profile: kayak]
+  Total steps: 48, Skip rate: 29.2%
+    CLICK       EA= 75.0%  AF=100.0%  SR= 75.0%  n=28
+    SKIP        EA=  0.0%  AF=  0.0%  SR=  0.0%  n=14
+    TYPE        EA= 83.3%  AF= 60.8%  SR= 50.0%  n=6
+
+  [Degradation Profile: online_wf]
+  Positive: 4, Negative: 18, Ineffective: 131, Redundant: 72
+
+  [Negative Cases by Task]
+    Task 0: 1 negative step(s)
+      step 0: TYPE target=TYPE [385] [Eiffel Tower], base_pred=TYPE [385] [Eiffel Tower], treat_pred=TYPE [385] [Eiffel Tower Paris]
+    Task 1: 2 negative step(s)
+      step 15: CLICK target=CLICK [43954], base_pred=CLICK [43954], treat_pred=CLICK [44025]
+      step 27: CLICK target=CLICK [71807], base_pred=CLICK [71807], treat_pred=CLICK [72769]
+    Task 2: 1 negative step(s)
+      step 0: CLICK target=CLICK [631], base_pred=CLICK [631], treat_pred=TYPE [808] [Kanha National Park, India]
+    Task 3: 1 negative step(s)
+      step 0: CLICK target=CLICK [300], base_pred=CLICK [300], treat_pred=TYPE [766] [Jaipur]
+    Task 6: 1 negative step(s)
+      step 2: CLICK target=CLICK [16170], base_pred=CLICK [16170], treat_pred=CLICK [14521]
+    Task 7: 2 negative step(s)
+      step 0: CLICK target=CLICK [569], base_pred=CLICK [569], treat_pred=TYPE [735] [San Francisco]
+      step 3: CLICK target=CLICK [19062], base_pred=CLICK [19062], treat_pred=CLICK [10768]
+    Task 9: 1 negative step(s)
+      step 4: CLICK target=CLICK [53486], base_pred=CLICK [53486], treat_pred=CLICK [10346]
+    Task 10: 2 negative step(s)
+      step 0: CLICK target=CLICK [350], base_pred=CLICK [350], treat_pred=TYPE [790] [Egypt]
+      step 1: TYPE target=TYPE [7934] [Egypt], base_pred=TYPE [7934] [Egypt], treat_pred=TYPE [8441] [Egypt]
+    Task 13: 3 negative step(s)
+      step 0: CLICK target=CLICK [571], base_pred=CLICK [571], treat_pred=TYPE [737] [Johannesburg]
+      step 1: TYPE target=TYPE [8020] [Johannesburg], base_pred=TYPE [8020] [Johannesburg], treat_pred=TYPE [8484] [Johannesburg]
+      step 3: CLICK target=CLICK [19908], base_pred=CLICK [19908], treat_pred=CLICK [10697]
+    Task 14: 1 negative step(s)
+      step 9: CLICK target=CLICK [119201], base_pred=CLICK [119201], treat_pred=CLICK [126569]
+    Task 18: 1 negative step(s)
+      step 1: TYPE target=TYPE [4101] [Hotel Xcaret Mexico], base_pred=TYPE [4101] [Hotel Xcaret Mexico], treat_pred=TYPE [4205] [Hotel Xcaret Mexico]
+    Task 22: 2 negative step(s)
+      step 0: CLICK target=CLICK [635], base_pred=CLICK [635], treat_pred=TYPE [801] [Big Sur, CA]
+      step 3: CLICK target=CLICK [20359], base_pred=CLICK [20359], treat_pred=CLICK [10603]
+
+============================================================
+  Hypothesis Test: qwen/qwen3.5-397b-a17b/test_website/tripadvisor/online_wf
+============================================================
+
+  [Hypothesis B: Element grounding collapse]
+  Skip rate (target baseline): 44.9%
+  Skip rate (source baseline): 29.2%
+  CLICK Elem Acc (target baseline): 81.2%
+  CLICK Elem Acc (source baseline): 75.0%
+  -> B evidence: Skip rate +16pp higher on target site
+
+  [Hypothesis A: Workflow content mismatch]
+  Negative steps: 18
+    CLICK: 14  TYPE: 4
+    CLICK share of negatives: 78%
+  Workflow keywords (15): ['From Departure Airport or City Your Origin', 'Origin City or Airport', '{best-popup-option}', 'To Destination Airport or City Your Destination', 'Destination City or Airport', '{best-popup-option}', 'Trip Type:, changes will reload the page', 'One Way', 'Depart and Return Calendar Use enter to open, es...', '{travel-date}']
+  -> A evidence: Negatives dominated by CLICK (element-level mismatch, not value mismatch); 5 tasks have 2+ negative steps (systematic mismatch)
+
+  [Preliminary Verdict]
+  -> Mixed: both element grounding degradation AND workflow mismatch

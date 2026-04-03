@@ -1,0 +1,38 @@
+## search_by_category
+Given that you are on the Kohl's homepage, this workflow navigates through categories to find specific items.
+1. [link] Shop by Category -> CLICK
+2. [link] {category-name} -> CLICK
+
+## search_by_keyword
+Given that you are on the Kohl's homepage, this workflow enters a search term and navigates to the results.
+1. [textbox] Search by keyword or web id -> TYPE: {search-term}
+2. [input] -> CLICK
+
+## sort_items
+Given that you are on a product listing page on Kohl's, this workflow sorts items based on a selected criterion.
+1. [link] Sort by: Featured -> CLICK
+2. [link] {sort-option} -> CLICK
+
+## apply_filters
+Given that you are on a product listing page on Kohl's, this workflow applies specific filters to narrow down the search results.
+1. [div] Price -> CLICK
+2. [link] {price-range} -> CLICK
+3. Optional: [div] {filter-type} -> CLICK
+4. Optional: [link] {filter-value} -> CLICK
+
+## add_to_cart
+Given that you are on a Kohl's product page, this workflow adds a product to the shopping cart.
+1. [button] Add to Cart -> CLICK
+
+## enter_coupon_code
+Given that you are viewing your Kohl's shopping cart, this workflow applies a coupon code.
+1. [textbox] Add Kohl's Cash or Coupons -> TYPE: {coupon-code}
+2. [button] Add Kohl's Cash or Coupon button -> CLICK
+
+## store_locator
+Given that you are looking for a Kohl's store location, this workflow finds a store based on city, state, or zip code.
+1. [link] Store Locator -> CLICK
+2. [textbox] Please enter City, State, or Zip Code -> TYPE: {location}
+3. [div] {location}, US -> CLICK
+
+These workflows cover the common actions across the tasks, ensuring non-overlapping, commonly reused sequences.

@@ -5,7 +5,7 @@ import json
 import pickle
 import argparse
 from utils.data import add_scores, format_examples, filter_workflows
-from utils.openai_client import build_openai_client
+from utils.openai_client import build_openai_client, create_chat_completion_with_retry
 
 client = build_openai_client()
 
@@ -55,13 +55,16 @@ def llm_generate(tags: tuple[str, str, str], examples: list[dict], args, verbose
     prompt += format_examples(examples, args.prefix, args.suffix)
     prompt = '\n\n'.join([args.INSTRUCTION, args.ONE_SHOT, prompt])
     if verbose: print("Prompt:\n", prompt, '\n\n')
-    response = client.chat.completions.create(
+    response = create_chat_completion_with_retry(
+            client,
             model=args.model_name,
             messages=[{"role": "user", "content": prompt}],
             temperature=args.temperature,
             max_tokens=1024,
     )
     response = response.choices[0].message.content
+    if response is None:
+        response = ""
     if verbose: print(response)
     return response
 

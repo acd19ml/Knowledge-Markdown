@@ -1,0 +1,43 @@
+## navigate_to_city_page
+Given you are on the Yellow Pages website, this workflow navigates to a specific city page.
+[link]  CITY PAGES -> CLICK
+[link]  {city-name} -> CLICK
+
+## search_people
+Given you are on the Yellow Pages website, this workflow searches for a person using various criteria.
+[link]  Find People -> CLICK
+[input]   -> TYPE: {first-name}
+[input]   -> TYPE: {last-name}
+[input]   -> TYPE: {location}
+[button]  Search for Someone -> CLICK
+
+## apply_filters
+When you are searching for specific services or businesses, this workflow helps in applying filters to refine results.
+[link]  {service-type} -> CLICK
+[input]   -> TYPE: {city-or-location}
+[button]  Find -> CLICK
+[link]  All -> CLICK
+[label]  {specific-filter} -> CLICK
+[button]  Apply Filters -> CLICK
+
+## search_coupons_and_deals
+When you are looking for coupons and deals in a specific location, this workflow performs the required search actions.
+[link]  Coupons -> CLICK
+[input]   -> TYPE: {location}
+[link]  {location}, {state-or-country} -> CLICK
+[button]  Find -> CLICK
+
+## browse_questions_and_answers
+Given you are on the Yellow Pages website, this workflow navigates to the question and answer section and selects a category.
+[link]  QUESTIONS & ANSWERS -> CLICK
+[link]  {category} -> CLICK
+
+## find_business_or_service
+When searching for a specific type of business or service, this workflow assists in refining and applying specific filters.
+[input]   -> TYPE: {business-or-service}
+[link]  {business-or-service} -> CLICK
+[input]   -> TYPE: {location}
+[link]  {location} -> CLICK
+[button]  Find -> CLICK
+[span|label]  {specific-filter} -> CLICK (if needed)
+[button]  Apply Filters -> CLICK (if needed)

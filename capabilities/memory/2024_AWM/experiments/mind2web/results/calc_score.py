@@ -1,7 +1,6 @@
 import os
 import json
 import argparse
-import matplotlib.pyplot as plt
 
 def get_average(score_list: list[float], percentage: bool = False) -> float:
     score = sum(score_list) / len(score_list)
@@ -9,7 +8,10 @@ def get_average(score_list: list[float], percentage: bool = False) -> float:
 
 
 def main():
-    files = os.listdir(args.results_dir)
+    files = [
+        f for f in os.listdir(args.results_dir)
+        if f.endswith(".json") and f[:-5].isdigit()
+    ]
     file_paths = [os.path.join(args.results_dir, f) for f in files]
     ele_acc, act_f1, step_sr, sr = [], [], [], []
     for fp in file_paths:
@@ -24,21 +26,23 @@ def main():
     print(f"Step SR    : {get_average(step_sr, True):5.1f}")
     print(f"SR         : {get_average(sr, True):5.1f}")
 
-    # accumulative step success rate
-    n = len(step_sr)
-    x = [i+1 for i in range(n)]
-    asr = [get_average(step_sr[:i+1]) for i in range(n)]
-    plt.plot(x, asr)
-
-    # moving average
-    # window_size = 5
-    # x, mavg = [], []
-    # for i in range(n-window_size+1):
-    #     x.append(i)
-    #     mavg.append(get_average(step_sr[i:i+window_size]))
-    # plt.plot(x, mavg)
-
     if args.viz_path is not None:
+        import matplotlib.pyplot as plt
+
+        # accumulative step success rate
+        n = len(step_sr)
+        x = [i+1 for i in range(n)]
+        asr = [get_average(step_sr[:i+1]) for i in range(n)]
+        plt.plot(x, asr)
+
+        # moving average
+        # window_size = 5
+        # x, mavg = [], []
+        # for i in range(n-window_size+1):
+        #     x.append(i)
+        #     mavg.append(get_average(step_sr[i:i+window_size]))
+        # plt.plot(x, mavg)
+
         plt.savefig(args.viz_path)
 
 

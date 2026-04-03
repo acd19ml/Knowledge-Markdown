@@ -1,0 +1,54 @@
+Based on the web navigation tasks provided, here are the summary workflows for the repetitive actions:
+
+#### Workflow 1: `enter_flight_locations`
+- **Description**: This workflow is for entering the departure and destination city/airport for flight booking.
+- **Actions**:
+  1. `[link]  From Departure Airport or City Your Origin -> CLICK`
+  2. `[textbox]  Origin City or Airport -> TYPE: {your-origin-city}`
+  3. `[link]  {best-popup-option} -> CLICK`
+  4. `[link]  To Destination Airport or City Your Destination -> CLICK`
+  5. `[textbox]  Destination City or Airport -> TYPE: {your-destination-city}`
+  6. `[link]  {best-popup-option} -> CLICK`
+
+#### Workflow 2: `select_oneway_trip`
+- **Description**: This workflow modifies the flight booking to a one-way trip.
+- **Actions**:
+  1. `[combobox]  Trip Type:, changes will reload the page -> CLICK`
+  2. `[option]  One Way -> CLICK`
+
+#### Workflow 3: `select_date_for_travel`
+- **Description**: This workflow is for selecting the travel date for the flight.
+- **Actions**:
+  1. `[button]   Depart and Return Calendar Use enter to open, es... -> CLICK`
+  2. `[link]  {travel-date} -> CLICK`
+  3. `[button]  done -> CLICK`
+
+#### Workflow 4: `find_trip`
+- **Description**: This workflow finds a trip using the confirmation number and passenger details.
+- **Actions**:
+  1. `[tab]  MY TRIPS -> CLICK`
+  2. `[combobox]  Find Your Trip By -> CLICK`
+  3. `[option]  Confirmation Number -> CLICK`
+  4. `[input]   -> TYPE: {confirmation-number}`
+  5. `[input]   -> TYPE: {passenger-name}`
+  6. `[button]   SUBMIT -> CLICK`
+
+### TripAdvisor Workflows:
+
+#### Workflow 5: `search_location`
+- **Description**: This workflow is for searching a location on TripAdvisor.
+- **Actions**:
+  1. `TYPE [{searchbox_id}] [{location_name}]`
+  2. `CLICK [{best-option-id}]`
+
+#### Workflow 6: `apply_date_range`
+- **Description**: This workflow selects a date range for a travel-related search.
+- **Actions**:
+  1. `CLICK [gridcell with start date]`
+  2. `CLICK [gridcell with end date]`
+
+#### Workflow 7: `apply_filters`
+- **Description**: This workflow applies specific filters to a search, such as price sorting or specific attributes (e.g., vegan options).
+- **Actions**:
+  1. `CLICK [filter-option]`
+  2. `CLICK [apply-button]`

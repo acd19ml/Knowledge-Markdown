@@ -1,0 +1,312 @@
+## Workflow 1: Concrete Trajectory for Show me the page with information about Wi-Fi subscriptions.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [tab]  TRAVEL INFO -> CLICK
+- [link]  Pre-paid Wi-Fi -> CLICK
+- [p]  Wi-Fi subscriptions -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 2: Concrete Trajectory for Search the status of flight from Columbus, number 1234 on April 5th, 2023.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [heading]  Flight status -> CLICK
+- [textbox]  Flight number -> TYPE: 1234
+- [button]  Search -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 3: Concrete Trajectory for Browse check in with confirmation number 123456 for John.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [heading]  Check-in -> CLICK
+- [textbox]  Confirmation or ticket number* -> TYPE: 123456
+- [textbox]  Last name* -> TYPE: John
+- [button]  Search -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 4: Concrete Trajectory for Find the TSA Guidelines to travel with Children
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [tab]  TRAVEL INFO -> CLICK
+- [link]  Traveling with children -> CLICK
+- [link]  sit on a parent’s lap -> CLICK
+- [link]  approved car seat -> CLICK
+- [heading]  All other kids -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 5: Concrete Trajectory for Find a round trip from Phoenix to Miami with maximum budget of $2000.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [combobox]  Flying from -> TYPE: Phoenix
+- [button]  Phoenix, AZ, US (PHX) -> CLICK
+- [button]  Search -> CLICK
+- [button]  List of search results -> CLICK
+- [span]  Tue, Apr 25 - Tue, May 2 from -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 6: Concrete Trajectory for Find John Atas's trip with the confirmation number 1000001
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [tab]  MY TRIPS -> CLICK
+- [li]  My trips -> CLICK
+- [link]  My trips -> CLICK
+- [textbox]  Last name -> TYPE: Atas
+- [label]  Confirmation number -> TYPE: 1000001
+- [button]  Search -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 7: Concrete Trajectory for Find one-way flights from New York to Toronto.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [span]   -> CLICK
+- [combobox]  Enter your departing city, airport name, or airpor... -> TYPE: New York
+- [button]  New York, NY, US (NYC - All Airports) -> CLICK
+- [combobox]  Enter your destination city, airport name, or airp... -> TYPE: Toronto
+- [button]  Toronto, ON, CA (YYZ) -> CLICK
+- [button]  Find flights -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 8: Concrete Trajectory for Find a round trip economy flight from Pune to New York in June and select the fully refundable.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [combobox]  Enter your departing city, airport name, or airpor... -> TYPE: Pune
+- [button]  Pune, IN (PNQ) -> CLICK
+- [combobox]  Enter your destination city, airport name, or airp... -> TYPE: New York
+- [button]  New York, NY, US (NYC - All Airports) -> CLICK
+- [button]  Find flights -> CLICK
+- [button]  Roundtrip $2,984 Select fare for Economy (fully re... -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 9: Concrete Trajectory for View the bag charges for the passenger James Son for the flight with the confirmation number 10000002
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [tab]  TRAVEL INFO -> CLICK
+- [link]  Baggage info -> CLICK
+- [link]  Baggage fee calculator -> CLICK
+- [tab]  My flights -> CLICK
+- [textbox]  Confirmation number (required) -> TYPE: 10000002
+- [textbox]  Last name (required) -> TYPE: Son
+- [button]  View my bag charges -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 10: Concrete Trajectory for Search receipt with the eTicket 12345678 for the trip reserved by Jason Two
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [tab]  MY TRIPS -> CLICK
+- [link]  Find a receipt -> CLICK
+- [radio]  Confirmation or eTicket number -> CLICK
+- [textbox]  Confirmation or eTicket More information about con... -> TYPE: 12345678
+- [textbox]  First name -> TYPE: Jason
+- [textbox]  Last name -> TYPE: Two
+- [button]  Search -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 11: Concrete Trajectory for rent a car in Brooklyn - Central, NY on from April 9 to April 15.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [heading]  CAR -> CLICK
+- [combobox]  Enter pick up city, airport name, or airport code. -> TYPE: Brooklyn Central
+- [div]  Brooklyn - Central (New York), US -> CLICK
+- [textbox]  Pickup -> CLICK
+- [button]  Sunday, April 9, 2023 -> CLICK
+- [button]  Saturday, April 15, 2023 -> CLICK
+- [button]  Find cars button. -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 12: Concrete Trajectory for Request a refund for the traveler Ian Lo and, his document number is 12345678912345 and email ian.lo@gmail.com
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [tab]  MY TRIPS -> CLICK
+- [link]  Request a refund -> CLICK
+- [button]  Add trip -> CLICK
+- [textbox]  Last Name* -> TYPE: Lo
+- [textbox]  Confirmation or ticket number* -> TYPE: 12345678912345
+- [button]  Add flight -> CLICK
+- [textbox]  Email address * -> TYPE: ian.lo@gmail.com
+- [button]  Continue -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 13: Concrete Trajectory for Find deals for Honolulu from New York with budget of $1300 for premium economy.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [tab]  DEALS -> CLICK
+- [link]  Flights to popular destinations -> CLICK
+- [textbox]  Input departure airport -> TYPE: New York
+- [textbox]  Input arrival airport -> TYPE: Honolulu
+- [option]  Honolulu, HI, US (HNL) -> CLICK
+- [textbox]  Budget. Please enter a numerical value -> TYPE: 1300
+- [div]  Economy -> CLICK
+- [div]  Premium economy -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 14: Concrete Trajectory for Find the flight schedule between London and New York for April 7 and check the upgrade details of the noon flight.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [heading]  Flight status -> CLICK
+- [combobox]  Enter your departing city, airport name, or airpor... -> TYPE: london
+- [span]  London -> CLICK
+- [combobox]  Enter your destination city, airport name, or airp... -> TYPE: new york
+- [span]  New York -> CLICK
+- [generic]  Apr 6, 2023 -> CLICK
+- [option]  Apr 7, 2023 -> CLICK
+- [button]  Search -> CLICK
+- [link]  View details -> CLICK
+- [tab]  Upgrades -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 15: Concrete Trajectory for check flight status for a flight from united airlines leaving Belo Horizonte to Buenos Aires on April 9
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [tab]  TRAVEL INFO -> CLICK
+- [link]  Flight status -> CLICK
+- [generic]  Apr 7, 2023 -> CLICK
+- [option]  Apr 9, 2023 -> CLICK
+- [combobox]  Airline. Enter to change collapsed list. Selected ... -> CLICK
+- [option]  United Airlines (UA) -> CLICK
+- [combobox]  Enter your departing city, airport name, or airpor... -> TYPE: belo horizonte
+- [button]  Belo Horizonte, MG, BR (CNF - Tancredo Neves) -> CLICK
+- [combobox]  Enter your destination city, airport name, or airp... -> TYPE: buenos aires
+- [button]  Buenos Aires, AR (EZE - Ministro Pistarini) -> CLICK
+- [button]  Check status -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 16: Concrete Trajectory for Calculate the baggage fee for first class flight leaving Columbus CMH to New Orleans MSY on april 9
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [tab]  TRAVEL INFO -> CLICK
+- [link]  Baggage info -> CLICK
+- [link]  Baggage fee calculator -> CLICK
+- [combobox]  From -> TYPE: columbus
+- [button]  Columbus, OH, US (CMH) -> CLICK
+- [combobox]  To -> TYPE: new orleans
+- [button]  New Orleans, LA, US (MSY) -> CLICK
+- [textbox]  Depart date -> CLICK
+- [button]  Sunday, April 9, 2023 -> CLICK
+- [combobox]  CabinTravelers with Economy (first checked bag cha... -> SELECT: Business or First
+- [button]  View bag charges -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 17: Concrete Trajectory for Book a round-trip flight from Santa Fe, New Mexico to Phoenix, Arizona for 1 adult on August 13th and returning on August 28th.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [combobox]  Enter your departing city, airport name, or airpor... -> TYPE: Santa Fe
+- [button]  Santa Fe, NM, US (SAF) -> CLICK
+- [combobox]  Enter your destination city, airport name, or airp... -> TYPE: Phoenix
+- [button]  Phoenix, AZ, US (PHX) -> CLICK
+- [textbox]  Depart -> CLICK
+- [button]  Move forward to switch to the next month. -> CLICK
+- [span]  13 -> CLICK
+- [span]  28 -> CLICK
+- [button]  Find flights -> CLICK
+- [button]  Roundtrip $681 United Economy (U) Select fare for ... -> CLICK
+- [div]  $681 -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 18: Concrete Trajectory for Compare the fare types to book a 1-adult ticket from Springfiels, IL to Austin, TX for April 29th 2023
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [combobox]  Enter your departing city, airport name, or airpor... -> TYPE: SPRINGFIELD
+- [button]  Springfield, IL, US (SPI) -> CLICK
+- [combobox]  Enter your destination city, airport name, or airp... -> TYPE: AUSTIN
+- [button]  Austin, TX, US (AUS) -> CLICK
+- [span]   -> CLICK
+- [button]  Find flights -> CLICK
+- [textbox]  Date -> CLICK
+- [button]  Move backward to switch to the previous month. -> CLICK
+- [button]  Saturday, April 29, 2023 -> CLICK
+- [button]  Update -> CLICK
+- [link]  Details -> CLICK
+- [link]  Seats -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 19: Concrete Trajectory for Find a car to book with miles to pick up on Caldwell (Ohio) on april 8 at 8 am and return on april 13 on noon at the same location
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [heading]  CAR -> CLICK
+- [label]  Book with miles -> CLICK
+- [LabelText]  Enter pick up city, airport name, or airport code. -> TYPE: caldwell
+- [div]  Caldwell -> CLICK
+- [textbox]  Pickup -> CLICK
+- [button]  Saturday, April 8, 2023 -> CLICK
+- [button]  Thursday, April 13, 2023 -> CLICK
+- [combobox]  Pickup time Selected 10:00 a.m. -> CLICK
+- [combobox]  Pickup time Selected 10:00 a.m. -> CLICK
+- [option]  8:00 a.m. -> CLICK
+- [combobox]  Drop off time Selected 10:00 a.m. -> CLICK
+- [option]  12:00 p.m. -> CLICK
+- [button]  Find cars button. -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 20: Concrete Trajectory for Find popular deals to USA national parks in the southeast region of Biscayne national park, and add to the cart the fully refundable economy flight from New York to Miami with a departure date of May 13 and a return date of May 18.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [tab]  DEALS -> CLICK
+- [link]  Flights to national parks -> CLICK
+- [heading]  Southeast Region -> CLICK
+- [link]  Within sight of downtown Miami, yet worlds away, B... -> CLICK
+- [link]  Fly to Miami (MIA) -> CLICK
+- [button]  New York/Newark (EWR) Miami (MIA) Roundtrip|Econom... -> CLICK
+- [textbox]  Departure -> CLICK
+- [gridcell]  Saturday, May 13, 2023 -> CLICK
+- [gridcell]  Thursday, May 18, 2023 -> CLICK
+- [button]  Search flights -> CLICK
+- [span]  Refundable fares -> CLICK
+- [radio]  Show refundable fares from $258 -> CLICK
+- [div]  Select flight -> CLICK
+- [div]  Add to cart -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 21: Concrete Trajectory for Book me a flight from BWI to NYC for 2 for August 2nd-August 7th
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [combobox]  Enter your departing city, airport name, or airpor... -> CLICK
+- [combobox]  Enter your departing city, airport name, or airpor... -> TYPE: BWI
+- [button]  Baltimore, MD, US (BWI) -> CLICK
+- [combobox]  Enter your destination city, airport name, or airp... -> TYPE: NYC
+- [button]  New York, NY, US (NYC - All Airports) -> CLICK
+- [textbox]  Depart -> CLICK
+- [button]  Move forward to switch to the next month. -> CLICK
+- [button]  Move forward to switch to the next month. -> CLICK
+- [button]  Wednesday, August 2, 2023 -> CLICK
+- [button]  Monday, August 7, 2023 -> CLICK
+- [button]  1 Adult -> CLICK
+- [button]  Substract one Adult -> CLICK
+- [section]  Flight -> CLICK
+- [button]  Find flights -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 22: Concrete Trajectory for Book a roundtrip on July 1 from Mumbai to London and vice versa on July 5 for two adults and a 12-year-old in premium economy and if a flight is not available, search through the calendar for available flights.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [combobox]  Enter your departing city, airport name, or airpor... -> TYPE: MUMBAI
+- [button]  Mumbai, IN (BOM) -> CLICK
+- [combobox]  Enter your destination city, airport name, or airp... -> TYPE: LONDON
+- [button]  London, GB (LON - All Airports) -> CLICK
+- [textbox]  Depart -> CLICK
+- [button]  Saturday, July 1, 2023 -> CLICK
+- [button]  Wednesday, July 5, 2023 -> CLICK
+- [button]  1 Adult -> CLICK
+- [button]  Substract one Adult -> CLICK
+- [button]  Substract one Child -> CLICK
+- [generic]  Economy -> CLICK
+- [option]  Premium economy -> CLICK
+- [button]  Find flights -> CLICK
+- [button]  Search button opens in a same tab/Window -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 23: Concrete Trajectory for Search for a recent full-time job in United Airlines corporate in Gurugram,  India if a job in sales is available, then apply through email at jacksparrow@gmail.com.
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [link]  Careers  -> CLICK
+- [link]  Open Jobs -> CLICK
+- [span]   -> CLICK
+- [button]  Country -> CLICK
+- [span]   -> CLICK
+- [button]  State / Province -> CLICK
+- [span]   -> CLICK
+- [button]  City -> CLICK
+- [span]   -> CLICK
+- [button]  Hiring Type -> CLICK
+- [span]   -> CLICK
+- [combobox]  Sort by -> SELECT: Most recent
+- [span]  Analyst - Sales Programs -> CLICK
+- [button]  Apply Now -> CLICK
+- [textbox]  Email * is a required field. -> TYPE: jacksparrow@gmail.com
+- [button]  Continue -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.
+
+## Workflow 24: Concrete Trajectory for Find a basic economy flight + hotel for an award travel from las vegas to san francisco leaving and returning on any date on april for 1 traveler and one room
+Given that you are solving a similar task on this website, follow this concrete action trajectory.
+- [tab]  BOOK -> CLICK
+- [link]  Award travel -> CLICK
+- [span]  Flight + hotel -> CLICK
+- [label]  Basic Economy -> CLICK
+- [combobox]  Enter your departing city, airport name, or airpor... -> TYPE: las vegas
+- [span]  Las Vegas, NV -> CLICK
+- [combobox]  Enter your destination city, airport name, or airp... -> TYPE: san francisco
+- [span]  San Francisco, CA -> CLICK
+- [textbox]  Departure -> CLICK
+- [button]  Tuesday, April 11, 2023 -> CLICK
+- [button]  Friday, April 14, 2023 -> CLICK
+- [button]  1 Traveler -> CLICK
+- [textbox]  1 Adults, 18 to 64 years old, 1 of 8 passengers se... -> TYPE: 1
+- [combobox]  undefined Selected 1 room -> CLICK
+- [option]  1 room -> CLICK
+- [button]  Find trips -> CLICK
+This workflow preserves a concrete trajectory after deduplication and invalid-action filtering.

@@ -1,0 +1,564 @@
+
+============================================================
+  gpt-4o/test_task/budget: offline_wf vs no_workflow
+  Total paired steps: 99
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             6    6.1%
+  negative            12   12.1%
+  ineffective         53   53.5%
+  redundant           28   28.3%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          4    11    21    22    58
+  SELECT         0     0     1     1     2
+  TYPE           2     1     3     5    11
+  UNKNOWN        0     0    28     0    28
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 6/18 = 33.3%
+  Net gain (positive - negative)   = -6 steps
+
+============================================================
+  gpt-4o/test_task/kayak: offline_wf vs no_workflow
+  Total paired steps: 48
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             3    6.2%
+  negative             0    0.0%
+  ineffective         22   45.8%
+  redundant           23   47.9%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          3     0     5    20    28
+  TYPE           0     0     3     3     6
+  UNKNOWN        0     0    14     0    14
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 3/3 = 100.0%
+  Net gain (positive - negative)   = +3 steps
+
+============================================================
+  gpt-4o/test_task/kayak: online_wf vs no_workflow
+  Total paired steps: 48
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             3    6.2%
+  negative             0    0.0%
+  ineffective         22   45.8%
+  redundant           23   47.9%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          2     0     6    20    28
+  TYPE           1     0     2     3     6
+  UNKNOWN        0     0    14     0    14
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 3/3 = 100.0%
+  Net gain (positive - negative)   = +3 steps
+
+============================================================
+  gpt-4o/test_task/kohls: offline_wf vs no_workflow
+  Total paired steps: 53
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             2    3.8%
+  negative             2    3.8%
+  ineffective         33   62.3%
+  redundant           16   30.2%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          2     2     9    16    29
+  TYPE           0     0     3     0     3
+  UNKNOWN        0     0    21     0    21
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 2/4 = 50.0%
+  Net gain (positive - negative)   = +0 steps
+
+============================================================
+  gpt-4o/test_task/newegg: offline_wf vs no_workflow
+  Total paired steps: 87
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             5    5.7%
+  negative             0    0.0%
+  ineffective         56   64.4%
+  redundant           26   29.9%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          2     0     9    22    33
+  SELECT         2     0     2     4     8
+  TYPE           1     0     2     0     3
+  UNKNOWN        0     0    43     0    43
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 5/5 = 100.0%
+  Net gain (positive - negative)   = +5 steps
+
+============================================================
+  gpt-4o/test_task/sixflags: offline_wf vs no_workflow
+  Total paired steps: 64
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             3    4.7%
+  negative             6    9.4%
+  ineffective         23   35.9%
+  redundant           32   50.0%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          3     6    10    30    49
+  TYPE           0     0     1     2     3
+  UNKNOWN        0     0    12     0    12
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 3/9 = 33.3%
+  Net gain (positive - negative)   = -3 steps
+
+============================================================
+  gpt-4o/test_task/united: offline_wf vs no_workflow
+  Total paired steps: 63
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             3    4.8%
+  negative             2    3.2%
+  ineffective         35   55.6%
+  redundant           23   36.5%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          2     1     5    20    28
+  SELECT         0     0     0     1     1
+  TYPE           1     1     2     2     6
+  UNKNOWN        0     0    28     0    28
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 3/5 = 60.0%
+  Net gain (positive - negative)   = +1 steps
+
+============================================================
+  gpt-4o/test_task/yellowpages: offline_wf vs no_workflow
+  Total paired steps: 61
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             4    6.6%
+  negative             2    3.3%
+  ineffective         30   49.2%
+  redundant           25   41.0%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          2     2     4    25    33
+  SELECT         0     0     1     0     1
+  TYPE           2     0     5     0     7
+  UNKNOWN        0     0    20     0    20
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 4/6 = 66.7%
+  Net gain (positive - negative)   = +2 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_domain/reddit: online_wf vs no_workflow
+  Total paired steps: 180
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             2    1.1%
+  negative             5    2.8%
+  ineffective         87   48.3%
+  redundant           86   47.8%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          1     4    17    79   101
+  TYPE           1     1     9     7    18
+  UNKNOWN        0     0    61     0    61
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 2/7 = 28.6%
+  Net gain (positive - negative)   = -3 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_task/kayak: desc_html vs no_workflow
+  Total paired steps: 48
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             1    2.1%
+  negative             1    2.1%
+  ineffective         23   47.9%
+  redundant           23   47.9%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          1     0     6    21    28
+  TYPE           0     1     3     2     6
+  UNKNOWN        0     0    14     0    14
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 1/2 = 50.0%
+  Net gain (positive - negative)   = +0 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_task/kayak: desc_only vs no_workflow
+  Total paired steps: 48
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             1    2.1%
+  negative             3    6.2%
+  ineffective         23   47.9%
+  redundant           21   43.8%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          1     1     6    20    28
+  TYPE           0     2     3     1     6
+  UNKNOWN        0     0    14     0    14
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 1/4 = 25.0%
+  Net gain (positive - negative)   = -2 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_task/kayak: html_only vs no_workflow
+  Total paired steps: 48
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             0    0.0%
+  negative             2    4.2%
+  ineffective         24   50.0%
+  redundant           22   45.8%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          0     1     7    20    28
+  TYPE           0     1     3     2     6
+  UNKNOWN        0     0    14     0    14
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 0/2 = 0.0%
+  Net gain (positive - negative)   = -2 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_task/kayak: lm_wf vs no_workflow
+  Total paired steps: 48
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             1    2.1%
+  negative             1    2.1%
+  ineffective         23   47.9%
+  redundant           23   47.9%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          1     0     6    21    28
+  TYPE           0     1     3     2     6
+  UNKNOWN        0     0    14     0    14
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 1/2 = 50.0%
+  Net gain (positive - negative)   = +0 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_task/kayak: rule_wf vs no_workflow
+  Total paired steps: 48
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             1    2.1%
+  negative             2    4.2%
+  ineffective         23   47.9%
+  redundant           22   45.8%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          1     1     6    20    28
+  TYPE           0     1     3     2     6
+  UNKNOWN        0     0    14     0    14
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 1/3 = 33.3%
+  Net gain (positive - negative)   = -1 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_task/newegg: desc_only vs no_workflow
+  Total paired steps: 63
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             4    6.3%
+  negative             0    0.0%
+  ineffective         41   65.1%
+  redundant           18   28.6%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          4     0     6    14    24
+  SELECT         0     0     2     4     6
+  TYPE           0     0     1     0     1
+  UNKNOWN        0     0    32     0    32
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 4/4 = 100.0%
+  Net gain (positive - negative)   = +4 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_task/newegg: lm_wf vs no_workflow
+  Total paired steps: 87
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             4    4.6%
+  negative             2    2.3%
+  ineffective         59   67.8%
+  redundant           22   25.3%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          4     2    10    17    33
+  SELECT         0     0     4     4     8
+  TYPE           0     0     2     1     3
+  UNKNOWN        0     0    43     0    43
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 4/6 = 66.7%
+  Net gain (positive - negative)   = +2 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_task/newegg: rule_wf vs no_workflow
+  Total paired steps: 87
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             6    6.9%
+  negative             2    2.3%
+  ineffective         57   65.5%
+  redundant           22   25.3%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          4     2    10    17    33
+  SELECT         2     0     2     4     8
+  TYPE           0     0     2     1     3
+  UNKNOWN        0     0    43     0    43
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 6/8 = 75.0%
+  Net gain (positive - negative)   = +4 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_task/united: desc_html vs no_workflow
+  Total paired steps: 63
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             0    0.0%
+  negative             5    7.9%
+  ineffective         35   55.6%
+  redundant           23   36.5%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          0     2     4    22    28
+  SELECT         0     0     1     0     1
+  TYPE           0     3     2     1     6
+  UNKNOWN        0     0    28     0    28
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 0/5 = 0.0%
+  Net gain (positive - negative)   = -5 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_task/united: desc_only vs no_workflow
+  Total paired steps: 63
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             2    3.2%
+  negative             4    6.3%
+  ineffective         33   52.4%
+  redundant           24   38.1%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          1     2     3    22    28
+  SELECT         0     0     1     0     1
+  TYPE           1     2     1     2     6
+  UNKNOWN        0     0    28     0    28
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 2/6 = 33.3%
+  Net gain (positive - negative)   = -2 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_task/united: html_only vs no_workflow
+  Total paired steps: 63
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             1    1.6%
+  negative             1    1.6%
+  ineffective         34   54.0%
+  redundant           27   42.9%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          0     0     4    24    28
+  SELECT         0     0     1     0     1
+  TYPE           1     1     1     3     6
+  UNKNOWN        0     0    28     0    28
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 1/2 = 50.0%
+  Net gain (positive - negative)   = +0 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_task/united: lm_wf vs no_workflow
+  Total paired steps: 63
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             2    3.2%
+  negative             1    1.6%
+  ineffective         33   52.4%
+  redundant           27   42.9%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          1     0     3    24    28
+  SELECT         0     0     1     0     1
+  TYPE           1     1     1     3     6
+  UNKNOWN        0     0    28     0    28
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 2/3 = 66.7%
+  Net gain (positive - negative)   = +1 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_task/united: rule_wf vs no_workflow
+  Total paired steps: 63
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             2    3.2%
+  negative             4    6.3%
+  ineffective         33   52.4%
+  redundant           24   38.1%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          1     3     3    21    28
+  SELECT         0     0     1     0     1
+  TYPE           1     1     1     3     6
+  UNKNOWN        0     0    28     0    28
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 2/6 = 33.3%
+  Net gain (positive - negative)   = -2 steps
+
+============================================================
+  qwen/qwen3.5-397b-a17b/test_website/tripadvisor: online_wf vs no_workflow
+  Total paired steps: 225
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             4    1.8%
+  negative            18    8.0%
+  ineffective        131   58.2%
+  redundant           72   32.0%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          2    14    17    68   101
+  TYPE           2     4    13     4    23
+  UNKNOWN        0     0   101     0   101
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 4/22 = 18.2%
+  Net gain (positive - negative)   = -14 steps

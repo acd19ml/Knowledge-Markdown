@@ -7,11 +7,26 @@ import ast
 from lxml import etree
 
 
-def get_target_obs(dom_tree, target_element_ids):
-    pruned_tree = prune_tree(dom_tree, target_element_ids)
-    tree_repr, _ = get_tree_repr(pruned_tree, id_mapping={}, keep_html_brackets=True)
-
+def format_tree_repr(tree, keep_html_brackets: bool) -> str:
+    tree_repr, _ = get_tree_repr(tree, id_mapping={}, keep_html_brackets=keep_html_brackets)
     return tree_repr
+
+
+def combine_obs_repr(desc_repr: str, html_repr: str, obs_mode: str) -> str:
+    if obs_mode == "desc_only":
+        return desc_repr
+    if obs_mode == "html_only":
+        return html_repr
+    if obs_mode == "desc_html":
+        return f"Description: {desc_repr}\nHTML: {html_repr}"
+    raise ValueError(f"Unsupported obs_mode: {obs_mode}")
+
+
+def get_target_obs(dom_tree, target_element_ids, obs_mode: str = "html_only"):
+    pruned_tree = prune_tree(dom_tree, target_element_ids)
+    desc_repr = format_tree_repr(pruned_tree, keep_html_brackets=False)
+    html_repr = format_tree_repr(pruned_tree, keep_html_brackets=True)
+    return combine_obs_repr(desc_repr, html_repr, obs_mode)
 
 
 def get_target_act(example, target_element_id):
@@ -106,7 +121,7 @@ def construct_act_str(op, val):
     return f"{op} {val}"
 
 
-def get_target_obs_and_act(example):
+def get_target_obs_and_act(example, obs_mode: str = "html_only"):
     if len(example["pos_candidates"]) == 0:
         # Simplify the raw_html if pos_candidates is empty (not in the cleaned html)
         dom_tree = etree.fromstring(example["raw_html"])
@@ -114,7 +129,7 @@ def get_target_obs_and_act(example):
             f"//*[@data_pw_testid_buckeye='{example['action_uid']}']"
         )
         element_id = gt_element[0].get("backend_node_id")
-        raw_obs = get_target_obs(dom_tree, [element_id])
+        raw_obs = get_target_obs(dom_tree, [element_id], obs_mode=obs_mode)
         # Find the start index of the target element using the element ID
         start_idx = raw_obs.find(f"id={element_id}")
         # Find the start tag for the target element
@@ -151,13 +166,18 @@ def get_target_obs_and_act(example):
     else:
         dom_tree = etree.fromstring(example["cleaned_html"])
         element_id = example["pos_candidates"][0]["backend_node_id"]
-        o = get_target_obs(dom_tree, [element_id])
+        o = get_target_obs(dom_tree, [element_id], obs_mode=obs_mode)
         a = get_target_act(example, element_id)
 
     return o, a
 
 
-def get_top_k_obs(s: dict, top_k: int, use_raw: bool = True) -> tuple[str, str]:
+def get_top_k_obs(
+    s: dict,
+    top_k: int,
+    use_raw: bool = True,
+    obs_mode: str = "html_only",
+) -> tuple[str, str]:
     # Find one positive candidate (it can be zero)
     pos_candidates = s["pos_candidates"]
     pos_ids = [c["backend_node_id"] for c in pos_candidates][:1]
@@ -167,7 +187,7 @@ def get_top_k_obs(s: dict, top_k: int, use_raw: bool = True) -> tuple[str, str]:
     neg_ids = [c["backend_node_id"] for c in neg_candidates]
     # Prune html with all candidates
     all_candidates = pos_ids + neg_ids
-    obs = get_target_obs(etree.fromstring(s["cleaned_html"]), all_candidates)
+    obs = get_target_obs(etree.fromstring(s["cleaned_html"]), all_candidates, obs_mode=obs_mode)
     # If there is no positive candidate in cleaned_html, get it from raw_html
     if len(s["pos_candidates"]) == 0:
         assert use_raw
@@ -175,7 +195,7 @@ def get_top_k_obs(s: dict, top_k: int, use_raw: bool = True) -> tuple[str, str]:
         dom_tree = etree.fromstring(s["raw_html"])
         gt_element = dom_tree.xpath(f"//*[@data_pw_testid_buckeye='{s['action_uid']}']")
         element_id = gt_element[0].get("backend_node_id")
-        raw_obs = get_target_obs(dom_tree, [element_id])
+        raw_obs = get_target_obs(dom_tree, [element_id], obs_mode=obs_mode)
         # Find the start index of the target element using the element ID
         start_idx = raw_obs.find(f"id={element_id}")
         # Find the start tag for the target element

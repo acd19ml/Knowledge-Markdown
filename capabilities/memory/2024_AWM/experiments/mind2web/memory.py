@@ -24,15 +24,23 @@ def get_exemplars(args) -> list:
     # concrete examples
     with open(os.path.join(args.memory_path, "exemplars.json"), "r") as f:
         concrete_examples = json.load(f)
-    if any([args.website in cex[0].get("specifier", "") for cex in concrete_examples]):
+
+    def matches_specifier(cex, tags) -> bool:
+        specifier = cex[0].get("specifier", "")
+        return all(tag in specifier for tag in tags)
+
+    website_tags = [tag for tag in [args.domain, args.subdomain, args.website] if tag]
+    subdomain_tags = [tag for tag in [args.domain, args.subdomain] if tag]
+
+    if args.website and any(args.website in cex[0].get("specifier", "") for cex in concrete_examples):
         concrete_examples = [
             cex for cex in concrete_examples 
-            if all([tag in cex[0]["specifier"] for tag in [args.domain, args.subdomain, args.website]])
+            if matches_specifier(cex, website_tags)
         ]
-    elif any([args.subdomain in cex[0].get("specifier", "") for cex in concrete_examples]):
+    elif args.subdomain and any(args.subdomain in cex[0].get("specifier", "") for cex in concrete_examples):
         concrete_examples = [
             cex for cex in concrete_examples 
-            if all([tag in cex[0]["specifier"] for tag in [args.domain, args.subdomain]])
+            if matches_specifier(cex, subdomain_tags)
         ]
 
     memory += random.sample(concrete_examples, 
@@ -62,13 +70,17 @@ def eval_sample(task_id, args, sample):
     previous_k = 5
 
     for s, act_repr in zip(sample["actions"], sample["action_reprs"]):
-        _, target_act = get_target_obs_and_act(s)
+        _, target_act = get_target_obs_and_act(s, obs_mode=args.obs_mode)
         pos_candidates = [
             c for c in s["pos_candidates"] if c["rank"] < args.top_k_elements
         ]
 
         # get query, obs, act
-        target_obs, _ = get_top_k_obs(s, args.previous_top_k_elements)
+        target_obs, _ = get_top_k_obs(
+            s,
+            args.previous_top_k_elements,
+            obs_mode=args.obs_mode,
+        )
         # Continue next loop if the ground truth element is not in the cleaned html
         if len(pos_candidates) == 0:
             element_acc.append(0)
@@ -91,7 +103,12 @@ def eval_sample(task_id, args, sample):
                 query.append({"role": "user", "content": o})
             query.append({"role": "assistant", "content": a})
         
-        obs, _ = get_top_k_obs(s, args.top_k_elements, use_raw=False)
+        obs, _ = get_top_k_obs(
+            s,
+            args.top_k_elements,
+            use_raw=False,
+            obs_mode=args.obs_mode,
+        )
         if len(query) == 0:
             query.append({
                 "role": "user",

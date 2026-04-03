@@ -1,6 +1,6 @@
 # AWM 复现实验执行协议（第一阶段）
 
-> 本文档服务于 [experiment-design.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/experiment-design.md) 中定义的第一阶段目标：**逐条复现论文已报告的核心实验结论**。
+> 本文档服务于 [experiment-design.md](experiment-design.md) 中定义的第一阶段目标：**逐条复现论文已报告的核心实验结论**。
 > 本文档回答的是“每条结论具体怎么复现”，而不是“还能进一步挑战什么”。
 
 ---
@@ -134,6 +134,9 @@
 
 ## 4. C1：Mind2Web offline cross-task 主结果
 
+如需逐阶段执行清单、验收点和故障处理，请直接使用
+[c1-runbook.md](../runbook/c1-runbook.md)。
+
 ### 4.1 要复现的结论
 
 - Offline AWM 优于对应基线
@@ -179,6 +182,9 @@
 
 ## 5. C2：Online AWM 的泛化结果
 
+如需逐阶段执行清单、split 级运行策略和当前代码约束，请直接使用
+[c2-runbook.md](../runbook/c2-runbook.md)。
+
 ### 5.1 要复现的结论
 
 - online 在 `cross-task`、`cross-website`、`cross-domain` 上优于基线
@@ -222,6 +228,9 @@
 
 ## 6. C3：LM induction vs rule induction
 
+如需逐阶段执行清单、当前实现缺口和首轮口径，请直接使用
+[c3-runbook.md](../runbook/c3-runbook.md)。
+
 ### 6.1 要复现的结论
 
 - LM induction 优于 rule induction
@@ -261,6 +270,9 @@
 ---
 
 ## 7. C4：表示层消融
+
+如需当前实现审计、缺口登记和后续实现顺序，请直接使用
+[c4-runbook.md](../runbook/c4-runbook.md)。
 
 ### 7.1 子结论一：code vs text workflow
 
@@ -457,7 +469,7 @@ python results/calc_score.py --results_dir results/gpt-4o/test_task/{WEBSITE}/of
 
 ## 13. 与设计文档的边界
 
-[experiment-design.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/experiment-design.md) 负责回答：
+[experiment-design.md](experiment-design.md) 负责回答：
 
 - 当前阶段到底要复现哪些论文结论
 - 复现成功的判据是什么

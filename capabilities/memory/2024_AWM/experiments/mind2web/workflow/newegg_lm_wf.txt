@@ -1,0 +1,26 @@
+Website: Shopping,Digital,newegg
+## Summary Workflows:
+## search_product
+Given that you are on the Newegg homepage or any page with the search bar, this workflow searches for a product using a specific term.
+[searchbox]  Search Site -> TYPE: {search-term}
+[button]   -> CLICK
+
+## apply_price_filter
+Given that you are on the search results or category page, this workflow filters the items by setting a maximum price.
+[textbox]  price to -> TYPE: {max-price}
+[button]  APPLY -> CLICK
+
+## apply_selection_filter
+Given that you are on the search results or category page, this workflow filters the items by selecting a specific attribute option.
+[span]  {filter-option} -> CLICK
+[button]  APPLY -> CLICK
+
+## navigate_category_links
+Given that you are on a page with category navigation, this workflow navigates to a subcategory by clicking through the category links.
+[link]  {category-link} -> CLICK
+[link]  {subcategory-link} -> CLICK
+
+## open_site_menu_and_select
+Given that you are on the Newegg homepage, this workflow opens the main site menu and selects a specific tool or category.
+[generic]  Site Menu -> CLICK
+[link]  {menu-option} -> CLICK

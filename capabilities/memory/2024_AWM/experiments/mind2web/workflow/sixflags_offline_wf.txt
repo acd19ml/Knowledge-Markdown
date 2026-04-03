@@ -1,0 +1,34 @@
+## select_park
+Given that you are on the Six Flags website, this workflow selects a specific park from a list of options.
+[button]  Browse the Parks Below -> CLICK
+[span]  {park-name} -> CLICK
+[button]  Go! -> CLICK
+
+## browse_ticket_options
+Given that you are on a selected Six Flags park's page, this workflow navigates to the various ticket options available for purchase.
+[link]  Tickets & Passes  -> CLICK
+[link]  {specific-ticket-option} -> CLICK
+
+## buy_group_tickets
+Given that you are on a selected Six Flags park's page, this workflow buys group tickets by entering necessary group information.
+[link]  Groups  -> CLICK
+[button]  Buy Now -> CLICK
+[button]  {date} -> CLICK
+[button]  Buy Now -> CLICK
+[input]   -> TYPE: {group-name}
+[input]   -> TYPE: {leader-name}
+[input]   -> TYPE: {email-address}
+[input]   -> TYPE: {address-details}
+[button]  Complete -> CLICK
+
+## select_event_options
+Given that you are on a selected Six Flags park's page, this workflow navigates to see all events available at that park.
+[link]  Events  -> CLICK
+[link]  See all events  -> CLICK
+
+## find_park_information
+Given that you are on a selected Six Flags park's page, this workflow navigates to find specific park information such as park hours, policies, security, etc.
+[link]  Plan Your Visit  -> CLICK
+[link]  {information-type} -> CLICK
+
+These workflows capture the common repetitive sequences of steps performed across multiple queries related to the Six Flags website navigation tasks.

@@ -1,0 +1,24 @@
+# Summary Workflows:
+
+## search_and_select_location
+Given that you are on the TripAdvisor search page, this workflow searches for a specific location and selects it from the suggestions.
+[searchbox]  Where to? -> TYPE: {location}
+[option]  {location_suggestion} -> CLICK
+
+## select_date_range
+Given that the calendar is open, this workflow selects the start and end dates for the travel or booking period.
+[gridcell]  {start_date} -> CLICK
+[gridcell]  {end_date} -> CLICK
+
+## sort_by_price_low_to_high
+Given that you are on the search results page, this workflow sorts the results by price from lowest to highest.
+[div]  Sort by: -> CLICK
+[div]  Price (low to high) -> CLICK
+
+## select_filter_criteria
+Given that you are on the search or results page, this workflow selects a specific filter option such as cuisine, amenity, or dietary requirement.
+[checkbox/label]  {filter_name} -> CLICK
+
+## submit_search_form
+Given that you have filled in the search criteria, this workflow submits the form to retrieve results.
+[button]  {submit_button_text} -> CLICK

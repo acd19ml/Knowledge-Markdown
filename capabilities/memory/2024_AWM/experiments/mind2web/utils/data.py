@@ -71,6 +71,8 @@ def is_website_header(block: str, website: str) -> bool:
     return False
 
 def filter_workflows(text: str, website: str) -> str:
+    if text is None:
+        return ""
     blocks = text.split('\n\n')
     for i,b in enumerate(blocks):
         if is_website_header(b, website):

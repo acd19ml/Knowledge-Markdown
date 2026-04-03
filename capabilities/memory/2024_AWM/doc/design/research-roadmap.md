@@ -1,7 +1,7 @@
 # AWM 深度复现研究路线图
 
 > 本文档从更高层次定义整个 AWM 项目的研究路线。
-> 它不替代 [experiment-design.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/experiment-design.md) 或 [experiment-protocol.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/experiment-protocol.md)，而是回答一个更大的问题：
+> 它不替代 [experiment-design.md](experiment-design.md) 或 [experiment-protocol.md](experiment-protocol.md)，而是回答一个更大的问题：
 > **为了在 final report 中产出“有深度的复现”，整个项目应该分几步推进，每一步要解决什么问题，最终怎样形成有说服力的论证。**
 
 ---
@@ -91,8 +91,8 @@
 
 对应文档：
 
-- [experiment-design.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/experiment-design.md)
-- [experiment-protocol.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/experiment-protocol.md)
+- [experiment-design.md](experiment-design.md)
+- [experiment-protocol.md](experiment-protocol.md)
 
 阶段完成标志：
 
@@ -258,7 +258,7 @@
 
 对应文档：
 
-- [research-roadmap.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/research-roadmap.md)
+- [research-roadmap.md](research-roadmap.md)
 
 ### 7.2 设计层
 
@@ -269,7 +269,7 @@
 
 对应文档：
 
-- [experiment-design.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/experiment-design.md)
+- [experiment-design.md](experiment-design.md)
 
 ### 7.3 执行层
 
@@ -281,7 +281,7 @@
 
 对应文档：
 
-- [experiment-protocol.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/experiment-protocol.md)
+- [experiment-protocol.md](experiment-protocol.md)
 
 这样的层次结构有一个好处：
 
