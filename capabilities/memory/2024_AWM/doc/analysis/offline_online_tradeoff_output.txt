@@ -1,0 +1,26 @@
+
+============================================================
+  gpt-4o/test_task/kayak: online_wf vs offline_wf
+  Total paired steps: 48
+============================================================
+
+  [Overall Distribution]
+  Category         Count     Pct
+  ------------------------------
+  positive             1    2.1%
+  negative             1    2.1%
+  ineffective         21   43.8%
+  redundant           25   52.1%
+
+  [By Action Type]
+  Type         pos   neg  ineff  redun  total
+  ----------------------------------------
+  CLICK          0     1     5    22    28
+  TYPE           1     0     2     3     6
+  UNKNOWN        0     0    14     0    14
+
+  [Workflow Impact]
+  Positive / (Positive + Negative) = 1/2 = 50.0%
+  Net gain (positive - negative)   = +0 steps
+  Exported 1 positive cases -> /Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/case_studies/positive_gpt-4o_test_task_kayak_online_wf.md
+  Exported 1 negative cases -> /Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/case_studies/negative_gpt-4o_test_task_kayak_online_wf.md

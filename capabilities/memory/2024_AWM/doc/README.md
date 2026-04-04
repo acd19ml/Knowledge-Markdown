@@ -23,6 +23,8 @@ doc/
 │   └── c5-runbook.md             C5 workflow quality analysis
 ├── analysis/                 # 阶段二三：机制分析 & 边界识别
 │   ├── mechanism-analysis.md     机制分析主文档（层次二 & 三）
+│   ├── claim-evidence-strength-limitation.md
+│   │                           主张-证据-强度-限制总表
 │   ├── reproduction-status.md    C1-C5 复现总状态表
 │   └── scripts/                  分析脚本
 │       ├── step_breakdown.py         指标按维度交叉分解
@@ -31,7 +33,9 @@ doc/
 │       └── wf_text_compare.py        LM vs rule workflow 文本对比
 └── report/                   # 最终产物
     ├── Interim.tex               中期报告 TeX 源文件
-    └── final.md                  最终报告骨架
+    ├── final.md                  最终报告骨架
+    ├── final-report-writing-notes.md  final report 写作说明
+    └── scope-and-limitations.md  final report 的范围与限制说明
 ```
 
 ---

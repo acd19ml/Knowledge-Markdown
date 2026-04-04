@@ -1,0 +1,157 @@
+Base directory: /Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM
+Workflow dir:   /Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/experiments/mind2web/workflow
+Results dir:    /Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/experiments/mind2web/results/gpt-4o/test_task
+
+==============================================================================
+  AWM Offline Workflow — Target Action Alignment Analysis
+==============================================================================
+
+Heuristic: keyword overlap between workflow pattern descriptions
+           and observation element context for each target action.
+Limitations: label-lag, keyword ambiguity, placeholder fallback,
+             no value-level matching for TYPE/SELECT.
+
+------------------------------------------------------------------------------
+  Site: KAYAK
+  Workflow patterns: 17  |  Task files: 6
+------------------------------------------------------------------------------
+  Total target steps:   34
+  Aligned steps:        24
+  Alignment rate:       70.6%
+
+  Breakdown by action type:
+    Action      Total  Aligned     Rate
+    ---------- ------ -------- --------
+    CLICK          28       21    75.0%
+    TYPE            6        3    50.0%
+
+  Aligned examples:
+    [0.json] CLICK [41507]
+      elem context: "tab cambodia>"
+      matched wf:   "{best-popup-option}" -> CLICK
+    [1.json] TYPE [148] [little ferry]
+      elem context: "text pick-up location from? />"
+      matched wf:   "Pick-up/Enter location" -> TYPE
+    [1.json] CLICK [7441]
+      elem context: "option little ferry, new jersey, united>"
+      matched wf:   "{best-popup-option}" -> CLICK
+
+  Misaligned examples:
+    [0.json] CLICK [602]
+      elem context: "find out where you can>"
+    [1.json] CLICK [24948]
+      elem context: "button thursday march 23, 2023> 23"
+    [1.json] CLICK [30297]
+      elem context: "button tuesday april 4, 2023> 4"
+
+------------------------------------------------------------------------------
+  Site: NEWEGG
+  Workflow patterns: 14  |  Task files: 7
+------------------------------------------------------------------------------
+  Total target steps:   44
+  Aligned steps:        40
+  Alignment rate:       90.9%
+
+  Breakdown by action type:
+    Action      Total  Aligned     Rate
+    ---------- ------ -------- --------
+    CLICK          33       29    87.9%
+    SELECT          8        8   100.0%
+    TYPE            3        3   100.0%
+
+  Aligned examples:
+    [0.json] CLICK [8172]
+      elem context: "pc builder>"
+      matched wf:   "icon of Build Your Own Custom PC Build Your Own Cu..." -> CLICK
+    [0.json] CLICK [25107]
+      elem context: ""
+      matched wf:   "Site Menu" -> CLICK
+    [0.json] CLICK [57962]
+      elem context: "apply"
+      matched wf:   "APPLY" -> CLICK
+
+  Misaligned examples:
+    [2.json] CLICK [99]
+      elem context: "newegg careers> newegg careers"
+    [2.json] CLICK [19795]
+      elem context: "see all job listings"
+    [2.json] CLICK [43371]
+      elem context: "checkbox on />"
+
+------------------------------------------------------------------------------
+  Site: BUDGET
+  Workflow patterns: 35  |  Task files: 10
+------------------------------------------------------------------------------
+  Total target steps:   71
+  Aligned steps:        69
+  Alignment rate:       97.2%
+
+  Breakdown by action type:
+    Action      Total  Aligned     Rate
+    ---------- ------ -------- --------
+    CLICK          58       56    96.6%
+    SELECT          2        2   100.0%
+    TYPE           11       11   100.0%
+
+  Aligned examples:
+    [0.json] CLICK [128]
+      elem context: "button> reservations"
+      matched wf:   "Locations or Reservations" -> CLICK
+    [0.json] CLICK [9780]
+      elem context: "budget truck"
+      matched wf:   "{vehicle-type}" -> CLICK
+    [0.json] TYPE [19433] [08817]
+      elem context: "text us city,state or zip code />"
+      matched wf:   "Search by Airport, City, Zip, Address or Attraction" -> TYPE
+
+  Misaligned examples:
+    [3.json] CLICK [46476]
+      elem context: "20"
+    [5.json] CLICK [55880]
+      elem context: "10"
+
+------------------------------------------------------------------------------
+  Site: SIXFLAGS
+  Workflow patterns: 18  |  Task files: 7
+------------------------------------------------------------------------------
+  Total target steps:   52
+  Aligned steps:        49
+  Alignment rate:       94.2%
+
+  Breakdown by action type:
+    Action      Total  Aligned     Rate
+    ---------- ------ -------- --------
+    CLICK          49       49   100.0%
+    TYPE            3        0     0.0%
+
+  Aligned examples:
+    [0.json] CLICK [1054]
+      elem context: ""
+      matched wf:   "Browse the Parks Below" -> CLICK
+    [0.json] CLICK [21381]
+      elem context: "go!"
+      matched wf:   "Go!" -> CLICK
+    [0.json] CLICK [29053]
+      elem context: "tickets & passes"
+      matched wf:   "{park-name}" -> CLICK
+
+  Misaligned examples:
+    [0.json] TYPE [130032] [Jones]
+      elem context: "text lastname last name />"
+    [0.json] TYPE [180904] [10005]
+      elem context: "zipcode zip/postal code />"
+    [0.json] TYPE [205548] [35]
+      elem context: "text age />"
+
+==============================================================================
+  SUMMARY TABLE
+==============================================================================
+
+  Site          Patterns  Tasks  Steps  Aligned     Rate
+  ------------ --------- ------ ------ -------- --------
+  kayak               17      6     34       24    70.6%
+  newegg              14      7     44       40    90.9%
+  budget              35     10     71       69    97.2%
+  sixflags            18      7     52       49    94.2%
+  ------------ --------- ------ ------ -------- --------
+  OVERALL                          201      182    90.5%

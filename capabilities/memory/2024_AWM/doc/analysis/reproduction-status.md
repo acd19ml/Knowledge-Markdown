@@ -52,3 +52,17 @@ C1-C5 已全部完成首轮复现。五条核心主张中，得到最强支持�
 1. C1-C5 首轮结果全部冻结
 2. 层次二三的分析已可支撑 final report 的”机制解释”和”边界识别”章节
 3. 下一步：进入 final report 撰写
+
+---
+
+## 5. Reporting Boundary
+
+为降低 final report 中的过度声称风险，当前项目采用以下统一边界：
+
+- 本项目的主证据范围限于 **Mind2Web**
+- 当前所有 `reproduced / not reproduced` 判断均为 **first-run judgments**
+- 论文 `AWM_AS` action-space extension 分支 **未覆盖**
+- `alignment rate` 只按 **exploratory heuristic** 使用，不作为强证据
+
+建议 final report 直接复用：
+- [scope-and-limitations.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/report/scope-and-limitations.md)
