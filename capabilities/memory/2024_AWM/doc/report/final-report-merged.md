@@ -423,19 +423,19 @@ Representative negative cases are shown in Appendices B4, B5, and B6.
 
 #### N-2: Full-Domain Misdirection (sixflags, task 2, step 0)
 
-**Task:** "Show the balance sheet and cash flow statement for fiscal year 2021 of Six Flags."
+**Task:** "Apply for a job on the Six Flags White Water park."
 
 | | Baseline | Workflow |
 |---|---|---|
 | step_success | **1** | 0 |
-| Model output | `CLICK [103]` (Investors link) | `CLICK [1042]` (Browse the Parks Below) |
-| Failure mode | — | All 5 sixflags workflows are park/ticket navigation; none covers Investors/financial |
+| Model output | `CLICK [103]` (Jobs link) | `CLICK [1042]` (Browse the Parks Below) |
+| Failure mode | — | All 5 sixflags workflows are park/ticket navigation; none covers Jobs/HR |
 
-**Mechanism:** `select_park` workflow's first step `[button] Browse the Parks Below → CLICK` matches a visible on-page button, and the model executes it instead of reasoning toward the correct Investors link.
+**Mechanism:** `select_park` workflow's first step `[button] Browse the Parks Below → CLICK` matches a visible on-page button, and the model executes it instead of reasoning toward the correct Jobs link.
 
 #### N-3: Template Step-Skipping (sixflags, task 1, step 5)
 
-**Task:** "Buy a single day pass to Six Flags, Magic Mountain."
+**Task:** "Find a place to stay near Great Escape New Park from April 21 to April 24 for 2 adults and 1 kid, and book the cheapest themed room."
 
 | | Baseline | Workflow |
 |---|---|---|

@@ -424,19 +424,19 @@ Wang 等人（2024）提出的智能体工作流记忆（AWM）旨在为网页�
 
 #### N-2：全领域误导（sixflags，任务 2，第 0 步）
 
-**任务：** “Show the balance sheet and cash flow statement for fiscal year 2021 of Six Flags.”
+**任务：** “Apply for a job on the Six Flags White Water park.”
 
 | | 基线 | 工作流 |
 |---|---|---|
 | step_success | **1** | 0 |
-| 模型输出 | `CLICK [103]`（投资者链接） | `CLICK [1042]`（Browse the Parks Below） |
-| 失效模式 | — | 全部 5 个 sixflags 工作流均为园区/票务导航；无一覆盖投资者/财务 |
+| 模型输出 | `CLICK [103]`（Jobs 链接） | `CLICK [1042]`（Browse the Parks Below） |
+| 失效模式 | — | 全部 5 个 sixflags 工作流均为园区/票务导航；无一覆盖 Jobs/HR |
 
-**机制：** `select_park` 工作流第一步 `[button] Browse the Parks Below → CLICK` 与页面上可见按钮匹配，模型执行该步而非推理向正确投资者链接。
+**机制：** `select_park` 工作流第一步 `[button] Browse the Parks Below → CLICK` 与页面上可见按钮匹配，模型执行该步而非推理向正确 Jobs 链接。
 
 #### N-3：模板跳步（sixflags，任务 1，第 5 步）
 
-**任务：** “Buy a single day pass to Six Flags, Magic Mountain.”
+**任务：** “Find a place to stay near Great Escape New Park from April 21 to April 24 for 2 adults and 1 kid, and book the cheapest themed room.”
 
 | | 基线 | 工作流 |
 |---|---|---|

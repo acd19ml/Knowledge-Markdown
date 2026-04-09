@@ -1157,8 +1157,7 @@ correct navigation path.
 \paragraph{N-2: Full-Domain Misdirection (sixflags, task 2, step
 0)}\label{n-2-full-domain-misdirection-sixflags-task-2-step-0}
 
-\textbf{Task:} ``Show the balance sheet and cash flow statement for
-fiscal year 2021 of Six Flags.''
+\textbf{Task:} ``Apply for a job on the Six Flags White Water park.''
 
 {\begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
@@ -1176,22 +1175,24 @@ Workflow
 \bottomrule\noalign{}
 \endlastfoot
 step\_success & \textbf{1} & 0 \\
-Model output & \texttt{CLICK\ {[}103{]}} (Investors link) &
+Model output & \texttt{CLICK\ {[}103{]}} (Jobs link) &
 \texttt{CLICK\ {[}1042{]}} (Browse the Parks Below) \\
 Failure mode & --- & All 5 sixflags workflows are park/ticket
-navigation; none covers Investors/financial \\
+navigation; none covers Jobs/HR \\
 \end{longtable}
 }
 
 \textbf{Mechanism:} \texttt{select\_park} workflow's first step
 \texttt{{[}button{]}\ Browse\ the\ Parks\ Below\ →\ CLICK} matches a
 visible on-page button, and the model executes it instead of reasoning
-toward the correct Investors link.
+toward the correct Jobs link.
 
 \paragraph{N-3: Template Step-Skipping (sixflags, task 1, step
 5)}\label{n-3-template-step-skipping-sixflags-task-1-step-5}
 
-\textbf{Task:} ``Buy a single day pass to Six Flags, Magic Mountain.''
+\textbf{Task:} ``Find a place to stay near Great Escape New Park from
+April 21 to April 24 for 2 adults and 1 kid, and book the cheapest
+themed room.''
 
 {\begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}

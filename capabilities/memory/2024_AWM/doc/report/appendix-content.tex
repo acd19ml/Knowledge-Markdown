@@ -1192,9 +1192,26 @@ This appendix uses the raw JSON indexing to avoid ambiguity.
 
 \subsubsection{Claim supported}
 
-This case supports the step-level claim that, on a matched site,
-workflow guidance can improve late-stage date-element grounding on a
-matched interface.
+This case supports a narrow prompt-level claim: under the recorded
+\texttt{offline\_wf} condition, workflow memory was already present in
+the prompt before raw step \texttt{6}, and the workflow condition
+selected the correct date element where the baseline selected a nearby
+wrong element.
+
+This case does not by itself isolate workflow insertion as the only
+changed factor between control and treatment, so it should be read as
+mechanism-consistent evidence rather than strict causal identification.
+
+\subsubsection{What is verified here}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item the case belongs to the official \texttt{gpt-4o / test\_task / kayak / offline\_wf} comparison setting;
+\item the \texttt{offline\_wf} prompt already contains workflow memory at raw step \texttt{6};
+\item the baseline predicts the wrong date element, while the workflow condition predicts the correct one;
+\item the corrected action is locally consistent with the date-selection routine visible in the injected workflow text.
+\end{enumerate}
 
 \subsubsection{Target and
 predictions}
@@ -1292,9 +1309,26 @@ Task &
 
 \subsubsection{Claim supported}
 
-This case supports the step-level claim that, on a matched site,
-workflow guidance can redirect the model from the wrong action mode to
-the correct one.
+This case supports a narrow prompt-level claim: under the recorded
+\texttt{lm\_wf} condition, workflow memory was already present in the
+prompt before raw step \texttt{3}, and the workflow condition produced
+the correct \texttt{TYPE} where the baseline produced an incorrect
+\texttt{CLICK}.
+
+This case does not by itself establish workflow insertion as the sole
+causal difference between the two conditions, so it should be read as
+mechanism-consistent evidence rather than strict causal identification.
+
+\subsubsection{What is verified here}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item the case belongs to the official \texttt{qwen/qwen3.5-397b-a17b / test\_task / united / lm\_wf} comparison setting;
+\item the \texttt{lm\_wf} prompt already contains workflow memory at raw step \texttt{3};
+\item the baseline predicts an incorrect \texttt{CLICK}, while the workflow condition predicts the correct \texttt{TYPE};
+\item the corrected \texttt{TYPE} is locally consistent with the location-entry routine visible in the injected workflow text.
+\end{enumerate}
 
 \subsubsection{Target and
 predictions}
@@ -1383,18 +1417,36 @@ Field & Value \\
 Website & \texttt{sixflags} \\
 Setting & \texttt{gpt-4o}, \texttt{test\_task}, \texttt{offline\_wf} vs
 \texttt{no\_workflow} \\
-Task id & \texttt{2} \\
+Result-file task id & \texttt{2} \\
 Raw step index & \texttt{0} \\
 Case-study label & \texttt{0\ /\ 6} \\
-Task &
-\texttt{Show\ the\ balance\ sheet\ and\ cash\ flow\ statement\ for\ the\ fiscal\ year\ 2021\ of\ Six\ Flags.} \\
+Current step task &
+\texttt{Apply\ for\ a\ job\ on\ the\ Six\ Flags\ White\ Water\ park} \\
 \end{longtable}
 }
 
 \subsubsection{Claim supported}
 
-This case supports the case-level claim that a semantically mismatched
-workflow can pull the model into the wrong task family.
+This case supports a narrow prompt-level claim: under the recorded
+\texttt{offline\_wf} condition, workflow memory was already present in
+the prompt before raw step \texttt{0}, and the workflow condition
+produced the wrong park-selection click where the baseline produced the
+correct \texttt{Jobs} click.
+
+This case does not by itself isolate workflow insertion as the only
+changed factor between treatment and control, so it should be read as
+mechanism-consistent evidence rather than strict causal identification.
+
+\subsubsection{What is verified here}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item the case belongs to the audited \texttt{gpt-4o / test\_task / sixflags / offline\_wf} setting;
+\item the current step in the raw JSON prompt is a jobs-related task, not the earlier balance-sheet task that appears in the file-level case-study index;
+\item the baseline predicts the correct \texttt{Jobs} navigation click, while the workflow condition predicts the wrong \texttt{Browse the Parks Below} click;
+\item the wrong click is locally consistent with the park-selection workflows present in the prompt.
+\end{enumerate}
 
 \subsubsection{Target and
 predictions}
@@ -1492,15 +1544,33 @@ Setting & \texttt{gpt-4o}, \texttt{test\_task}, \texttt{offline\_wf} vs
 Task id & \texttt{1} \\
 Raw step index & \texttt{5} \\
 Case-study label & \texttt{Case\ 2:\ task=1,\ step=5/14} \\
-Task &
-\texttt{Buy\ a\ single\ day\ pass\ to\ Six\ Flags,\ Magic\ Mountain.} \\
+Current step task &
+\texttt{Find\ a\ place\ to\ stay\ near\ Great\ Escape\ New\ Park\ from\ April\ 21\ to\ April\ 24\ for\ 2\ adults\ and\ 1\ kid,\ and\ book\ the\ cheapest\ themed\ room.} \\
 \end{longtable}
 }
 
 \subsubsection{Claim supported}
 
-This case supports the case-level claim that a compressed
-purchase-oriented template can induce step skipping.
+This case supports a narrow prompt-level claim: under the recorded
+\texttt{offline\_wf} condition, workflow memory was already present in
+the prompt before raw step \texttt{5}, and the workflow condition
+produced a premature purchase-oriented \texttt{CLICK} where the
+baseline took the correct date-selection action.
+
+This case does not isolate workflow insertion as the only changed factor
+between treatment and control, so it should be read as
+mechanism-consistent evidence rather than strict causal identification.
+
+\subsubsection{What is verified here}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item the case belongs to the official \texttt{gpt-4o / test\_task / sixflags / offline\_wf} comparison setting;
+\item the audited raw step is part of the Great Escape lodging task recorded in both paired result files;
+\item the \texttt{offline\_wf} prompt already contains workflow memory at raw step \texttt{5};
+\item the workflow condition clicks \texttt{Book Now} too early, while the baseline correctly clicks the arrival-date input, and this premature click is locally consistent with the purchase-oriented routine visible in the injected workflow text.
+\end{enumerate}
 
 \subsubsection{Target and
 predictions}
@@ -1606,6 +1676,21 @@ This case supports a narrow prompt-level claim: under the recorded
 the prompt before the first action of task \texttt{2}, and the
 treatment condition produced an incorrect early \texttt{TYPE} where the
 baseline produced the correct \texttt{CLICK}.
+
+This case does not by itself isolate workflow insertion as the only
+changed factor between treatment and control, so it should be read as
+mechanism-consistent evidence rather than strict causal identification.
+
+\subsubsection{What is verified here}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item the case belongs to the official \texttt{C2 / test\_website / tripadvisor / online\_wf} run setting;
+\item the \texttt{online\_wf} prompt already contains workflow memory at task \texttt{2}, step \texttt{0};
+\item the baseline predicts the correct first-step \texttt{CLICK}, while the \texttt{online\_wf} condition predicts an incorrect \texttt{TYPE};
+\item the wrong \texttt{TYPE} is locally consistent with the search-first routine visible in the injected workflow message.
+\end{enumerate}
 
 \subsubsection{Target and
 predictions}
