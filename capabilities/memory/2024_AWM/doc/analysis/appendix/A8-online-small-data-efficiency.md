@@ -2,7 +2,9 @@
 
 ## Purpose
 
-The paper's online-memory narrative implies that a small number of successful trajectories may already be enough to make the induced workflow useful.
+This appendix is retained as an exploratory prefix-level rereading of logged online results. It should not be used as a primary final-report appendix for a cross-site mechanism claim.
+
+The paper's online-memory narrative implies that a small number of trajectories may already be enough to make the induced workflow useful.
 
 This appendix checks that implication without adding any new experiment. It asks:
 
@@ -26,7 +28,7 @@ For each online setting, define:
 Under `induce_steps=1`:
 
 - `budget=0` means the very first sample, still without induced workflow
-- `budget=1` means one successful example has already been folded into the workflow
+- `budget=1` means one prior example has already been folded into the workflow
 - `budget=2` means two prior examples have already been folded in
 
 For each site, we compare:
@@ -50,13 +52,13 @@ and compute cumulative prefix deltas for:
 | tripadvisor | none | best observed still negative (`budget=1`, `-3.57pp`) | `-11.74pp` |
 | reddit | `budget=10`, `+2.02pp` | `budget=10`, `+2.02pp` | `-2.16pp` |
 
-This is the most concise answer to the small-data question:
+This is the most concise descriptive answer to the small-data question:
 
 - **yes on the source site (`kayak`)**
-- **no on the harder cross-site target (`tripadvisor`)**
+- **no on the harder target-site first run (`tripadvisor`)**
 - **only weakly and temporarily on `reddit`**
 
-So the current evidence does not support a benchmark-wide claim that online memory becomes useful after only a very small budget. It supports a narrower claim: **very-small-budget gains can appear quickly on the source-style setting, but do not transfer reliably to larger distribution shifts.**
+So the current evidence does not support a benchmark-wide claim that online memory becomes useful after only a very small budget. It supports a narrower descriptive claim: **very-small-budget gains appear on `kayak`, but the same pattern is not reproduced on the two available target-site first runs.**
 
 ## A8.3 Site-by-Site Reading
 
@@ -70,7 +72,7 @@ From [online_small_data_curve_output.txt](/Users/mac/studyspace/Knowledge-Markdo
 
 This is real early gain, not just a late-stage effect.
 
-Combined with [A7-offline-vs-online-tradeoff.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/A7-offline-vs-online-tradeoff.md), the source-driven reading is:
+Combined with [A7-offline-vs-online-tradeoff.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/A7-offline-vs-online-tradeoff.md), a cautious reading is:
 
 - `online_wf` quickly learns a locally useful routine
 - on `kayak`, that routine is close enough to the test distribution to help early
@@ -83,7 +85,7 @@ Combined with [A7-offline-vs-online-tradeoff.md](/Users/mac/studyspace/Knowledge
 
 This is the opposite of a small-data efficiency story.
 
-The likely explanation is not simply "too little data", but **wrong early pattern acquisition**:
+One exploratory explanation is not simply "too little data", but **wrong early pattern acquisition**:
 
 - a few early induced trajectories are enough to create a workflow
 - but that workflow is already semantically mismatched to the target navigation structure
@@ -104,14 +106,14 @@ The more cautious interpretation is:
 
 ## A8.4 Mechanism Interpretation
 
-This pattern is consistent with the broader mechanism picture developed elsewhere in the project:
+This pattern is consistent with a broader exploratory reading developed elsewhere in the project:
 
-- on source-like settings, `online_wf` can acquire a useful local routine quickly
-- under larger shift, the same small-budget property becomes fragile because the first few induced trajectories may already encode the wrong operational template
+- on `kayak`, `online_wf` can acquire a useful local routine quickly
+- on the two target-site first runs here, the same small-budget pattern is not stable
 
-So the small-data question should be answered conditionally:
+So the small-data question should be answered conditionally and descriptively:
 
-> Online workflow induction can show early gains under very small budgets, but the current evidence suggests that this is mainly a source-style phenomenon rather than a robust cross-site property.
+> Online workflow induction can show early gains under very small budgets on `kayak`, but the current first-run evidence does not show the same pattern on `tripadvisor` or `reddit`.
 
 ## A8.5 Safe Claim
 

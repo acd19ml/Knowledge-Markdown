@@ -33,20 +33,24 @@ This directory stores appendix-ready evidence blocks for the AWM reproduction re
 
 - Created as source-traceable support for final-report正文 claims.
 - These files are evidence-only and intentionally avoid stronger claims than the current runbooks support.
+- `A3` is now best read as an exploratory first-run target-site result note rather than a standalone mechanism appendix.
+- `A7` and `A8` are retained as exploratory follow-up analyses, not minimal core evidence for the final report.
 - Historical candidate selection notes live in [appendix-evidence-candidates.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix-evidence-candidates.md), but that file is now deprecated as an active source of truth.
 - For正文 claim-to-appendix linkage, use [mechanism-appendix-mapping.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/mechanism-appendix-mapping.md).
 
 ## Case template
 
-All `B*` case appendices now use the same fixed structure:
+All `B*` case appendices now use a source-traceable case structure. The common core is:
 
-1. `Case metadata`
-2. `Claim supported`
-3. `Target and predictions`
-4. `Observation excerpt from raw JSON`
-5. `Workflow excerpt present in the prompt`
-6. `Raw action outputs`
-7. `Minimal interpretation`
-8. `Limitation`
+1. a `Source` block separating experimental identity and prompt-level evidence
+2. `Case metadata`
+3. `Claim supported`
+4. `What is verified here`
+5. `Target and predictions`
+6. `Observation excerpt from raw JSON`
+7. `Workflow excerpt present in the prompt` or equivalent prompt-level evidence
+8. `Raw action outputs`
+9. `Strict interpretation`
+10. `Limitation`
 
-This template is meant to keep case-level evidence comparable across positive, negative, and cross-site examples.
+This template is meant to keep case-level evidence comparable across positive and negative examples while making source identity and causal limits explicit by default.

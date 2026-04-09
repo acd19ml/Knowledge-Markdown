@@ -2,13 +2,13 @@
 
 ## Purpose
 
-This appendix addresses a gap left by the current `§3` analysis: the previous discussion explained why `online_wf` degrades on cross-site targets, but did not directly compare the mechanism of `offline_wf` and `online_wf` themselves.
+This appendix is retained as an exploratory rereading of existing Mind2Web outputs. It should not be used as a primary final-report appendix for cross-site mechanism claims.
 
 The goal here is not to introduce a new experiment. It is to re-read existing C1 and C2 outputs from a mechanism perspective and ask:
 
 - what kinds of step-level gains does `offline_wf` produce on `kayak`?
 - what kinds of step-level gains does `online_wf` produce on the same site?
-- what failure pattern appears when `online_wf` is moved to farther targets such as `tripadvisor` and `reddit`?
+- what first-run result pattern appears on the farther targets `tripadvisor` and `reddit`?
 
 ## Source Materials
 
@@ -129,9 +129,9 @@ Compared with the offline library, the online library is:
 
 This supports the interpretation that `online_wf` is closer to the current test distribution, but also less robust as a general reusable library.
 
-## A7.3 Cross-Site Negative Evidence for `online_wf`
+## A7.3 First-Run Target-Site Underperformance for `online_wf`
 
-The same source-proximate property that helps on `kayak` becomes risky under distribution shift.
+The same logged setting that helps on `kayak` does not carry over as a positive first-run result on the two target sites available here.
 
 ### Tripadvisor
 
@@ -147,7 +147,7 @@ From [negative_qwen_qwen3_5-397b-a17b_test_website_tripadvisor_online_wf.md](/Us
 - example tasks that should begin by entering a category or opening navigation are pushed into location search instead
 - example wrong values include `Eiffel Tower Paris`, `Jaipur`, `San Francisco`, and `Egypt`
 
-This is not just generic model error. It is consistent with an induced search-first template being replayed in the wrong interface.
+This is consistent with a recorded prompt-level mismatch pattern, but not by itself a controlled causal proof.
 
 ### Reddit
 
@@ -163,31 +163,31 @@ From [negative_qwen_qwen3_5-397b-a17b_test_domain_reddit_online_wf.md](/Users/ma
 - the induced workflow assumes a small menu of Reddit-specific routines such as search, join, sort, and time filter
 - these routines are not broadly transferable once the target task diverges from the learned community/search template
 
-This is weaker than the Tripadvisor mismatch, but it points in the same direction.
+This is weaker than the Tripadvisor case and should be read only as same-direction exploratory evidence.
 
-## A7.4 Mechanism Interpretation
+## A7.4 Exploratory Reading
 
-The existing evidence supports the following source-driven reading.
+The existing evidence supports only a cautious exploratory reading.
 
 ### Offline workflow
 
-- derived from training data rather than from the model's own recent successful test trajectories
+- derived from training data rather than from the model's own recent test-time trajectories
 - broader and more reusable at the text level
 - steadier on `CLICK` grounding and later-stage navigation on `kayak`
-- vulnerable to train-test distribution gap when the learned library is semantically misaligned with the target site
+- potentially vulnerable when the learned library is semantically misaligned with the evaluated task/site
 
 ### Online workflow
 
-- induced from successful same-run trajectories, so it is closer to the immediate test distribution
+- induced from same-run trajectories in the current implementation, so it is closer to the immediate test distribution
 - stronger at local TYPE/value guidance on `kayak`
 - narrower and more routine-shaped
-- more likely to encode local biases or wrong subroutines and replay them under larger distribution shift
+- more likely to encode local biases or wrong subroutines that later appear in prompt-level mismatch cases
 
 ## A7.5 Safe Claim
 
 This appendix supports the following conservative claim:
 
-> On Mind2Web, `offline_wf` and `online_wf` appear to trade off different strengths rather than forming a simple ranking: `offline_wf` is broader and somewhat steadier on CLICK-side grounding, while `online_wf` is more test-proximate and stronger on local TYPE/value guidance, but also more exposed to trajectory-shaped overfitting under cross-site shift.
+> On the current first-run Mind2Web logs, `offline_wf` and `online_wf` appear to differ in where their gains show up on `kayak`: `offline_wf` looks steadier on CLICK-side grounding, while `online_wf` looks stronger on local TYPE/value guidance. The additional target-site results are exploratory context only and should not be promoted to a standalone causal mechanism claim.
 
 ## A7.6 Boundary Note
 
@@ -196,5 +196,5 @@ This is still first-run evidence, not a repeated-estimate claim.
 In particular:
 
 - the direct `offline_wf` vs `online_wf` comparison here is only on `kayak`
-- the cross-site negative evidence comes from `tripadvisor` and `reddit`
-- the mechanism reading is stronger than pure speculation, but still weaker than a controlled causal identification
+- the target-site underperformance evidence comes from only `tripadvisor` and `reddit`
+- the mechanism reading remains weaker than controlled causal identification and should be treated as exploratory

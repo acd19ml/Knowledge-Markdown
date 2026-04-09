@@ -40,12 +40,12 @@
 - 注意：
   - 正文里不要再使用 `523` 这个错误总数，需基于实际输出重算
 
-### A3. Cross-site degradation diagnosis
+### A3. C2 首轮目标站点结果汇总（exploratory）
 
 - 作用：
-  - 支撑 `tripadvisor = A+B mixed`
-  - 支撑 `reddit = primarily A`
-  - 支撑 C2 中 “workflow mismatch causes negative transfer”
+  - 汇总 `tripadvisor` / `reddit` 的首轮 C2 结果事实
+  - 记录 baseline/online 的相对差异与 action-type breakdown
+  - 为后续内部排查保留探索性诊断输出
 - 主来源：
   - [cross_site_diag_output.txt](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/cross_site_diag_output.txt)
 
@@ -151,7 +151,7 @@
 - 适合支撑：
   - “compressed workflow templates may encourage step skipping”
 
-### B6. Tripadvisor 负例：cross-site workflow mismatch
+### B6. Tripadvisor 负例：online_wf 条件下的 prompt-level mismatch
 
 - 候选来源：
   - [negative_qwen_qwen3_5-397b-a17b_test_website_tripadvisor_online_wf.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/case_studies/negative_qwen_qwen3_5-397b-a17b_test_website_tripadvisor_online_wf.md)
@@ -162,9 +162,9 @@
 - 原因：
   - 都属于 baseline 正确先 `CLICK`
   - workflow 错误地改成 `TYPE [location]`
-  - 和 `cross_site_diag_output.txt` 的结论高度一致
+  - 可用于核对 `online_wf` prompt 中 workflow message 是否已出现
 - 适合支撑：
-  - “online workflows learned from the source site can misfire on structurally different targets”
+  - “在记录到的 `online_wf` case 中，workflow memory 已出现在 prompt 中，且错误动作与其中的 search-first routine 局部一致”
 
 ---
 
@@ -184,7 +184,7 @@
 | 正文主张 | 推荐证据 |
 |---|---|
 | AWM gains mainly come from stable TYPE-side guidance and site-dependent CLICK grounding | `A1 + A2` |
-| Workflow mismatch is the main reason for cross-site degradation | `A3 + B4/B6` |
+| 当前首轮 C2 中 `tripadvisor` / `reddit` 的 `online_wf` 未复现论文中的更优趋势 | `A3` |
 | LM workflows are more abstract than rule workflows at the text level | `C1` |
 | LM abstraction does not guarantee site-wise superiority | `A3 + C1` |
 | NL vs HTML is not reproduced after the three-site first run | `A4` |

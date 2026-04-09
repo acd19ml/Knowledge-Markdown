@@ -28,8 +28,7 @@
 | `CLICK` 步骤是胜负手 | 正确 | 同上；kayak/newegg 的 CLICK `dElem` 为 `+10.7%/+9.1%`，budget/sixflags 为 `-12.1%/-6.1%` | [A1-step-level-breakdown.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/A1-step-level-breakdown.md) |
 | reproduced 站点的 `negative = 0` | 正确 | [paired_case_output.txt](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/paired_case_output.txt) 中 kayak `0`，newegg `0` | [A2-paired-case-summary.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/A2-paired-case-summary.md) |
 | not reproduced 站点 `negative >> positive` | 正确 | 同上；budget `12 vs 6`，sixflags `6 vs 3` | [A2-paired-case-summary.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/A2-paired-case-summary.md) |
-| `tripadvisor` 为 A+B 混合退化 | 正确 | [cross_site_diag_output.txt](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/cross_site_diag_output.txt)：skip rate `+16pp` 且 negative 中 CLICK 占 `78%` | [A3-cross-site-diagnosis.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/A3-cross-site-diagnosis.md) |
-| `reddit` 主要是假说 A（workflow content mismatch） | 正确 | 同上；skip rate 只 `+4.7pp`，baseline CLICK 更高，negative 中 CLICK 占 `80%` | [A3-cross-site-diagnosis.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/A3-cross-site-diagnosis.md) |
+| `tripadvisor` / `reddit` 的 C2 首轮结果均未复现论文中的 online-over-baseline 趋势 | 正确 | [cross_site_diag_output.txt](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/cross_site_diag_output.txt)：`tripadvisor` 为 `4 vs 18`，`reddit` 为 `2 vs 5`，且两站 negative 都以 CLICK 错误为主 | [A3-cross-site-diagnosis.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/A3-cross-site-diagnosis.md) |
 | LM workflow 在文本层面更抽象、更可复用 | 正确 | [wf_text_compare_output.txt](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/wf_text_compare_output.txt) 对三站点均给出 `SUPPORTED (4/4 indicators)` | [C1-lm-vs-rule-text-evidence.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/C1-lm-vs-rule-text-evidence.md) |
 | `NL vs HTML` 三站点首轮整体 `not reproduced` | 正确 | [c4-runbook.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/runbook/c4-runbook.md) 的 `C4-R1/R2/R3` 全部是 `not reproduced` | [A4-c4-result-table.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/A4-c4-result-table.md) |
 | C5 在当前近似口径下支持“workflow 库紧凑、低 overlap、高 utility proxy” | 正确 | [c5-runbook.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/runbook/c5-runbook.md) 的三站点表：`#workflows=7/5/5`，`function overlap=0/0.0333/0`，`utility=1.0` | [A5-c5-quality-table.md](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/A5-c5-quality-table.md) |
@@ -55,7 +54,7 @@
 | utility rate 高，但真实遵循率只有 6-18% | 部分成立 | 逻辑方向对，但“6-18%”与不同 split 口径混用 | 改成“prompt-level utility 高，但 behavior-level adherence 远低于 100%” | `Appendix A2 + A5` |
 | code vs text 差异不大，但两者均低于 baseline | 部分成立 | runbook 支持“差异不大”；“两者都低于 baseline”是 kayak 首轮事实，但未必是论文隐含前提 | 保留结果事实，删除“论文隐含前提”这类推断 | `Appendix A4` |
 | desc_html 增加长度，导致注意力分散 | 部分成立 | united 上结果支持现象，但“注意力分散”是解释，不是直接观测 | 改成“与注意力分散相一致的一种解释” | `Appendix A4 + B-case` |
-| workflow 数量本身不是决定因素 | 部分成立 | 方向合理，但主要靠 newegg/united 少数点支撑 | 改成“首轮结果更支持 content-match 比 raw count 更重要” | `Appendix A3 + A5` |
+| workflow 数量本身不是决定因素 | 部分成立 | 方向合理，但主要靠 newegg/united 少数点支撑 | 改成“首轮结果更支持 content-match 比 raw count 更重要” | `Appendix A5` |
 | AWM 有条件有效，需要 workflow 可复用性 + baseline 提升空间 | 部分成立 | 是很好的工作假说，但目前仍是 first-run heuristic，不是验证完成的规律 | 改成“当前首轮证据支持的工作假说” | `Appendix A1 + A5` |
 
 ---
@@ -101,7 +100,7 @@
 
 - **负例首选**：[`B4-sixflags-negative-case.md`](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/B4-sixflags-negative-case.md)
 - **负例备选**：[`B5-sixflags-step-skipping-case.md`](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/B5-sixflags-step-skipping-case.md)
-- **跨站点负例**：[`B6-tripadvisor-cross-site-negative.md`](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/B6-tripadvisor-cross-site-negative.md)
+- **target-site prompt-level 负例**：[`B6-tripadvisor-cross-site-negative.md`](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/B6-tripadvisor-cross-site-negative.md)
 - **正例首选**：[`B2-united-positive-case.md`](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/B2-united-positive-case.md)
 - **正例备选**：[`B1-kayak-positive-case.md`](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/appendix/B1-kayak-positive-case.md)
 
@@ -117,7 +116,7 @@
 2. `Appendix A2`：paired-case summary  
    来源：[paired_case_output.txt](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/paired_case_output.txt)
 
-3. `Appendix A3`：cross-site degradation diagnostics  
+3. `Appendix A3`：C2 first-run target-site result note  
    来源：[cross_site_diag_output.txt](/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/cross_site_diag_output.txt)
 
 4. `Appendix A4`：C4 result table  
@@ -132,8 +131,8 @@
 ### 6.2 当前建议的正文-证据挂法
 
 - `AWM’s gains mainly come from stable TYPE-side value guidance and site-dependent CLICK grounding effects (Appendix A1).`
-- `Workflow mismatch, rather than generic target-site collapse alone, explains most cross-site degradation (Appendix A2-A3).`
-- `LM-induced workflows are more abstract than rule-induced workflows at the text level, but this does not guarantee site-wise performance superiority (Appendix C1 and A3).`
+- `The first-run C2 results on tripadvisor and reddit did not reproduce the paper’s online-over-baseline trend; Appendix A3 should be read as result tracing rather than standalone causal proof.`
+- `LM-induced workflows are more abstract than rule-induced workflows at the text level, but this does not guarantee site-wise performance superiority (Appendix C1, with A3 only as target-site first-run context).`
 - `The C5 utility and coverage results should be interpreted as prompt-level proxies rather than strict behavioral adherence evidence (Appendix A5).`
 
 ---

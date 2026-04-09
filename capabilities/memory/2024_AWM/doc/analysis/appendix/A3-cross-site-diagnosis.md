@@ -1,22 +1,22 @@
-# Appendix A3. Cross-Site Degradation Diagnosis
+# Appendix A3. C2 First-Run Target-Site Result Note
 
-> Purpose: support claims about why `C2` degrades under cross-site or cross-domain transfer.
+> Purpose: record the first-run `C2` result facts on the two target sites (`tripadvisor`, `reddit`) and preserve the corresponding diagnostic output as exploratory tracing material.
 >
 > Primary source:
 > - `/Users/mac/studyspace/Knowledge-Markdown/capabilities/memory/2024_AWM/doc/analysis/cross_site_diag_output.txt`
 
 ## A3.1 Verified claims this appendix can support
 
-1. `tripadvisor` is best characterized as a mixed case: workflow-content mismatch plus target-site grounding degradation.
-2. `reddit` is better characterized as workflow-content mismatch without strong evidence of generic grounding collapse.
-3. In both cases, negative steps are dominated by `CLICK` errors rather than pure value-format failures.
+1. In the current first run, `online_wf` underperforms baseline on both `tripadvisor` and `reddit`.
+2. `tripadvisor` shows a substantially higher baseline `skip rate` than the source-side reference site in the diagnostic output.
+3. In both target sites, negative steps are dominated by `CLICK` errors rather than pure value-format failures.
 
 ## A3.2 Summary table
 
-| Target | Model / setup | Positive | Negative | Skip-rate shift vs source | CLICK share of negatives | Source verdict |
+| Target | Model / setup | Positive | Negative | Skip-rate shift vs source | CLICK share of negatives | Safe reading |
 |---|---|---:|---:|---:|---:|---|
-| `tripadvisor` | `qwen/qwen3.5-397b-a17b / online_wf` | 4 | 18 | `+16pp` (`44.9%` vs `29.2%`) | `78%` | mixed `A + B` |
-| `reddit` | `qwen/qwen3.5-397b-a17b / online_wf` | 2 | 5 | `+4.7pp` (`33.9%` vs `29.2%`) | `80%` | primarily `A` |
+| `tripadvisor` | `qwen/qwen3.5-397b-a17b / online_wf` | 4 | 18 | `+16pp` (`44.9%` vs `29.2%`) | `78%` | first-run underperformance with weaker baseline candidate quality |
+| `reddit` | `qwen/qwen3.5-397b-a17b / online_wf` | 2 | 5 | `+4.7pp` (`33.9%` vs `29.2%`) | `80%` | first-run underperformance without obvious baseline collapse |
 
 ## A3.3 Source excerpts
 
@@ -68,8 +68,8 @@
 
 ## A3.4 Boundary notes
 
-- This appendix supports the *diagnostic direction* of the cross-site explanation.
-- It should not be used to claim a full causal decomposition.
+- This appendix is best used as **first-run result tracing**, not as a report-level mechanism proof.
+- The diagnostic labels in `cross_site_diag_output.txt` are useful for internal inspection, but they should not be promoted to workflow provenance claims or full causal decomposition.
 - The strongest safe summary is:
-  - `reddit`: primarily workflow-content mismatch
-  - `tripadvisor`: mismatch plus additional target-site grounding difficulty
+  - `tripadvisor`: first-run underperformance plus weaker baseline candidate quality
+  - `reddit`: first-run underperformance without obvious baseline collapse

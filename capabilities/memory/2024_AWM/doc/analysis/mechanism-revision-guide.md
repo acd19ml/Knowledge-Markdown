@@ -26,9 +26,7 @@
 | `§2.3.4 (2)` | not reproduced 站点 `negative >> positive` | 保留 | 原样保留 | `A2` |
 | `§2.3.4 (3)` | ineffective 占比最大，AWM 有效窗口很窄 | 保留但降格 | 用“实际影响面有限”替代“窗口很窄”也可；两者都可，但后者更强 | `A2` |
 | `§2.3.4 (4)` | `6-18%` 为 workflow 遵循率粗估 | 保留但降格 | 必须明确这是当前口径下的粗估，不可写成通用遵循率 | `A2` |
-| `§3.3.2 tripadvisor` | A+B 混合退化 | 保留 | 原样保留 | `A3`, `B6` |
-| `§3.3.2 reddit` | 主要是假说 A | 保留 | 原样保留，但保留“主要” | `A3` |
-| `§3.3.3` | distribution gap 增大时 online AWM 可能负迁移 | 保留 | 原样保留，但限定为当前首轮 cross-site 证据 | `A3` |
+| `§3` | C2 首轮目标站点结果事实 | 保留但降格 | 只保留 `tripadvisor/reddit` 上 baseline/online 的首轮观察结果，不再写成新的机制定律 | `A3`, `B6` |
 | `§4.3.1` | LM vs Rule 文本特征量化对比 | 保留但换挂证据 | 正文可保留；引用时应挂 `C1-C3`，并说明这是 workflow text comparison 口径 | `C1`, `C2`, `C3` |
 | `§4.3.3` | LM vs Rule 抽象性差异文本层完全成立 | 保留 | 原样保留 | `C1` |
 | `§4.3.4` | 抽象性不自动等于性能优势 | 保留 | 原样保留 | `C1`, `A3` |
@@ -47,15 +45,14 @@
 | `§8.1 (3)` | 策略重定向 | 保留 | 原样保留 | `B2` |
 | `§8.1 (4)` | 有效窗口窄但无害 | 保留但降格 | “无害”仅适用于 reproduced 站点；建议写“在匹配站点上净正向且 negative=0” | `A2` |
 | `§8.1 (5)` | 后半段辅助效应 | 保留但降格 | 保留站点差异说明 | `A1` |
-| `§8.2 (1)` | workflow 在不匹配站点上是有害的 | 保留 | 原样保留，但限定为当前 not-reproduced / cross-site cases | `A2`, `A3` |
-| `§8.2 (2)` | 抽象性优势是有条件的 | 保留 | 原样保留 | `C1`, `A3` |
-| `§8.2 (3)` | workflow 的有效窗口很窄 | 保留但降格 | 仍建议替换成“实际影响面有限”更稳 | `A2` |
-| `§8.2 (4)` | SKIP 步骤影响大 | 保留 | 原样保留 | `A1`, `A3` |
-| `§8.2 (5)` | 累积误导效应 | 保留 | 原样保留 | `A1` |
-| `§8.2 (6)` | 表示层最优策略站点相关 | 保留 | 原样保留 | `A4` |
-| `§8.2 (7)` | workflow 收益天花板很低 | 建议重写 | “天花板很低”过强。建议改成“workflow 对总步骤的实际影响面有限” | `A2` |
-| `§8.2 (8)` | 表层对齐率与性能不呈正相关 | 保留但降格 | 必须保留 `exploratory metric` 和 `newegg is an exception` | `A6` |
-| `§8.2 (9)` | 成功需要双重条件 | 保留但降格 | 必须保留 `working hypothesis / first-run evidence` | `A1`, `C1`, `C3`, `A6` |
+| `§8.2 (1)` | 抽象性优势是有条件的 | 保留 | 原样保留 | `C1`, `A3` |
+| `§8.2 (2)` | workflow 的有效窗口很窄 | 保留但降格 | 仍建议替换成“实际影响面有限”更稳 | `A2` |
+| `§8.2 (3)` | SKIP 步骤影响大 | 保留 | 原样保留 | `A1`, `A3` |
+| `§8.2 (4)` | 累积误导效应 | 保留 | 原样保留 | `A1` |
+| `§8.2 (5)` | 表示层最优策略站点相关 | 保留 | 原样保留 | `A4` |
+| `§8.2 (6)` | workflow 收益天花板很低 | 建议重写 | “天花板很低”过强。建议改成“workflow 对总步骤的实际影响面有限” | `A2` |
+| `§8.2 (7)` | 表层对齐率与性能不呈正相关 | 保留但降格 | 必须保留 `exploratory metric` 和 `newegg is an exception` | `A6` |
+| `§8.2 (8)` | 成功需要双重条件 | 保留但降格 | 必须保留 `working hypothesis / first-run evidence` | `A1`, `C1`, `C3`, `A6` |
 | `§9.1 P-1` | 防止过早终止 | 保留 | 原样保留 | `B1` |
 | `§9.1 P-2` | 策略重定向 | 保留 | 原样保留，task desc 必须是 drone eval task | `B2` |
 | `§9.1 P-3` | 值格式校正 | 保留 | 原样保留，task desc 必须是 bluetooth mouse eval task | 若需要单独 appendix，后续可补 `B3`; 当前正文可保留 |
@@ -103,7 +100,7 @@
 
 - `AWM’s gains in C1 mainly come from stable TYPE-side value guidance and site-dependent CLICK grounding effects.`
 - `On reproduced sites, workflow rarely harms the agent; on not-reproduced sites, negative interventions substantially outnumber positive ones.`
-- `Cross-site degradation is driven primarily by workflow-content mismatch, with Tripadvisor showing a mixed failure mode.`
+- `The first-run C2 results on tripadvisor and reddit did not reproduce the paper's online-over-baseline trend; any workflow-mismatch reading remains exploratory and should not be presented as a standalone causal proof.`
 - `LM-induced workflows are more abstract than rule-induced workflows at the text level, but this abstractness does not guarantee site-wise performance superiority.`
 - `The NL-vs-HTML claim was not reproduced in the three-site first run.`
 - `C5 supports compact workflow libraries with low overlap, but utility and coverage remain prompt-level proxies rather than strict adherence measures.`

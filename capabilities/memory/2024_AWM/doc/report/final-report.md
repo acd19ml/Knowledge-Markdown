@@ -10,7 +10,7 @@
 
 Agent Workflow Memory (AWM) is a representative method for equipping LLM-based web agents with reusable procedural knowledge extracted from past interaction trajectories. The original paper reports substantial gains on both Mind2Web and WebArena benchmarks, framing AWM as a broadly effective memory mechanism. This report presents a **Mind2Web-centered, first-run reproduction and mechanism audit** of AWM. Rather than merely checking whether aggregate scores can be replicated, we decompose AWM's effects at the step level, paired-case level, and prompt level to answer three progressively deeper questions: (1) which of the paper's five core claims hold under independent reproduction, (2) what specific mechanisms drive AWM's gains and failures, and (3) what boundary conditions, failure modes, and trade-offs does the paper leave undiscussed.
 
-Our reproduction covers five experimental lines (C1–C5) across seven Mind2Web websites with two backbone models (GPT-4o and Qwen-3.5). Key findings include: AWM's benefits are highly site-dependent, with reproduced sites showing zero negative interventions while not-reproduced sites show negative interventions that substantially outnumber positive ones; the paper's cross-site generalization claim is not supported under our first-run evidence, with online workflows producing negative transfer on both target sites; LM-induced workflows are demonstrably more abstract than rule-induced workflows at the text level, but this abstractness does not guarantee performance superiority; and the offline–online distinction is better understood as a trade-off between breadth and test-proximity rather than a simple ranking. We identify eight boundary conditions not discussed in the original paper, supported by a 475-step paired-case analysis and six source-verified prompt-level case studies. All reproduced/not-reproduced judgments are first-run judgments under the current implementation and should be interpreted accordingly.
+Our reproduction covers five experimental lines (C1–C5) across seven Mind2Web websites with two backbone models (GPT-4o and Qwen-3.5). Key findings include: AWM's benefits are highly site-dependent, with reproduced sites showing zero negative interventions while not-reproduced sites show negative interventions that substantially outnumber positive ones; the paper's cross-site generalization claim is not supported under our first-run evidence, with online workflows underperforming baseline on both target sites; LM-induced workflows are demonstrably more abstract than rule-induced workflows at the text level, but this abstractness does not guarantee performance superiority; and the offline–online distinction is better understood as a trade-off between breadth and test-proximity rather than a simple ranking. We identify eight boundary conditions not discussed in the original paper, supported by a 475-step paired-case analysis and six source-verified prompt-level case studies. All reproduced/not-reproduced judgments are first-run judgments under the current implementation and should be interpreted accordingly.
 
 ---
 
@@ -49,7 +49,7 @@ This study goes beyond numeric reproduction by turning the paper's verbal claims
 
 1. A **step-level decomposition** of AWM's effects by action type (CLICK/TYPE/SELECT), step position (first half/second half), and website, revealing that gains are driven by narrow, site-dependent interventions rather than uniform all-step help.
 2. A **475-step paired-case analysis** across seven websites that quantifies positive, negative, ineffective, and redundant interventions, showing that AWM's actual influence window covers only 6–18% of steps.
-3. **Six source-verified prompt-level case studies** (three positive, three negative) that trace AWM's mechanisms to specific workflow–output causal paths.
+3. **Six source-verified prompt-level case studies** (three positive, three negative) that trace AWM's mechanisms to specific workflow–action correspondences under explicit causal limits.
 4. An **offline-vs-online mechanism contrast** showing that the two modes trade off different strengths rather than forming a simple ranking.
 5. A **failure taxonomy** identifying eight boundary conditions not discussed in the original paper.
 
@@ -257,21 +257,21 @@ Across 475 paired steps (seven sites, GPT-4o, offline_wf vs. no_workflow):
 
 The paper claims that "online AWM in cross-website and cross-domain shows larger advantage under larger distribution gap." Our first-run results show the opposite: online workflows produce net negative outcomes on both target sites, with tripadvisor suffering particularly severe degradation.
 
-#### 5.3.2 Degradation Diagnosis
+#### 5.3.2 First-Run Target-Site Result Tracing
 
-We tested two competing hypotheses for the cross-site degradation:
+We use two descriptive checks to characterize what happened on the two target sites:
 
-- **Hypothesis A (Workflow-content mismatch):** Workflows from kayak encode operational patterns (TYPE location → CLICK suggestion) that do not apply to the target site's navigation structure.
-- **Hypothesis B (Observation/candidate quality):** The target site's HTML structure causes ground-truth elements to fall outside the candidate set, degrading all conditions equally.
+- **Check A (prompt/action mismatch pattern):** Are the negative steps dominated by early action-pattern errors such as wrong `CLICK`/`TYPE` choices?
+- **Check B (baseline candidate quality):** Does the target site's baseline show a much higher skip rate, suggesting weaker candidate quality?
 
-**Table 6. Cross-site degradation diagnosis.**
+**Table 6. First-run target-site result tracing.**
 
-| Target Site | Primary Hypothesis | Evidence |
+| Target Site | Descriptive Reading | Evidence |
 |-------------|-------------------|----------|
-| tripadvisor | A + B mixed | Skip rate +16pp (B); 14/18 negatives are CLICK with systematic pattern mismatch (A) |
-| reddit | A (workflow mismatch) | Skip rate only +4.7pp; baseline CLICK EA actually higher than source; 4/5 negatives are CLICK |
+| tripadvisor | first-run underperformance with weaker baseline candidate quality | Skip rate +16pp; 14/18 negatives are CLICK |
+| reddit | first-run underperformance without obvious baseline collapse | Skip rate only +4.7pp; baseline CLICK EA actually higher than source; 4/5 negatives are CLICK |
 
-**Finding 7: Cross-site degradation is driven primarily by workflow-content mismatch.** The typical failure pattern on tripadvisor is that workflows induce a "TYPE location first" routine inherited from kayak, but tripadvisor requires a "CLICK category link first" entry point. The workflow does not just fail to help—it actively redirects the agent away from the correct first action.
+**Finding 7: The safest reading is a result-level one.** In the current first run, online workflows underperform baseline on both target sites. On tripadvisor, the result trace also shows weaker baseline candidate quality. Appendix A3 summarizes these first-run facts, and Appendix B6 provides a manually verified prompt-level case in which workflow memory is already present when the wrong first action is produced. These materials should be read as result tracing and case-level evidence, not as standalone causal proof.
 
 ### 5.4 Offline vs. Online Trade-Off
 
@@ -284,9 +284,9 @@ The paper presents online AWM as generally superior under larger distribution ga
 | offline_wf | +10.7% | +1.4% | +0.0% |
 | online_wf | +7.1% | +19.2% | +16.7% |
 
-**Finding 8: Offline and online workflows trade off different strengths.** Offline workflows are broader and steadier on CLICK-side grounding (derived from curated training data). Online workflows are more test-proximate and stronger on TYPE/value guidance (derived from the model's own recent successful trajectories). This is a genuine trade-off rather than a simple ranking.
+**Finding 8: Offline and online workflows trade off different strengths.** Offline workflows are broader and steadier on CLICK-side grounding (derived from curated training data). Online workflows are more test-proximate and stronger on TYPE/value guidance (derived from recent trajectories in the current implementation). This is a genuine trade-off rather than a simple ranking.
 
-The workflow texts confirm this structural difference: offline workflows contain broad travel-search primitives (`enter location`, `select travel dates`, `select hotel filters`), while online workflows are narrower and more trajectory-shaped (`search_for_cars_kayak`, `select_location_kayak`). The source-proximity that helps online workflows on the source site becomes a liability under distribution shift, as the learned routines encode kayak-specific operational patterns that do not transfer.
+The workflow texts confirm this structural difference: offline workflows contain broad travel-search primitives (`enter location`, `select travel dates`, `select hotel filters`), while online workflows are narrower and more trajectory-shaped (`search_for_cars_kayak`, `select_location_kayak`). The additional target-site readings are best treated as exploratory context rather than a standalone mechanism proof.
 
 ### 5.5 Small-Data Efficiency
 
@@ -300,7 +300,7 @@ The paper implies that online AWM achieves gains from only a small number of suc
 | tripadvisor | none | best still negative | −11.74pp |
 | reddit | budget=10, +2.02pp | budget=10, +2.02pp | −2.16pp |
 
-**Finding 9: Very-small-budget gains are conditional, not universal.** On kayak (source-style setting), one induced example already yields +5pp. On tripadvisor, no positive prefix appears at any budget—the first induced example already introduces bias. On reddit, a small positive appears only at budget 10 and then disappears. The small-data efficiency story holds only when the induced workflow matches the target task distribution.
+**Finding 9: Very-small-budget gains are conditional, not universal.** On kayak, one induced example already yields +5pp. On tripadvisor, no positive prefix appears at any budget—the first induced example already introduces bias. On reddit, a small positive appears only at budget 10 and then disappears. The small-data efficiency story is supported on kayak, but not reproduced on the two target-site first runs.
 
 ### 5.6 LM vs. Rule Induction (C3)
 
@@ -380,7 +380,7 @@ We identified eight failure modes from the combined analysis, organized by sever
 | Failure Mode | Description | Severity | Source Section |
 |-------------|-------------|----------|--------------|
 | **Workflow mismatch** | Workflow template does not apply to current step, redirecting the agent away from correct action | High | §5.2, §5.3 |
-| **Cross-site transfer failure** | Workflows from source site encode operational logic incompatible with target site | High | §5.3 |
+| **Target-site first-run underperformance** | Current target-site results show wrong early action patterns and weaker candidate quality in some settings; this remains result tracing rather than standalone mechanism proof | High | §5.3 |
 | **Cumulative misdirection** | Workflow harm amplifies in the second half of trajectories | Medium | §5.2.2 |
 | **Over-specificity** | Rule workflows preserve too many source-site concrete values | Medium | §5.6 |
 | **Representation noise** | Mixed desc_html representation increases prompt length and dilutes attention | Medium | §5.7.2 |
@@ -471,7 +471,7 @@ The findings above integrate into a five-stage causal chain:
 | Paper Narrative | Observed Mechanism | Evidence Level |
 |----------------|-------------------|---------------|
 | AWM is broadly effective | AWM is conditionally effective: requires workflow reusability + baseline headroom | SOFT (4-site post-hoc) |
-| Online AWM is superior under larger distribution gap | Online AWM produces negative transfer under cross-site shift | HARD |
+| Online AWM is superior under larger distribution gap | Current first-run target-site results do not reproduce that trend | HARD |
 | Workflow provides "high-level operational guidance" | Workflow changes behavior on a small fraction of steps via specific mechanisms | HARD |
 | LM induction is better than rule induction | Abstractness advantage depends on task-train divergence | HARD (text) + SOFT (performance) |
 | High utility rate | Prompt-level utility is high; behavioral adherence is much lower | HARD + exploratory |
@@ -567,7 +567,7 @@ The following appendix evidence blocks support the main-text claims. Each append
 |----|-------|----------|
 | A1 | Step-Level Breakdown | §5.2 Finding 1–3 |
 | A2 | Paired-Case Summary | §5.2.3 Finding 4–6 |
-| A3 | Cross-Site Diagnosis | §5.3 Finding 7 |
+| A3 | First-Run Target-Site Result Note | §5.3 Finding 7 |
 | A4 | C4 Result Table | §5.7 Finding 12–13 |
 | A5 | C5 Quality Table | §5.8 Finding 14 |
 | A6 | Alignment-Rate Note | §5.12.2 (exploratory) |
@@ -577,7 +577,7 @@ The following appendix evidence blocks support the main-text claims. Each append
 | B2 | United Positive Case (P-2) | §5.11.1 |
 | B4 | Sixflags Negative Case (N-2) | §5.11.2 |
 | B5 | Sixflags Step-Skipping Case (N-3) | §5.11.2 |
-| B6 | Tripadvisor Cross-Site Negative | §5.3, §5.11.2 |
+| B6 | Tripadvisor Online-Workflow Mismatch | §5.3, §5.11.2 |
 | C1 | LM vs. Rule Text Evidence | §5.6 Finding 10–11 |
 | C4 | Site-Feature Qualitative Coding | §5.12.1 |
 | C5 | Mind2Web Compositionality Reading | §5.9 Finding 15 |

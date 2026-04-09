@@ -51,7 +51,7 @@
 
 - `A1` step-level breakdown
 - `A2` paired-case summary
-- `A3` cross-site degradation diagnostics
+- `A3` C2 first-run target-site result note
 - `A4` C4 result table
 - `A5` C5 quality stats
 - `A6` alignment-rate note
@@ -81,7 +81,7 @@
 建议 final report 中的关键主张按这种方式挂证据：
 
 - `AWM’s gains mainly come from stable value-template effects and site-dependent CLICK grounding effects (Appendix A1).`
-- `Cross-site degradation is driven primarily by workflow-content mismatch, with additional candidate-quality degradation on Tripadvisor (Appendix A3, B4-B6).`
+- `The first-run C2 results on tripadvisor and reddit did not reproduce the paper’s online-over-baseline trend; Appendix A3/B6 should be read as internal result tracing, not standalone causal proof.`
 - `LM-induced workflows are consistently more abstract than rule-induced workflows at the text level, although this does not guarantee better performance on every site (Appendix A3, C1-C3).`
 - `The utility and coverage metrics used in C5 should be interpreted as prompt-level proxies rather than strict behavioral adherence measures (Appendix A5).`
 
@@ -92,7 +92,7 @@
 如果时间有限，只优先保这 6 份 appendix：
 
 1. `A1`：C1 step-level breakdown 总表
-2. `A3`：C2 cross-site 诊断表
+2. `A2`：paired-case 总表
 3. `C1`：C3 LM vs Rule 文本证据
 4. `A5`：C5 quality stats 表
 5. `B1`：一个最强正例

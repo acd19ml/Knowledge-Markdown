@@ -135,7 +135,7 @@ tripadvisor 的 18 个 negative 步骤中：
 - CLICK: 14 (78%) — workflow 引导模型选择了错误的元素
 - TYPE: 4 (22%) — workflow 提供了略有偏差的值（如 `Eiffel Tower Paris` vs `Eiffel Tower`）
 
-典型模式（tripadvisor task 2, 3, 7, 10, 13, 22）：baseline 正确执行 CLICK 进入搜索页，但 workflow 诱导模型改为 TYPE 输入城市名——因为 workflow 中从 kayak 归纳的搜索流程是"先 TYPE 地点，再 CLICK 建议"，但 tripadvisor 的首页需要先 CLICK 类别链接。
+典型模式（tripadvisor task 2, 3, 7, 10, 13, 22）：baseline 正确执行 CLICK 进入搜索页，但 workflow 条件下模型改为 TYPE 输入城市名；这一现象说明在这些首轮 case 中，错误集中表现为“先 TYPE 搜索框”而不是正确的入口 CLICK。
 
 #### 2.3.4 核心发现
 
@@ -149,41 +149,23 @@ tripadvisor 的 18 个 negative 步骤中：
 
 ---
 
-## 3. 泛化边界：为什么 cross-site 退化
+## 3. C2 首轮结果事实
 
-> 核心问题：C2 中 tripadvisor 和 reddit 的退化根因是什么？
+> 核心问题：当前复现中，`tripadvisor` 与 `reddit` 这两个 C2 目标站点实际上出现了什么结果？
 
-### 3.1 分析方法
+### 3.1 口径说明
 
-从 C2 日志中定位退化的具体环节：
+本节只保留 **C2 首轮结果事实**，不把它写成报告级的机制结论。
 
-**3.1.1 退化定位**
+- `scripts/cross_site_diag.py` 与 `cross_site_diag_output.txt` 在这里仅用作内部汇总工具，帮助整理 `skip rate`、action-type breakdown 与 baseline/online 的相对差异。
+- 这些输出可用于描述“发生了什么”，但**不能单独支持** workflow provenance、严格因果分解或“cross-site degradation”机制叙事。
+- 若需要判断某个具体 case 中 workflow 是否已经出现在 prompt 中，应以对应 JSON 中记录的 message chain 为准；见 `Appendix B6` 的 source discipline。
 
-- 按 action type 分组：退化集中在 CLICK / TYPE / SELECT 的哪一类？
-- 按 step position 分组：是全程退化，还是特定阶段退化？
-- baseline 在新站点的绝对水平：是 baseline 本身就弱，还是 baseline 正常但 workflow 拖了后腿？
-
-**3.1.2 workflow 适配度**
-
-- 对比 online_wf 的 workflow 文本与目标站点实际操作流程的匹配度
-- workflow 中的步骤模板是否与目标站点的 HTML 结构/元素命名相容
-
-**3.1.3 两种退化假说**
-
-- **假说 A：workflow 内容不适配** — workflow 从 kayak 归纳而来，不适用于 tripadvisor/reddit 的操作逻辑
-- **假说 B：observation 格式变化** — 新站点的 HTML 结构导致 element grounding 整体崩溃，与 workflow 无关
-
-### 3.2 预期产物
-
-- cross-site 退化的指标分解表
-- 假说 A vs B 的证据对照
-- 退化根因的初步判定
-
-### 3.3 结果
+### 3.2 首轮观察结果
 
 **数据来源**：`scripts/cross_site_diag.py` → `cross_site_diag_output.txt`
 
-#### 3.3.1 Baseline 绝对水平对比
+#### 3.2.1 Baseline 绝对水平对比
 
 | site | role | skip rate | CLICK EA | CLICK SR | TYPE EA | TYPE SR |
 |------|------|------:|------:|------:|------:|------:|
@@ -195,58 +177,29 @@ tripadvisor 的 18 个 negative 步骤中：
 - tripadvisor 的 skip rate 高出源站 **+16pp**，说明其 HTML 结构导致更多 ground truth 元素未出现在 candidate 中
 - reddit 的 baseline CLICK 性能反而**高于** kayak，排除了"baseline 本身崩溃"的可能
 
-#### 3.3.2 假说判定
+#### 3.2.2 目标站点上的直接观察
 
-**tripadvisor: 假说 A + B 混合**
+**tripadvisor**
 
-- **B 证据**：skip rate +16pp（HTML 结构差异导致 candidate 质量下降）
-- **A 证据**：18 个 negative 步骤中 14 个是 CLICK（78%），5 个 task 有 2+ 个 negative 步骤（系统性不匹配）
-- 典型模式：workflow 中 kayak 的搜索流程是 TYPE 地点 → CLICK 建议，但 tripadvisor 首页需要先 CLICK 类别链接再进入搜索。workflow 诱导模型跳过 CLICK 直接 TYPE，导致元素选错。
-- **判定**：混合退化——HTML 结构变化削弱了 baseline 的 candidate 质量（B），同时 workflow 从 kayak 归纳的操作逻辑不适配 tripadvisor 的导航结构（A）。[Appendix A3, Appendix B6]
+- baseline 的 `skip rate` 明显高于 `kayak`（`44.9%` vs `29.2%`），说明 candidate 质量更弱。
+- 在当前首轮结果中，`online_wf` 低于 baseline，且 negative steps 以 `CLICK` 错误为主。
+- `Appendix B6` 记录了一个更细的 prompt-level case：在 `task 2, step 0`，`online_wf` 条件的 prompt 中已经出现 workflow memory，且 treatment 输出错误的早期 `TYPE`，而 baseline 输出正确的 `CLICK`。这个 case 可作为“记录到的 prompt-level mismatch”证据，但不单独支持严格因果归因。
 
-**reddit: 主要假说 A**
+**reddit**
 
-- **B 证据**：无（skip rate 仅 +4.7pp，baseline CLICK EA 反而更高）
-- **A 证据**：5 个 negative 中 4 个是 CLICK（80%），workflow 关键词（`search reddit`, `Join`, `Sort`）与实际 task 的操作流程不完全匹配
-- **判定**：baseline 本身表现正常，退化主要来自 workflow 内容不适配。[Appendix A3]
+- baseline 的 `CLICK` 指标并不弱于 `kayak`，因此不能简单写成“baseline 已整体崩溃”。
+- 在当前首轮结果中，`online_wf` 同样低于 baseline，且 negative steps 也以 `CLICK` 错误为主。
 
-#### 3.3.3 退化根因总结
+#### 3.2.3 保守总结
 
-| target site | 主要假说 | 退化机制 |
-|-------------|---------|---------|
-| tripadvisor | A+B 混合 | HTML 差异 + 操作逻辑不匹配 |
-| reddit | A（workflow 不适配） | workflow 步骤模板不适配 reddit 导航 |
+| target site | 当前首轮事实 | 可安全保留的解释强度 |
+|-------------|-------------|----------------|
+| tripadvisor | baseline candidate 质量更弱，且 `online_wf` 低于 baseline | 仅可写成“目标站点上观察到的 first-run underperformance”；若引用 B6，应限定为 prompt-level mismatch case |
+| reddit | baseline 未显示整体崩溃，但 `online_wf` 仍低于 baseline | 仅可写成“当前首轮结果未复现论文中 online 更优的趋势” |
 
-#### 3.3.4 Offline vs Online 的机制差异
+#### 3.2.4 边界说明
 
-上面的 cross-site 结果解释了 `online_wf` 为什么会退化，但还没有正面回答：`offline_wf` 和 `online_wf` 在机制上到底有什么不同。
-
-基于同一站点 `kayak` 的 step-level / paired-case 对照，以及 `tripadvisor / reddit` 的 online 负例，可得到一个更完整的 trade-off 读法（见 `Appendix A7`）：
-
-- **offline_wf 更像训练集归纳出的广义操作库**：在 `kayak` 上，它对 `CLICK` grounding 的帮助更强（`dStepSR CLICK = +10.7%`，高于 online 的 `+7.1%`），并且 direct pair 中 online 相对 offline 的唯一负例也是一个 `CLICK` 选错结果项。
-- **online_wf 更像测试时成功 trajectory 压缩出的局部 routine**：在 `kayak` 上，它对 `TYPE` 的局部值/格式修正更强（`dActF1 TYPE = +19.2%`，`dStepSR TYPE = +16.7%`），而 direct pair 中 online 相对 offline 的唯一正例正是一个 `TYPE` 值格式修正。
-- **因此，两者更像 trade-off，而不是简单排序**：offline 在 `CLICK` 侧更稳，online 在 `TYPE/value guidance` 侧更强；两者在 `kayak` 上都提升 `Step SR`，但收益类型不同。
-
-这个对照也让论文 `§3.2.2` 中的 offline/online trade-off 更容易被具体化：
-
-- **offline 的风险**：workflow 来源于训练数据，文本上更广、更可复用，但当 train-test gap 增大、语义不匹配时，会受到 distribution gap 拖累。
-- **online 的风险**：workflow 来源于模型自身成功 trajectory，更贴近当前 test distribution，但也更容易把局部 routine 或错误子流程固化下来，并在更大 shift 下重放。`tripadvisor` 提供了较强支持，`reddit` 提供了方向一致但更弱的支持。
-
-更保守地说，当前 Mind2Web 首轮证据支持以下工作性结论：**offline 与 online 的差别，不只是“哪个更好”，而是“广义可复用性”与“测试时贴近性”之间的权衡**。论文正文对这一点主要停留在 verbal trade-off 层面，而当前复现至少把它推进到了 step-level 与 case-level 的可追溯证据。
-
-#### 3.3.5 Online 的 small-data 效率是条件性的
-
-论文的 online-memory 叙事还隐含另一层意思：少量成功 trajectory 可能已经足以让 workflow 变得有用。当前日志可用 prefix-level 方式近似重建这一点（见 `Appendix A8`）。
-
-结果不是单向支持，而是明显条件化：
-
-- **kayak**：在 `budget=1`（即仅有 1 个先前归纳样本）时，累计 `Step SR` 已达 `+5.00pp`；最终 prefix 为 `+5.63pp`。这说明 very-small-budget 的早期收益在 source-style setting 上确实存在。
-- **tripadvisor**：从 `budget=1` 开始，累计 `Step SR` 就是负的（`-3.57pp`），且后续没有出现正 prefix；最终为 `-11.74pp`。这里 small-data 并没有带来“早期学习”，而是更像“早期固化错误模式”。
-- **reddit**：直到 `budget=10` 才出现一个较弱的正 prefix（`+2.02pp`），最终又回到负值（`-2.16pp`）。因此它不构成稳定的 small-data success case。
-
-更稳妥的结论是：**online memory 的 small-data 收益主要出现在 source-style setting，而不是一个可直接推广到 cross-site 场景的普适性质**。换句话说，“少量样本即可起效”在当前证据下不是 false，但它只在 workflow 与测试分布已经较接近时才更容易成立。
-
-**对论文主张的影响**：论文声称"online AWM 在更大 distribution gap 下更有优势"。但实际上，当 distribution gap 增大时，online 归纳出的 workflow 恰恰因为源自少量成功 trajectory，更容易过拟合源站的操作模式，反而在目标站产生负迁移。这一机制论文没有讨论。
+本节保留这些 C2 事实，是为了说明“当前复现里发生了什么”，而不是建立新的机制定律。原论文没有以 `cross-site degradation` 为主叙事，因此本分析也不再把这些首轮观察上升为 report-level 因果结论。
 
 ---
 
@@ -501,7 +454,6 @@ LM workflow 的 function overlap 极低（0-3.33%；来源：`c5-runbook.md` 正
 |---------|------|---------|---------|
 | **workflow 误导** | workflow 模板不适用于当前 step，导致模型偏离正确操作 | 2, 3 | 高：直接导致 not reproduced |
 | **workflow 无效** | workflow 存在但未影响模型输出，性能无变化 | 2 | 低：不产生负面影响 |
-| **cross-site 不适配** | workflow 从源站归纳，不适配目标站操作逻辑 | 3 | 高：是 cross-site 退化的主因 |
 | **element grounding 崩溃** | 目标站 HTML 结构差异过大，element 选择整体失败 | 3 | 中：tripadvisor skip rate +16pp |
 | **过度具体** | rule workflow 保留了过多源站具体值，妨碍泛化 | 4 | 中：仅 united 上明显 |
 | **ground truth 缺失** | 正确元素不在 candidate 中，被迫跳过 | 1 | 低：影响绝对分但不影响相对比较 |
@@ -517,7 +469,6 @@ LM workflow 的 function overlap 极低（0-3.33%；来源：`c5-runbook.md` 正
 | **workflow 误导** | negative | 24 | 4.6% | budget (12), sixflags (6) |
 | **workflow 无效** | ineffective | 252 | 48.2% | 所有站点 |
 | **ground truth 缺失** | ineffective 中的 SKIP | ~195 | 37.3% | kohls, newegg（SKIP 密集） |
-| **cross-site 不适配** | negative (cross-site) | 23 | — | tripadvisor (18), reddit (5) |
 | **过度具体** | negative (rule_wf) | ~8 | — | united (rule_wf 4 neg) |
 
 注：冗余（redundant = 173, 33.1%）不算失败，但说明 workflow 大部分时候是旁观者。
@@ -526,7 +477,6 @@ LM workflow 的 function overlap 极低（0-3.33%；来源：`c5-runbook.md` 正
 
 | 失败模式 | 论文是否讨论 | 评价 |
 |---------|-------------|------|
-| workflow 在不匹配站点上产生负迁移 | **未讨论** | 论文只报告了 online 在 cross-site 上"优于 baseline"，没有展示 workflow 误导的案例 |
 | SKIP 步骤占比高（37%） | **未讨论** | ground truth 不在 candidate 中的步骤被强制计为 0 分，拉低了所有 condition 的绝对分数，但不影响相对比较 |
 | workflow 有效窗口窄（仅 6-18% 步骤受影响） | **未讨论** | 论文呈现的是聚合分数，没有报告 workflow 在多大比例的步骤上真正改变了模型行为 |
 | 抽象性优势依赖于 task 差异程度 | **未讨论** | 论文只报告了 LM > Rule 的性能结论，没有分析在什么条件下这个优势成立 |
@@ -556,17 +506,15 @@ LM workflow 的 function overlap 极低（0-3.33%；来源：`c5-runbook.md` 正
 
 ### 层次三结论：论文没有说清楚的部分
 
-1. **workflow 在不匹配站点上是有害的**（§2, §3）：论文只报告了 online AWM 在 cross-site 上优于 baseline，但我们的复现显示 tripadvisor 和 reddit 上 online 均低于 baseline。workflow 从源站归纳的操作逻辑在目标站产生负迁移，negative 步骤远多于 positive（tripadvisor: 18 vs 4）。论文没有讨论 workflow 何时有害。[Appendix A2, Appendix A3, Appendix B6]
+1. **抽象性优势是有条件的**（§4）：LM workflow 在文本层面确实更抽象（4/4 指标支持），但性能优势取决于 test task 与 train task 的操作模式差异程度。在操作模式固定的站点（newegg），Rule workflow 在配对净收益上有竞争力（c3-runbook 判定 `unclear`）。论文只报告了 LM > Rule 的总体结论，没有讨论这个边界条件。[Appendix C1, Appendix A3]
 
-2. **抽象性优势是有条件的**（§4）：LM workflow 在文本层面确实更抽象（4/4 指标支持），但性能优势取决于 test task 与 train task 的操作模式差异程度。在操作模式固定的站点（newegg），Rule workflow 在配对净收益上有竞争力（c3-runbook 判定 `unclear`）。论文只报告了 LM > Rule 的总体结论，没有讨论这个边界条件。[Appendix C1, Appendix A3]
+2. **workflow 的实际影响面有限**（§2）：大部分步骤（45-65%）属于 ineffective，workflow 既不帮忙也不妨碍。AWM 的聚合分数提升掩盖了一个事实：workflow 真正起作用的步骤很少。论文用聚合分数呈现结果，没有报告 workflow 的实际影响面。[Appendix A2]
 
-3. **workflow 的有效窗口很窄**（§2）：大部分步骤（45-65%）属于 ineffective，workflow 既不帮忙也不妨碍。AWM 的聚合分数提升掩盖了一个事实：workflow 真正起作用的步骤很少。论文用聚合分数呈现结果，没有报告 workflow 的实际影响面。[Appendix A2]
+3. **SKIP 步骤的影响**（§7）：37% 的步骤因为 ground truth 元素不在 candidate 中被强制跳过并计为 0 分。这些步骤拉低了所有 condition 的绝对分数但不影响相对比较。然而，不同站点的 skip rate 差异很大（kayak 29% vs tripadvisor 45%），这意味着跨站点的绝对分数不可直接比较。论文没有报告 skip rate 的站点间差异。[Appendix A1, Appendix A2]
 
-4. **SKIP 步骤的影响**（§7）：37% 的步骤因为 ground truth 元素不在 candidate 中被强制跳过并计为 0 分。这些步骤拉低了所有 condition 的绝对分数但不影响相对比较。然而，不同站点的 skip rate 差异很大（kayak 29% vs tripadvisor 45%），这意味着跨站点的绝对分数不可直接比较。论文没有报告 skip rate 的站点间差异。[Appendix A1, Appendix A2]
+4. **累积误导效应**（§1）：在 not reproduced 站点上，workflow 的误导在 trajectory 后半段被放大（budget 后半段 -10.9%）。这与匹配站点上的"后半段辅助效应"恰好相反，暗示 workflow 的正/负影响都会随 trajectory 长度累积。论文没有分析 workflow 影响的时序特征。[Appendix A1]
 
-5. **累积误导效应**（§1）：在 not reproduced 站点上，workflow 的误导在 trajectory 后半段被放大（budget 后半段 -10.9%）。这与匹配站点上的"后半段辅助效应"恰好相反，暗示 workflow 的正/负影响都会随 trajectory 长度累积。论文没有分析 workflow 影响的时序特征。[Appendix A1]
-
-6. **表示层最优策略是站点相关的**（§5）：论文统一推荐"Desc only 优于 HTML"，但 3 站点中仅 newegg 支持，united 上 html_only 反而最好（因为 HTML 元素命名本身可读性高）。此外 desc_html 混合表示在 united 上导致 SR 从 33.3% 降至 16.7%，论文没有讨论混合表示可能带来的注意力分散问题。[Appendix A4]
+5. **表示层最优策略是站点相关的**（§5）：论文统一推荐"Desc only 优于 HTML"，但 3 站点中仅 newegg 支持，united 上 html_only 反而最好（因为 HTML 元素命名本身可读性高）。此外 desc_html 混合表示在 united 上导致 SR 从 33.3% 降至 16.7%，论文没有讨论混合表示可能带来的注意力分散问题。[Appendix A4]
 
 7. **workflow 的实际影响面有限**（§6）：5-7 个抽象 workflow 只在 6-18% 的步骤上真正改变了模型行为，45-65% 的步骤属于 ineffective。论文用聚合分数呈现 AWM 的提升，但没有讨论这种"稀疏影响"的结构特征。这意味着 AWM 的实际价值主要集中在少量关键步骤，而不是均匀覆盖整个 trajectory。[Appendix A2, Appendix A5]
 
@@ -819,7 +767,7 @@ LM workflow 的 function overlap 极低（0-3.33%；来源：`c5-runbook.md` 正
 | 论文叙事 | 实际机制 | 证据级别 |
 |---------|---------|---------|
 | AWM 普适有效 | AWM 有条件有效：当前首轮证据支持需要 workflow 可复用性 + baseline 提升空间（working hypothesis） | `SOFT` — 4 站点 post-hoc |
-| online AWM 在大 distribution gap 下更优 | online AWM 在 cross-site 上产生负迁移（workflow 过拟合源站） | `HARD` — cross_site_diag_output + paired_case |
+| online AWM 在大 distribution gap 下更优 | 当前首轮 C2 结果未复现这一趋势：`tripadvisor` 与 `reddit` 上 `online_wf` 均低于 baseline；这里只保留结果事实，不上升为新的机制定律 | `HARD` — first-run C2 result files + cross_site_diag_output |
 | workflow 提供"高层操作指导" | workflow 在少数步骤上改变模型行为，通过具体的策略重定向/值模板/终止控制起效 | `HARD` — §9 案例已回源确认 |
 | LM induction 优于 rule induction | 抽象性优势依赖 task 差异程度（差异小时具体案例有竞争力；c3-runbook newegg 判定 `unclear`） | `HARD`（文本层）+ `SOFT`（性能层） |
 | 高 utility rate | prompt-level utility 高，但 behavior-level adherence 远低于 100%；表层对齐率与性能不呈正相关 | `HARD`（paired_case）+ `exploratory`（alignment_rate） |

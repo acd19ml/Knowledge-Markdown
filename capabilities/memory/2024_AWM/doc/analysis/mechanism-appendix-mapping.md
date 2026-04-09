@@ -24,13 +24,11 @@
 | `§2.3.4 (2)` | not reproduced 站点 `negative >> positive` | `A2` | HARD | 可直接引用 | 可直接写成 paired-case 事实 |
 | `§2.3.4 (3)` | workflow 实际影响面有限 | `A2` | HARD | 可直接引用 | 建议写“影响面有限”，不要写“收益天花板很低” |
 | `§2.3.4 (4)` | workflow 只在少量步骤上改变行为 | `A2` | HARD | 可直接引用 | 不要把范围值写死到单一 split |
-| `§3.3.2 tripadvisor` | tripadvisor 为 A+B 混合退化 | `A3`, `B6` | HARD | 可直接引用 | 可同时挂汇总表和一个负例 |
-| `§3.3.2 reddit` | reddit 主要是 workflow-content mismatch | `A3` | HARD | 可直接引用 | 保留“主要”而不是“唯一” |
-| `§3.3.3` | distribution gap 增大时 online AWM 可能产生负迁移 | `A3` | HARD | 可直接引用 | 限定为“当前首轮 cross-site 结果” |
+| `§3` | `tripadvisor` / `reddit` 的 C2 首轮结果未复现论文中的 online-over-baseline 趋势 | `A3`, `B6` | HARD（结果事实）/ SOFT（case reading） | 可直接引用 | 只保留 first-run result facts；`B6` 只能作 prompt-level case trace |
 | `§3` 补充段 / final report trade-off note | `offline_wf` 更稳但受 train-test gap 拖累；`online_wf` 更贴近 test distribution，但更易固化 trajectory-shaped errors | `A7` | SOFT + source-driven | 可保留 | 只能写 trade-off / mechanism contrast，不能写成跨设置的严格优劣定律 |
 | final report small-data note | online memory 在 very small budget 下的早期收益是否出现 | `A8` | SOFT + source-driven | 可保留 | 只能写 source-style early gain，不可扩成 benchmark-wide efficiency claim |
 | `§4.3.1-4.3.3` | LM workflow 文本上更抽象、更短、更少、更少具体值 | `C1`, `C2`, `C3` | HARD | 可直接引用 | 文本层结论可写强；不要自动推出性能优势 |
-| `§4.3.4` | 抽象性不自动等于性能优势 | `C1`, `A3` | HARD + SOFT | 可直接引用 | 对 `newegg` 只能写 `mixed/unclear` |
+| `§4.3.4` | 抽象性不自动等于性能优势 | `C1`, `A3` | HARD + SOFT | 可直接引用 | `A3` 在这里只能提供 “target-site first-run underperformance” 背景，不可写成机制定律 |
 | `§5.2.1` | `code_wf` 与 `text_wf` 差异不大（kayak） | `A4` | HARD | 可直接引用 | 限定为 `kayak first run` |
 | `§5.2.2-5.2.3` | `NL vs HTML` 三站点首轮整体 `not reproduced` | `A4` | HARD | 可直接引用 | 这是 C4 主结论之一 |
 | `§6.2.1` | workflow 库规模较紧凑 | `A5`, `C3` | HARD | 可直接引用 | 计数口径以 runbook/C3 counting rule 为准 |
@@ -46,12 +44,12 @@
 | `§10.3` | AWM 成功依赖 workflow 可复用性 + baseline 提升空间 | `A1`, `C1`, `C4`, `A6` | SOFT / working hypothesis | 可保留 | 只能写 working hypothesis / post-hoc observation |
 | final report compositionality note | Mind2Web 上存在扁平子流程复用，但缺少显式层级组合 | `C5` | qualitative | 可保留 | 只能写 flat subflow reuse / partial support，不可写成 strong hierarchical composition |
 | `§11.1-11.2 (1)` | LM induction 产出更抽象的 sub-routine | `C1` | HARD | 可直接引用 | 文本层成立，不要自动扩展到全部性能层 |
-| `§11.1-11.2 (2)` | 关键变量是 task-workflow 语义匹配度 | `A3`, `B4`, `B6`, `A6` | SOFT + exploratory | 可保留 | 不能升级成单一量化定律 |
+| `§11.1-11.2 (2)` | 关键变量是 task-workflow 语义匹配度 | `B4`, `B6`, `A6` | SOFT + exploratory | 可保留 | `A3` 不再作为直接机制证据；不能升级成单一量化定律 |
 | `§11.1-11.2 (3)` | workflow 只在少量步骤上真正改变行为 | `A2` | HARD | 可直接引用 | 范围值写法需和 paired total 口径一致 |
 | `§11.1-11.2 (3)` | 模型倾向于遵循 workflow 而非独立推理 | `B4`, `B6` | SOFT | 可保留 | 只能写 `suggests / is consistent with` |
 | `§11.1-11.2 (4)` | 正负影响在 trajectory 中累积 | `A1` | HARD | 可直接引用 | 需保留站点差异说明 |
 | `§11.1-11.2 (5)` | 最终 Step SR delta 可理解为 positive minus negative 的聚合结果 | `A2` | HARD | 可直接引用 | 这是解释框架，不是严格因果识别 |
-| `§11.3` | 论文的“普适有效”应改写成“有条件有效” | `A1`, `A2`, `A3`, `A4`, `A5` | HARD + SOFT | 可直接引用 | 是总结合成，不是单点证据 |
+| `§11.3` | 论文的“普适有效”应改写成“有条件有效” | `A1`, `A2`, `A4`, `A5` | HARD + SOFT | 可直接引用 | 是总结合成，不是单点证据；`A3` 只可作为 first-run target-site result note |
 
 ## 3. Claim-Level Safe Citations
 
@@ -59,11 +57,11 @@
 
 1. `AWM’s gains in C1 mainly come from stable TYPE-side value guidance and site-dependent CLICK grounding effects (Appendix A1).`
 2. `On reproduced sites, workflow rarely harms the agent; on not-reproduced sites, negative interventions substantially outnumber positive ones (Appendix A2).`
-3. `Cross-site degradation is explained more by workflow-content mismatch than by target-site collapse alone, with Tripadvisor showing a mixed failure mode and Reddit showing primarily content mismatch (Appendix A3, B6).`
+3. `The first-run C2 results on tripadvisor and reddit did not reproduce the paper’s online-over-baseline trend; Appendix A3/B6 should be read as result tracing and prompt-level case evidence rather than standalone causal proof.`
 4. `LM-induced workflows are consistently more abstract than rule-induced workflows at the text level, but this abstractness does not guarantee site-wise superiority in performance (Appendix C1-C3).`
 5. `The NL-vs-HTML claim was not reproduced in the three-site first run, while prompt-level code and text workflows behaved similarly on kayak (Appendix A4).`
 6. `The C5 quality results support compact workflow libraries with low function overlap, but utility and coverage should be interpreted as prompt-level proxies rather than strict adherence measures (Appendix A5).`
-7. `The current Mind2Web evidence suggests an offline-vs-online trade-off rather than a simple ranking: offline workflows are broader and steadier on CLICK-side grounding, while online workflows are more test-proximate and stronger on local TYPE/value guidance, but more vulnerable to trajectory-shaped transfer errors under larger shift (Appendix A7).`
+7. `The current Mind2Web evidence suggests an offline-vs-online difference in where gains appear on kayak, while the additional target-site readings remain exploratory context only (Appendix A7).`
 8. `Under the current first-run evidence, online memory shows genuine very-small-budget gains on kayak, but this early-gain pattern does not generalize reliably to tripadvisor or reddit (Appendix A8).`
 9. `On Mind2Web, AWM shows signs of subflow reuse mainly as a flat library of reusable routines, not as explicit hierarchical workflow composition (Appendix C5).`
 
@@ -88,8 +86,8 @@
    - 这是关键词重叠 heuristic
    - `newegg` 是反例，说明它不是单调规律
 4. 若正文再次谈 “Rule 更好”，必须同时标注 `c3-runbook: unclear`，不能覆盖主结果判定。
-5. 若正文需要一个较精简的 appendix 集合，优先使用：`A1`, `A2`, `A3`, `A6`, `A7`, `A8`, `B4`, `B6`, `C1`, `C5`。
-6. 若 final report 要补论文 `§3.2.2` 的 offline-vs-online trade-off 讨论，优先挂 `A7`，不要只复用 `A3` 的 cross-site 结果。
+5. 若正文需要一个较精简的 appendix 集合，优先使用：`A1`, `A2`, `A4`, `A5`, `A6`, `B4`, `B6`, `C1`, `C5`。若需要保留 `A3`，应明确它只是 first-run result note。
+6. 若 final report 要补论文 `§3.2.2` 的 offline-vs-online trade-off 讨论，优先挂 `A7`，并明确其 exploratory 性质，不要只复用 `A3` 的 target-site first-run 结果。
 7. 若 final report 要讨论 online memory 的 small-data efficiency，只能挂 `A8`，并明确限定为 first-run Mind2Web evidence。
 8. 若 final report 要讨论 compositionality，应优先写成 `flat subflow reuse`，并挂 `C5`，不要直接借用论文在更开放环境中的强组合叙事。
 
@@ -99,7 +97,7 @@
 
 - `A1` step-level breakdown
 - `A2` paired-case summary
-- `A3` cross-site diagnosis
+- `A3` C2 first-run target-site result note
 - `A4` C4 result table
 - `A5` C5 quality table
 - `A6` alignment-rate note
@@ -107,7 +105,7 @@
 - `A8` online small-data efficiency note
 - `B2` united positive case
 - `B4` sixflags negative case
-- `B6` tripadvisor cross-site negative case
+- `B6` tripadvisor online-workflow mismatch case
 - `C1` LM-vs-rule text evidence
 - `C4` site-feature qualitative coding
 - `C5` Mind2Web compositionality reading
