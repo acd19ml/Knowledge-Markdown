@@ -50,6 +50,7 @@
 \makeatother
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.8em}
+\raggedbottom
 \usepackage{longtable,booktabs,array}
 \usepackage{calc}
 \usepackage{tikz}
@@ -60,6 +61,9 @@
 \makeatother
 \IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
 \makesavenoteenv{longtable}
+\makeatletter
+\renewcommand*\theHLT@tables{\thepage.\arabic{LT@tables}}
+\makeatother
 \setlength{\emergencystretch}{3em}
 \hbadness=10000
 \hfuzz=100pt
@@ -77,6 +81,7 @@
   pdftitle={A Reproduction Study of Agent Workflow Memory on Mind2Web},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
+\ifdefined\pdfsuppresswarningdupdest\pdfsuppresswarningdupdest=1\fi
 
 \title{A Reproduction Study of Agent Workflow Memory on Mind2Web}
 \author{Li Mengxiao}
@@ -376,6 +381,46 @@ the prompt for all test examples. The method's promise here is that
 workflows induced from training data should be abstract enough to
 transfer to unseen tasks on the same site.
 
+\paragraph{Operational flow in the current reproduction pipeline.}
+The current Mind2Web reproduction instantiates offline induction as a
+website-level one-shot pipeline:
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.92\linewidth}{!}{%
+\begin{tikzpicture}[
+  >=Latex,
+  node distance=1.3cm and 1.8cm,
+  box/.style={draw, rounded corners, align=center, inner sep=6pt, font=\small},
+  flow/.style={->, thick}
+]
+
+\node[box] (train) {Training examples\\for website \(s\)};
+\node[box, right=of train] (prompt) {Format all website examples\\into one induction prompt};
+\node[box, right=of prompt] (llm) {LLM workflow\\induction};
+\node[box, right=of llm] (save) {Filter and save\\website workflow file\\\(W_s\)};
+\node[box, below=1.5cm of llm] (frozen) {Frozen workflow memory\\at test time};
+\node[box, right=2.3cm of frozen] (test) {All test tasks on website \(s\)\\read the same \(W_s\)};
+
+\draw[flow] (train) -- (prompt);
+\draw[flow] (prompt) -- (llm);
+\draw[flow] (llm) -- (save);
+\draw[flow] (save) -- ++(0.0,-1.0) -| (frozen.north);
+\draw[flow] (frozen) -- (test);
+
+\end{tikzpicture}%
+}
+\caption{Website-level operationalization of offline induction in the current Mind2Web reproduction.}
+\label{fig:offline-induction-one-shot}
+\end{figure}
+
+Crucially, the current offline pipeline induces workflows once from all
+available training examples of a website, saves a single
+website-specific workflow file \(W_s\), and then keeps that file fixed
+during test-time inference. Unlike the online setting, there is no
+prefix update loop: all test tasks on the same website receive the same
+frozen workflow memory.
+
 \subsection{Online Induction}\label{online-induction}
 
 Without training examples, AWM operates in online mode. The agent
@@ -387,6 +432,24 @@ earlier successes. The paper presents this as especially useful under
 larger distribution shift because the workflows are derived from
 test-time rather than training-time experience.
 
+The paper distinguishes Mind2Web and WebArena at the level of benchmark
+setup and evaluation protocol, but it does not present two different
+online-induction mechanisms for the two benchmarks. At the method level,
+online AWM is described uniformly as a success-gated process: the agent
+first solves a test task, an evaluator then judges whether the resulting
+experience is successful, and only successful experiences are
+transformed into workflows and added to memory. However, the released
+implementations do not instantiate this mechanism identically across
+benchmarks. The WebArena pipeline remains broadly consistent with the
+paper-level description by filtering trajectories through a reward or
+auto-evaluation success criterion before induction, whereas the
+Mind2Web implementation re-induces workflows from all available prefix
+result JSONs without an explicit success-only filter. Therefore, in this
+reproduction, the paper-level online-AWM description and the
+benchmark-specific implementation details must be distinguished
+carefully, especially when interpreting mechanism claims from Mind2Web
+runs.
+
 \paragraph{Operational flow in the current reproduction pipeline.}
 The current Mind2Web reproduction instantiates online induction as a
 prefix-level overwrite loop:
@@ -396,27 +459,28 @@ prefix-level overwrite loop:
 \resizebox{0.92\linewidth}{!}{%
 \begin{tikzpicture}[
   >=Latex,
-  node distance=1.2cm and 1.5cm,
+  node distance=1.5cm and 1.9cm,
   box/.style={draw, rounded corners, align=center, inner sep=6pt, font=\small},
-  tinybox/.style={draw, rounded corners, align=center, inner sep=4pt, font=\scriptsize},
-  flow/.style={->, thick}
+  flow/.style={->, thick},
+  loopflow/.style={->, dashed, thick}
 ]
 
-\node[box] (taskt) {Current workflow file\\\(W_{<t}\)};
-\node[box, right=of taskt] (infer) {Run inference on\\task \(t\)};
-\node[tinybox, below=0.9cm of infer] (json) {Save result JSON\\for task \(t\)};
-\node[box, right=of infer] (prefix) {Prefix results\\\(\{0,\dots,t\}\)};
-\node[box, right=of prefix] (induce) {Re-induce workflows\\from all available\\prefix JSONs};
-\node[box, below=0.9cm of induce] (update) {Overwrite workflow file\\with new summary\\\(W_{\le t}\)};
-\node[box, below=0.9cm of prefix] (next) {Next task uses\\updated memory};
+\node[box] (wf) {Workflow file\\before task \(t\)};
+\node[box, right=of wf] (infer) {Run inference on\\task \(t\)};
+\node[box, right=of infer] (json) {Save result JSON\\for task \(t\)};
 
-\draw[flow] (taskt) -- (infer);
-\draw[flow] (infer) -- (prefix);
+\node[box, below=2.0cm of infer] (prefix) {All available result JSONs\\\((0,\dots,t)\)};
+\node[box, right=of prefix] (induce) {Re-induce workflow summary};
+\node[box, right=of induce] (overwrite) {Overwrite workflow file};
+
+\draw[flow] (wf) -- (infer);
 \draw[flow] (infer) -- (json);
-\draw[flow] (json.east) -| (induce.west);
+
+\draw[flow] (json.south) |- (prefix.north);
 \draw[flow] (prefix) -- (induce);
-\draw[flow] (induce) -- (update);
-\draw[flow] (update.west) -- (next.east);
+\draw[flow] (induce) -- (overwrite);
+
+\draw[loopflow] (overwrite.north) .. controls +(0,2.0) and +(0,2.0) .. node[above, font=\scriptsize] {used by task \(t+1\)} (wf.north);
 
 \end{tikzpicture}%
 }
@@ -425,11 +489,21 @@ prefix-level overwrite loop:
 \end{figure}
 
 Crucially, task \(t\) is solved using workflow memory induced from
-earlier tasks only, not from its own trajectory. Under
-\texttt{induce\_steps = 1}, task \(2\) is therefore evaluated using a
-workflow file re-induced from the completed result JSONs of tasks \(0\)
-and \(1\). The update is overwrite-based over the full available prefix,
-rather than an append-only ``old workflow + newest trajectory'' merge.
+earlier tasks only, not from its own trajectory. After task \(t\) is
+completed, its result JSON is added to the available prefix result set,
+and the workflow file is re-induced from the full prefix
+\((0,\dots,t)\). Under \texttt{induce\_steps = 1}, task \(2\) is
+therefore evaluated using a workflow file re-induced from the completed
+result JSONs of tasks \(0\) and \(1\). The update is overwrite-based
+over the full available prefix, rather than an append-only ``old
+workflow + newest trajectory'' merge.
+If \(t\) is the final task in the stream, the pipeline stops after
+saving its result JSON and no further induction round is triggered.
+Moreover, the induction module does not directly read the previous
+workflow file: its direct input is the available prefix result JSONs
+only. Any influence from earlier workflow memory can persist only
+indirectly, because some later result JSONs may already reflect
+workflow-conditioned behavior from earlier tasks.
 
 \subsection{Rule-Induction
 Baseline}\label{rule-induction-baseline}
@@ -495,8 +569,7 @@ Online workflow on cross-task (kayak), cross-website (tripadvisor),
 cross-domain (reddit) \\
 \textbf{LM vs.~rule induction} & LM induction outperforms rule induction & LM vs.~rule
 workflow on 3 websites (newegg, united, kayak) \\
-\textbf{Representation ablations} & Code/text difference is small; NL \textgreater{} HTML
-observation & Code/text on kayak; NL/HTML on 3 websites \\
+\shortstack[l]{\textbf{Representation}\\\textbf{ablations}} & Code/text difference is small;\newline NL \textgreater{} HTML observation & Code/text on kayak; NL/HTML on 3 websites \\
 \textbf{Workflow quality} & Compact workflow libraries with high utility and low
 overlap & Workflow text analysis on 3 websites \\
 \end{longtable}
@@ -1442,7 +1515,7 @@ Composition}\label{site-features-reusability-and-composition}
   >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
   >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
   >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}@{}}
-\caption{Site-level structural comparison.}\label{tab:site-level-structural-comparison}\\
+\caption{Site-level structural comparison.}\\
 
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
@@ -1465,7 +1538,7 @@ Baseline CLICK acc & 71.4\% & 66.7\% & 63.8\% & 73.5\% \\
 AWM CLICK delta & +10.7\% & +6.1\% & -12.1\% & -6.1\% \\
 Avg steps/WF & 2.1 & 3.2 & 5.8 & 3.6 \\
 WF-task alignment & Strong & Strong & Weak & Partial to Weak \\
-\end{longtable}
+\end{longtable}\label{tab:site-level-structural-comparison}
 }
 
 The qualitative coding behind these structural rows is documented in
