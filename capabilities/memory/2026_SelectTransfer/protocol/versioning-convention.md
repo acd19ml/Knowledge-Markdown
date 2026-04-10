@@ -10,8 +10,8 @@
 ## 基本原则
 
 - 当前工作版本保留在根目录
-- 每完成一轮稳定版本，就复制到 [achieve/](./achieve/) 中
-- `round_xx` 文档只引用 `achieve/` 中的稳定版本，不引用正在编辑的根目录文件
+- 每完成一轮稳定版本，就复制到 [../pilot/archive/](../pilot/archive/) 中
+- `round_xx` 文档只引用 `archive/` 中的稳定版本，不引用正在编辑的根目录文件
 
 ## 命名格式
 
@@ -33,16 +33,16 @@
 
 当第一轮 20 题标注和第一批 source sets / pairs 完成后，归档到：
 
-- `pilot/achieve/taxonomy_round1.csv`
-- `pilot/achieve/source_sets_round1.csv`
-- `pilot/achieve/pairing_table_round1.csv`
-- `pilot/achieve/notes_round1.md`
+- `pilot/archive/taxonomy_round1.csv`
+- `pilot/archive/source_sets_round1.csv`
+- `pilot/archive/pairing_table_round1.csv`
+- `pilot/archive/notes_round1.md`
 
 `round_01_memory_form_pilot.md` 应只引用这些归档版本。
 
 ## 当前规则
 
 - 根目录文件：正在编辑
-- `achieve/` 文件：可用于实验的冻结版本
+- `archive/` 文件：可用于实验的冻结版本
 
 如果某一轮还没冻结，就不要写进正式 `round_xx` 文档。

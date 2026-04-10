@@ -17,7 +17,8 @@
 ├── pilot/         # 当前工作表：taxonomy / source set / pairing / notes
 │   └── archive/   # 每轮冻结后的快照
 ├── results/       # 结果与阶段性产物
-│   └── 01_sampling/
+│   ├── 01_sampling/
+│   └── 02_hotpotqa_comparison_expansion/
 ├── notebooks/     # Colab / notebook 入口
 └── artifacts/     # 生成的 memory artifacts
 ```
@@ -45,6 +46,7 @@
 - [protocol/first-source-set-selection-workflow.md](./protocol/first-source-set-selection-workflow.md)
 - [protocol/first-pairing-workflow.md](./protocol/first-pairing-workflow.md)
 - [protocol/pilot-run-checklist.md](./protocol/pilot-run-checklist.md)
+- [protocol/pilot-prompt-scaffold.md](./protocol/pilot-prompt-scaffold.md)
 
 ### `report/`
 
@@ -84,6 +86,7 @@
 - [results/README.md](./results/README.md)
 - [results/01_sampling/taxonomy_round1_raw.csv](./results/01_sampling/taxonomy_round1_raw.csv)
 - [results/01_sampling/sampled_20_full.json](./results/01_sampling/sampled_20_full.json)
+- [results/02_hotpotqa_comparison_expansion/candidate_batch_for_taxonomy.csv](./results/02_hotpotqa_comparison_expansion/candidate_batch_for_taxonomy.csv)
 - [results/pilot_results.csv](./results/pilot_results.csv)
 
 ### `notebooks/`
@@ -92,6 +95,10 @@ Notebook 入口与运行说明。
 
 - [notebooks/README.md](./notebooks/README.md)
 - [notebooks/01_sampling.ipynb](./notebooks/01_sampling.ipynb)
+- [notebooks/02_hotpotqa_comparison_expansion.ipynb](./notebooks/02_hotpotqa_comparison_expansion.ipynb)
+- [notebooks/03_delayed_reannotation_review.ipynb](./notebooks/03_delayed_reannotation_review.ipynb)
+- [notebooks/04_artifact_generation.ipynb](./notebooks/04_artifact_generation.ipynb)
+- [notebooks/05_pilot_run.ipynb](./notebooks/05_pilot_run.ipynb)
 
 ### `artifacts/`
 
@@ -116,25 +123,42 @@ Notebook 入口与运行说明。
 
 - 设计层已经基本稳定：`project-positioning`、`proposal`、`experiment-contract` 都已落盘
 - `sampling` 阶段已经有产物：`results/01_sampling/` 下已有 notebook、完整抽样 JSON 和 raw CSV
-- [pilot/taxonomy.csv](./pilot/taxonomy.csv) 已完成 20 个 sampled tasks 的首轮标注，当前分布为 `bridge = 14`、`comparison = 6`
-- [pilot/source_sets.csv](./pilot/source_sets.csv) 已写入一个 draft `HotpotQA bridge` source set
-- [pilot/pairing_table.csv](./pilot/pairing_table.csv) 还是空表
+- [pilot/taxonomy.csv](./pilot/taxonomy.csv) 已完成首轮 working taxonomy，当前总分布为 `bridge = 14`、`comparison = 21`
+- `HotpotQA comparison` 扩池 batch 1 已完成首轮标注，并已回写到主 taxonomy 表
+- [pilot/source_sets.csv](./pilot/source_sets.csv) 已写入两个 draft source sets：
+  - `hp_bridge_set_01`
+  - `hp_comparison_set_01`
+- [pilot/pairing_table.csv](./pilot/pairing_table.csv) 已有 Round 1 working draft，覆盖当前 10 个 `2WikiMultiHopQA` targets
+- delayed re-annotation 已完成，5 个边界 case 无标签变化
+- Round 1 输入已冻结到 [pilot/archive/](./pilot/archive/)：
+  - [pilot/archive/taxonomy_round1.csv](./pilot/archive/taxonomy_round1.csv)
+  - [pilot/archive/source_sets_round1.csv](./pilot/archive/source_sets_round1.csv)
+  - [pilot/archive/pairing_table_round1.csv](./pilot/archive/pairing_table_round1.csv)
+  - [pilot/archive/notes_round1.md](./pilot/archive/notes_round1.md)
 - [results/pilot_results.csv](./results/pilot_results.csv) 仍未开始写入 run 结果
 
-也就是说，当前不缺框架，缺的是：
+也就是说，当前已完成 artifact generation 和 review，准备进入 pilot run：
 
-- delayed re-annotation 后的稳定 taxonomy
-- 至少一个更完整的 source-side candidate pool，尤其是 `comparison` coverage
-- 第一轮可 defend 的 relevant / irrelevant pairs
+- ~~第一轮 artifacts~~ -> 已生成（Qwen3.5-9B, 4 artifacts, all `generated`）
+- ~~artifact review~~ -> 已通过人工检查（2026-04-11）
+- ~~prompt scaffold~~ -> 已定义（`protocol/pilot-prompt-scaffold.md`）
+- ~~pre-run checklist~~ -> 7/7 项全部通过，GO 决定已记录
+- 第一轮 pilot runs -> **待执行**
+- `results/pilot_results.csv` 中的真实 run 结果 -> **待写入**
 
 ## 当前最重要的下一步
 
-不要继续扩文档层级，也不要继续把问题做大。当前最重要的是按顺序完成：
+不要继续扩文档层级，也不要继续把问题做大。当前最重要的是：
 
-1. 完成 5 个边界 case 的 delayed re-annotation
-2. 扩 `HotpotQA` source-side candidate pool，补足 `comparison` cluster
-3. 在此基础上继续完善 [pilot/source_sets.csv](./pilot/source_sets.csv) 与 [pilot/pairing_table.csv](./pilot/pairing_table.csv)
-4. 只有在 pair 和 artifact 都过检后，才进入 `pilot run`
+1. 按 [protocol/pilot-prompt-scaffold.md](./protocol/pilot-prompt-scaffold.md) 实现 prompt assembly + scoring 脚本
+2. 先跑 1-2 个 case 验证 scaffold 能跑通
+3. 再按 [rounds/round_01_memory_form_pilot.md](./rounds/round_01_memory_form_pilot.md) 批量执行 pilot run
+4. 把 run 结果写入 [results/pilot_results.csv](./results/pilot_results.csv)
+
+当前 `artifact generation` 默认不再依赖 `OPENAI_API_KEY`，而是使用本地 Hugging Face 推理：
+
+- 主推荐模型：`Qwen/Qwen3.5-9B`
+- 显存更稳的回退：`Qwen/Qwen3.5-4B`
 
 ## 一句话约束
 

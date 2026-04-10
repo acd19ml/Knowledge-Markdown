@@ -12,7 +12,9 @@
 ## 当前文件
 
 - [progress-report-draft.md](./progress-report-draft.md)
-  - 可直接用于 `progress report` 的段落草稿
+  - 可直接用于 `progress report` 的段落草稿（写于 taxonomy + source-set feasibility 阶段，尚未包含 pilot 结果）
+- [progress-report-round1-pilot.md](./progress-report-round1-pilot.md)
+  - Round 1 pilot 完整结果分析：60 runs 的 case-level 诊断、sensitivity deficit 根因分析、下一步方向建议
   - 重点写：
     - 问题如何收缩
     - protocol 如何建立

@@ -1,0 +1,16 @@
+task_id,dataset,question,answer,reasoning_label,keep_drop,note
+hp_dev_4705,HotpotQA,Of these two publication--Báiki and Sick--what type of publication is the one that was published most frequently?,satirical-humor magazine,comparison,keep,comparison of publication frequency then type
+hp_dev_3635,HotpotQA,Are Nikolaschka and White Russian made of beer?,no,comparison,keep,comparison of ingredient property
+hp_dev_6333,HotpotQA,"Which genus of flowering plants has the most species, Caesalpinia or Achimenes?",Caesalpinia,comparison,keep,comparison of species counts
+hp_dev_5118,HotpotQA,"Did Qionghai or Suining  have a population of 658,798 in 2002?","In 2002, Suining had a population of 658,798.",comparison,keep,comparison of population values
+hp_dev_1754,HotpotQA,Were H. G. Wells and Rubén Darío both English?,no,comparison,keep,comparison of nationality attributes
+hp_dev_5052,HotpotQA,"Who was born first, Ana Kasparian or Andre Agassi?",Andre Kirk Agassi,comparison,keep,comparison of birth dates
+hp_dev_1691,HotpotQA,Do the genuses Catopsis and Crataegus belong to the same family?,no,comparison,keep,comparison of taxonomic family
+hp_dev_6522,HotpotQA,Does the genus Cunninghamia or Chilopsis contain only one species?,Chilopsis,comparison,keep,comparison of species-count property
+hp_dev_5486,HotpotQA,"which is larger, Hunchun or Shijiazhuang?",Shijiazhuang,comparison,keep,comparison of city size
+hp_dev_3041,HotpotQA,Jim Sharman and Ava DuVernay both share what title concerning their actions leading actors in film or stage?,director,comparison,keep,comparison of shared profession attribute
+hp_dev_5072,HotpotQA,Was Steve Sekely and Willian King Baggot known by multiple names or nicknames?,yes,comparison,keep,comparison of nickname property
+hp_dev_5589,HotpotQA,"Which city has a higher population, Shanghai or Hengyang?",Shanghai,comparison,keep,comparison of population values
+hp_dev_5539,HotpotQA,Ben Folds and Nic Offer are both considered to be which type of artists?,musician,comparison,keep,comparison of artist type
+hp_dev_2574,HotpotQA,Which airport served more people in 2015 Asheville Regional Airport or Orlando International Airport ?,Orlando International Airport,comparison,keep,comparison of passenger traffic
+hp_dev_0989,HotpotQA,"Which film is newer, The Apple Dumpling Gang or Heavyweights?",Heavyweights,comparison,keep,comparison of film release dates

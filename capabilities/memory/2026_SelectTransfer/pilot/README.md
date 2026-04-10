@@ -13,19 +13,19 @@
 
 | File | Role | Current State |
 |---|---|---|
-| [taxonomy.csv](taxonomy.csv) | task-level taxonomy 标注表 | 首轮标注已完成，待做 delayed re-annotation |
-| [source_sets.csv](source_sets.csv) | source set 构造表 | 已有 1 个 draft `HotpotQA bridge` source set |
-| [pairing_table.csv](pairing_table.csv) | relevant / irrelevant pairing 表 | 只有表头，尚未开始 |
+| [taxonomy.csv](taxonomy.csv) | task-level taxonomy 标注表 | 当前 working copy；对应稳定版本已冻结到 `archive/taxonomy_round1.csv` |
+| [source_sets.csv](source_sets.csv) | source set 构造表 | 当前 working copy；对应稳定版本已冻结到 `archive/source_sets_round1.csv` |
+| [pairing_table.csv](pairing_table.csv) | relevant / irrelevant pairing 表 | 当前 working copy；对应稳定版本已冻结到 `archive/pairing_table_round1.csv` |
 | [notes.md](notes.md) | 实验日志：观察、判断、go/no-go | Active |
 | [archive/](archive/) | 已冻结的轮次快照 | 不可回写 |
 
 ## 推荐使用顺序
 
-1. 先完成 [taxonomy.csv](taxonomy.csv) 的 delayed re-annotation 检查
-2. 再扩 source-side candidate pool，并继续完善 [source_sets.csv](source_sets.csv)
-3. 再按 [../protocol/first-pairing-workflow.md](../protocol/first-pairing-workflow.md) 填写 [pairing_table.csv](pairing_table.csv)
-4. 回到 [notes.md](notes.md) 记录观察、边界 case 和 go/no-go 判断
-5. 每完成一轮，就把冻结版本放进 [archive/](archive/)
+1. 如果要看 Round 1 稳定输入，优先读 [archive/](archive/)
+2. 如果要继续修改 taxonomy / source set / pairing，回到 working CSV
+3. 基于已冻结输入开始 artifact 生成与 pilot run
+4. 回到 [notes.md](notes.md) 继续记录新一轮观察、边界 case 和 go/no-go 判断
+5. 下一轮稳定后，再生成新的 archive 快照
 
 ## `notes.md` 和 CSV 的分工
 

@@ -1,0 +1,36 @@
+task_id,dataset,question,answer,reasoning_label,keep_drop,note
+hp_dev_1547,HotpotQA,What was Iqbal F. Qadir on when he participated in an attack on a radar station located on western shore of the Okhamandal Peninsula?,flotilla,bridge,keep,bridge via location entity
+hp_dev_2054,HotpotQA,When did the park at which Tivolis Koncertsal is located open?,15 August 1843,bridge,keep,bridge via venue to park opening
+hp_dev_0478,HotpotQA,What is the shared country of ancestry between Art Laboe and Scout Tufankjian?,Armenian,comparison,keep,comparison of ancestry attribute
+hp_dev_3245,HotpotQA,The school in which the Wilmslow Show is held is designated as what?,Centre of Excellence,bridge,keep,bridge via event venue to school
+hp_dev_1119,HotpotQA,Who will Billy Howle be seen opposite in the upcoming British drama film directed by Dominic Cooke?,Saoirse Ronan,bridge,keep,bridge via film to co-star
+hp_dev_3575,HotpotQA,"What animated movie, starring Danny Devito, featured music written and produced by Kool Kojak?",The Lorax,bridge,keep,bridge via songwriter to film
+hp_dev_0978,HotpotQA,"Out of the actors who have played the role of Luc Deveraux in the Universal Soldier franchise, which actor has also starred in the movies Holby City, Doctor Strange, the Bourne Ultimatum and Zero Dark Thirty?",Scott Adkins,bridge,keep,bridge via franchise role to actor
+hp_dev_1668,HotpotQA,Tommy's Honour was a drama film that included the actor who found success with what 2016 BBC miniseries?,War & Peace,bridge,keep,bridge via cast actor to series
+hp_dev_6149,HotpotQA,"Which rock band chose its name by drawing it out of a hat, Switchfoot or Midnight Oil?",Midnight Oil,comparison,keep,comparison of naming origin fact
+hp_dev_4237,HotpotQA,"""Tunak"", is a bhangra/pop love song by an artist born in which year ?",1967,bridge,keep,bridge via song performer to birth year
+wiki_dev_8896,2WikiMultiHopQA,Was Jean-Baptiste Le Prince or Billy Magoulias born first?,Jean-Baptiste Le Prince,comparison,keep,comparison of birth dates
+wiki_dev_0092,2WikiMultiHopQA,Where was the director of film Lettre Ouverte born?,Paris,bridge,keep,bridge via film to director birthplace
+wiki_dev_10378,2WikiMultiHopQA,What is the place of birth of J.J. Madan's father?,Bombay,bridge,keep,bridge via child to father birthplace
+wiki_dev_7019,2WikiMultiHopQA,Which award the performer of song Constantemente Mía got?,Sanremo Music Festival,bridge,keep,bridge via song performer to award
+wiki_dev_0123,2WikiMultiHopQA,"Which film has the director born first, Leave It To Henry or The Last Night Of Scheherazade?",Leave It To Henry,comparison,keep,comparison after retrieving two directors' birth dates; bridge steps (film→director) are trivial lookups
+wiki_dev_10727,2WikiMultiHopQA,"Which film came out earlier, Au Revoir Les Enfants or Physical Jerks?",Au Revoir Les Enfants,comparison,keep,comparison of release dates; both dates directly on film pages
+wiki_dev_12298,2WikiMultiHopQA,"Which film whose director was born first, Self-Made Maids or A Day For Lionhearts?",Self-Made Maids,comparison,keep,comparison after retrieving two directors' birth dates; same structure as 0123
+wiki_dev_2639,2WikiMultiHopQA,"Who is the sibling-in-law of Harriet Pelham-Holles, Duchess Of Newcastle-Upon-Tyne?",Henry Pelham,bridge,keep,bridge via spouse to sibling; classic 2-hop chain through intermediate entity
+wiki_dev_6083,2WikiMultiHopQA,"Which country the director of film Candida, Millionairess is from?",Spanish,bridge,keep,bridge via film to director nationality
+wiki_dev_1379,2WikiMultiHopQA,"Who is Eleanor Of England, Countess Of Bar's father-in-law?","Theobald II, Count of Bar",bridge,keep,bridge via spouse to father; same 2-hop kinship chain pattern as 2639
+hp_dev_4705,HotpotQA,Of these two publication--Báiki and Sick--what type of publication is the one that was published most frequently?,satirical-humor magazine,comparison,keep,comparison of publication frequency then type
+hp_dev_3635,HotpotQA,Are Nikolaschka and White Russian made of beer?,no,comparison,keep,comparison of ingredient property
+hp_dev_6333,HotpotQA,"Which genus of flowering plants has the most species, Caesalpinia or Achimenes?",Caesalpinia,comparison,keep,comparison of species counts
+hp_dev_5118,HotpotQA,"Did Qionghai or Suining  have a population of 658,798 in 2002?","In 2002, Suining had a population of 658,798.",comparison,keep,comparison of population values
+hp_dev_1754,HotpotQA,Were H. G. Wells and Rubén Darío both English?,no,comparison,keep,comparison of nationality attributes
+hp_dev_5052,HotpotQA,"Who was born first, Ana Kasparian or Andre Agassi?",Andre Kirk Agassi,comparison,keep,comparison of birth dates
+hp_dev_1691,HotpotQA,Do the genuses Catopsis and Crataegus belong to the same family?,no,comparison,keep,comparison of taxonomic family
+hp_dev_6522,HotpotQA,Does the genus Cunninghamia or Chilopsis contain only one species?,Chilopsis,comparison,keep,comparison of species-count property
+hp_dev_5486,HotpotQA,"which is larger, Hunchun or Shijiazhuang?",Shijiazhuang,comparison,keep,comparison of city size
+hp_dev_3041,HotpotQA,Jim Sharman and Ava DuVernay both share what title concerning their actions leading actors in film or stage?,director,comparison,keep,comparison of shared profession attribute
+hp_dev_5072,HotpotQA,Was Steve Sekely and Willian King Baggot known by multiple names or nicknames?,yes,comparison,keep,comparison of nickname property
+hp_dev_5589,HotpotQA,"Which city has a higher population, Shanghai or Hengyang?",Shanghai,comparison,keep,comparison of population values
+hp_dev_5539,HotpotQA,Ben Folds and Nic Offer are both considered to be which type of artists?,musician,comparison,keep,comparison of artist type
+hp_dev_2574,HotpotQA,Which airport served more people in 2015 Asheville Regional Airport or Orlando International Airport ?,Orlando International Airport,comparison,keep,comparison of passenger traffic
+hp_dev_0989,HotpotQA,"Which film is newer, The Apple Dumpling Gang or Heavyweights?",Heavyweights,comparison,keep,comparison of film release dates

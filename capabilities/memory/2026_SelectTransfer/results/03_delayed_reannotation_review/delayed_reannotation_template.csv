@@ -1,0 +1,6 @@
+task_id,dataset,question,answer,first_pass_reasoning_label,first_pass_keep_drop,first_pass_note,second_pass_reasoning_label,second_pass_keep_drop,second_pass_note
+wiki_dev_0123,2WikiMultiHopQA,"Which film has the director born first, Leave It To Henry or The Last Night Of Scheherazade?",Leave It To Henry,comparison,keep,comparison after retrieving directors,,,
+wiki_dev_10727,2WikiMultiHopQA,"Which film came out earlier, Au Revoir Les Enfants or Physical Jerks?",Au Revoir Les Enfants,comparison,keep,comparison of release dates,,,
+wiki_dev_12298,2WikiMultiHopQA,"Which film whose director was born first, Self-Made Maids or A Day For Lionhearts?",Self-Made Maids,comparison,keep,comparison after retrieving directors,,,
+wiki_dev_2639,2WikiMultiHopQA,"Who is the sibling-in-law of Harriet Pelham-Holles, Duchess Of Newcastle-Upon-Tyne?",Henry Pelham,bridge,keep,bridge via spouse to sibling,,,
+wiki_dev_1379,2WikiMultiHopQA,"Who is Eleanor Of England, Countess Of Bar's father-in-law?","Theobald II, Count of Bar",bridge,keep,bridge via spouse to father,,,

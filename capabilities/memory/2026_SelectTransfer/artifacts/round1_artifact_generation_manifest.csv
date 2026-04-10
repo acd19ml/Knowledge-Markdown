@@ -1,0 +1,5 @@
+source_set_id,artifact_type,status,model,backend,output_file,char_count,error
+hp_bridge_set_01,episodic_trace,generated,Qwen/Qwen3.5-9B,huggingface_transformers,/root/2026_SelectTransfer/artifacts/hp_bridge_set_01/episodic_trace.md,3161,
+hp_bridge_set_01,cross_episode_consolidation,generated,Qwen/Qwen3.5-9B,huggingface_transformers,/root/2026_SelectTransfer/artifacts/hp_bridge_set_01/cross_episode_consolidation.md,3100,
+hp_comparison_set_01,episodic_trace,generated,Qwen/Qwen3.5-9B,huggingface_transformers,/root/2026_SelectTransfer/artifacts/hp_comparison_set_01/episodic_trace.md,3787,
+hp_comparison_set_01,cross_episode_consolidation,generated,Qwen/Qwen3.5-9B,huggingface_transformers,/root/2026_SelectTransfer/artifacts/hp_comparison_set_01/cross_episode_consolidation.md,3290,

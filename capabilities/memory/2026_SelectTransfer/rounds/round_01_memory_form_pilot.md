@@ -76,7 +76,7 @@
 
 - [protocol/versioning-convention.md](../protocol/versioning-convention.md)
 
-如果这些输入中的任意一个还未冻结到 `achieve/`，本轮不开始。
+如果这些输入中的任意一个还未冻结到 `archive/`，本轮不开始。
 
 ## Metrics
 
