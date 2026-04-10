@@ -1,0 +1,7 @@
+target_task_id,role_in_round1b,aggregate_use,notes
+wiki_dev_8896,movement_probe,keep,Best probe for checking whether memory-conditioned flips become explainable under structured reasoning.
+wiki_dev_0092,qualitative_gold_ambiguity,exclude,Keep for qualitative diagnosis only; do not include in aggregate metrics before benchmark audit.
+wiki_dev_2639,divergent_error_probe,keep,Use to inspect whether irrelevant memory still perturbs relation-chain selection.
+wiki_dev_6083,scoring_boundary_probe,keep_with_audit_note,Track strict score and semantic-near-correct note separately.
+wiki_dev_7019,stable_floor_probe,keep,Check whether structured reasoning changes answer granularity or reasoning level.
+wiki_dev_10727,ceiling_control,keep,Control case to ensure the new scaffold does not damage already-correct behavior.

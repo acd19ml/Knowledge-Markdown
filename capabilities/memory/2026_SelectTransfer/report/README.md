@@ -21,6 +21,21 @@
     - 当前真实发现是什么
     - 这些发现如何改变设计决策
     - 下一步是什么
+- [progress-report-round1b-prompt-diagnosis.md](./progress-report-round1b-prompt-diagnosis.md)
+  - Round 1b prompt diagnosis 结果分析：6 个 smoke targets 上的 structured reasoning 输出、memory use/reject 证据、以及为什么当前还不能直接下 selective transfer 结论
+  - 重点写：
+    - prompt scaffold 是否修复了 Round 1 的单行直答问题
+    - process-level evidence 是否出现
+    - 哪些 case 出现了 memory-induced degradation / recovery
+    - 为什么下一步应先收紧 scoring、process analysis 与 case role reclassification
+- [../results/05_round1b_prep/round1c_role_aware_smoke_summary.md](../results/05_round1b_prep/round1c_role_aware_smoke_summary.md)
+  - Round 1c 前置摘要：把 Round 1b 的 run-level 结果按 `case role` 重组，明确哪些 case 只能做 process sanity、哪些是 artifact / format / boundary case
+  - 重点写：
+    - 哪些 runs 已经不该进入 transfer aggregate
+    - 哪些 case 仍可保留作 process-level signal
+    - 为什么下一轮应先修 case selection，而不是继续求混合平均
+- [../results/05_round1b_prep/round1c_aggregate_rules.md](../results/05_round1b_prep/round1c_aggregate_rules.md)
+  - Round 1c 的聚合规则：明确哪些平均数以后禁止再报，哪些 case 只能作为 process / diagnostic / boundary 使用
 
 ## 使用方式
 

@@ -1,0 +1,350 @@
+run_id,target_task_id,split,condition,source_set_id,memory_attached,em,f1,token_usage,failure_status,pred_answer,gold_answer,prompt_chars,reasoning_present,final_answer_present,memory_reference_type,parse_success,raw_output,target_cluster,case_role,aggregate_eligible,process_use,next_round_action,boundary_case,process_case,artifact_sensitive_case,answer_format_sensitive_case,baseline_pred_answer,baseline_em,baseline_f1,answer_changed_vs_baseline,em_delta_vs_baseline,f1_delta_vs_baseline,outcome_changed_vs_baseline,improved_vs_baseline,degraded_vs_baseline,memory_verbalized,explicit_use,explicit_reject,role_reason
+r1b_no_memory_wiki_dev_8896_relevant,wiki_dev_8896,relevant,no_memory,hp_comparison_set_01,false,1,1.0,851,ok,Jean-Baptiste Le Prince,Jean-Baptiste Le Prince,2893,1,1,implicit_or_none,1,"## Reasoning
+
+- The context states that Billy Magoulias was born on 23 January 1997.
+- The context provides the birth and death dates for Jean-Baptiste Le Prince as September 17, 1734, and September 30, 1781.
+- Comparing the years, 1734 is significantly earlier than 1997.
+- Therefore, Jean-Baptiste Le Prince was born well before Billy Magoulias.
+- No other individuals named Billy or Bill in the context have specific birth dates that alter this comparison.
+
+## Final Answer
+Jean-Baptiste Le Prince",comparison,process_selectivity_sanity_check,no,retain_as_primary_process_case,keep,no,yes,no,no,Jean-Baptiste Le Prince,1,1.0,no,0.0000,0.0000,no,no,no,no,no,no,clean comparison case; relevant episodic shows explicit use and irrelevant episodic shows explicit reject without outcome movement
+r1b_no_memory_wiki_dev_8896_irrelevant,wiki_dev_8896,irrelevant,no_memory,hp_bridge_set_01,false,1,1.0,851,ok,Jean-Baptiste Le Prince,Jean-Baptiste Le Prince,2893,1,1,implicit_or_none,1,"## Reasoning
+
+- The context states that Billy Magoulias was born on 23 January 1997.
+- The context provides the birth and death dates for Jean-Baptiste Le Prince as September 17, 1734, and September 30, 1781.
+- Comparing the years, 1734 is significantly earlier than 1997.
+- Therefore, Jean-Baptiste Le Prince was born well before Billy Magoulias.
+- No other individuals named Billy or Bill in the context have specific birth dates that alter this comparison.
+
+## Final Answer
+Jean-Baptiste Le Prince",comparison,process_selectivity_sanity_check,no,retain_as_primary_process_case,keep,no,yes,no,no,Jean-Baptiste Le Prince,1,1.0,no,0.0000,0.0000,no,no,no,no,no,no,clean comparison case; relevant episodic shows explicit use and irrelevant episodic shows explicit reject without outcome movement
+r1b_episodic_trace_wiki_dev_8896_relevant,wiki_dev_8896,relevant,episodic_trace,hp_comparison_set_01,true,1,1.0,1799,ok,Jean-Baptiste Le Prince,Jean-Baptiste Le Prince,6900,1,1,explicit_use,1,"## Reasoning
+
+*   The context paragraph for **Billy Magoulias** explicitly states he was born on **23 January 1997**.
+*   The context paragraph for **Jean-Baptiste Le Prince** provides his full birth and death dates as **September 17, 1734 – September 30, 1781**.
+*   Comparing the two dates, 1734 occurs significantly earlier in history than 1997.
+*   Therefore, Jean-Baptiste Le Prince was born well before Billy Magoulias.
+*   This follows the pattern of temporal comparisons seen in past experience, requiring the extraction of specific year markers to determine chronological order.
+
+## Final Answer
+Jean-Baptiste Le Prince",comparison,process_selectivity_sanity_check,no,retain_as_primary_process_case,keep,no,yes,no,no,Jean-Baptiste Le Prince,1,1.0,no,0.0000,0.0000,no,no,no,yes,yes,no,clean comparison case; relevant episodic shows explicit use and irrelevant episodic shows explicit reject without outcome movement
+r1b_episodic_trace_wiki_dev_8896_irrelevant,wiki_dev_8896,irrelevant,episodic_trace,hp_bridge_set_01,true,1,1.0,1702,ok,Jean-Baptiste Le Prince,Jean-Baptiste Le Prince,6274,1,1,explicit_reject,1,"## Reasoning
+
+*   The context states that Billy Magoulias was born on 23 January 1997.
+*   The context provides the birth and death dates for Jean-Baptiste Le Prince as September 17, 1734 – September 30, 1781.
+*   Comparing the two dates, 1734 is significantly earlier than 1997.
+*   Therefore, Jean-Baptiste Le Prince was born before Billy Magoulias.
+*   The provided past experience regarding multi-hop entity resolution is not useful here because the answer requires a direct comparison of birth dates found in the text, rather than chaining distinct facts through an intermediate entity.
+
+## Final Answer
+
+Jean-Baptiste Le Prince",comparison,process_selectivity_sanity_check,no,retain_as_primary_process_case,keep,no,yes,no,no,Jean-Baptiste Le Prince,1,1.0,no,0.0000,0.0000,no,no,no,yes,no,yes,clean comparison case; relevant episodic shows explicit use and irrelevant episodic shows explicit reject without outcome movement
+r1b_cross_episode_consolidation_wiki_dev_8896_relevant,wiki_dev_8896,relevant,cross_episode_consolidation,hp_comparison_set_01,true,1,1.0,1592,ok,Jean-Baptiste Le Prince,Jean-Baptiste Le Prince,6403,1,1,implicit_or_none,1,"## Reasoning
+
+*   **Entity Identification**: The question asks to compare the birth dates of two specific individuals: Jean-Baptiste Le Prince and Billy Magoulias.
+*   **Retrieve Billy Magoulias Data**: The context states that Billy Magoulias was born on 23 January 1997.
+*   **Retrieve Jean-Baptiste Le Prince Data**: The context states that Jean-Baptiste Le Prince was born on September 17, 1734.
+*   **Compare Dates**: Comparing the years, 1734 is significantly earlier than 1997.
+*   **Conclusion**: Since 1734 precedes 1997, Jean-Baptiste Le Prince was born first.
+
+## Final Answer
+Jean-Baptiste Le Prince",comparison,process_selectivity_sanity_check,no,retain_as_primary_process_case,keep,no,yes,no,no,Jean-Baptiste Le Prince,1,1.0,no,0.0000,0.0000,no,no,no,no,no,no,clean comparison case; relevant episodic shows explicit use and irrelevant episodic shows explicit reject without outcome movement
+r1b_cross_episode_consolidation_wiki_dev_8896_irrelevant,wiki_dev_8896,irrelevant,cross_episode_consolidation,hp_bridge_set_01,true,1,1.0,1576,ok,Jean-Baptiste Le Prince,Jean-Baptiste Le Prince,6213,1,1,implicit_or_none,1,"## Reasoning
+
+*   The context paragraph for **Billy Magoulias** explicitly states he was born on **23 January 1997**.
+*   The context paragraph for **Jean-Baptiste Le Prince** provides his full lifespan as **September 17, 1734 – September 30, 1781**, indicating he was born in the 18th century.
+*   Comparing the two dates, 1734 is significantly earlier than 1997.
+*   The ""Cross-Episode Consolidation"" patterns regarding multi-hop entity chaining are not applicable here because the birth dates for both individuals are directly available in their respective single-paragraph summaries without needing to traverse intermediate entities.
+
+## Final Answer
+
+Jean-Baptiste Le Prince",comparison,process_selectivity_sanity_check,no,retain_as_primary_process_case,keep,no,yes,no,no,Jean-Baptiste Le Prince,1,1.0,no,0.0000,0.0000,no,no,no,no,no,no,clean comparison case; relevant episodic shows explicit use and irrelevant episodic shows explicit reject without outcome movement
+r1b_no_memory_wiki_dev_0092_relevant,wiki_dev_0092,relevant,no_memory,hp_bridge_set_01,false,0,0.0,968,ok,"Alexandria, Egypt",Paris,3083,1,1,implicit_or_none,1,"## Reasoning
+- The context states that the film *Lettre ouverte* was directed by Alex Joffé.
+- Alex Joffé was born on 18 November 1918 in Alexandria, Egypt.
+- Therefore, the director of the film *Lettre ouverte* was born in Alexandria, Egypt.
+
+## Final Answer
+Alexandria, Egypt",bridge,ambiguity_audit_case,no,retain_for_audit_only,keep_audit_only,yes,no,no,no,"Alexandria, Egypt",0,0.0,no,0.0000,0.0000,no,no,no,no,no,no,context strongest evidence conflicts with gold answer; suitable only for observing use/reject/ignore behavior
+r1b_no_memory_wiki_dev_0092_irrelevant,wiki_dev_0092,irrelevant,no_memory,hp_comparison_set_01,false,0,0.0,968,ok,"Alexandria, Egypt",Paris,3083,1,1,implicit_or_none,1,"## Reasoning
+- The context states that the film *Lettre ouverte* was directed by Alex Joffé.
+- Alex Joffé was born on 18 November 1918 in Alexandria, Egypt.
+- Therefore, the director of the film *Lettre ouverte* was born in Alexandria, Egypt.
+
+## Final Answer
+Alexandria, Egypt",bridge,ambiguity_audit_case,no,retain_for_audit_only,keep_audit_only,yes,no,no,no,"Alexandria, Egypt",0,0.0,no,0.0000,0.0000,no,no,no,no,no,no,context strongest evidence conflicts with gold answer; suitable only for observing use/reject/ignore behavior
+r1b_episodic_trace_wiki_dev_0092_relevant,wiki_dev_0092,relevant,episodic_trace,hp_bridge_set_01,true,0,0.0,1797,ok,"Alexandria, Egypt",Paris,6464,1,1,implicit_or_none,1,"## Reasoning
+
+- The context explicitly states that the film *Lettre ouverte* was directed by Alex Joffé.
+- The biographical paragraph for Alex Joffé notes that he was born in Alexandria, Egypt.
+- This follows the multi-hop pattern of identifying the director first, then retrieving their birthplace from their specific profile.
+
+## Final Answer
+
+Alexandria, Egypt",bridge,ambiguity_audit_case,no,retain_for_audit_only,keep_audit_only,yes,no,no,no,"Alexandria, Egypt",0,0.0,no,0.0000,0.0000,no,no,no,no,no,no,context strongest evidence conflicts with gold answer; suitable only for observing use/reject/ignore behavior
+r1b_episodic_trace_wiki_dev_0092_irrelevant,wiki_dev_0092,irrelevant,episodic_trace,hp_comparison_set_01,true,0,0.0,1957,ok,"Alexandria, Egypt",Paris,7090,1,1,explicit_use,1,"## Reasoning
+
+- The question asks for the birthplace of the director of the film *Lettre Ouverte*.
+- The context paragraph titled ""Lettre ouverte"" identifies the film as being directed by Alex Joffé.
+- The paragraph titled ""Alex Joffé"" states that he was born on 18 November 1918 in Alexandria, Egypt.
+- Therefore, the director of *Lettre Ouverte* was born in Alexandria, Egypt.
+- Past experience regarding temporal comparisons or ancestry extraction is not directly applicable as this query requires a simple entity-to-attribute lookup based on a specific film title.
+
+## Final Answer
+
+Alexandria, Egypt",bridge,ambiguity_audit_case,no,retain_for_audit_only,keep_audit_only,yes,no,no,no,"Alexandria, Egypt",0,0.0,no,0.0000,0.0000,no,no,no,yes,yes,no,context strongest evidence conflicts with gold answer; suitable only for observing use/reject/ignore behavior
+r1b_cross_episode_consolidation_wiki_dev_0092_relevant,wiki_dev_0092,relevant,cross_episode_consolidation,hp_bridge_set_01,true,0,0.0,1731,ok,"Alexandria, Egypt",Paris,6403,1,1,implicit_or_none,1,"## Reasoning
+
+- The question asks for the birthplace of the director of the film *Lettre Ouverte*.
+- The context paragraph titled ""Lettre ouverte"" states that the film was directed by Alex Joffé.
+- The context paragraph titled ""Alex Joffé"" provides biographical details for this director, noting he was born in Alexandria, Egypt.
+- Therefore, the director of *Lettre Ouverte* was born in Alexandria, Egypt.
+- This follows the multi-hop reasoning pattern: Film (*Lettre Ouverte*) → Director (Alex Joffé) → Birthplace (Alexandria, Egypt).
+
+## Final Answer
+
+Alexandria, Egypt",bridge,ambiguity_audit_case,no,retain_for_audit_only,keep_audit_only,yes,no,no,no,"Alexandria, Egypt",0,0.0,no,0.0000,0.0000,no,no,no,no,no,no,context strongest evidence conflicts with gold answer; suitable only for observing use/reject/ignore behavior
+r1b_cross_episode_consolidation_wiki_dev_0092_irrelevant,wiki_dev_0092,irrelevant,cross_episode_consolidation,hp_comparison_set_01,true,0,0.0,1770,ok,"Alexandria, Egypt",Paris,6593,1,1,explicit_reject,1,"## Reasoning
+
+- The question asks for the birthplace of the director of the film *Lettre Ouverte*.
+- The context paragraph titled ""Lettre ouverte"" identifies the film as being directed by Alex Joffé.
+- The paragraph titled ""Alex Joffé"" states that he was born in Alexandria, Egypt.
+- Although the film title in the question is slightly different (""Lettre Ouverte"" vs ""Lettre ouverte""), the context explicitly links the French film *Lettre ouverte* to Alex Joffé.
+- Therefore, the birthplace of the director is Alexandria, Egypt.
+- The ""Cross-Episode Consolidation"" past experience is not useful here because the question requires retrieving a single attribute for one entity rather than comparing two entities.
+
+## Final Answer
+
+Alexandria, Egypt",bridge,ambiguity_audit_case,no,retain_for_audit_only,keep_audit_only,yes,no,no,no,"Alexandria, Egypt",0,0.0,no,0.0000,0.0000,no,no,no,yes,no,yes,context strongest evidence conflicts with gold answer; suitable only for observing use/reject/ignore behavior
+r1b_no_memory_wiki_dev_7019_relevant,wiki_dev_7019,relevant,no_memory,hp_bridge_set_01,false,0,0.5,1310,ok,Sanremo Music Festival 2015 and Eurovision Song Contest 2015 (televoting),Sanremo Music Festival,5043,1,1,implicit_or_none,1,"## Reasoning
+
+- The song ""Constantemente Mía"" is identified as the first single by the Italian trio Il Volo featuring Mexican singer Belinda.
+- The context states that Il Volo won the Sanremo Music Festival in 2015.
+- Following this victory, the group represented Italy in the Eurovision Song Contest 2015.
+- At Eurovision 2015, Il Volo reached third place but secured a solid first-place victory in the televoting.
+
+## Final Answer
+
+Sanremo Music Festival 2015 and Eurovision Song Contest 2015 (televoting)",bridge,answer_format_sensitive_case,no,retain_for_answer_granularity_check,keep_with_caution,no,no,no,yes,Sanremo Music Festival 2015 and Eurovision Song Contest 2015 (televoting),0,0.5,no,0.0000,0.0000,no,no,no,no,no,no,irrelevant consolidation improves output mainly by compressing answer form toward gold rather than by clear strategy reuse
+r1b_no_memory_wiki_dev_7019_irrelevant,wiki_dev_7019,irrelevant,no_memory,hp_comparison_set_01,false,0,0.5,1310,ok,Sanremo Music Festival 2015 and Eurovision Song Contest 2015 (televoting),Sanremo Music Festival,5043,1,1,implicit_or_none,1,"## Reasoning
+
+- The song ""Constantemente Mía"" is identified as the first single by the Italian trio Il Volo featuring Mexican singer Belinda.
+- The context states that Il Volo won the Sanremo Music Festival in 2015.
+- Following this victory, the group represented Italy in the Eurovision Song Contest 2015.
+- At Eurovision 2015, Il Volo reached third place but secured a solid first-place victory in the televoting.
+
+## Final Answer
+
+Sanremo Music Festival 2015 and Eurovision Song Contest 2015 (televoting)",bridge,answer_format_sensitive_case,no,retain_for_answer_granularity_check,keep_with_caution,no,no,no,yes,Sanremo Music Festival 2015 and Eurovision Song Contest 2015 (televoting),0,0.5,no,0.0000,0.0000,no,no,no,no,no,no,irrelevant consolidation improves output mainly by compressing answer form toward gold rather than by clear strategy reuse
+r1b_episodic_trace_wiki_dev_7019_relevant,wiki_dev_7019,relevant,episodic_trace,hp_bridge_set_01,true,0,0.0,2140,ok,"Eurovision Song Contest 2015 (third place overall, first place in televoting)",Sanremo Music Festival,8424,1,1,implicit_or_none,1,"## Reasoning
+
+- The song ""Constantemente Mía"" is identified in the context as the first single by the Italian trio Il Volo, featuring Mexican singer Belinda.
+- The context states that Il Volo won the Sanremo Music Festival in 2015.
+- Following this victory, the group represented Italy in the Eurovision Song Contest 2015.
+- At the Eurovision Song Contest 2015, Il Volo reached third place and secured a first-place victory in the televoting.
+
+## Final Answer
+
+Eurovision Song Contest 2015 (third place overall, first place in televoting)",bridge,answer_format_sensitive_case,no,retain_for_answer_granularity_check,keep_with_caution,no,no,no,yes,Sanremo Music Festival 2015 and Eurovision Song Contest 2015 (televoting),0,0.5,yes,0.0000,-0.5000,yes,no,yes,no,no,no,irrelevant consolidation improves output mainly by compressing answer form toward gold rather than by clear strategy reuse
+r1b_episodic_trace_wiki_dev_7019_irrelevant,wiki_dev_7019,irrelevant,episodic_trace,hp_comparison_set_01,true,0,0.0,2280,ok,First place in the televoting at the Eurovision Song Contest 2015,Sanremo Music Festival,9050,1,1,implicit_or_none,1,"## Reasoning
+
+- The song ""Constantemente Mía"" is identified in the context as the first single by the Italian trio Il Volo, featuring Mexican singer Belinda.
+- The context states that Il Volo won the Sanremo Music Festival in 2015.
+- Following this victory, the text explicitly mentions that Il Volo represented Italy in the Eurovision Song Contest 2015.
+- In the Eurovision Song Contest 2015, the group reached third place and secured a first-place victory in the televoting.
+- Therefore, the performers of ""Constantemente Mía"" (Il Volo) won the award for first place in the televoting at the Eurovision Song Contest 2015.
+
+## Final Answer
+First place in the televoting at the Eurovision Song Contest 2015",bridge,answer_format_sensitive_case,no,retain_for_answer_granularity_check,keep_with_caution,no,no,no,yes,Sanremo Music Festival 2015 and Eurovision Song Contest 2015 (televoting),0,0.5,yes,0.0000,-0.5000,yes,no,yes,no,no,no,irrelevant consolidation improves output mainly by compressing answer form toward gold rather than by clear strategy reuse
+r1b_cross_episode_consolidation_wiki_dev_7019_relevant,wiki_dev_7019,relevant,cross_episode_consolidation,hp_bridge_set_01,true,0,0.5455,2037,ok,Sanremo Music Festival and Eurovision Song Contest (televoting),Sanremo Music Festival,8363,1,1,implicit_or_none,1,"## Reasoning
+
+- The song ""Constantemente Mía"" is identified in the context as the first single by the Italian trio Il Volo, featuring Mexican singer Belinda.
+- The context paragraph regarding Il Volo states that the group won the Sanremo Music Festival in 2015.
+- The same paragraph mentions that Il Volo represented Italy in the Eurovision Song Contest 2015, where they reached third place but secured a first-place victory in the televoting.
+- Therefore, the performers of ""Constantemente Mía"" (Il Volo) won the award for Best Song at the Sanremo Music Festival and achieved a televoting victory at the Eurovision Song Contest.
+
+## Final Answer
+Sanremo Music Festival and Eurovision Song Contest (televoting)",bridge,answer_format_sensitive_case,no,retain_for_answer_granularity_check,keep_with_caution,no,no,no,yes,Sanremo Music Festival 2015 and Eurovision Song Contest 2015 (televoting),0,0.5,yes,0.0000,0.0455,yes,yes,no,no,no,no,irrelevant consolidation improves output mainly by compressing answer form toward gold rather than by clear strategy reuse
+r1b_cross_episode_consolidation_wiki_dev_7019_irrelevant,wiki_dev_7019,irrelevant,cross_episode_consolidation,hp_comparison_set_01,true,1,1.0,2095,ok,Sanremo Music Festival,Sanremo Music Festival,8553,1,1,implicit_or_none,1,"## Reasoning
+
+- The song ""Constantemente Mía"" is identified in the context as the first single by the Italian trio Il Volo, featuring Mexican singer Belinda.
+- The context states that Il Volo won the Sanremo Music Festival in 2015.
+- Following this victory, the text notes that the group represented Italy in the Eurovision Song Contest 2015.
+- At the Eurovision Song Contest 2015, Il Volo reached third place and secured a first-place victory in the televoting.
+- The question asks for an award the performer received; while the text explicitly mentions winning the Sanremo Music Festival and the televoting at Eurovision, it does not list a specific named trophy (like ""Best Song"") for the Eurovision performance itself, only the placement results.
+- Therefore, the most direct award mentioned in the text associated with the performers of ""Constantemente Mía"" is the Sanremo Music Festival win.
+
+## Final Answer
+Sanremo Music Festival",bridge,answer_format_sensitive_case,no,retain_for_answer_granularity_check,keep_with_caution,no,no,no,yes,Sanremo Music Festival 2015 and Eurovision Song Contest 2015 (televoting),0,0.5,yes,1.0000,0.5000,yes,yes,no,no,no,no,irrelevant consolidation improves output mainly by compressing answer form toward gold rather than by clear strategy reuse
+r1b_no_memory_wiki_dev_10727_relevant,wiki_dev_10727,relevant,no_memory,hp_comparison_set_01,false,1,1.0,865,ok,Au revoir les enfants,Au Revoir Les Enfants,3017,1,1,implicit_or_none,1,"## Reasoning
+- The context states that *Au revoir les enfants* is an autobiographical film released in 1987.
+- The context identifies *Physical Jerks* as a comedy film released in 1997.
+- Comparing the two release years, 1987 is earlier than 1997.
+- Therefore, *Au revoir les enfants* predates *Physical Jerks* by ten years.
+
+## Final Answer
+Au revoir les enfants",comparison,clean_ceiling_process_case,no,retain_as_secondary_process_case,keep,no,yes,no,no,Au revoir les enfants,1,1.0,no,0.0000,0.0000,no,no,no,no,no,no,always correct ceiling case; even explicit irrelevant memory use does not change answer or reasoning outcome
+r1b_no_memory_wiki_dev_10727_irrelevant,wiki_dev_10727,irrelevant,no_memory,hp_bridge_set_01,false,1,1.0,865,ok,Au revoir les enfants,Au Revoir Les Enfants,3017,1,1,implicit_or_none,1,"## Reasoning
+- The context states that *Au revoir les enfants* is an autobiographical film released in 1987.
+- The context identifies *Physical Jerks* as a comedy film released in 1997.
+- Comparing the two release years, 1987 is earlier than 1997.
+- Therefore, *Au revoir les enfants* predates *Physical Jerks* by ten years.
+
+## Final Answer
+Au revoir les enfants",comparison,clean_ceiling_process_case,no,retain_as_secondary_process_case,keep,no,yes,no,no,Au revoir les enfants,1,1.0,no,0.0000,0.0000,no,no,no,no,no,no,always correct ceiling case; even explicit irrelevant memory use does not change answer or reasoning outcome
+r1b_episodic_trace_wiki_dev_10727_relevant,wiki_dev_10727,relevant,episodic_trace,hp_comparison_set_01,true,1,1.0,1823,ok,Au revoir les enfants,Au Revoir Les Enfants,7024,1,1,implicit_or_none,1,"## Reasoning
+- The context states that *Physical Jerks* is a 1997 Italian comedy film.
+- The context identifies *Au revoir les enfants* (referred to as *Au Revoir Les Enfants* in the question) as a 1987 film.
+- Comparing the release years, 1987 is earlier than 1997.
+- Therefore, *Au revoir les enfants* came out before *Physical Jerks*.
+- This follows the pattern of temporal comparison seen in past examples, requiring the extraction of explicit years to determine chronological order.
+
+## Final Answer
+Au revoir les enfants",comparison,clean_ceiling_process_case,no,retain_as_secondary_process_case,keep,no,yes,no,no,Au revoir les enfants,1,1.0,no,0.0000,0.0000,no,no,no,no,no,no,always correct ceiling case; even explicit irrelevant memory use does not change answer or reasoning outcome
+r1b_episodic_trace_wiki_dev_10727_irrelevant,wiki_dev_10727,irrelevant,episodic_trace,hp_bridge_set_01,true,1,1.0,1727,ok,Au revoir les enfants,Au Revoir Les Enfants,6398,1,1,explicit_use,1,"## Reasoning
+
+- The context states that *Au revoir les enfants* is an autobiographical film released in 1987.
+- The context states that *Physical Jerks* is a comedy film released in 1997.
+- Comparing the two release years, 1987 is earlier than 1997.
+- Therefore, *Au revoir les enfants* came out before *Physical Jerks*.
+- The reasoning pattern from past experience (chaining facts to compare attributes) is applicable here, though the data is directly available in the text without needing an intermediate bridge entity.
+
+## Final Answer
+Au revoir les enfants",comparison,clean_ceiling_process_case,no,retain_as_secondary_process_case,keep,no,yes,no,no,Au revoir les enfants,1,1.0,no,0.0000,0.0000,no,no,no,yes,yes,no,always correct ceiling case; even explicit irrelevant memory use does not change answer or reasoning outcome
+r1b_cross_episode_consolidation_wiki_dev_10727_relevant,wiki_dev_10727,relevant,cross_episode_consolidation,hp_comparison_set_01,true,1,1.0,1596,ok,Au revoir les enfants,Au Revoir Les Enfants,6527,1,1,implicit_or_none,1,"## Reasoning
+
+- The context identifies ""Au revoir les enfants"" as a film released in 1987.
+- The context identifies ""Physical Jerks"" as a film released in 1997.
+- Comparing the release years, 1987 is earlier than 1997.
+- Therefore, ""Au revoir les enfants"" came out before ""Physical Jerks"".
+- The ""Cross-Episode Consolidation"" heuristic is applicable here as it involves retrieving release years for two distinct entities and performing a temporal comparison.
+
+## Final Answer
+
+Au revoir les enfants",comparison,clean_ceiling_process_case,no,retain_as_secondary_process_case,keep,no,yes,no,no,Au revoir les enfants,1,1.0,no,0.0000,0.0000,no,no,no,no,no,no,always correct ceiling case; even explicit irrelevant memory use does not change answer or reasoning outcome
+r1b_cross_episode_consolidation_wiki_dev_10727_irrelevant,wiki_dev_10727,irrelevant,cross_episode_consolidation,hp_bridge_set_01,true,1,1.0,1593,ok,Au revoir les enfants,Au Revoir Les Enfants,6337,1,1,implicit_or_none,1,"## Reasoning
+
+- The context states that *Au revoir les enfants* is an autobiographical film released in 1987.
+- The context states that *Physical Jerks* is a comedy film released in 1997.
+- Comparing the two release years, 1987 is earlier than 1997.
+- Therefore, *Au revoir les enfants* came out before *Physical Jerks*.
+- This is a direct comparison task where the answer is found in the first sentence of each relevant paragraph, so complex multi-hop bridging is not required.
+
+## Final Answer
+
+Au revoir les enfants",comparison,clean_ceiling_process_case,no,retain_as_secondary_process_case,keep,no,yes,no,no,Au revoir les enfants,1,1.0,no,0.0000,0.0000,no,no,no,no,no,no,always correct ceiling case; even explicit irrelevant memory use does not change answer or reasoning outcome
+r1b_no_memory_wiki_dev_2639_relevant,wiki_dev_2639,relevant,no_memory,hp_bridge_set_01,false,1,1.0,1906,ok,Henry Pelham,Henry Pelham,6922,1,1,implicit_or_none,1,"## Reasoning
+
+- Harriet Pelham-Holles was the wife of Thomas Pelham-Holles, 1st Duke of Newcastle, as stated in her biographical paragraph.
+- Thomas Pelham-Holles had a brother named Henry Pelham, who served as Prime Minister alongside him.
+- Since Henry Pelham is the brother of Harriet's husband, he is her brother-in-law.
+- The text does not provide information about any siblings of Harriet herself, so no other siblings-in-law can be identified from the provided context.
+
+## Final Answer
+Henry Pelham",bridge,artifact_sensitive_failure_case,no,retain_for_bridge_subtype_diagnosis,keep_with_caution,no,no,yes,no,Henry Pelham,1,1.0,no,0.0000,0.0000,no,no,no,no,no,no,relevant bridge artifact derails a correct baseline into refusal; bridge cluster appears too coarse for relation-chain targets
+r1b_no_memory_wiki_dev_2639_irrelevant,wiki_dev_2639,irrelevant,no_memory,hp_comparison_set_01,false,1,1.0,1906,ok,Henry Pelham,Henry Pelham,6922,1,1,implicit_or_none,1,"## Reasoning
+
+- Harriet Pelham-Holles was the wife of Thomas Pelham-Holles, 1st Duke of Newcastle, as stated in her biographical paragraph.
+- Thomas Pelham-Holles had a brother named Henry Pelham, who served as Prime Minister alongside him.
+- Since Henry Pelham is the brother of Harriet's husband, he is her brother-in-law.
+- The text does not provide information about any siblings of Harriet herself, so no other siblings-in-law can be identified from the provided context.
+
+## Final Answer
+Henry Pelham",bridge,artifact_sensitive_failure_case,no,retain_for_bridge_subtype_diagnosis,keep_with_caution,no,no,yes,no,Henry Pelham,1,1.0,no,0.0000,0.0000,no,no,no,no,no,no,relevant bridge artifact derails a correct baseline into refusal; bridge cluster appears too coarse for relation-chain targets
+r1b_episodic_trace_wiki_dev_2639_relevant,wiki_dev_2639,relevant,episodic_trace,hp_bridge_set_01,true,0,0.0,2851,ok,Cannot be determined from the provided context.,Henry Pelham,10303,1,1,implicit_or_none,1,"## Reasoning
+
+*   The context identifies Harriet Pelham-Holles as the wife of Thomas Pelham-Holles, 1st Duke of Newcastle, and explicitly states she was the daughter of Francis Godolphin, 2nd Earl of Godolphin.
+*   As the daughter of the 2nd Earl of Godolphin, Harriet's siblings are the children of Francis Godolphin and Lady Henrietta Churchill.
+*   The text mentions her grandfather, Sidney Godolphin, 1st Earl of Godolphin, and his wife Sarah Churchill, Duchess of Marlborough, establishing the family lineage but not listing Harriet's specific siblings by name.
+*   However, the question asks for a ""sibling-in-law,"" which refers to the spouse of one's sibling. Since the text does not name Harriet's siblings or their spouses, the specific name of a sibling-in-law cannot be derived from the provided context.
+*   The provided context focuses on Harriet's parents, husband, and grandparents, but lacks information regarding her brothers or sisters and their marriages.
+
+## Final Answer
+Cannot be determined from the provided context.",bridge,artifact_sensitive_failure_case,no,retain_for_bridge_subtype_diagnosis,keep_with_caution,no,no,yes,no,Henry Pelham,1,1.0,yes,-1.0000,-1.0000,yes,no,yes,no,no,no,relevant bridge artifact derails a correct baseline into refusal; bridge cluster appears too coarse for relation-chain targets
+r1b_episodic_trace_wiki_dev_2639_irrelevant,wiki_dev_2639,irrelevant,episodic_trace,hp_comparison_set_01,true,0,0.0,2927,ok,Cannot be determined from the provided context,Henry Pelham,10929,1,1,implicit_or_none,1,"## Reasoning
+
+*   The context identifies Harriet Pelham-Holles as the wife of Thomas Pelham-Holles, 1st Duke of Newcastle, and explicitly states she was the daughter of Francis Godolphin, 2nd Earl of Godolphin.
+*   As the daughter of the 2nd Earl of Godolphin, Harriet's siblings are the children of Francis Godolphin and Lady Henrietta Churchill.
+*   The text mentions that Harriet was the granddaughter of John Churchill, 1st Duke of Marlborough, and Sarah Churchill, Duchess of Marlborough, confirming the parents of her siblings.
+*   While the specific names of Harriet's siblings are not listed in the provided text, the term ""sibling-in-law"" refers to the spouse of one's sibling.
+*   Since the text does not provide the names of Harriet's siblings or their spouses, it is impossible to identify a specific sibling-in-law based solely on the provided context.
+
+## Final Answer
+Cannot be determined from the provided context",bridge,artifact_sensitive_failure_case,no,retain_for_bridge_subtype_diagnosis,keep_with_caution,no,no,yes,no,Henry Pelham,1,1.0,yes,-1.0000,-1.0000,yes,no,yes,no,no,no,relevant bridge artifact derails a correct baseline into refusal; bridge cluster appears too coarse for relation-chain targets
+r1b_cross_episode_consolidation_wiki_dev_2639_relevant,wiki_dev_2639,relevant,cross_episode_consolidation,hp_bridge_set_01,true,0,0.0,2746,ok,Cannot be determined from the provided context.,Henry Pelham,10242,1,1,implicit_or_none,1,"## Reasoning
+
+*   The context identifies Harriet Pelham-Holles as the wife of Thomas Pelham-Holles, 1st Duke of Newcastle, and explicitly states she was the daughter of Francis Godolphin, 2nd Earl of Godolphin.
+*   As the daughter of the 2nd Earl of Godolphin, Harriet's siblings are the children of Francis Godolphin and Lady Henrietta Churchill.
+*   The text mentions her grandfather, Sidney Godolphin, 1st Earl of Godolphin, and his wife Sarah Churchill, Duchess of Marlborough, establishing the family lineage but not listing Harriet's specific siblings by name.
+*   However, the question asks for a ""sibling-in-law,"" which refers to the spouse of one's sibling. Since the specific names of Harriet's siblings are not provided in the text, their spouses (the sibling-in-laws) cannot be identified from the given context.
+*   The provided text details Harriet's husband (Thomas Pelham-Holles) and her parents/grandparents, but contains no information regarding her brothers or sisters, making it impossible to name a sibling-in-law based strictly on the provided paragraphs.
+
+## Final Answer
+Cannot be determined from the provided context.",bridge,artifact_sensitive_failure_case,no,retain_for_bridge_subtype_diagnosis,keep_with_caution,no,no,yes,no,Henry Pelham,1,1.0,yes,-1.0000,-1.0000,yes,no,yes,no,no,no,relevant bridge artifact derails a correct baseline into refusal; bridge cluster appears too coarse for relation-chain targets
+r1b_cross_episode_consolidation_wiki_dev_2639_irrelevant,wiki_dev_2639,irrelevant,cross_episode_consolidation,hp_comparison_set_01,true,1,1.0,2645,ok,Henry Pelham,Henry Pelham,10432,1,1,implicit_or_none,1,"## Reasoning
+
+*   **Identify the Subject**: The question asks for the sibling-in-law of Harriet Pelham-Holles, Duchess of Newcastle-upon-Tyne.
+*   **Locate Spouse**: According to the text, Harriet Pelham-Holles was the wife of Thomas Pelham-Holles, 1st Duke of Newcastle.
+*   **Identify Siblings of Spouse**: The text states that Thomas Pelham-Holles held power with his brother, Prime Minister Henry Pelham.
+*   **Determine Relationship**: Since Henry Pelham is the brother of Harriet's husband (Thomas), Henry Pelham is Harriet's brother-in-law.
+
+## Final Answer
+
+Henry Pelham",bridge,artifact_sensitive_failure_case,no,retain_for_bridge_subtype_diagnosis,keep_with_caution,no,no,yes,no,Henry Pelham,1,1.0,no,0.0000,0.0000,no,no,no,no,no,no,relevant bridge artifact derails a correct baseline into refusal; bridge cluster appears too coarse for relation-chain targets
+r1b_no_memory_wiki_dev_6083_relevant,wiki_dev_6083,relevant,no_memory,hp_bridge_set_01,false,0,0.0,885,ok,Spain,Spanish,2963,1,1,implicit_or_none,1,"## Reasoning
+- The film *Candida, Millionairess* is identified in the text as a 1941 Argentine musical comedy.
+- The director of this specific film is explicitly named as Luis Bayón Herrera.
+- The context states that Luis Bayón Herrera was born in Bilbao, Spain.
+- Although he worked extensively in Argentine cinema, his country of origin is Spain.
+
+## Final Answer
+Spain",bridge,scoring_boundary_case,no,retain_for_normalization_check,keep_audit_only,yes,no,no,no,Spain,0,0.0,no,0.0000,0.0000,no,no,no,no,no,no,all conditions output Spain while gold is Spanish; scoring boundary dominates any possible memory effect
+r1b_no_memory_wiki_dev_6083_irrelevant,wiki_dev_6083,irrelevant,no_memory,hp_comparison_set_01,false,0,0.0,885,ok,Spain,Spanish,2963,1,1,implicit_or_none,1,"## Reasoning
+- The film *Candida, Millionairess* is identified in the text as a 1941 Argentine musical comedy.
+- The director of this specific film is explicitly named as Luis Bayón Herrera.
+- The context states that Luis Bayón Herrera was born in Bilbao, Spain.
+- Although he worked extensively in Argentine cinema, his country of origin is Spain.
+
+## Final Answer
+Spain",bridge,scoring_boundary_case,no,retain_for_normalization_check,keep_audit_only,yes,no,no,no,Spain,0,0.0,no,0.0000,0.0000,no,no,no,no,no,no,all conditions output Spain while gold is Spanish; scoring boundary dominates any possible memory effect
+r1b_episodic_trace_wiki_dev_6083_relevant,wiki_dev_6083,relevant,episodic_trace,hp_bridge_set_01,true,0,0.0,1804,ok,Spain,Spanish,6344,1,1,implicit_or_none,1,"## Reasoning
+
+- The film *Candida, Millionairess* is explicitly identified in the context as a 1941 Argentine musical comedy.
+- The context states that this film was directed by Luis Bayón Herrera.
+- The biographical paragraph for Luis Bayón Herrera confirms he was a Spanish film director who worked in Argentine cinema.
+- Although Herrera was born in Spain, the question asks for the country the director is ""from"" in the context of the film's production and career described, which highlights his work in Argentina; however, strictly biographically, he is from Spain.
+- Re-evaluating the specific phrasing ""director of film... is from"": The text says he ""was a Spanish film director"" and ""born in Bilbao, Spain"".
+- Therefore, the director's country of origin is Spain.
+
+## Final Answer
+Spain",bridge,scoring_boundary_case,no,retain_for_normalization_check,keep_audit_only,yes,no,no,no,Spain,0,0.0,no,0.0000,0.0000,no,no,no,no,no,no,all conditions output Spain while gold is Spanish; scoring boundary dominates any possible memory effect
+r1b_episodic_trace_wiki_dev_6083_irrelevant,wiki_dev_6083,irrelevant,episodic_trace,hp_comparison_set_01,true,0,0.0,1848,ok,Spain,Spanish,6970,1,1,implicit_or_none,1,"## Reasoning
+- The question asks for the country of origin of the director of the film *Candida, Millionairess*.
+- The context paragraph titled ""Candida, Millionairess"" states that the film was ""directed by Luis Bayón Herrera"".
+- The paragraph titled ""Luis Bayón Herrera"" identifies him as a ""Spanish film director"" who was ""born in Bilbao, Spain"".
+- Although he worked in Argentine cinema, his nationality and birthplace are explicitly defined as Spanish.
+- Therefore, the country the director is from is Spain.
+
+## Final Answer
+Spain",bridge,scoring_boundary_case,no,retain_for_normalization_check,keep_audit_only,yes,no,no,no,Spain,0,0.0,no,0.0000,0.0000,no,no,no,no,no,no,all conditions output Spain while gold is Spanish; scoring boundary dominates any possible memory effect
+r1b_cross_episode_consolidation_wiki_dev_6083_relevant,wiki_dev_6083,relevant,cross_episode_consolidation,hp_bridge_set_01,true,0,0.0,1614,ok,Spain,Spanish,6283,1,1,implicit_or_none,1,"## Reasoning
+
+- The question asks for the country of origin of the director of the film *Candida, Millionairess*.
+- The context paragraph titled ""Candida, Millionairess"" states that the film was directed by Luis Bayón Herrera.
+- The context paragraph titled ""Luis Bayón Herrera"" identifies him as a Spanish film director who was born in Bilbao, Spain.
+- Although he worked extensively in Argentine cinema, his nationality and birthplace are explicitly defined as Spanish.
+- Therefore, the director is from Spain.
+
+## Final Answer
+
+Spain",bridge,scoring_boundary_case,no,retain_for_normalization_check,keep_audit_only,yes,no,no,no,Spain,0,0.0,no,0.0000,0.0000,no,no,no,no,no,no,all conditions output Spain while gold is Spanish; scoring boundary dominates any possible memory effect
+r1b_cross_episode_consolidation_wiki_dev_6083_irrelevant,wiki_dev_6083,irrelevant,cross_episode_consolidation,hp_comparison_set_01,true,0,0.0,1645,ok,Spain,Spanish,6473,1,1,implicit_or_none,1,"## Reasoning
+- The question asks for the country of origin of the director of the film *Candida, Millionairess*.
+- The context paragraph titled ""Candida, Millionairess"" states that the film was directed by Luis Bayón Herrera.
+- The paragraph titled ""Luis Bayón Herrera"" identifies him as a ""Spanish film director"" who was born in Bilbao, Spain.
+- Although he worked extensively in Argentine cinema, his nationality is explicitly defined as Spanish.
+- The ""Cross-Episode Consolidation"" notes are not useful here because the question requires retrieving a single attribute for one entity rather than comparing two entities.
+
+## Final Answer
+Spain",bridge,scoring_boundary_case,no,retain_for_normalization_check,keep_audit_only,yes,no,no,no,Spain,0,0.0,no,0.0000,0.0000,no,no,no,no,no,no,all conditions output Spain while gold is Spanish; scoring boundary dominates any possible memory effect

@@ -17,4 +17,6 @@ Operational "how-to" documents. Reusable across rounds.
 | [pilot-run-checklist.md](pilot-run-checklist.md) | Go / no-go checklist before entering pilot runs |
 | [cloud-artifact-generation-upload.md](cloud-artifact-generation-upload.md) | What to upload to a cloud machine before running artifact generation |
 | [pilot-prompt-scaffold.md](pilot-prompt-scaffold.md) | Prompt templates for Round 1 pilot: base prompt, memory injection, logging, scoring |
+| [pilot-prompt-scaffold-round1b.md](pilot-prompt-scaffold-round1b.md) | Structured reasoning scaffold for Round 1b prompt diagnosis |
+| [round1b_pairing_artifact_audit.md](round1b_pairing_artifact_audit.md) | Case-by-case audit checklist for deciding whether Round 1b effects come from pairing, artifact wording, or more plausible memory interaction |
 | [versioning-convention.md](versioning-convention.md) | Naming and archiving rules for pilot data |

@@ -1,0 +1,7 @@
+task_id,target_cluster,subset_bucket,subset_priority,run_in_round1c,report_in_aggregate,report_as,notes
+wiki_dev_8896,comparison,process_sanity,primary,yes,no,process_case,"primary sanity check for explicit use vs explicit reject without outcome movement"
+wiki_dev_10727,comparison,process_sanity,secondary,yes,no,process_case,"ceiling sanity case; useful for separating verbalized use from real outcome dependence"
+wiki_dev_2639,bridge,artifact_sensitive_diagnosis,primary,yes,no,diagnostic_case,"key derailment case; relevant bridge artifact harms an originally correct baseline"
+wiki_dev_7019,bridge,answer_format_diagnosis,primary,yes,no,diagnostic_case,"key answer-granularity case; improvement likely comes from output compression"
+wiki_dev_0092,bridge,audit_boundary,primary,yes,no,audit_case,"benchmark ambiguity case; retain only for use/reject/ignore observation"
+wiki_dev_6083,bridge,audit_boundary,primary,yes,no,boundary_case,"country vs demonym scoring boundary; retain only for normalization audit"

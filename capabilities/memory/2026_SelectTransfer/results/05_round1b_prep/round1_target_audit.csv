@@ -1,0 +1,11 @@
+target_task_id,round1_category,primary_issue,aggregate_use_round1b,smoke_subset_round1b,priority,note
+wiki_dev_8896,movement,memory-conditioned answer flip,keep,yes,high,Best case for checking whether structured reasoning turns implicit perturbation into explicit reasoning.
+wiki_dev_0092,floor,gold/context ambiguity plus output-type degradation,exclude,yes,high,Keep as qualitative diagnostic only until benchmark/gold is audited.
+wiki_dev_2639,floor,divergent error path under irrelevant consolidation,keep,yes,high,Good case for checking whether reasoning reveals relation-chain choice.
+wiki_dev_6083,floor,score boundary country-vs-demonym,keep_with_audit_note,yes,high,Report strict score and audit note separately.
+wiki_dev_7019,floor,stable wrong reasoning level,keep,yes,medium,Useful for checking whether structured reasoning changes answer granularity.
+wiki_dev_10727,ceiling,clean control,keep,yes,medium,Use as control to ensure new scaffold does not damage already-correct cases.
+wiki_dev_0123,ceiling,low incremental diagnostic value,keep,no,low,Reserve for full rerun after smoke subset passes.
+wiki_dev_10378,ceiling,low incremental diagnostic value,keep,no,low,Reserve for full rerun after smoke subset passes.
+wiki_dev_12298,floor,locked-in wrong comparison choice,keep,no,medium,Useful backup floor case if smoke subset needs one more comparison failure.
+wiki_dev_1379,floor,stable relation error with low incremental value,keep,no,low,Lower priority than wiki_dev_2639 for Round 1b diagnosis.

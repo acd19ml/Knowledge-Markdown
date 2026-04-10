@@ -1,0 +1,7 @@
+task_id,target_cluster,case_role,aggregate_use,process_use,next_round_action,reason
+wiki_dev_8896,comparison,process_selectivity_sanity_check,exclude_from_transfer_aggregate,retain_as_primary_process_case,keep,"clean comparison case; relevant episodic shows explicit use and irrelevant episodic shows explicit reject without outcome movement"
+wiki_dev_2639,bridge,artifact_sensitive_failure_case,exclude_from_transfer_aggregate,retain_for_bridge_subtype_diagnosis,keep_with_caution,"relevant bridge artifact derails a correct baseline into refusal; bridge cluster appears too coarse for relation-chain targets"
+wiki_dev_7019,bridge,answer_format_sensitive_case,exclude_from_transfer_aggregate,retain_for_answer_granularity_check,keep_with_caution,"irrelevant consolidation improves output mainly by compressing answer form toward gold rather than by clear strategy reuse"
+wiki_dev_0092,bridge,ambiguity_audit_case,exclude_from_transfer_aggregate,retain_for_audit_only,keep_audit_only,"context strongest evidence conflicts with gold answer; suitable only for observing use/reject/ignore behavior"
+wiki_dev_6083,bridge,scoring_boundary_case,exclude_from_transfer_aggregate,retain_for_normalization_check,keep_audit_only,"all conditions output Spain while gold is Spanish; scoring boundary dominates any possible memory effect"
+wiki_dev_10727,comparison,clean_ceiling_process_case,exclude_from_transfer_aggregate,retain_as_secondary_process_case,keep,"always correct ceiling case; even explicit irrelevant memory use does not change answer or reasoning outcome"
