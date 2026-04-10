@@ -1,1 +1,2 @@
 source_set_id,cluster,member_task_ids,entity_disjoint,lexical_overlap_note,note
+hp_bridge_set_01,bridge,hp_dev_2054|hp_dev_3245|hp_dev_1119|hp_dev_1668|hp_dev_4237,yes,"low overlap, mixed domains, no repeated core entities","clean Hotpot bridge set for Round 1 draft"

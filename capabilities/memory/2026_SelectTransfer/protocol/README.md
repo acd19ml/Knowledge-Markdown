@@ -1,0 +1,16 @@
+# protocol/
+
+Operational "how-to" documents. Reusable across rounds.
+
+| File | Role |
+|---|---|
+| [pipeline.md](pipeline.md) | End-to-end pipeline: Phase 0 (setup) through Phase 8 (reproducibility) |
+| [taxonomy_guideline.md](taxonomy_guideline.md) | Label definitions: bridge, comparison, temporal, distractor-heavy, drop |
+| [csv-field-examples.md](csv-field-examples.md) | Field-by-field examples for all four CSV files |
+| [experiment-round-template.md](experiment-round-template.md) | Template for writing per-round experiment specs |
+| [first-20-task-sampling-strategy.md](first-20-task-sampling-strategy.md) | How to sample the first 20 tasks (simple random, minimal filtering) |
+| [first-20-annotation-workflow.md](first-20-annotation-workflow.md) | How to annotate taxonomy labels on the first 20 tasks |
+| [first-source-set-selection-workflow.md](first-source-set-selection-workflow.md) | How to select the first source sets from annotated tasks |
+| [first-pairing-workflow.md](first-pairing-workflow.md) | How to construct relevant / irrelevant pairs |
+| [pilot-run-checklist.md](pilot-run-checklist.md) | Go / no-go checklist before entering pilot runs |
+| [versioning-convention.md](versioning-convention.md) | Naming and archiving rules for pilot data |

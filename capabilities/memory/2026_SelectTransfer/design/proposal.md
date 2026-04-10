@@ -2,6 +2,8 @@
 
 ---
 
+> 实验开始前，先遵守 [experiment-contract.md](./experiment-contract.md) 中定义的约定。
+
 ### 1. 问题定义
 
 当一个 LLM agent 在多轮任务中携带过去经验时，核心问题不应该只是“memory 平均有没有帮助”，而应该是它是否能 **selectively** 地起作用：

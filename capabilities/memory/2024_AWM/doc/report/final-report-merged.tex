@@ -578,7 +578,9 @@ overlap & Workflow text analysis on 3 websites \\
 \subsection{Models and Data}\label{models-and-data}
 
 The experiments use \textbf{GPT-4o} and \textbf{Qwen-3.5-397B-A17B}
-(referred to as Qwen throughout) on Mind2Web. The evaluated sites
+(referred to as Qwen throughout) on Mind2Web. The original paper uses
+GPT-4 (gpt-4-0613) for the main Mind2Web results and GPT-3.5-turbo for
+additional ablations (code vs.\ text, NL vs.\ HTML). The evaluated sites
 include kayak, newegg, united, budget, sixflags, yellowpages, and
 kohls, plus cross-site targets Tripadvisor and Reddit for the online
 generalization setting.
@@ -1712,7 +1714,8 @@ The strongest supported conclusions are:
 \subsection{Main Unsupported
 Claims}\label{what-is-not-reproduced}
 
-The current Mind2Web evidence does not support:
+In our first-run experiments (GPT-4o and Qwen, seven target sites,
+single run per configuration), the evidence does not support:
 
 \begin{itemize}
 \tightlist
@@ -1727,8 +1730,8 @@ The current Mind2Web evidence does not support:
 \subsection{What Becomes More
 Precise}\label{what-becomes-more-precise}
 
-After reproduction, the paper's broadest claims can be rewritten more
-carefully:
+After reproduction, \textbf{under our current experimental settings},
+the paper's broadest claims can be rewritten more carefully:
 
 \begin{itemize}
 \tightlist
@@ -1774,6 +1777,14 @@ This study has four main limitations.
   \textbf{Exploratory alignment rate.} The alignment-rate measure is
   based on keyword overlap, not semantic matching. It is suitable for
   generating hypotheses but not for causal claims.
+\item
+  \textbf{Model difference.} Our experiments use GPT-4o and
+  Qwen-3.5-397B-A17B, whereas the original paper uses GPT-4 and
+  GPT-3.5-turbo. Both the backbone capability gap and the architectural
+  differences (e.g., MoE vs.\ dense) mean that our quantitative results
+  are not directly comparable to the original paper's numbers. The
+  interaction between backbone model capability and AWM's marginal
+  benefit remains an open empirical question.
 \end{enumerate}
 
 These limitations should be understood as reporting discipline, not as
@@ -1803,9 +1814,10 @@ are sparse, site-dependent, and highly contingent on workflow--task
 match.
 
 The most defensible final judgment is therefore:
-\textbf{AWM is a plausible and interpretable prompting mechanism, but
-not a uniformly reliable memory method. Its core idea survives
-reproduction better than its strongest universality claims.}
+\textbf{Under the experimental settings of this study, AWM is a
+plausible and interpretable prompting mechanism, but not a uniformly
+reliable memory method. Its core idea survives reproduction better than
+its strongest universality claims.}
 
 That is precisely what a critical reproduction should reveal.
 

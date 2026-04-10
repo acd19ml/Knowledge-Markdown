@@ -1,1 +1,21 @@
-task_id,dataset,question,reasoning_label,keep_drop,note
+task_id,dataset,question,answer,reasoning_label,keep_drop,note
+hp_dev_1547,HotpotQA,What was Iqbal F. Qadir on when he participated in an attack on a radar station located on western shore of the Okhamandal Peninsula?,flotilla,bridge,keep,bridge via location entity
+hp_dev_2054,HotpotQA,When did the park at which Tivolis Koncertsal is located open?,15 August 1843,bridge,keep,bridge via venue to park opening
+hp_dev_0478,HotpotQA,What is the shared country of ancestry between Art Laboe and Scout Tufankjian?,Armenian,comparison,keep,comparison of ancestry attribute
+hp_dev_3245,HotpotQA,The school in which the Wilmslow Show is held is designated as what?,Centre of Excellence,bridge,keep,bridge via event venue to school
+hp_dev_1119,HotpotQA,Who will Billy Howle be seen opposite in the upcoming British drama film directed by Dominic Cooke?,Saoirse Ronan,bridge,keep,bridge via film to co-star
+hp_dev_3575,HotpotQA,"What animated movie, starring Danny Devito, featured music written and produced by Kool Kojak?",The Lorax,bridge,keep,bridge via songwriter to film
+hp_dev_0978,HotpotQA,"Out of the actors who have played the role of Luc Deveraux in the Universal Soldier franchise, which actor has also starred in the movies Holby City, Doctor Strange, the Bourne Ultimatum and Zero Dark Thirty?",Scott Adkins,bridge,keep,bridge via franchise role to actor
+hp_dev_1668,HotpotQA,Tommy's Honour was a drama film that included the actor who found success with what 2016 BBC miniseries?,War & Peace,bridge,keep,bridge via cast actor to series
+hp_dev_6149,HotpotQA,"Which rock band chose its name by drawing it out of a hat, Switchfoot or Midnight Oil?",Midnight Oil,comparison,keep,comparison of naming origin fact
+hp_dev_4237,HotpotQA,"""Tunak"", is a bhangra/pop love song by an artist born in which year ?",1967,bridge,keep,bridge via song performer to birth year
+wiki_dev_8896,2WikiMultiHopQA,Was Jean-Baptiste Le Prince or Billy Magoulias born first?,Jean-Baptiste Le Prince,comparison,keep,comparison of birth dates
+wiki_dev_0092,2WikiMultiHopQA,Where was the director of film Lettre Ouverte born?,Paris,bridge,keep,bridge via film to director birthplace
+wiki_dev_10378,2WikiMultiHopQA,What is the place of birth of J.J. Madan's father?,Bombay,bridge,keep,bridge via child to father birthplace
+wiki_dev_7019,2WikiMultiHopQA,Which award the performer of song Constantemente Mía got?,Sanremo Music Festival,bridge,keep,bridge via song performer to award
+wiki_dev_0123,2WikiMultiHopQA,"Which film has the director born first, Leave It To Henry or The Last Night Of Scheherazade?",Leave It To Henry,comparison,keep,comparison after retrieving directors
+wiki_dev_10727,2WikiMultiHopQA,"Which film came out earlier, Au Revoir Les Enfants or Physical Jerks?",Au Revoir Les Enfants,comparison,keep,comparison of release dates
+wiki_dev_12298,2WikiMultiHopQA,"Which film whose director was born first, Self-Made Maids or A Day For Lionhearts?",Self-Made Maids,comparison,keep,comparison after retrieving directors
+wiki_dev_2639,2WikiMultiHopQA,"Who is the sibling-in-law of Harriet Pelham-Holles, Duchess Of Newcastle-Upon-Tyne?",Henry Pelham,bridge,keep,bridge via spouse to sibling
+wiki_dev_6083,2WikiMultiHopQA,"Which country the director of film Candida, Millionairess is from?",Spanish,bridge,keep,bridge via film to director nationality
+wiki_dev_1379,2WikiMultiHopQA,"Who is Eleanor Of England, Countess Of Bar's father-in-law?","Theobald II, Count of Bar",bridge,keep,bridge via spouse to father

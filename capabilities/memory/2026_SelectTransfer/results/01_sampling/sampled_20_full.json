@@ -1,0 +1,1215 @@
+[
+  {
+    "task_id": "hp_dev_1547",
+    "dataset": "HotpotQA",
+    "question": "What was Iqbal F. Qadir on when he participated in an attack on a radar station located on western shore of the Okhamandal Peninsula?",
+    "answer": "flotilla",
+    "raw": {
+      "id": "5a7a567255429941d65f25bd",
+      "question": "What was Iqbal F. Qadir on when he participated in an attack on a radar station located on western shore of the Okhamandal Peninsula?",
+      "answer": "flotilla",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Iqbal F. Qadir",
+          "Dwarka"
+        ],
+        "sent_id": [
+          1,
+          1
+        ]
+      },
+      "context": {
+        "title": [
+          "Mukachevo Radar Station",
+          "Hantsavichy Radar Station",
+          "No. 227 Radar Station RAAF",
+          "Radar Station (film)",
+          "Skrunda-1",
+          "Sevastopol Radar Station",
+          "Radar Station B-71",
+          "Dwarka",
+          "NATO Ouvrage &quot;G&quot;",
+          "RAF Trimingham"
+        ],
+        "sentences": [
+          [
+            "Mukachevo radar station was a Soviet radar station providing early warning of ballistic missile attack.",
+            " It was located in Shipka in the far south west of Ukraine and was part of the Soviet, and then Russian missile attack warning system.",
+            " Information from this station could be used for a launch on warning nuclear missile attack or to engage the A-135 anti-ballistic missile system."
+          ],
+          [
+            "Hantsavichy Radar Station (Russian: Ганцевичи РЛС , Belarusian: Ганцавічы РЛС ) (also described as Gantsevichi) is a Volga-type Radar near Hantsavichy (48 km from Baranavichy in Belarus).",
+            " It is an early warning radar which is run by the Russian Aerospace Defence Forces.",
+            " It is designed to identify launches of ballistic missiles from western Europe and can also track some artificial satellites, partly replacing the demolished radar station at Skrunda in Latvia."
+          ],
+          [
+            "No. 227 Radar Station RAAF was a Royal Australian Air Force radar station located at Yanchep, Western Australia.",
+            " Established during World War II to provide early warning of Japanese air raids against Perth, the radar station was formed in 1942–43 and operational by late 1943."
+          ],
+          [
+            "Radar Station is a 1953 Canadian short documentary film produced by the National Film Board of Canada (NFB) as part of the \"On The Spot\" series made specifically for television.",
+            " The documentary involved an account of a visit to a radar station while it is involved in a simulated air attack, and is based on first-person interviews of the staff at the radar station."
+          ],
+          [
+            "Skrunda-1, also known as Skrunda-2, is a ghost town and former Soviet radar station located 5 km (3 mi) to the north of Skrunda, in Raņķi parish, Latvia.",
+            " It was the site of two Dnepr radar (NATO \"Hen House\") radar installations constructed in the 1960s.",
+            " A Daryal radar was being built there before the collapse of the Soviet Union.",
+            " Skrunda was strategically important to the Soviet Union as its radars covered Western Europe.",
+            " The two barn-like radars were one of the most important Soviet early warning radar stations for listening to objects in space and for tracking possible incoming ICBMs."
+          ],
+          [
+            "Sevastopol radar station was a Soviet radar station providing early warning of ballistic missile attack.",
+            " It is located between the Cape of Chersones and the auxiliary airfield \"Chersones\" (Marine Aviation of the Black Sea Fleet) in Sevastopol and was part of the Soviet missile attack warning system.",
+            " Information from this station could be used for a launch on warning nuclear missile attack or to engage the A-135 anti-ballistic missile system."
+          ],
+          [
+            "The B-71 radar station also known as Klamath River Radar Station, Crescent City Radar Station, Trinidad Radar Station was an Army Air Force early warning station in World War II.",
+            " It is a rare survivor of a World War II early-warning radar station.",
+            " It was constructed as a disguise to look like a farmhouse.",
+            " To guard against potential invasions, the U.S. Army built \"farm\" buildings; the cinderblock structures, complete with shingled roofs, and fake windows and dormers, housed an early-warning radar station.",
+            " From the air, the sea, and even the road, these buildings appeared to be part of a working farm.",
+            " In fact, they housed a diesel generator, electronic equipment, and two 50-caliber anti-aircraft guns.",
+            " This is one of 65 that were built all along the western coast of America during World War II.",
+            " It is located on Coastal Dr. just south of the mouth of Klamath River."
+          ],
+          [
+            "Dwarka () is a small city and a municipality of Devbhoomi Dwarka district in the state of Gujarat in northwestern India.",
+            " It is located on the western shore of the Okhamandal Peninsula on the right bank of the Gomti River.",
+            " In 2011 it had a population of 38,873.",
+            " Dwarka is one of the foremost Chardhams, four sacred Hindu pilgrimage sites, and is one of the Sapta Puri, the seven most ancient religious cities in the country.",
+            " Dwarka is often identified with the Dwarka Kingdom, the ancient kingdom of Krishna, and is believed to have been the first capital of Gujarat."
+          ],
+          [
+            "From 1949 to March 10, 1967, France's military operated within the NATO command structure, integrating its air defense system (the \"Défense Aérienne du Territoire\" (D.A.T.)) with that of NATO through the indirect use of American aid funds.",
+            " Between 1953 and 1958, the D.A.T. built a radar station in an old troops shelter (in French : \"abri-caverne\") near the fort, called \"Ouvrage \"G\"\".",
+            " Called \"\"Station Maître Radar 60/921\"\", it was used beginning in 1959, covering an area on the surface of three times the area of the troops shelter.",
+            " Ouvrage \"G\" complemented \"Ouvrage F\", another D.A.T. station located at the old Fort François de Guise at Metz, while \"Ouvrage H\" was established as \"Base aérienne\" 901 Drachenbronn/\"Station Maître Radar 50/921\" in the former Maginot Ouvrage Hochwald.",
+            " Ouvrage \"G\" was equipped with seven radar antennas installed on top of the fort.",
+            " The principal radars are presently located on the Ballon de Servance."
+          ],
+          [
+            "Remote Radar Head Trimingham or RRH Trimingham is a TPS-77 radar station situated on the coast in the English county of Norfolk.",
+            " The site is located on the coast road between Cromer and Mundesley, 1 kilometre east of the village of Trimingham.",
+            " The radar station is a satellite station of RAF Neatishead (grid reference [ TG289382] ).",
+            " This radar station is controlled and maintained by a section of Radar Technicians and Operators and supported by a team of Ground Engineers.",
+            " Trimingham provides extensive coverage of the East coast of the United Kingdom and helps contribute to the recognised air picture and defence of the United Kingdom.",
+            " The type 93 became operational on the site in April 1997."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "task_id": "hp_dev_2054",
+    "dataset": "HotpotQA",
+    "question": "When did the park at which Tivolis Koncertsal is located open?",
+    "answer": "15 August 1843",
+    "raw": {
+      "id": "5abca1a55542993a06baf937",
+      "question": "When did the park at which Tivolis Koncertsal is located open?",
+      "answer": "15 August 1843",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Tivolis Koncertsal",
+          "Tivoli Gardens"
+        ],
+        "sent_id": [
+          0,
+          1
+        ]
+      },
+      "context": {
+        "title": [
+          "Tivoli Two",
+          "Milton Lee Olive Park",
+          "Takino Suzuran Hillside National Government Park",
+          "Taconic State Park – Copake Falls Area",
+          "Tivoli One",
+          "Tivolis Koncertsal",
+          "Wait and See (album)",
+          "Pepper Tree Playfield",
+          "Deer Ridge Open Space",
+          "Ventu Park Open Space"
+        ],
+        "sentences": [
+          [
+            "Tivoli Two is a live album by pianist Duke Jordan's Trio recorded at the Tivolis Koncertsal and first released on the Danish SteepleChase label in 1984."
+          ],
+          [
+            "Milton Lee Olive Park is a public park in the city of Chicago, Illinois.",
+            " Designed by Dan Kiley, the park is located west of the James W. Jardine Water Purification Plant and adjacent to Jane Addams Memorial Park and Ohio Street Beach.",
+            " The park provides large grassy areas for recreation as well aspaths for walking, jogging, and biking.",
+            " Several benches are located in the park either in open, sunny areas or areas shaded by tall honey locust trees.",
+            " The park contains multiple fountains creating large, circular seating areas.",
+            " Open views of Lake Michigan and the Chicago skyline exists within the park."
+          ],
+          [
+            "Takino Suzuran Hillside National Government Park (国営滝野すずらん丘陵公園 , Kokuei Takino Suzuran Kyūryō Kōen ) is a Japanese national government park located in Sapporo, Hokkaido.",
+            " It is the only national government park in the northern island of Hokkaido.",
+            " The park area spreads over 395.7 hectares of hilly country and ranges in altitude between 160 and 320 m above sea level.",
+            " Currently, 192.3 is accessible to the public.",
+            " The park grounds are separated into six zones: the Mountain Stream Zone, Central Zone, Lodging Zone, Forest Experience Zone (planned to be open in 2009), Nature Observation Zone (planned to be open in 2010), and Preservation Zone (not open to the public).",
+            " During the winter season, the park operates as the “Takino Snow World”, providing visitors with a wide variety of winter outdoor activities."
+          ],
+          [
+            "The Copake Falls Area of Taconic State Park is a state park located in Copake, a town in Columbia County, New York.",
+            " The park is one of two subdivisions of the main park, the other being the Rudd Pond Area.",
+            " This section of Taconic State Park is located on New York State Route 344, and offers several different attractions for the visitors.",
+            " The park is open all around the year, with hours of sunrise to sunset and can change due to weather.",
+            " The park hosts a campground, which is only open from May to December, and a cabin area, which is open year-round, with access to nearby skiing areas."
+          ],
+          [
+            "Tivoli One is a live album by pianist Duke Jordan's Trio recorded at the Tivolis Koncertsal and first released on the Danish SteepleChase label in 1984."
+          ],
+          [
+            "Tivolis Koncertsal is a 1,660-capacity concert hall located at Tivoli Gardens in Copenhagen, Denmark.",
+            " The building, which was designed by Frits Schlegel and Hans Hansen, was built between 1954 and 1956."
+          ],
+          [
+            "Wait and See is a live album by pianist Duke Jordan's Trio recorded at the Tivolis Koncertsal and first released on the Danish SteepleChase label in 1985."
+          ],
+          [
+            "Pepper Tree Playfield is a 21.7-acre community park located in western Newbury Park, California.",
+            " It is located at the corner of Reino- and Old Conejo Roads, and was acquired by the Conejo Recreation & Park District (CRPD) in 1977, but not developed nor opened until 1983.",
+            " It contains a 0.83-mile fitness trail loop, and is nearby numerous trailheads.",
+            " The park is within walking distance from the Conejo Vista Trailhead in Old Conejo Open Space, located immediately north of Pepper Tree Playfield, and the park is directly across the street from the Knoll Trailhead (Pepper Tree Vista Trail) in Knoll Open Space, which is to the park’s immediate east, crossing North Reino Road.",
+            " It is also an access point for trails leading to the Conejo Mountain.",
+            " Pepper Tree Playfield is named for its many pepper trees, which surrounds the park area."
+          ],
+          [
+            "Deer Ridge Open Space is a 188-acre public-owned open-space area in the southwest portion of the town of Newbury Park, California.",
+            " It contains a series of north-facing mountainous ridges and canyons, dominated by chaparral and oak trees.",
+            " It shares borders with the Santa Monica Mountains National Recreation Area to the south, and the Los Robles Trail traverses the length of Deer Ridge Open Space.",
+            " Its main trailhead is located on Potrero Road, while a smaller access point is located at the southern end of Felton Street.",
+            " The Los Robles Trail is the Conejo Open Space Conservation Agency’s longest trail, and connects to open-space areas and parks such as the Los Padres Open Space, Conejo Ridge Open Space, Hope Nature Preserve, Old Conejo Open Space, and the Los Vientos Open Space.",
+            " The trail in Newbury Park provides panoramic views of the Conejo Valley and Santa Monica Mountains, before entering the Hope Nature Preserve.",
+            " The Los Robles Trail provides more than 25 miles of contiguous trails connecting Newbury Park to Westlake Village in Los Angeles County.",
+            " Immediately south of the Deer Ridge Open Space in Newbury Park are the Hidden Valley and Rancho Sierra Vista \"Satwiwa\"."
+          ],
+          [
+            "Ventu Park Open Space is a 141-acre open space area in Newbury Park, California.",
+            " Its primary features are the Rosewood Trail leading to Angel Vista, a 1,603 ft peak in the Santa Monica Mountains.",
+            " Parking for the Rosewood Trail is located at the Stagecoach Inn Park, across Lynn Road from the primary trailhead.",
+            " The Rosewood Trail begins with oak woodland and crosses a creek at the canyon floor, before climbing up towards the steep Angel Vista Point.",
+            " There are 360-degree panoramic views of the Conejo Valley, the Oxnard Plain, the California Channel Islands, Pacific Ocean, Point Mugu, Hidden Valley, as well as the Santa Monica-, Santa Susana- and Topa Topa Mountains.",
+            " The Rosewood Trail is the starting point for the Los Robles Trail, the longest trail operated by the Conejo Open Space Conservation Agency (COSCA).",
+            " It connects to various open space areas and nature preserves in the Greater Thousand Oaks Area, including the Hope Nature Preserve, Los Padres Open Space, Conejo Ridge Open Space, Deer Ridge Open Space, Old Conejo Open Space and Los Vientos Open Space.",
+            " The 25-mile Los Robles Trail begins by Angel Vista Point and is a 25-mile trail connecting Newbury Park and the City of Westlake Village by crossing Hidden Valley, Thousand Oaks and Lake Sherwood.",
+            " Alternatively, hikers can cross the Potrero Ridge and join the trail leading to Satwiwa, which again connects to Point Mugu through trails crossing the Santa Monica Mountains through the Big Sycamore Canyon.",
+            " The trails here are used by equestrians, mountain bikers as well as hikers.",
+            " The Rosewood Trail is a 5-mile roundtrip hike from the Stagecoach Inn Park to the top of Angel Vista."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "task_id": "hp_dev_0478",
+    "dataset": "HotpotQA",
+    "question": "What is the shared country of ancestry between Art Laboe and Scout Tufankjian?",
+    "answer": "Armenian",
+    "raw": {
+      "id": "5a73977d554299623ed4ac08",
+      "question": "What is the shared country of ancestry between Art Laboe and Scout Tufankjian?",
+      "answer": "Armenian",
+      "type": "comparison",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Art Laboe",
+          "Scout Tufankjian"
+        ],
+        "sent_id": [
+          0,
+          0
+        ]
+      },
+      "context": {
+        "title": [
+          "Interamerican Scout Jamboree",
+          "Indian Scout (motorcycle)",
+          "Destinations",
+          "Original Sound",
+          "KOKO-FM",
+          "Scout Tufankjian",
+          "Art Laboe",
+          "Arabs in India",
+          "Chinese Australians",
+          "Scout Promise"
+        ],
+        "sentences": [
+          [
+            "The Interamerican Scout Jamboree is the biggest event of the Interamerican Scout Region.",
+            " It is held every four years in a different country of the region.",
+            " The host country is elected during the Interamerican Scout Conference.",
+            " Ecuador was announced as the host of the 15th Interamerican Scout Jamboree at the XXV Interamerican Scout Conference in Buenos Aires, Argentina, on 21 September 2013."
+          ],
+          [
+            "The Indian Scout is a motorcycle built by the Indian Motocycle Company from 1920 to 1949.",
+            " It rivaled the Chief as Indian's most important model.",
+            " The 101 Scout, made from 1928 to 1931, has been called the best motorcycle Indian ever made.",
+            " A second line of Scouts, with lighter frames and reduced engine displacement, was introduced in 1932 alongside the Standard Scout, which replaced the 101 Scout and shared its frame with the Chief and the Four.",
+            " The small-displacement Scout and the Sport Scout, introduced in 1934, were continued until the end of civilian production in 1942.",
+            " Military versions of both models were used by US and other Allied forces during World War II."
+          ],
+          [
+            "Girl Scout Destinations, formerly Wider Opportunities or Wider Ops, are events for individual Girl Scouts (ages 11 – 18) hosted by GSUSA or individual Girl Scout councils.",
+            " Most Destinations are held within the United States, though each year there are trips abroad, such as to allow participants to be part of the US delegation to another country's national jamboree, or a World Association of Girl Guides and Girl Scouts (WAGGGS) World Centre.",
+            " They can range from two days to three weeks long.",
+            " Most events are geared toward specified grade levels: Girl Scout Cadettes (6th - 8th grade), Girl Scout Seniors (9th and 10th grade), or Girl Scout Ambassadors (11th and 12th grade).",
+            " Girls must go through an application process and sometimes an interview process before being chosen for a Destination."
+          ],
+          [
+            "Original Sound is a Los Angeles, California-based record label.",
+            " It was founded in the early 1950s by KPOP deejay Art Laboe.",
+            " It began as a small label that specialized in compiling and re-releasing \"oldies\" R&B and rock 'n' roll songs."
+          ],
+          [
+            "KOKO-FM is a classic hits radio station broadcasting from Kerman, California, for the Fresno area with studio and office located in Los Angeles, California.",
+            " KOKO 94 is the home for the Art Laboe Connection, and The Art Laboe Sunday Night Special.",
+            " Laboe, by the way, is the station's owner.",
+            " Its transmitter is in Kerman."
+          ],
+          [
+            "Scout Tufankjian is an Armenian-American photojournalist and author based in Brooklyn, New York.",
+            " She is well known for her photos of American President Barack Obama during his campaign leading up to his presidency.",
+            " She is also known for her photojournalism work on the Armenian diaspora."
+          ],
+          [
+            "Art Laboe (born Arthur Egnoian on August 7, 1925) is an Armenian American disc jockey, songwriter, record producer, and radio station owner, generally credited with coining the term \"Oldies But Goodies\"."
+          ],
+          [
+            "A small but recognizable people with Arab origins have over time settled in the India.",
+            " Genealogically they are grouped as \"Indo-Arabs\" or \"Indians with Arab ancestry\".",
+            " Those who arrived in Kerala and Gujarat for trading goods were later recruited to the army.",
+            " Most Arabs were traders, and businessmen who sold or traded silk, diamonds and other valuables resulting in wealthy business men.",
+            " The city of Surat and villages within the city are known for Arab settlements.",
+            " Variav and Randev are the few villages that Arabs started their lives in.",
+            " In Hyderabad, Chaush are Arab community of Hadhrami descent whose ancestors were recruited as soldier by Nizam of Hyderabad.",
+            " In coastal Karnataka, Iraqis arrived during the reign of Tipu Sultan.",
+            " They claim their ancestry from Banu Assad.",
+            " These population migrations may have been favored by both the Nizam of Hyderabad and Tipu Sultan of Mysore because both had their ancestral linkages to these populations.The Asaf Jahi Dynasty claimed Arab ancestry from Asir Province and Tipu Sultan from the Bani Hashim of Hijaz Province in Arabia.",
+            " Many Arabs having Adnani ancestry such as Quraishi, Ansari, Sayyid tribes and other descendants of the Sahaba were employed by the Princely States in their military as they were found efficient during warfare.",
+            " In Kerala, Syed Thangals of Hadhrami descent settled around 17th century as missionaries to propagate Islam.",
+            " There are also Shia Sayyids in Northern region of country who claim descent from Wasit, Iraq like Zaidis although many Arab genealogists dispute this fact.",
+            " Sunni Sayyid of the country also claim Arab descent from Sufi missionaries.",
+            " Most of the Sufis migrated from Persia.",
+            " Sunni Sayyids claim their Arab ancestry through Imam Hassan or Imam Hussain in which case their names may be Hassani, Hussaini or Hashmi.",
+            " Some also claim descent from both and are termed \"\"Najeeb AlTarfayn\"\" or \"Noble on both sides\".",
+            " Many Sufi Saints such as Abdul-Qadir Gilani and Moinuddin Chishti and their descendants claim themselves as \"Najeeb AlTarfayn\" although many genealogists dispute this fact.",
+            " Sunni Sheikhs also claim Arab descent from Sufis or migrants.",
+            " They don't know their tribe but trace lineage from Umar - Farooqi, Abu Bakr- Siddiqui, Uthman - Usmani and Ali - Alawi or Mir, who established the Rashidun Caliphate.",
+            " Many who can vaguely trace their lineage to the Quraish tribe call themselves QuraishiMany having the name Ansari claim their lineage to the Ansar tribes of Madina Munawwara and the companions of the Prophet Muhammad such as Abu Ayyub al-Ansari.",
+            " Many of the present Sheikhs converted from Hindu castes such as Kayasth and Rajput."
+          ],
+          [
+            "Chinese Australians () are Australian citizens of Chinese ancestry.",
+            " Chinese Australians are one of the largest groups of Overseas Chinese people, forming the largest Overseas Chinese community in Oceania.",
+            " Per capita, Australia has more people of Chinese ancestry than any country outside of Asia.",
+            " Many Chinese Australians are immigrants from Mainland China, Hong Kong, Macau, Taiwan, and other countries such as Indonesia, Malaysia, Singapore and the Philippines, while many are descendants of such immigrants.",
+            " Chinese Australians are also a subgroup of Asian Australians and East Asian Australians and represent the single largest minority ethnicity in the country.",
+            " As a whole, Australian residents identifying themselves as having Chinese ancestry made up 5.6% of those nominating their ancestry at the 2016 census and numbered 1,213,903."
+          ],
+          [
+            "Since the publication of \"Scouting for Boys\" in 1908, all Scouts and Girl Guides around the world have taken a Scout (or Guide) promise or oath to live up to ideals of the movement, and subscribed to a Scout Law.",
+            " The wording of the Scout Promise (or Oath) and Scout Law have varied slightly over time and from country to country.",
+            " Some national organization promises are given below.",
+            " Although most Scouting and Guiding organizations use the word \"promise\", a few such as the Boy Scouts of America tend to use \"oath\" instead.",
+            " Typically, Scouts and Guides will make the three-fingered Scout Sign when reciting the promise."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "task_id": "hp_dev_3245",
+    "dataset": "HotpotQA",
+    "question": "The school in which the Wilmslow Show is held is designated as what?",
+    "answer": "Centre of Excellence",
+    "raw": {
+      "id": "5ab514c05542991779162d72",
+      "question": "The school in which the Wilmslow Show is held is designated as what?",
+      "answer": "Centre of Excellence",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Wilmslow Show",
+          "Wilmslow High School"
+        ],
+        "sent_id": [
+          0,
+          0
+        ]
+      },
+      "context": {
+        "title": [
+          "Conestoga (convention)",
+          "Corn School",
+          "2015 CIS University Cup",
+          "California State Summer School for the Arts",
+          "Dungeness School",
+          "Wilmslow Show",
+          "Hawthorn Hall",
+          "Wilmslow High School",
+          "Spartan Municipal Stadium",
+          "Pownall Hall"
+        ],
+        "sentences": [
+          [
+            "Conestoga was a literary science fiction and fantasy convention held annually in Tulsa, Oklahoma from 1997 through 2010, after which it was suspended for financial and logistical reasons.",
+            " The convention at first was designated by the year in which it was held.",
+            " With its sixth incarnation, Conestoga converted to a whole number count, rolling the first five into the number tally, and running through #14 before stopping.",
+            " Celebrating science fiction and fantasy literature and art were staples of the convention, but many who were also interested in horror, anime, and comics attended.",
+            " Popular activities at the convention included filking (filk singing is a play on folk) and gaming.",
+            " Featured programming included a writers track, an art show, a dealer room, a masquerade, and a play put on by the Penguin Playhouse Troupe."
+          ],
+          [
+            "Corn School is a festival and one of few street fairs still in existence, that takes place in downtown LaGrange, Indiana in the first week of October every year.",
+            " Begun in 1906, it was originally started as a one-day festival for boys in the local corn growing classes to show off their products.",
+            " They were to receive prizes for their corn, and a day was to be designated in their honor.",
+            "<ref name=\"/Corn School\">Historic Corn School dates back to 1906 </ref> Notables such as the Governor of Indiana Frank Hanly and the State Secretary of Agriculture were speakers for the event for the first couple of years."
+          ],
+          [
+            "The 2015 CIS Men's University Cup Hockey Tournament (53 Annual) was held March 20–23, 2014.",
+            " It was the first of two consecutive CIS Championships to be held at the Scotiabank Centre in Halifax jointly hosted by the St. Francis Xavier University & Saint Mary's University.",
+            " Each school would be a designated 'host' for one of the events; St. Francis Xavier would be the 2015 host while Saint Mary's would be the host in the second year (2016)."
+          ],
+          [
+            "The California State Summer School for the Arts, commonly known as CSSSA (\"SEE-SUH\"), is a rigorous four-week, pre-professional visual and performing arts training program for high school students held each summer at the California Institute of the Arts.",
+            " The goal of CSSSA is to provide a supportive environment in which students acquire experience and training that extends beyond the practice and improvement of aesthetics and technique.",
+            " Artistic disciplines offered by the program include: animation, creative writing, dance, film and video, music (including vocal arts), theatre arts, and visual arts.",
+            " Its purpose is to provide a training ground for future artists who wish to pursue careers in the arts and entertainment industries in California.",
+            " Admitted students are designated \"California Arts Scholars\", honored throughout the state’s fifty-eight counties.",
+            " Upon completion of the program, the students are awarded a Governor's Medallion, the highest distinction in California for artistically talented students.",
+            " Founded in 1987, CSSSA is a California State agency funded through a unique public/private partnership."
+          ],
+          [
+            "The Dungeness School is a historical schoolhouse building located at 657 Towne Road in Dungeness, Washington.",
+            " The idea for the school was formed in 1892 by the settlers of the Dungeness area.",
+            " On May 10, 1892 a meeting was held in which settlers created a bond for land and a two story school house.",
+            " The school house opened on February 27, 1893.",
+            " The school originally had 73 students from the ages of 5 to 20.",
+            " The school had one teacher who lived on the second floor of the school.",
+            " Classes were large and books and supplies not easy to get.",
+            " School Board minutes of April 8, 1895, show a motion was passed to buy the school a bottle of ink."
+          ],
+          [
+            "Wilmslow Show is held at Wilmslow High School, Wilmslow, Cheshire, England, as a one-day event on a Sunday – usually the second Sunday in July.",
+            " Sections include Horticulture, Dogs, Classic Cars, etc."
+          ],
+          [
+            "Hawthorn Hall is a former country house in Hall Road, Wilmslow, Cheshire, England.",
+            " It originated in about 1610 as a timber-framed yeoman house for John Chavman of mnc.",
+            " It was improved and encased in brick for John Leigh in 1698.",
+            " Its use changed in the 19th century, and in 1835 it opened as a homeless shelter school.",
+            " The building has since been used as offices.",
+            " It is constructed in plum-coloured brick, with a Kerridge stone-slate roof, a stone ridge, and three brick chimneys.",
+            " Parts of the timber-framing can still be seen in the roof gables, and in an internal wall.",
+            " The plan consists of a long rectangle.",
+            " The house is in 2½ storeys, and has a near-symmetrical north front.",
+            " There are four gables with bargeboards and mace finials. Each gable contains a pair of wooden mullioned and transomed windows.",
+            " In the centre is a doorway, flanked by plain pilasters, and surmounted by a segmental hood framing a cartouche containing the date 1698.",
+            " At the top of the hall, above the door, is a small balustrade, behind which is a half-glazed lantern with a cupola and a weathervane.",
+            " The south front is similar to the north front, although the door is not central.",
+            " This door is flanked by fluted pilasters, and surmounted by a plaque with a lion rampant.",
+            " The east front has two gables.",
+            " The architectural historian Nikolaus Pevsner comments that the house is \"good to look at, though conservative for its date\".",
+            " The house, together with parts of the garden walls, is recorded in the National Heritage List for England as a designated Grade II* listed building."
+          ],
+          [
+            "Wilmslow High School is a mixed-sex 11–18 comprehensive secondary school in Wilmslow, Cheshire, and a designated Centre of Excellence.",
+            " The school began in 1960 as a grammar school and gradually became a comprehensive school, becoming Wilmslow High School in 1991.",
+            " Dr. James Pullé is the head teacher.",
+            " The school is designated \"good\" by Ofsted.",
+            "<ref name=\"11/13 Ofsted Report\">Ofsted report</ref>"
+          ],
+          [
+            "Spartan Municipal Stadium, formerly known as Universal Stadium, is a stadium in Portsmouth, Ohio.",
+            " It hosted the National Football League's Portsmouth Spartans from 1930 to 1933, as well as local high school teams.",
+            " The stadium held 8,200 people at its peak and was built in 1930.",
+            " In 1970, it was renamed Spartan Municipal Stadium.",
+            " On October 5, 2003, the stadium was designated as a state historical site.",
+            " The stadium is owned by the City of Portsmouth.",
+            " After a fire in the 1990s, the city replaced walls and the press box.",
+            " Also, the city upgraded the lighting thanks to a USDA grant.",
+            " Several years ago, the city began limiting stadium use to only regular football games to help preserve the sod.",
+            " In the past, both Portsmouth and Notre Dame High School football teams have played on the turf.",
+            " The city wanted to sell the stadium to the Portsmouth City School District for one dollar, but the district turned down the offer as they received $10 million from a local foundation to construct their own athletic complex next to the new city school complex."
+          ],
+          [
+            "Pownall Hall is a former country house in Wilmslow, Cheshire, England.",
+            " It was remodelled in 1830 as \"a red sandstone Georgian house dressed up in the Tudor style\".",
+            " In 1886 it was bought by the Manchester brewer Henry Boddington, who transformed it \"into a showcase for the most up-to-date work of the Arts and Crafts Movement\".",
+            " The architect was William Ball of the Ball and Elce partnership of Manchester.",
+            " Much of the decoration and furniture design was carried out by members of the Century Guild, an organisation founded in 1882 by A. H. Mackmurdo.",
+            " In addition \"lots of pretty, small-scale bits of decoration\" were added to the façade.",
+            " The house is recorded in the National Heritage List for England as a designated Grade II* listed building.",
+            " As of 2011 the building is in use as a school."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "task_id": "hp_dev_1119",
+    "dataset": "HotpotQA",
+    "question": "Who will Billy Howle be seen opposite in the upcoming British drama film directed by Dominic Cooke?",
+    "answer": "Saoirse Ronan",
+    "raw": {
+      "id": "5add2b435542990d50227e11",
+      "question": "Who will Billy Howle be seen opposite in the upcoming British drama film directed by Dominic Cooke?",
+      "answer": "Saoirse Ronan",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Billy Howle",
+          "On Chesil Beach (film)"
+        ],
+        "sent_id": [
+          3,
+          0
+        ]
+      },
+      "context": {
+        "title": [
+          "Tadakha",
+          "Branko Tomović",
+          "Romans (2017 film)",
+          "Tell It to the Bees",
+          "Billy Howle",
+          "The Little Stranger (film)",
+          "Dark River (2017 film)",
+          "Zoo (2017 film)",
+          "Once Upon a Time in London",
+          "On Chesil Beach (film)"
+        ],
+        "sentences": [
+          [
+            "Tadakha (English: \"Mettle\" ), also spelt as Thadaka is a 2013 Telugu action film directed by Kishore Kumar Pardasani, who directed \"Konchem Ishtam Konchem Kashtam\" earlier.",
+            " The film is a remake of the well-received 2012 Tamil film \"Vettai\", written and directed by N. Linguswamy.",
+            " Initially, Sameera Reddy was approached to reprise her role.",
+            " She was replaced by Andrea Jeremiah.",
+            " Tamannaah is seen opposite Naga Chaitanya for the second time after \"100% Love\".",
+            " The film received mixed to positive reviews and was declared a \"Super Hit\" at the box office and Sunil won Filmfare Award for Best Supporting Actor - Telugu for his excellent police officer role."
+          ],
+          [
+            "Branko Tomović (Serbian Cyrillic: \"Бранко Томовић\"; born June 17, 1980) is a German-Serbian actor.",
+            " He was born in Münster, Germany, though his actual origin is from the Carpathians in Serbia.",
+            " His parents emigrated in the '70s from the Golubac Fortress area on the Danube and Branko was raised between Germany and Serbia before he studied acting at the prestigious Lee Strasberg Theatre Institute in New York City.",
+            " Tomović was first seen on the big screen in the lead role in the American Film Institute/Sundance drama \"Remote Control\", for which he received the OmU-Award at the Potsdam Film Festival.",
+            " Currently settled in London, with his dark, brooding looks he has appeared in striking roles on British Television.",
+            " He played the creepy main suspect Antoni Pricha, the Morgue Man, in Jack the Ripper thriller \"Whitechapel\", the pyromaniac Junky-Henchman Marek Lisowski in the final episodes of \"A Touch of Frost\" and Polish fighter pilot Miroslaw Feric in the World War II drama \"The Untold Battle of Britain\".",
+            " Tomovic has worked with internationally respected film directors as Ken Loach, Sönke Wortmann and Paul Greengrass.",
+            " He was named \"One to Watch\" by \"Moviescope Magazine\" in 2008 and recent film credits include The Bourne Ultimatum opposite Matt Damon (Dir.",
+            " Paul Greengrass), It's a Free World... (Dir.",
+            " Ken Loach), \"The Wolf Man\" (Dir.",
+            " Joe Johnston), \"Pope Joan\" (Dir.",
+            " Sönke Wortmann) and \"Interview with a Hitman\" (Dir.",
+            " Perry Bhandal).",
+            " In 2010, he won the 'Best Actor' Award at the San Francisco Short Film Festival and at The Accolade Film Awards for his performance as a Serbian soldier who is tormented by grief and guilt after being a witness of war crimes in the drama Inbetween.",
+            " He also stars opposite Debbie Harry in Jimmy Cauty's Road movie Believe the Magic and Steve Stone's ghost thriller Entity with Dervla Kirwan and Charlotte Riley.",
+            " Entity won two awards at the London Independent Film Festival 2013 and Best Film at the British Horror Film Festival where Branko was also nominated for Best Actor.",
+            " The British Filmmakers Alliance honoured him as Best International Actor for his role and he was also chosen as a Rising Star by Icon Magazine.",
+            " He is set to play the title character of Nikola Tesla in the upcoming bio-pic Tesla.",
+            " In 2014, he played Jack Bauer's right-hand man, the mysterious and dangerous Belcheck, next to Kiefer Sutherland in 24: Live Another Day.",
+            " He was also seen opposite Brad Pitt and Logan Lerman in David Ayer's WWII drama Fury."
+          ],
+          [
+            "Romans is an upcoming British drama film directed by Ludwig Shammasian and Paul Shammasian and written by Geoff Thompson.",
+            " The film stars Orlando Bloom, Janet Montgomery, Charlie Creed-Miles, Anne Reid, Alex Ferns and Josh Myers."
+          ],
+          [
+            "Tell It to the Bees is an upcoming British drama film directed by Annabel Jankel.",
+            " It stars Anna Paquin."
+          ],
+          [
+            "Billy Howle (born November 9, 1989) is an actor, known for his work as James Warwick on the E4 television series, \"Glue\".",
+            " He has since co-starred in the film, \"The Sense of an Ending\" (as the younger version of Jim Broadbent's lead character) and the miniseries \"The Witness for the Prosecution\" in the pivotal role of defendant, Leonard Vole.",
+            " He also appeared in \"Dunkirk\".",
+            " Howle will next be seen opposite Saoirse Ronan in the drama, \"On Chesil Beach\", in the adaptation of Anton Chekhov's iconic play, \"The Seagull\", and in Netflix film \"Outlaw King\"."
+          ],
+          [
+            "The Little Stranger is an upcoming British mystery horror drama film directed by Lenny Abrahamson and written by Lucinda Coxon, based on the novel of same name by Sarah Waters.",
+            " The film stars Domhnall Gleeson, Ruth Wilson, Will Poulter, and Charlotte Rampling."
+          ],
+          [
+            "Dark River is an upcoming British drama film.",
+            " Written and directed by Clio Barnard, it stars Ruth Wilson, Mark Stanley, and Sean Bean.",
+            " It screened in the Platform section at the 2017 Toronto International Film Festival."
+          ],
+          [
+            "Zoo is an upcoming British historical war drama film directed and written by Colin McIvor.",
+            " The film stars Art Parkinson, Penelope Wilton, Toby Jones, Ian O'Reilly, Ian McElhinney, Amy Huberman, and Damian O'Hare."
+          ],
+          [
+            "Once Upon a Time in London is an upcoming British crime film directed by Simon Rumley and written by Will Gilbey, Rumley, and Terry Stone.",
+            " The film is about the notorious gangsters Billy Hill and Jack Comer.",
+            " The film stars Leo Gregory, Terry Stone, Holly Earl, Dominic Keating, and Geoff Bell."
+          ],
+          [
+            "On Chesil Beach is an upcoming British drama film directed by Dominic Cooke in his motion picture directorial debut.",
+            " Ian McEwan self-adapted his own 2007 Booker Prize-nominated novella of the same name.",
+            " It stars Saoirse Ronan and Billy Howle.",
+            " The film had its world premiere in the Special Presentations section at the Toronto International Film Festival on September 7, 2017."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "task_id": "hp_dev_3575",
+    "dataset": "HotpotQA",
+    "question": "What animated movie, starring Danny Devito, featured music written and produced by Kool Kojak?",
+    "answer": "The Lorax",
+    "raw": {
+      "id": "5a88d6df554299206df2b377",
+      "question": "What animated movie, starring Danny Devito, featured music written and produced by Kool Kojak?",
+      "answer": "The Lorax",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Kool Kojak",
+          "The Lorax (film)"
+        ],
+        "sent_id": [
+          1,
+          3
+        ]
+      },
+      "context": {
+        "title": [
+          "Give the Drummer Some",
+          "Brian R. Etting",
+          "Victorious: Music from the Hit TV Show",
+          "Deck the Halls (2006 film)",
+          "Blow (Kesha song)",
+          "Curmudgeons (film)",
+          "Va Va Voom",
+          "Rock Me (One Direction song)",
+          "Best Friend's Brother",
+          "Kool Kojak"
+        ],
+        "sentences": [
+          [
+            "Give the Drummer Some is the first solo record by Blink-182 drummer Travis Barker.",
+            " Barker had earlier announced that the album would be slated for a September 2010 release, but was later pushed back, with the album being released on March 15, 2011.",
+            " The album, released under Interscope Records, was produced by the drummer himself, alongside The Neptunes, RZA, Kool Kojak, Chuck Inglish, Transplants, Kid Cudi, EDIT, Corey Taylor and Steve Aoki.",
+            " The album debuted at number nine on the US \"Billboard\" 200 chart, with first-week sales of 28,000 copies in the United States."
+          ],
+          [
+            "Brian R. Etting is an American producer, director, and screenwriter known for producing \"Broken\", \"Funny or Die\", \"A Good Old Fashioned Orgy\", and Relative Strangers starring Danny DeVito.",
+            " He also executive produced \"Drunk History: Douglass & Lincoln\" which won Best Short Film at the 2010 Sundance Film Festival.",
+            " Etting also owns his own production company with Josh Etting called Garlin Pictures."
+          ],
+          [
+            "Victorious: the debut soundtrack for the Nickelodeon TV series \"Victorious\".",
+            " The majority of the album was sung by the lead actress of the television series, Victoria Justice, with the \"Victorious\" cast being listed beside her.",
+            " Some of the other singers on the album feature Ariana Grande, Elizabeth Gillies, Miranda Cosgrove, Matt Bennett, Daniella Monet and Avan Jogia.",
+            " The majority of the album was written by Michael Corcoran, Dan Schneider, Savan Kotecha, Kool Kojak and CJ Abraham with Victoria Justice involved in the composition of \"Best Friend's Brother\" and Leon Thomas III on \"Song 2 You\"."
+          ],
+          [
+            "Deck the Halls is a 2006 American Christmas comedy film directed by John Whitesell, written by Matt Corman, Chris Ord and Don Rhymer and starring Danny DeVito, Matthew Broderick, Kristin Davis and Kristin Chenoweth.",
+            " The film was released on November 22, 2006."
+          ],
+          [
+            "\"Blow\" is a song by American singer and songwriter Kesha from her first extended play (EP), \"Cannibal\" (2010).",
+            " The song was released on February 8, 2011.",
+            " It was written by Kesha, along with Klas Åhlund, Lukasz Gottwald, Allan Grigg, Benjamin Levin and Max Martin, with production done by Dr. Luke, Max Martin, Benny Blanco and Kool Kojak.",
+            " According to Kesha the song's lyrics are representative of herself and her fans.",
+            " \"Blow\" is dominantly an electropop and dance-pop song and is described as a party anthem as it portrays a simple message of having a desire to have a good time at a club."
+          ],
+          [
+            "Curmudgeons is a 2016 American comedy short film directed, produced by, and starring Danny DeVito.",
+            " It is written and co-produced by Joshua Conkel."
+          ],
+          [
+            "\"Va Va Voom\" is a song by Trinidadian recording artist Nicki Minaj from the deluxe version of her second studio album, \"\".",
+            " It was released on September 12, 2012 by Young Money, Cash Money, and Universal Republic as the fifth single from the album.",
+            " The song was written by Minaj, Lukasz Gottwald, Allan Grigg, Max Martin, and Henry Walter, and it was produced by Dr. Luke, Kool Kojak, and Cirkut.",
+            " Being released as the fifth single, it was sent to UK radio stations on September 15, 2012 and later sent to Top 40 mainstream radio on October 23, 2012.",
+            " It was planned to serve as the lead single, but its release was postponed at the last minute in favor of \"Starships\"; it was later released as a promotion for the album's reissue \"\"."
+          ],
+          [
+            "\"Rock Me\" is a song by English-Irish boy band One Direction from their second studio album, \"Take Me Home\" (2012).",
+            " It was written by Peter Svensson, Sam Hollander, Lukasz Gottwald, Henry Walter, Breanna Smith, and Allan Grigg, with production handled by Dr. Luke, Circut and Kool Kojak.",
+            " Created in one day, Grigg carried out the mid-tempo beat, Hollander conceptualised the title and the pop rock melody \"just came\".",
+            " Its clapping riff has been noted as similar to that of the Queen 1977 single \"We Will Rock You\"."
+          ],
+          [
+            "\"Best Friend's Brother\" is a song performed by American pop recording artist Victoria Justice, billed as Cast of \"Victorious\" featuring Victoria Justice.",
+            " It was produced by Kool Kojak, who also co-wrote the song with Savan Kotecha and Victoria Justice, for \"\" (2011), the soundtrack to the Nickelodeon television series, \"Victorious\".",
+            " It was released as the album's third single on May 20, 2011 through Columbia Records in association with Nickelodeon.",
+            " Musically, the song runs through an electropop oriented dance beat with teen pop lyrics, and the lyrics speak of a girl's crush on her best friend's brother."
+          ],
+          [
+            "Allan P. Grigg, better known by his stage name Kool Kojak and stylized as \"KoOoLkOjAk\", is an American musician, songwriter, record producer, film director, and artist notable for co-writing and co-producing Flo Rida's #1 Billboard hit single \"Right Round\", Nicki Minaj's hit single \"Va Va Voom\" , and Ke$ha's top 10 single \"Blow\".",
+            " Kool Kojak has written and produced for artists such as Sean Paul, Yelle, Waka Flocka Flame, Travis Barker, Dr. Seuss's The Lorax, Britney Spears, Jesse and Joy, Andy Milonakis, Icona Pop, N.A.S.A., Dirt Nasty, Lordz of Brooklyn, Ursula 1000, and Warren G.",
+            " Kool Kojak was a featured producer on the Simon Cowell TV program X Factor and has appeared as himself on the Nickelodeon show \"Victorious\".",
+            " He has won two ASCAP Pop Awards and one ASCAP Urban Award, a WormTown Sound Award, and has been awarded the Key to the City of Worcester, Massachusetts."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "task_id": "hp_dev_0978",
+    "dataset": "HotpotQA",
+    "question": "Out of the actors who have played the role of Luc Deveraux in the Universal Soldier franchise, which actor has also starred in the movies Holby City, Doctor Strange, the Bourne Ultimatum and Zero Dark Thirty?",
+    "answer": "Scott Adkins",
+    "raw": {
+      "id": "5ae6b6065542991bbc976168",
+      "question": "Out of the actors who have played the role of Luc Deveraux in the Universal Soldier franchise, which actor has also starred in the movies Holby City, Doctor Strange, the Bourne Ultimatum and Zero Dark Thirty?",
+      "answer": "Scott Adkins",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Universal Soldier (franchise)",
+          "Scott Adkins"
+        ],
+        "sent_id": [
+          2,
+          1
+        ]
+      },
+      "context": {
+        "title": [
+          "Universal Soldier (franchise)",
+          "Universal Soldier (1992 film)",
+          "Jayne Grayson",
+          "List of accolades received by Zero Dark Thirty",
+          "Nick Jordan (character)",
+          "Scott Adkins",
+          "Adrian Fletcher (character)",
+          "Connie Beauchamp",
+          "Universal Soldier: Regeneration",
+          "Luc Deveraux"
+        ],
+        "sentences": [
+          [
+            "The Universal Soldier franchise is a series of science fiction action films.",
+            " The franchise began in 1992 with \"Universal Soldier\" and as of 2012 comprises six entries (some of which are now considered non-canon).",
+            " The films centered on the character of Luc Deveraux (played first by Jean-Claude Van Damme and then by Matt Battaglia) until \"\", which focuses on a new protagonist named John (played by Scott Adkins)."
+          ],
+          [
+            "Universal Soldier is a 1992 American military science fiction action film directed by Roland Emmerich, produced by Mario Kassar and Allen Shapiro, and written by Richard Rothstein and Dean Devlin.",
+            " The film tells the story of Luc Deveraux, a former US Army soldier who was killed in Vietnam War in 1969, and returned to life following a secret military project called the \"Universal Soldier\" program.",
+            " However, he finds out about his past even although his memory was erased, and escapes alongside a young TV journalist.",
+            " Along the way, they have to deal with the return of his archenemy, Sgt. Andrew Scott, who had lost his sanity in the Vietnam War, and became a psychotic megalomaniac, intent on killing him and leading the Universal Soldiers.",
+            " \"Universal Soldier\" was released by TriStar Pictures on July 10, 1992.",
+            " The film grossed $36 million worldwide against its budget of $23 million.",
+            " It spawned a series of films, including several rather poorly received direct-to-TV films: \"\", which has since been removed from the series canon, followed by \"\" and \"\"."
+          ],
+          [
+            "Jayne Grayson is a fictional character in the BBC medical drama \"Holby City\", portrayed by actress Stella Gonet.",
+            " The character first appeared on-screen on 10 July 2007 in episode \"Under the Radar\" - series 9, episode 39 of the programme.",
+            " Her role in the show was that of Chief Executive Officer of the Holby City Hospital Primary Care Trust, making her the only regular character who is not a medic by profession.",
+            " Gonet formerly appeared as a doctor in \"Holby City\"<nowiki>'</nowiki>s sister show \"Casualty\", and has since appeared in crossover episodes of the drama, this time as Jayne Grayson.",
+            " Her storylines in \"Holby City\" have revolved around issues of hospital bureaucracy, as well as her husband's affair with her colleague Connie Beauchamp.",
+            " A two-part episode which saw Jayne fight the hospital's Board of Directors and the British government over the separation surgery of the conjoined twin daughters of illegal Korean immigrants proved a critical success, and was positively received by many tabloid TV critics."
+          ],
+          [
+            "\"Zero Dark Thirty\" is a 2012 American action thriller directed and co-produced by Kathryn Bigelow with screenplay by Mark Boal.",
+            " The film was released in the United States on December 19, 2012, with a limited release at five theaters in Los Angeles and New York City.",
+            " It made $124,848 in its limited release weekend, making it one of the biggest limited mid-week openings ever.",
+            " As of March 6, 2013, \"Zero Dark Thirty\" has grossed a worldwide total of $106.8 million.",
+            " \"Zero Dark Thirty\" also received a high critical acclaim, accumulating an approval rating of 93% on the review aggregator site Rotten Tomatoes."
+          ],
+          [
+            "Nick Jordan is a fictional character from the BBC medical dramas \"Casualty\" and \"Holby City\", portrayed by actor Michael French.",
+            " Jordan first appeared in two episodes of \"Casualty\" in 1998, before becoming a main character in spin-off show \"Holby City\" from its 1999 conception, in the role of Cardiothoracic Surgical Registrar.",
+            " He departed from the show in its second series, returning for a 2005 Christmas crossover special between the two series, styled \"Casualty@Holby City\".",
+            " He returned again to \"Holby City\" in 2006, taking on the role of General Surgical Consultant, departing a few months later in order to pursue a transfer back to cardiothoracics.",
+            " In 2008, he rejoined the cast of \"Casualty\", becoming Clinical Lead of the show's Emergency Department.",
+            " French left his role as Nick Jordan in February 2013, four weeks after his return."
+          ],
+          [
+            "Scott Edward Adkins (born 17 June 1976) is an English actor and martial artist who is best known for playing Russian prison fighter Yuri Boyka in the 2006 film \"\" and its following two sequels: \"\" (2010) and \"\" (2016) and Casey Bowman in Ninja and its sequel .",
+            " He is also known for playing Bradley Hume in \"Holby City\", Lucian in \"Doctor Strange\", Kiley in \"The Bourne Ultimatum\" and John in \"Zero Dark Thirty\".",
+            " Adkins has also appeared in \"EastEnders\", \"Hollyoaks\", \"Doctors\" as well as starred in many direct-to-video films."
+          ],
+          [
+            "Adrian \"Fletch\" Fletcher is a fictional character from the BBC medical dramas \"Casualty\" and \"Holby City\", portrayed by actor Alex Walkinshaw.",
+            " He first appeared in the twenty-sixth series episode \"Zero Sum Game\", broadcast on 7 July 2012.",
+            " Fletch was a Staff Nurse in Holby City Hospital's emergency department upon his arrival, but was promoted to Senior Staff Nurse in 2013.",
+            " On 1 April 2014, Walkinshaw announced his departure from \"Casualty\", but revealed that he would be reprising his role as the ward manager of the fictitious AAU ward in spin-off show \"Holby City\".",
+            " Fletch departed \"Casualty\" on 29 June 2014 and made his debut on \"Holby City\" on 12 August 2014, over six weeks later.",
+            " Walkinshaw reprised his role in \"Casualty\" for the 30th anniversary episode \"Too Old for This Shift\", which aired on 27 August 2016."
+          ],
+          [
+            "Constance \"Connie\" Beauchamp is a fictional character from the BBC medical dramas \"Holby City\" and \"Casualty\", portrayed by actress Amanda Mealing.",
+            " She first appeared in the series six, episode 35, \"In at the Deep End\", broadcast on 1 June 2004, and appeared in \"Holby City's\" sister show \"Casualty\" multiple times, having already appeared in crossover \"Casualty@Holby City\" episodes.",
+            " Mealing continued her role as Connie until the thirteenth series of \"Holby City\", departing in the 28 December 2010 episode \"Snow Queens\".",
+            " Connie's role in \"Holby City\" was that of Clinical Lead of Cardiothoracic Surgery in Darwin, and Joint Director of Surgery."
+          ],
+          [
+            "Universal Soldier: Regeneration (also known in some countries as Universal Soldier: A New Beginning) is a 2009 American sci-fi action film directed and edited by John Hyams (the son of director Peter Hyams, who previously worked with Jean-Claude Van Damme on three films, 1994's \"Timecop\", 1995's \"Sudden Death\" and 2013's \"Enemies Closer\"; in this film Peter is the director of photography).",
+            " The film stars Jean-Claude Van Damme and Dolph Lundgren, who both reprise their roles from the first film.",
+            " It is the third theatrical installment in the \"Universal Soldier series\".",
+            " The film is a direct sequel to the original \"Universal Soldier\" from 1992, unrelated to the two \"Universal Soldier\" television sequels that were produced in 1998 and completely ignores the events from the 1999 theatrical sequel \"\"."
+          ],
+          [
+            "Luc Deveraux is a fictional character and the protagonist of the \"Universal Soldier\" film series.",
+            " He is most famously portrayed by Belgian actor and martial artist Jean-Claude Van Damme.",
+            " Van Damme portrays Luc in the 1992 film \"Universal Soldier\" and its sequels \"\" (1999), \"\" (2009), and \"\" (2012); he is portrayed by Matt Battaglia in the direct-to-video sequels \"\" (1998) and \"\" (1998)."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "task_id": "hp_dev_1668",
+    "dataset": "HotpotQA",
+    "question": "Tommy's Honour was a drama film that included the actor who found success with what 2016 BBC miniseries?",
+    "answer": "War & Peace",
+    "raw": {
+      "id": "5ae531ee5542990ba0bbb1ff",
+      "question": "Tommy's Honour was a drama film that included the actor who found success with what 2016 BBC miniseries?",
+      "answer": "War & Peace",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Tommy's Honour",
+          "Jack Lowden",
+          "Jack Lowden"
+        ],
+        "sent_id": [
+          1,
+          0,
+          1
+        ]
+      },
+      "context": {
+        "title": [
+          "Frank Sinatra",
+          "Tina Heath",
+          "The Day of the Triffids (2009 TV miniseries)",
+          "Jack Lowden",
+          "Ken Stott",
+          "Hélène Kuragina",
+          "Kevin McKidd",
+          "Kate Buffery",
+          "Elisabeth Moss",
+          "Cultural depictions of William III of England"
+        ],
+        "sentences": [
+          [
+            "Francis Albert Sinatra ( ; ] ; December 12, 1915 – May 14, 1998) was an American singer, actor, and producer who was one of the most popular and influential musical artists of the 20th century.",
+            " He is one of the best-selling music artists of all time, having sold more than 150 million records worldwide.",
+            " Born in Hoboken, New Jersey, to Italian immigrants, Sinatra began his musical career in the swing era with bandleaders Harry James and Tommy Dorsey.",
+            " Sinatra found success as a solo artist after he signed with Columbia Records in 1943, becoming the idol of the \"bobby soxers\".",
+            " He released his debut album, \"The Voice of Frank Sinatra\", in 1946.",
+            " Sinatra's professional career had stalled by the early 1950s, and he turned to Las Vegas, where he became one of its best known performers as part of the Rat Pack.",
+            " His career was reborn in 1953 with the success of \"From Here to Eternity\", with his performance subsequently winning an Academy Award and Golden Globe Award for Best Supporting Actor.",
+            " Sinatra released several critically lauded albums, including \"In the Wee Small Hours\" (1955), \"Songs for Swingin' Lovers!",
+            "\" (1956), \"Come Fly with Me\" (1958), \"Only the Lonely\" (1958) and \"Nice 'n' Easy\" (1960)."
+          ],
+          [
+            "Tina Heath is a British actress and former television presenter.",
+            " Her first TV appearance came in 1969, when she appeared in \"Broaden Your Mind\" on BBC Two alongside Graeme Garden and Tim Brooke-Taylor.",
+            " A one-off appearance in \"Z-Cars\" followed in 1970.",
+            " In 1973, she played the title role in the popular children's television serial \"Lizzie Dripping\" after first playing the character in an episode of \"Jackanory Playhouse\" in 1972; her character was supposed to be 12 years old, but in fact Heath was already 20 at the time.",
+            " She also played, in that same year's BBC miniseries production of \"Jane Eyre\" (1973), the character of Helen Burns, the fourteen-year-old boarding-school girl who is cruelly birched by Miss Scatcherd and who befriends the ten-year-old Jane when Jane is a newcomer to Lowood Institute.",
+            " Other TV appearances included a role in the BBC's \"Play Of The Month: The Linden Tree\" by J.B. Priestley in 1974; \"Churchill's People\" in 1975; Muriel Spark's \"The Girls Of Slender Means\"; and The Sweeney in 1976."
+          ],
+          [
+            "The Day of the Triffids is a BBC miniseries adaptation of John Wyndham's novel of the same name.",
+            " The novel had previously been adapted in 1962 as a theatrical film and by the BBC in a 1981 series."
+          ],
+          [
+            "Jack Andrew Lowden (born 2 June 1990) is a Scottish stage, television, and film actor.",
+            " Following a highly successful and award-winning four-year stage career, his first major international onscreen success was in the 2016 BBC miniseries \"War & Peace\", which led to starring roles in feature films."
+          ],
+          [
+            "Kenneth Campbell \"Ken\" Stott (born 19 October 1954) is a Scottish stage, television and film actor who won the Laurence Olivier Award for Best Actor in a Supporting Role in 1995 in the play \"Broken Glass\" at Royal National Theatre.",
+            " He is more recently known for his role as the dwarf Balin in \"The Hobbit\" film trilogy (2012–2014), and as Ian Garrett in the 2014 BBC TV mini-series \"The Missing\" starring alongside James Nesbitt.",
+            " His many notable roles in UK television include the role of Edward 'Eddie' McKenna in the Scottish BBC miniseries \"Takin' Over The Asylum\" (1994) co-starring with a young David Tennant, the title character DI John Rebus in the crime fiction-mystery series \"Rebus\" (2000–2007) and also as DCI Red Metcalfe in \"Messiah\" (2001–2008)."
+          ],
+          [
+            "Princess Yelena \"Hélène\" Vasilyevna Kuragina (Russian: Елена \"Эле́н\" Васи́льевна Кура́гина ) is a fictional character in Leo Tolstoy's novel \"War and Peace\" and its various cinematic adaptations.",
+            " She is played by Anita Ekberg in the 1956 film, by Amber Gray in \"Natasha, Pierre & The Great Comet of 1812\", and by Tuppence Middleton in the 2016 BBC miniseries."
+          ],
+          [
+            "Kevin McKidd (born 9 August 1973) is a Scottish-American television and film actor, director, and occasional singer.",
+            " Before playing the role of Owen Hunt in \"Grey's Anatomy\", for which he is perhaps most widely known, McKidd starred as Dan Vasser in the NBC Series \"Journeyman\" (2007), Tommy in Danny Boyle's \"Trainspotting\" (1996), Count Vronsky in the BBC miniseries \"Anna Karenina\" (2000), and Lucius Vorenus in the historical drama series \"Rome\" (2005–2007).",
+            " He also provides the voice of John \"Soap\" MacTavish in the video games \"\" and \"\".",
+            " He also played Poseidon in the film \"\"."
+          ],
+          [
+            "Katharine Winifred Buffery (born 23 July 1957) is an English actress.",
+            " She is known for her numerous roles on British television, including the ITV drama series \"Wish Me Luck\" (1988-1990), BBC miniseries \"Close Relations\" (1998), Channel 5 legal drama \"Wing and a Prayer\" (1997-1999) and the ITV police drama \"Trial and Retribution\" (1997-2002).",
+            " Her stage work includes the 1983 original West End production of \"Daisy Pulls it Off\", which earned her an Olivier Award nomination."
+          ],
+          [
+            "Elisabeth Singleton Moss (born July 24, 1982) is an American film, stage, and television actor.",
+            " She is known for her roles as Zoey Bartlet, the youngest daughter of President Josiah Bartlet, on the NBC television series \"The West Wing\" (1999–2006); Peggy Olson, secretary-turned-copywriter, on the AMC series \"Mad Men\" (2007–2015), which earned her six Emmy Awards nominations and a Golden Globe nomination; Det. Robin Griffin in the BBC miniseries \"Top of the Lake\" (2013, 2017), which won her a Golden Globe for Best Actress in a Miniseries or TV Film; and Offred on the Hulu series \"The Handmaid's Tale\", for which she won the Primetime Emmy Award for Outstanding Lead Actress in a Drama Series and the Primetime Emmy Award for Outstanding Drama Series, as producer."
+          ],
+          [
+            "William III of England has been played on screen by Bernard Lee in the 1937 film \"The Black Tulip\", based on the novel by Alexandre Dumas, père, Henry Daniell in the 1945 film \"Captain Kidd\", Olaf Hytten in the 1952 film \"Against All Flags\", Alan Rowe in the 1969 BBC drama series \"The First Churchills\", Laurence Olivier in the 1986 NBC TV mini-series \"Peter the Great\", Thom Hoffman in the 1992 film \"Orlando\", based on the novel by Virginia Woolf, Corin Redgrave in the 1995 film \"England, My England\", the story of the composer Henry Purcell, Jochum ten Haaf in the 2003 BBC miniseries \"\", Bernard Hill in the 2005 film \"The League of Gentlemen's Apocalypse\", Russell Pate in the 2008 BBC film \"King Billy Above All\", Egbert-Jan Weber in the 2015 film \"Michiel de Ruyter\", George Webster in \"Versailles\" (2015) and Carl Prekopp in the 2015 premiere of the play \"Queen Anne\"."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "task_id": "hp_dev_6149",
+    "dataset": "HotpotQA",
+    "question": "Which rock band chose its name by drawing it out of a hat, Switchfoot or Midnight Oil?",
+    "answer": "Midnight Oil",
+    "raw": {
+      "id": "5a8aa5835542996c9b8d5f4e",
+      "question": "Which rock band chose its name by drawing it out of a hat, Switchfoot or Midnight Oil?",
+      "answer": "Midnight Oil",
+      "type": "comparison",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Midnight Oil",
+          "Switchfoot",
+          "Switchfoot"
+        ],
+        "sent_id": [
+          2,
+          0,
+          1
+        ]
+      },
+      "context": {
+        "title": [
+          "20,000 Watt R.S.L.",
+          "Power and the Passion (song)",
+          "Red Sails in the Sunset (album)",
+          "Midnight Oil (album)",
+          "Rob Hirst",
+          "The Power &amp; The Passion",
+          "Species Deceases",
+          "Head Injuries",
+          "Midnight Oil",
+          "Read About It"
+        ],
+        "sentences": [
+          [
+            "20,000 Watt R.S.L. is a compilation album by Australian rock band Midnight Oil released in October 1997 on their own label Sprint Music.",
+            " The word \"Collection\" appears on the front of the CD along the hinge in the same type face as the title and the name of the band and may have been intended as part of the album's title; however, it does not appear on the spine.",
+            " The release has also been distributed inside a cardboard sleeve which adds \"Midnight Oil: The Hits\" to the album art, distinguishing it as a compilation album."
+          ],
+          [
+            "\"Power and the Passion\" was the second single by Midnight Oil from their 1982 album \"10, 9, 8, 7, 6, 5, 4, 3, 2, 1\" (following \"US Forces\").",
+            " The song is one of the band's most famous, and it was performed on every Midnight Oil tour since the issue of \"10, 9, 8, 7, 6, 5, 4, 3, 2, 1\" as well as at the WaveAid concert.",
+            " It was issued as the album's second single in 1983."
+          ],
+          [
+            "Red Sails in the Sunset is a rock album by Australian group Midnight Oil which was released in October 1984 under the Columbia Records label.",
+            " It was recorded and produced in Tokyo, Japan and is significant for becoming their first No. 1 album in Australia – it also entered the United States \"Billboard\" 200.",
+            " The cover image, by Japanese artist Tsunehisa Kimura, depicts Sydney Harbour after a hypothetical nuclear strike.",
+            " Some of its tracks were performed live in January 1985 at a Sydney Harbour Goat Island concert to celebrate radio station Triple J's 10th birthday, which was simulcast on ABC Television and subsequently re-broadcast on their then-Tuesday night music program \"Rock Arena\".",
+            " In 2004 the film footage later became part of a DVD album, \"Best of Both Worlds\".",
+            " \"Red Sails in the Sunset\" contains the only Midnight Oil tracks with lead vocals provided by their drummer Rob Hirst, \"When the Generals Talk\" and \"Kosciusko\".",
+            " The album spawned two singles, \"When the Generals Talk\" and \"Best of Both Worlds\" but neither appeared on the Australian singles chart."
+          ],
+          [
+            "Midnight Oil is the debut album by Australian hard rock band Midnight Oil which was recorded in 1977 and released in November 1978 on the band's independent Powderworks label.",
+            " It reached the top 50 on the Australian Kent Music Report Albums Chart.",
+            " The album was later distributed by CBS Records and issued as a CD.",
+            " The LP has a blue cover, however, the CD has a black cover.",
+            " Because of the blue cover, the former version is often referred to, by fans, as the \"blue album\" or \"the Blue Meanie\".",
+            " The lead single, \"Run By Night\", became the band's first minor hit in Australia and appeared on the Kent Music Report Singles Chart Top 100.",
+            " It also had a video clip."
+          ],
+          [
+            "Robert George \"Rob\" Hirst (born 3 September 1955) is an Australian musician from Camden, New South Wales.",
+            " He is a founding member of rock band Midnight Oil on drums, percussion and backing vocals (sometimes lead vocals) from the 1970s until the band's took a hiatus in 2002.",
+            " He also wrote a book, \"Willie's Bar & Grill\", recounting the experiences on the tour Midnight Oil embarked on shortly after the 11 September terrorist attacks in 2001."
+          ],
+          [
+            "The Power & The Passion ... a tribute to Midnight Oil is a 2001 tribute album featuring thirteen mostly Australian bands and artists, covering songs by the prominent Australian rock band Midnight Oil."
+          ],
+          [
+            "Species Deceases is an extended play by Australian rock music group, Midnight Oil, which was released on 26 November 1985 under the CBS record label.",
+            " \"Species Deceases\" debuted at No. 1 on the Australian Kent Music Report Singles Chart for six weeks from December 1985 to January 1986.",
+            " It was the first Australian single and/or EP to reach the number-one spot on its chart appearance and remains Midnight Oil's only No. 1 on the national singles chart."
+          ],
+          [
+            "Head Injuries is the second studio album by Australian pub rockers Midnight Oil, which was released in October 1979 on their own Powderworks label and distributed by Columbia Records.",
+            " The album was produced by Leszek J. Karski.",
+            " It was the last Midnight Oil album to feature founding bass guitarist Andrew James, who quit the band due to illness.",
+            " It peaked at No. 36 on the Australian Kent Music Report and by mid-1980 had achieved gold status."
+          ],
+          [
+            "Midnight Oil (also known informally as \"The Oils\" to fans) are an Australian rock band, who originally performed as Farm from 1972 with drummer Rob Hirst, bass guitarist Andrew James and keyboard player/lead guitarist Jim Moginie.",
+            " While vocalist Peter Garrett was studying at Australian National University in Canberra, he answered an advertisement for a spot in Farm, and by 1975 the band was touring the east coast of Australia.",
+            " By late 1976, Garrett moved to Sydney to complete his law degree, and Farm changed its name to Midnight Oil by drawing the name out of a hat."
+          ],
+          [
+            "\"Read About It\" is the second single released by Australian rock band, Midnight Oil, from their 1982 studio album, \"10, 9, 8, 7, 6, 5, 4, 3, 2, 1\".",
+            " It was a favorite with the band and with fans, appearing at least once on every tour since its release and appearing at the WaveAid concert.",
+            " Very few other Midnight Oil songs have appeared so often (only \"Power and the Passion\", \"Beds Are Burning\", \"The Dead Heart\", and \"Say Your Prayers\" are \"known\" to have been performed so often)."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "task_id": "hp_dev_4237",
+    "dataset": "HotpotQA",
+    "question": "\"Tunak\", is a bhangra/pop love song by an artist born in which year ?",
+    "answer": "1967",
+    "raw": {
+      "id": "5ab82d095542990e739ec853",
+      "question": "\"Tunak\", is a bhangra/pop love song by an artist born in which year ?",
+      "answer": "1967",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Tunak Tunak Tun",
+          "Daler Mehndi"
+        ],
+        "sent_id": [
+          0,
+          0
+        ]
+      },
+      "context": {
+        "title": [
+          "The Day Before I Met You",
+          "Urusei Yatsura no Theme: Lum no Love Song/Me",
+          "A Love Song (Lee Greenwood song)",
+          "Anmol Gagan Maan",
+          "Crazy in Love",
+          "Owari no Hoshi no Love Song",
+          "Feels Just Like a Love Song",
+          "Tunak Tunak Tun",
+          "Lum's Love Song",
+          "This Ain't a Love Song"
+        ],
+        "sentences": [
+          [
+            "\"The Day Before I Met You\" is a song by Australian recording artist Jessica Mauboy from the platinum edition of her third studio album, \"Beautiful\".",
+            " It was released on 13 February 2015 as the album's sixth overall single and the second single from the platinum edition.",
+            " \"The Day Before I Met You\" was written by Antonio Dixon, Kenneth \"Babyface\" Edmonds, Khristopher Riddick-Tynes, Helen Jane Culver and Mauboy.",
+            " Dixon and Edmonds also produced the song with The Rascals.",
+            " \"The Day Before I Met You\" is a pop love song which features an acoustic guitar riff and \"very low pitched\" vocals in its verses.",
+            " Lyrically, Mauboy sings about \"not wanting to go back to a time before that special someone was in her life\"."
+          ],
+          [
+            "Urusei Yatsura no Theme ~Lum no Love Song／「Mii」 (うる星やつらのテーマ～ラムのラブソング～／「ミィ」 / \"Theme of Urusei Yatsura ~Love Song of Lum~/\"Me\"\") is the fourteenth single released by Japanese artist misono on September 23, 2009.",
+            " The single was released the same day as her first cover album \"Cover Album.\"",
+            " The single charted well on Oricon, taking the #18 position for the week; however, the single only remained on the charts for two weeks."
+          ],
+          [
+            "\"A Love Song\" is a song written by Lee Greenwood and recorded by American country music artist Kenny Rogers.",
+            " It was released in October 1982 as the second single from his album \"Love Will Turn You Around\".",
+            " The song reached number 3 on the \"Billboard\" Hot Country Singles chart and number 1 on the \"RPM\" Country Tracks chart in Canada.\"",
+            " \"A Love Song\" was originally recorded by Greenwood on his 1982 album \"Inside Out\"."
+          ],
+          [
+            "Anmol Gagan Maan (Gagandeep Kaur Maan) is a Punjabi Singer known for her Punjabi Folk, Bhangra songs.She has done her graduation from M.C.M. D.A.V. College Chandigarh, with Music & Psychology as major.",
+            " In 2004 she has won a World Folk Dance(Jhumar, Bhangra, Giddha) Competition in England and Russia.",
+            " In year 2013, she was crowned as Miss Mohali Punjaban at Miss World Punjaban.",
+            " She has over half a million fan on her Facebook fan page.",
+            " She was even nominated for her debut song Sohni in 2014.",
+            " Punjabi Music Best Debut vocalist (Female) Award, Punjabi Music Best folk oriented Vocalist Award for Sohni in 2014, Shoukeen Jatt in 2015 and Punjabi Music Best pop Vocalist (Female) Award for Kala Sher in 2016, Anmol Gagan Maan and her father launched a band with label named punjabo on April 14 2017 along with 11 female members of band"
+          ],
+          [
+            "\"Crazy in Love\" is a song by American singer Beyoncé featuring American rapper Jay-Z, from Beyoncé's debut solo studio album \"Dangerously in Love\" (2003).",
+            " Both artists wrote and composed the song in collaboration with Rich Harrison and Eugene Record; the former also produced it with Beyoncé.",
+            " Using samples from The Chi-Lites's 1970 song \"Are You My Woman (Tell Me So)\", \"Crazy in Love\" is an R&B and pop love song that incorporates elements of hip hop, soul, and 1970s-style funk music.",
+            " Its lyrics describe a romantic obsession that causes the protagonist to act out of character."
+          ],
+          [
+            "Owari no Hoshi no Love Song (終わりの惑星のLove Song ) is a Japanese pop music concept album produced by Jun Maeda featuring vocalist Nagi Yanagi.",
+            " It was released on April 25, 2012 by Flaming June, an independent record label established by Maeda.",
+            " Two of the album's thirteen tracks were previously released on the single \"Killer Song\" at Comiket 81 on December 29, 2011.",
+            " Two different editions of the album were released: a regular CD version and a CD+DVD limited edition.",
+            " \"Owari no Hoshi no Love Song\" peaked at No. 6 on the Japanese Oricon weekly albums chart."
+          ],
+          [
+            "\"Feels Just Like a Love Song\" is a song co-written and recorded by American country artist Sara Evans.",
+            " It was released to country radio in July 2009, and as a digital download on August 18, 2009.",
+            " \"Feels Just Like a Love Song\" is the twenty-third single release of Evans' career."
+          ],
+          [
+            "\"Tunak Tunak Tun\" (Punjabi: ਤੁਣਕ ਤੁਣਕ ਤੁਣ ) or simply \"Tunak\", is a bhangra/pop love song by Indian artist Daler Mehndi released in 1998.",
+            " At the time, critics complained that Mehndi's music was only popular due to his videos that featured beautiful women dancing.",
+            " Mehndi's response was to create a video that featured only himself.",
+            " The music video was the first made in India using greenscreen technology, which allowed the singer to superimpose his image over various computer-generated backgrounds such as desert and mountain landscapes and St. Basil's Cathedral."
+          ],
+          [
+            "Lum no Love Song (ラムのラブソング / \"Love Song of Lum\") is the debut single of Japanese pop singer Yuko Matsutani.",
+            " The single was released on October 21, 1981 and was created as the theme song for the anime series \"Urusei Yatsura.\"",
+            " The song was used as the theme song from its debut on October 14, 1981 until the 77th episode released on July 20, 1983."
+          ],
+          [
+            "“This Ain’t a Love Song” is the lead single from Bon Jovi’s 1995 album \"These Days\".",
+            " It reached #14 on the \"Billboard\" Hot 100, #11 on the Mainstream Top 40 and it reached #6 on the UK Singles Chart.",
+            " The song is an example of the strong rhythm and blues influence that Jon Bon Jovi and Richie Sambora wanted the \"These Days\" album to have, and the final result by the Q is alternative rock according to the critics of the magazine.",
+            " The official music video was shot at Wat Ratchaburana in Ayuthaya, Thailand; and directed by Andy Morahan.",
+            " A Spanish version, \"Como Yo Nadie Te Ha Amado,\" was also recorded, however the Spanish version is different from the original because the lyrics are different and it talks about how nobody really love the two people that are in a relationship.",
+            " Mexican singer Yuridia covered the Spanish version on her second studio album \"Habla El Corazón\" which peaked at #16 on the \"Billboard\" Hot Latin Songs chart.",
+            " Yuridia's cover received was nominated at the 2008 Latin Billboard Awards for Latin Pop Airplay of the Year by a Female Artist.",
+            " Her cover also led to Jon Bon Jovi winning an ASCAP Latin Award in the Pop/Ballad field."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "task_id": "wiki_dev_8896",
+    "dataset": "2WikiMultiHopQA",
+    "question": "Was Jean-Baptiste Le Prince or Billy Magoulias born first?",
+    "answer": "Jean-Baptiste Le Prince",
+    "raw": {
+      "_id": "02be5a57088011ebbd6cac1f6bf848b6",
+      "type": "comparison",
+      "question": "Was Jean-Baptiste Le Prince or Billy Magoulias born first?",
+      "context": "[[\"Billy Magoulias\", [\"Billy Magoulias( born 23 January 1997) is a Greek international rugby league footballer who plays as a for the Cronulla- Sutherland Sharks in the NRL.\"]], [\"William Pratt\", [\"William or Billy Pratt may refer to:\"]], [\"Bill Phillips\", [\"Bill or Billy Phillips may refer to:\"]], [\"Jean-Baptiste Le Prince\", [\"Jean- Baptiste Le Prince( September 17, 1734 \\u2013 September 30, 1781) was an important French etcher and painter.\", \"Le Prince first studied painting techniques in his native Metz.\", \"He then travelled to Paris around 1750 and became a leading student of the great painter, Fran\\u00e7ois Boucher( 1703 \\u2013 1770).\", \"Le Prince's early paintings in both theme and style are comparable to his master's rococo techniques.\", \"In 1758 Le Prince journeyed to Russia to work for Catherine the Great at the Imperial Palace, St. Petersburg.\", \"He remained in Russia for five years and also travelled extensively throughout Finland, Lithuania and even Siberia.\", \"When Le Prince returned to Paris in December, 1763, he brought with him an extensive collection of drawings which he employed as the basis for a number of fine paintings and etchings.\", \"J. B. Le Prince was elected a full member of the\\\" Acad\\u00e9mie de peinture et de sculpture\\\" in 1765.\", \"Le Prince's graphic art of Russia and its peoples is significant in that he based his compositions entirely upon his own designs, lending a much more realistic portrayal to his views than other eighteenth century contemporaries.\", \"He is also credited with being the first artist( in 1768) to introduce aquatint into his etched and engraved plates.\", \"He may even have been the inventor of aquatint, the tonal graphic art that would later be so skillfully used by such masters as Goya, Louis- Philibert Debucourt, Delacroix and Thomas Rowlandson.\"]], [\"Bill Mitchell\", [\"Bill or Billy Mitchell may refer to:\"]], [\"Bill Jennings\", [\"Bill or Billy Jennings may refer to:\"]], [\"Jean-Baptiste Le Carpentier\", [\"Jean- Baptiste Le Carpentier( 1 June 1759, Helleville- 27 January 1829, Mont- Saint- Michel) was a French political activist from Normandy.\"]], [\"Bill Collins\", [\"Bill or Billy Collins may refer to:\"]], [\"Bill Baker\", [\"Bill or Billy Baker may refer to:\"]], [\"Bill Johnston\", [\"Bill or Billy Johnston may refer to:\"]]]",
+      "supporting_facts": "[[\"Jean-Baptiste Le Prince\", 0], [\"Billy Magoulias\", 0]]",
+      "evidences": "[[\"Jean-Baptiste Le Prince\", \"date of birth\", \"September 17, 1734\"], [\"Billy Magoulias\", \"date of birth\", \"23 January 1997\"]]",
+      "answer": "Jean-Baptiste Le Prince"
+    }
+  },
+  {
+    "task_id": "wiki_dev_0092",
+    "dataset": "2WikiMultiHopQA",
+    "question": "Where was the director of film Lettre Ouverte born?",
+    "answer": "Paris",
+    "raw": {
+      "_id": "00c75ffc0bde11eba7f7acde48001122",
+      "type": "compositional",
+      "question": "Where was the director of film Lettre Ouverte born?",
+      "context": "[[\"Ahmed Baba Misk\\u00e9\", [\"Ahmed Baba Misk\\u00e9( 18 May 1935 \\u2013 14 March 2016) was a Mauritanian politician, writer, diplomat and author of\\\" Lettre ouverte aux elites du Tiers- mondeOpen Letters to the Elite of the Third World\\\").\", \"He was a Mauritanian ambassador and Polisario Front member.\"]], [\"Brian Kennedy (gallery director)\", [\"Brian Patrick Kennedy( born 5 November 1961) is an Irish- born art museum director who has worked in Ireland and Australia, and now lives and works in the United States.\", \"He is currently the director of the Peabody Essex Museum.\", \"He was the director of the Toledo Museum of Art in Ohio from 2010 to 2019.\", \"He was the director of the Hood Museum of Art from 2005 to 2010, and the National Gallery of Australia( Canberra) from 1997- 2004.\"]], [\"Alex Joff\\u00e9\", [\"Alex Joff\\u00e9 (18 November 1918 \\u2013 18 August 1995) was a French film director and screenwriter, known for \\\"Les cracks\\\" (1968), \\\"Fortunat\\\" (1960) and \\\"La grosse caisse\\\" (1965).\", \"He was the father of the director Arthur Joff\\u00e9, as well as Marion (born 1952) and Nina (born 1956).\", \"Alex Joff\\u00e9 was born on 18 November 1918 in Alexandria, Egypt, as Alexandre Joff\\u00e9.\", \"He was married to Ren\\u00e9e Asseo.\", \"He died on 18 August 1995 in Paris.\"]], [\"S. N. Mathur\", [\"S.N. Mathur was the Director of the Indian Intelligence Bureau between September 1975 and February 1980.\", \"He was also the Director General of Police in Punjab.\"]], [\"Lettre ouverte\", [\"Lettre ouverte is a French film directed by Alex Joff\\u00e9 and released in 1953.\"]], [\"Olav Aaraas\", [\"Olav Aaraas( born 10 July 1950) is a Norwegian historian and museum director.\", \"He was born in Fredrikstad.\", \"From 1982 to 1993 he was the director of Sogn Folk Museum, from 1993 to 2010 he was the director of Maihaugen and from 2001 he has been the director of the Norwegian Museum of Cultural History.\", \"In 2010 he was decorated with the Royal Norwegian Order of St. Olav.\"]], [\"Jesse E. Hobson\", [\"Jesse Edward Hobson( May 2, 1911 \\u2013 November 5, 1970) was the director of SRI International from 1947 to 1955.\", \"Prior to SRI, he was the director of the Armour Research Foundation.\"]], [\"Peter Levin\", [\"Peter Levin is an American director of film, television and theatre.\"]], [\"Dana Blankstein\", [\"Dana Blankstein- Cohen( born March 3, 1981) is the director of the Israeli Academy of Film and Television.\", \"She is a film director, and an Israeli culture entrepreneur.\"]], [\"Ian Barry (director)\", [\"Ian Barry is an Australian director of film and TV.\"]]]",
+      "supporting_facts": "[[\"Lettre ouverte\", 0], [\"Alex Joff\\u00e9\", 4]]",
+      "evidences": "[[\"Lettre ouverte\", \"director\", \"Alex Joff\\u00e9\"], [\"Alex Joff\\u00e9\", \"place of birth\", \"Paris\"]]",
+      "answer": "Paris"
+    }
+  },
+  {
+    "task_id": "wiki_dev_10378",
+    "dataset": "2WikiMultiHopQA",
+    "question": "What is the place of birth of J.J. Madan's father?",
+    "answer": "Bombay",
+    "raw": {
+      "_id": "61c0b6a40bda11eba7f7acde48001122",
+      "type": "compositional",
+      "question": "What is the place of birth of J.J. Madan's father?",
+      "context": "[[\"J.J. Madan\", [\"J.J. Madan was a theater business owner and film director in India.\", \"He was the third son of Indian film magnate Jamshedji Framji Madan who started Madan Theatres Ltd. in 1919.\", \"After his father died in 1923, J. J. Madan took over the management of Madan Theatres.\"]], [\"Hasan Madan\", [\"Hasan Madan( born 29 February 1996) is a Bahraini handball player for Alder and the Bahraini national team.\", \"He represented Bahrain at the 2019 World Men's Handball Championship.\"]], [\"Chittaranjan Nepali\", [\"Chittaranjan Nepali is a writer and winner of Madan Puraskar of Nepal.\"]], [\"Pessie Madan\", [\"Pessie Madan( born 26 September 1916) is a retired Brigadier of the Indian Army and an early leader in India \\u2019s high- technology research and development sector.\"]], [\"Yubraj Nayaghare\", [\"Yubraj Nayaghare is writer, litterateur and winner of Madan Puraskar of Nepal.\"]], [\"Nar Bahadur Saud\", [\"Nar Bahadur Saud is writer, novelist and winner of Madan Puraskar of Nepal.\"]], [\"Jamshedji Framji Madan\", [\"Jamshedji Framji Madan (1856, Bombay \\u2013 28 June 1923), professionally known as J. F. Madan, was an Indian theatre and film magnate who was one of the pioneers of film production in India, an early exhibitor, distributor and producer of films and plays.\", \"He accumulated his wealth on the Parsi theatre district scene in Bombay in the 1890s where he owned two theatre companies.\", \"He moved to Calcutta in 1902 where he founded Elphinstone Bioscope Company, and began producing and exhibiting silent movies including Jyotish Sarkar's \\\"Bengal Partition Movement\\\" in 1905.\", \"He expanded his empire considerably after acquiring rights to Path\\u00e9 Fr\\u00e8res films.\", \"He produced \\\"Satyavadi Raja Harishchandra\\\" in 1917 and \\\"Bilwamangal\\\" in 1919. \\\"\", \"Satyavadi Raja Harishchandra\\\" was the first feature film to be shot in Calcutta.\", \"Elphinstone merged into Madan Theatres Limited in 1919 which brought adapted many of Bengali's most popular literary works to the stage.\", \"Madan Theatres was a major force in Indian theatre throughout the 1920s and 1930s.\"]], [\"Obata Toramori\", [\"He was the father of Obata Masamori.\"]], [\"Ali Madan\", [\"Ali Jaafar Mohamed Ahmed Madan( born 30 November 1995) is a Bahraini footballer who plays as a defender for Al- Najma and the Bahrain national team.\"]], [\"Cleomenes II\", [\"Cleomenes II( died 309 BC) was Agiad King of Sparta from 369 to 309 BC.\", \"The son of Cleombrotus I, he succeeded his brother Agesipolis II.\", \"He was the father of Acrotatus I, the father of Areus I, and of Cleonymus, the father of Leonidas II.\"]]]",
+      "supporting_facts": "[[\"J.J. Madan\", 1], [\"Jamshedji Framji Madan\", 0]]",
+      "evidences": "[[\"J. J. Madan\", \"father\", \"Jamshedji Framji Madan\"], [\"Jamshedji Framji Madan\", \"place of birth\", \"Bombay\"]]",
+      "answer": "Bombay"
+    }
+  },
+  {
+    "task_id": "wiki_dev_7019",
+    "dataset": "2WikiMultiHopQA",
+    "question": "Which award the performer of song Constantemente Mía got?",
+    "answer": "Sanremo Music Festival",
+    "raw": {
+      "_id": "6d68448a0bdb11eba7f7acde48001122",
+      "type": "compositional",
+      "question": "Which award the performer of song Constantemente Mía got?",
+      "context": "[[\"O Valencia!\", [\"\\\" O Valencia!\\\" is the fifth single by the indie rock band\", \"The Decemberists, and the first released from their fourth studio album,\\\" The Crane Wife\\\".\", \"The music was written by The Decemberists and the lyrics by Colin Meloy.\", \"It tells a story of two star- crossed lovers.\", \"The singer falls in love with a person who belongs to an opposing gang.\", \"At the end of the song, the singer's lover jumps in to defend the singer, who is confronting his lover's brother( the singer's\\\" sworn enemy\\\") and is killed by the bullet intended for the singer.\"]], [\"Since When (song)\", [\"\\\" Since When\\\" is a song by Canadian rock band 54- 40.\", \"The song is the first single and title track of the band's eighth studio album,\\\" Since When\\\".\", \"The song is the highest charting single in the band's history, peaking at No. 11 on the\\\" RPM\\\" singles chart in Canada.\", \"The song won the award for\\\" Best Song\\\" at the West Coast Music Awards, with the song's music video winning the award for\\\" Best Video\\\".\"]], [\"Billy Milano\", [\"Billy Milano is a Bronx- born heavy metal musician now based in Austin, Texas.\", \"He is the singer and- occasionally- guitarist and bassist of crossover thrash band M.O.D., and he was also the singer of its predecessor, Stormtroopers of Death.\", \"He was also the singer of United Forces, which also featured his Stormtroopers of Death bandmate Dan Lilker.\"]], [\"Bernie Bonvoisin\", [\"Bernard Bonvoisin, known as Bernie Bonvoisin( born 9 July 1956 in Nanterre, Hauts- de- Seine), is a French hard rock singer and film director.\", \"He is best known for having been the singer of Trust.\", \"He was one of the best friends of Bon Scott the singer of AC/ DC and together they recorded the song\\\" Ride On\\\" which was one of the last songs by Bon Scott.\"]], [\"Constantemente M\\u00eda\", [\"\\\"Constantemente M\\u00eda\\\" (English: \\\"Constantly Mine\\\") is the first single by the Italian trio Il Volo, with the Mexican singer Belinda, from their studio album \\\"M\\u00e1s Que Amor\\\".\"]], [\"The Singer of All Songs\", [\"The Singer of All Songs is the first novel in the Chanters of Tremaris trilogy by Kate Constable.\"]], [\"The Singer\", [\"The Singer may refer to:\"]], [\"Hong Kong Film Award for Best Asian Film\", [\"The Hong Kong Film Award for Best Asian Film is a retired Hong Kong Film Award that was presented from 2003- 2011.\", \"The award has since been replaced by the award for Best Film from Mainland and Taiwan.\"]], [\"Il Volo\", [\"Il Volo (Italian for \\\"The Flight\\\") is an Italian operatic pop trio, consisting of baritone Gianluca Ginoble, and tenors, Piero Barone and Ignazio Boschetto.\", \"They describe their music as \\\"popera\\\".\", \"Having won the Sanremo Music Festival 2015, they represented Italy in the Eurovision Song Contest 2015 in Vienna, Austria.\", \"They reached third place, but managed to secure a solid first-place victory in the televoting.\"]], [\"Etan Boritzer\", [\"Etan Boritzer( born 1950) is an American writer of children \\u2019s literature who is best known for his book\\\" What is God?\\\" first published in 1989.\", \"His best selling\\\" What is?\\\" illustrated children's book series on character education and difficult subjects for children is a popular teaching guide for parents, teachers and child- life professionals.\", \"Boritzer gained national critical acclaim after\\\" What is God?\\\" was published in 1989 although the book has caused controversy from religious fundamentalists for its universalist views.\", \"The other current books in the\\\" What is?\\\" series include\", \"What is Love?,\", \"What is Death?,\", \"What is Beautiful?,\", \"What is Funny?,\", \"What is Right?,\", \"What is Peace?,\", \"What is Money?,\", \"What is Dreaming?,\", \"What is a Friend?,\", \"What is True?,\", \"What is a Family?,\", \"What is a Feeling?\\\"\", \"The series is now also translated into 15 languages.\", \"Boritzer was first published in 1963 at the age of 13 when he wrote an essay in his English class at Wade Junior High School in the Bronx, New York on the assassination of John F. Kennedy.\", \"His essay was included in a special anthology by New York City public school children compiled and published by the New York City Department of Education.\", \"Boritzer now lives in Venice, California and maintains his publishing office there also.\", \"He has helped numerous other authors to get published through\\\" How to Get Your Book Published!\\\" programs.\", \"Boritzer is also a yoga teacher who teaches regular classes locally and guest- teaches nationally.\", \"He is also recognized nationally as an erudite speaker on\\\" The Teachings of the Buddha.\\\"\"]]]",
+      "supporting_facts": "[[\"Constantemente M\\u00eda\", 0], [\"Il Volo\", 2]]",
+      "evidences": "[[\"Constantemente M\\u00eda\", \"performer\", \"Il Volo\"], [\"Il Volo\", \"award received\", \"Sanremo Music Festival\"]]",
+      "answer": "Sanremo Music Festival"
+    }
+  },
+  {
+    "task_id": "wiki_dev_0123",
+    "dataset": "2WikiMultiHopQA",
+    "question": "Which film has the director born first, Leave It To Henry or The Last Night Of Scheherazade?",
+    "answer": "Leave It To Henry",
+    "raw": {
+      "_id": "69a7e9ca08e011ebbda1ac1f6bf848b6",
+      "type": "bridge_comparison",
+      "question": "Which film has the director born first, Leave It To Henry or The Last Night Of Scheherazade?",
+      "context": "[[\"The Last Night (1936 film)\", [\"The Last Night is a 1936 Soviet drama film directed by Yuli Raizman.\"]], [\"Leave It to Me (1955 film)\", [\"Leave It to Me  is a 1955 Czech comedy film directed by Martin Fri\\u010d.\"]], [\"The Last Night of the Barbary Coast\", [\"The Last Night of the Barbary Coast( 1913) was an early example of the exploitation film, showing what was purported to be the last night of the Barbary Coast red-light section of San Francisco.\", \"In reality, the Barbary Coast was n't shut down until 1917.\", \"The film, directed by Hal Mohr and Sol Lesser, is now considered a lost film.\", \"Mohr, later an Academy Award winner, did the cinematography, and Lesser went on to become a Hollywood producer.\"]], [\"Leave It to Henry\", [\"Leave It to Henry is a 1949 American comedy film directed by Jean Yarbrough and written by D.D. Beauchamp.\", \"The film stars Raymond Walburn, Walter Catlett, Gary Gray, Mary Stuart, Barbara Brown and Houseley Stevenson.\", \"The film was released on June 12, 1949, by Monogram Pictures.\"]], [\"Takhir Sabirov\", [\"Takhir Sabirov( December 21, 1929 \\u2013 May 30, 2002) is a Tajik film director, actor, screenwriter, art director, and one of the most notable figures of the Tajik cinema.\", \"He is known as the\\\" founding father\\\" of the\\\" One Thousand and One Nights\\\" dynasty of the film industry due to his creation of the' Scheherazade' trilogy.\", \"He is also known by his formal name Takhir Mukhtorovich Sabirov.\", \"His mother\\\" Mastona Sobir Zoda\\\" was the daughter of Duke\\\" Sobir- kaloni Tura-zoda\\\" of Samarkand( now part of the Samarqand Province, Uzbekistan), from the Duchy of Greater Khorasan, known as\\\" Tura- zoda\\\", who were eminent members of Central Asia's Aristocracy.\", \"Takhir was the youngest of five children.\", \"He was married twice and has two sons and three daughters.\", \"He completed the Performing Arts discipline at the Tashkent State Art Institute of Theatrical Arts in Tashkent, Uzbekistan.\", \"In 1951, he then continued further by obtaining his Directorial discipline under faculty of Yuri Zavadsky at The Russian Academy of Theatre Arts( GITIS) in Moscow, Russia.\", \"His first film,\\\" Roh\\\"( 1955)\", \"( Russian title:\\\" \\u0414\\u043e\\u0440\\u043e\\u0433\\u0430\\\") produced by Mosfilm initiated him into the film industry, but the role of\\\" Yodgor\\\" in\\\" Dokhunda\\\"( 1956) sparked his career and was followed by several successful roles.\", \"His directorial debut was in\\\" Vaqti zangirii pisar rasid\\\"( Russian title:\\\" Sinu para jinitsa\\\", 1959), which was the first comedy musical motion picture in the Cinema of Tajikistan.\", \"With his films he introduced the Tajik film industry onto international scenebasis with his nomination in International film festivals.\", \"His film\\\" Margi Sudkhur\\\"( Russian title:\\\" Smert' Rostovshika\\\", 1966) was nominated at the International Film Festival of Asia and Africa in 1968.\", \"His trilogy of\\\" New Tales of ScheherazadeAnother Night of Scheherazade\\\" and\\\" The Last Night of Scheherazade\\\" that were based on the Arabic folktale\\\" One Thousand and One Nights\\\" had made a great impact in the Cinema of Tajikistan by opening it to European audiences and borders.\", \"The Scheherazade trilogies were among one of the first Tajik film productions that achieved distribution beyond Russian( former USSR) borders, placing Tajik film on the map of International Film Festivals.\", \"Not only has he directed and co-written the Scheherazade trilogies, but also starred as King Shahryar( Sultan); which coincidentally is more true to his own lineage of royalty.\", \"He became a cultural icon gaining more acknowledgement and respect.\", \"Regardless of the obstacles he had faced in his lifetime, he never stopped filming.\", \"He is known in the Tajik film industry as one of the major film directors of his time.\", \"He broadened his entertainment field as he established entrepreneurial joint venture\\\" Movarounnahr Joint Venture\\\" as an Art Director.\", \"Although he was involved in many fields of the film industry, he always had time to instruct and inspire students and apprentices.\", \"In 1999, he was part of the judging committee in the 21st( XXI) Moscow International Film Festival.\", \"He became the first Tajik film director to be honored with the position of a film judge.\", \"In 2002, he was an honorary guest at the 55th( LV) Cannes Film Festival.\", \"Even in his seventy years of age he was involved in film production.\", \"However, on May 30, 2002 he died with his film\\\" Khoja Kamoli Khujandi\\\" still in production.\", \"In 2003, a street,\\\" Takhir Sabirov Street\\\" was named after his death for his contributions in the Cinema of Tajikistan( Tajikfilm, Tajik Film Studio).\"]], [\"Leave It to Me (1933 film)\", [\"Leave It to Me is a 1933 British comedy film directed by Monty Banks and starring Gene Gerrard, Olive Borden and Molly Lamont.\", \"It was made at Elstree Studios.\", \"The film's sets were designed by the art director David Rawnsley.\", \"It is an adaptation of the play\\\" Leave It to Psmith\\\"( 1930) by Ian Hay and P.G. Wodehouse, which is based on Wodehouse's novel\\\" Leave It to Psmith\\\"( 1923).\"]], [\"Frank Bank\", [\"Frank Bank( April 12, 1942 \\u2013 April 13, 2013) was an American actor, particularly known for his role as Clarence\\\" Lumpy\\\" Rutherford on the 1957 \\u2013 1963 situation comedy television series\\\" Leave It to Beaver\\\".\", \"Bank was cast in fifty episodes of\\\" Leave It to Beaver\\\" between January 24, 1958, until the series finale on May 30, 1963.\", \"Thereafter, he was cast as Clarence Rutherford in 101 episodes of the series sequel,\\\" The New Leave It to Beaver\\\", which aired on cable television from 1985 to 1989.\", \"Beginning in 1973, Bank became a bond broker in his native Los Angeles.\", \"His autobiography,\\\" Call Me Lumpy: My Leave It To Beaver Days and Other Wild Hollywood Life,\\\" was published in 1997.\", \"Bank died of cancer on April 13, 2013, in Rancho Mirage, California, one day after his 71st birthday.\", \"He was survived by his third wife, Rebecca, four daughters, and five grandchildren.\", \"He is interred at Hillside Memorial Park Cemetery in Culver City, California.\"]], [\"Henry Moore (cricketer)\", [\"Henry Walter Moore( 1849 \\u2013 20 August 1916) was an English- born first- class cricketer who spent most of his life in New Zealand.\"]], [\"Jean Yarbrough\", [\"Jean Yarbrough (August 22, 1901 \\u2013 August 2, 1975) was an American film director.\"]], [\"The Last Night of Scheherazade\", [\"The Last Night of Scheherazade is a 1987 Soviet- Syrian children's fantasy film directed by Takhir Sabirov based on\\\" One Thousand and One Nights\\\".\", \"It is the last film of the trilogy, started with the films\\\" New Tales of Scheherazade\\\" and\\\" And another night of Scheherazade\\\".\", \"The heroes of the film are the shoemaker Maruf and the daughter of the Caliph, Esmag\\u00fcl, who despite falling in love with a young man, nevertheless forces him to fight for his own happiness.\"]]]",
+      "supporting_facts": "[[\"Leave It to Henry\", 0], [\"The Last Night of Scheherazade\", 0], [\"Jean Yarbrough\", 0], [\"Takhir Sabirov\", 0]]",
+      "evidences": "[[\"Leave It to Henry\", \"director\", \"Jean Yarbrough\"], [\"The Last Night of Scheherazade\", \"director\", \"Takhir Sabirov\"], [\"Jean Yarbrough\", \"date of birth\", \"August 22, 1901\"], [\"Takhir Sabirov\", \"date of birth\", \"December 21, 1929\"]]",
+      "answer": "Leave It To Henry"
+    }
+  },
+  {
+    "task_id": "wiki_dev_10727",
+    "dataset": "2WikiMultiHopQA",
+    "question": "Which film came out earlier, Au Revoir Les Enfants or Physical Jerks?",
+    "answer": "Au Revoir Les Enfants",
+    "raw": {
+      "_id": "e0a2de32097c11ebbdb0ac1f6bf848b6",
+      "type": "comparison",
+      "question": "Which film came out earlier, Au Revoir Les Enfants or Physical Jerks?",
+      "context": "[[\"Physical Jerks\", [\"Physical Jerks is a 1997 Italian comedy film directed by Stefano Reali.\", \"It is an adaptation of a semi-autobiographical comedy play by the same Reali.\", \"The English version of its title is the( chiefly British) informal term for physical exercise.\"]], [\"Children of Love\", [\"Children of Love( French: Les enfants de l'amour) is a 1953 French drama film directed by L\\u00e9onide Moguy and starring Etchika Choureau, Jo\\u00eblle Bernard and Lise Bourdin.\"]], [\"Messieurs les enfants\", [\"Messieurs les enfants is a 1997 French comedy film, directed by Pierre Boutron.\"]], [\"Au revoir les enfants\", [\"Au revoir les enfants( meaning\\\" Goodbye, Children\\\") is an autobiographical 1987 film written, produced and directed by Louis Malle.\", \"The film won the Golden Lion at the Venice Film Festival.\"]], [\"Closet Children\", [\"Closet Children( original title: Les Enfants du Placard) is a 1977 French drama film directed by Beno\\u00eet Jacquot.\"]], [\"Au Revoir Taipei\", [\"Au Revoir Taipei is a 2010 Taiwanese romantic comedy film set in Taipei and is Arvin Chen's feature directorial debut.\", \"It won the NETPAC Award at the 2010 Berlin International Film Festival and was considered a box office success in Taiwan.\"]], [\"Les Enfants du naufrageur\", [\"Les Enfants du naufrageur is a French adventure film from 1992.\", \"It was directed by J\\u00e9r\\u00f4me Foulon written by Fran\\u00e7ois Celier, starring Jean Marais and Brigitte Fossey.\", \"The film is also known as\\\" Shipwrecked Children\\\".\"]], [\"Les Enfants Terribles (film)\", [\"Les Enfants Terribles(\\\" The terrible children\\\") is a 1950 French film directed by Jean- Pierre Melville and based on Jean Cocteau's novel,\\\" Les Enfants Terribles\\\".\", \"The first feature film of Melville,\\\" Le Silence de la Mer\\\"( 1949), attracted the attention of Jean Cocteau, who commissioned him to direct the film version of\\\" Les Enfants Terribles\\\".\"]], [\"Operation Leopard\", [\"La l\\u00e9gion saute sur Kolwezi also known as\\\" Operation Leopard\\\" is a French war film directed by Raoul Coutard filmed in French Guiana.\", \"The script is based on the true story of the Battle of Kolwezi that happened in 1978.\", \"It was diligently described in a book of the same name by former 1 REP Captain Pierre Sergent.\", \"He published his book in 1979; the film came out in 1980.\", \"Raoul Coutard shot the film in a documentary style.\"]], [\"Au Revoir, UFO\", [\"Au Revoir, UFO is a 2004 South Korean film.\"]]]",
+      "supporting_facts": "[[\"Au revoir les enfants\", 0], [\"Physical Jerks\", 0]]",
+      "evidences": "[[\"Au revoir les enfants\", \"publication date\", \"1987\"], [\"Physical Jerks\", \"publication date\", \"1997\"]]",
+      "answer": "Au Revoir Les Enfants"
+    }
+  },
+  {
+    "task_id": "wiki_dev_12298",
+    "dataset": "2WikiMultiHopQA",
+    "question": "Which film whose director was born first, Self-Made Maids or A Day For Lionhearts?",
+    "answer": "Self-Made Maids",
+    "raw": {
+      "_id": "564e614a088311ebbd6dac1f6bf848b6",
+      "type": "bridge_comparison",
+      "question": "Which film whose director was born first, Self-Made Maids or A Day For Lionhearts?",
+      "context": "[[\"James Tyson\", [\"James Tyson (8 April 1819 \\u2013 4 December 1898) was an Australian pastoralist.\", \"He is regarded as Australia's first self-made millionaire.\", \"His name became a byword for reticence, wealth and astute dealing.\"]], [\"John McMahon (Surrey and Somerset cricketer)\", [\"John William Joseph McMahon( 28 December 1917 \\u2013 8 May 2001) was an Australian- born first- class cricketer who played for Surrey and Somerset in England from 1947 to 1957.\"]], [\"A Day for Lionhearts\", [\"Un giorno da leoni( internationally released as A Day for Lionhearts) is a 1961 Italian war- drama film directed by Nanni Loy.\", \"The film describes the gradual evolution towards anti-fascism of Italian people during the Second World War.\"]], [\"Nanni Loy\", [\"Nanni Loy( born Giovanni Loi; 23 October 1925 \\u2013 21 August 1995) was an Italian film, theatre and TV director.\", \"Specifically, Nanni Loy was Sardinian, and one of several notable Sardinian film makers, including Franco Solinas.\", \"Loy was born in Cagliari, Sardinia: his father was Guglielmo Loy- Don\\u00e0, a lawyer issue from a distinguished Sardinian- Venetian family, and his mother was the noblewoman Donna Anna Sanjust of the Marquesses of Neoneli.\", \"Rosetta Loy, an Italian novelist, is his sister- in- law.\", \"He became famous for introducing in Italy the candid camera with his show\\\" Specchio segreto\\\"( Secret mirror) in 1965.\", \"His 1962 film\\\" The Four Days of Naples\\\" was nominated for two Academy Awards.\", \"It also won the FIPRESCI Prize at the 3rd Moscow International Film Festival in 1963.\", \"His 1971 film\\\" Detenuto in attesa di giudizio\\\" was entered into the 22nd Berlin International Film Festival.\", \"The star, Alberto Sordi, won the Silver Bear for Best Actor award.\", \"He specialized in comedy films such as\\\" Padre di famiglia\\\" but he also shot film dealing with social themes(\\\" Detenuto in attesa di giudizio\\\" and\\\" Sistemo l' America e torno\\\").\", \"Loy died at Fregene, near Rome, in 1995.\"]], [\"Henry Moore (cricketer)\", [\"Henry Walter Moore( 1849 \\u2013 20 August 1916) was an English- born first- class cricketer who spent most of his life in New Zealand.\"]], [\"Ringo-en no sh\\u014djo\", [\"The art director was Tomoo Shimogawara.\"]], [\"Self-Made Maids\", [\"Self- Made Maids is a 1950 short subject directed by Jules White starring American slapstick comedy team The Three Stooges( Moe Howard, Larry Fine and Shemp Howard).\", \"It is the 124th entry in the series released by Columbia Pictures starring the comedians, who released 190 shorts for the studio between 1934 and 1959.\"]], [\"Wale Adebanwi\", [\"Wale Adebanwi( born 1969) is a Nigerian- born first Black Rhodes Professor at St Antony's College, Oxford.\"]], [\"Hartley Lobban\", [\"Hartley W Lobban (9 May 1926 \\u2013 15 October 2004) was a Jamaican-born first-class cricketer who played 17 matches for Worcestershire in the early 1950s.\"]], [\"Jules White\", [\"Jules White( born Julius Weiss; 17 September 190030 April 1985) was a Hungarian- born American film director and producer best known for his short- subject comedies starring The Three Stooges.\"]]]",
+      "supporting_facts": "[[\"Self-Made Maids\", 0], [\"A Day for Lionhearts\", 0], [\"Jules White\", 0], [\"Nanni Loy\", 0]]",
+      "evidences": "[[\"Self-Made Maids\", \"director\", \"Jules White\"], [\"A Day for Lionhearts\", \"director\", \"Nanni Loy\"], [\"Jules White\", \"date of birth\", \"17 September 1900\"], [\"Nanni Loy\", \"date of birth\", \"23 October 1925\"]]",
+      "answer": "Self-Made Maids"
+    }
+  },
+  {
+    "task_id": "wiki_dev_2639",
+    "dataset": "2WikiMultiHopQA",
+    "question": "Who is the sibling-in-law of Harriet Pelham-Holles, Duchess Of Newcastle-Upon-Tyne?",
+    "answer": "Henry Pelham",
+    "raw": {
+      "_id": "0864c8b40baf11ebab90acde48001122",
+      "type": "inference",
+      "question": "Who is the sibling-in-law of Harriet Pelham-Holles, Duchess Of Newcastle-Upon-Tyne?",
+      "context": "[[\"Robert Ellison (politician)\", [\"Robert Ellison (2 February 1614 \\u2013 12 January 1678) was an English politician who sat in the House of Commons at various times between 1647 and 1660.\", \"Ellison was the son of Cuthbert Ellison of Newcastle-upon-Tyne, a merchant adventurer, and his wife Jane Isle, daughter of Charles Isle.\", \"He was Sheriff of Newcastle in 1646.\", \"In 1647, Ellison replaced as Member of Parliament for Newcastle-upon-Tyne in the Long Parliament a member whose election had been declared void.\", \"He was secluded from sitting in the succeeding Rump Parliament.\", \"In 1660, he returned to Parliament as MP for Newcastle-upon-Tyne in the Convention Parliament.\", \"Ellison died at the age of 63.\", \"He had married firstly Elizabeth Grey, daughter of Cuthbert Grey of Newcastle, and secondly on 27 July 1672 Agnes Briggs, widow of James Broggs of Newcastle.\"]], [\"Duchess of Newcastle\", [\"The Duchess of Newcastle or the Duchess of Newcastle- upon- Tyne usually refers to the wife or widow of a Duke of Newcastle.\", \"The dukedom became extinct in 1988.\"]], [\"Thomas Pelham-Holles, 1st Duke of Newcastle\", [\"Thomas Pelham-Holles, 1st Duke of Newcastle upon Tyne and 1st Duke of Newcastle-under-Lyme, (21 July 1693 \\u2013 17 November 1768) was a British Whig statesman, whose official life extended throughout the Whig supremacy of the 18th century.\", \"He is commonly known as the Duke of Newcastle.\", \"A prot\\u00e9g\\u00e9 of Sir Robert Walpole\", \", he served under him for more than 20 years until 1742.\", \"He held power with his brother, Prime Minister Henry Pelham, until 1754.\", \"He had then served as a Secretary of State continuously for 30 years and dominated British foreign policy.\", \"After Henry's death, the Duke of Newcastle was prime minister six years in two separate periods.\", \"While his first premiership was not particularly notable, Newcastle precipitated the Seven Years' War, and his weak diplomacy cost him the premiership.\", \"After his second term, he served briefly in Lord Rockingham's ministry, before he retired from government.\", \"He was most effective as a deputy to a leader of greater ability, such as Walpole, his brother, or Pitt.\", \"Few politicians in British history matched his skills and industry in using patronage to maintain power over long stretches of time.\", \"His genius appeared as the chief party manager for the Whigs from 1715 to 1761.\", \"He used his energy and his money to select candidates, distribute patronage and win elections.\", \"He was especially influential in the counties of Sussex, Nottinghamshire, Yorkshire and Lincolnshire.\", \"His greatest triumph came in the 1754 election.\", \"Outside the electoral realm, his reputation has suffered.\", \"Historian Harry Dickinson says that he became\"]], [\"Robert Swinburne (born c.1376)\", [\"Robert Swinburne( c.1376- after 1426), of Newcastle upon Tyne, Northumberland, was an English merchant.\", \"He was a Member of Parliament for Newcastle- upon- Tyne in April 1414 and 1426.\"]], [\"Margaret Holles, Duchess of Newcastle-upon-Tyne\", [\"Margaret Holles, Duchess of Newcastle-upon-Tyne (\\\"n\\u00e9e\\\" Cavendish, 22 October 1661 \\u2013 24 December 1715/16, London) was an English noblewoman.\", \"She was the third daughter and fourth of six children of Henry Cavendish, 2nd Duke of Newcastle-upon-Tyne and his wife, Frances Pierrepoint.\", \"On 1 March 1690, she married John Holles, Earl of Clare.\", \"Her husband was created Duke of Newcastle in 1694, the first creation having become extinct in 1691 when her father died without a male heir (her only brother, Henry Cavendish, Earl of Ogle, died in 1680).\", \"They had one child, Lady Henrietta Cavendish Holles (1694\\u20131755), who married 2nd Earl of Oxford and Mortimer and was mother to Margaret Bentinck, Duchess of Portland.\", \"She died in 1715/16 and was buried at Bolsover Castle.\"]], [\"Violet Grantham\", [\"Violet Hardisty Grantham( 15 February 1893 \\u2013 20 May 1983) was a British politician, the first woman to served as Lord Mayor of Newcastle- upon- Tyne.\", \"Born Violet Taylor, she was educated privately, and married John Grantham, who served as Lord Mayor of Newcastle in 1936/ 37.\", \"In addition to being his Lady Mayoress, Violet served on the boards of a number of local organisations, and in 1937 she was elected to Newcastle City Council in her own right, representing the Conservative Party.\", \"In 1950/ 51, she became the first woman to serve as Sheriff of Newcastle- upon- Tyne, and was elected as an alderman of Newcastle City Council in 1951.\", \"In 1952/53, she was the first woman to serve as Lord Mayor of Newcastle- upon- Tyne, and she held the post again in 1957.\", \"She again became an elected councillor in 1958, and served until the reorganisation of local government in 1974, when she retired.\"]], [\"Sheila Faith\", [\"( Irene) Sheila Faith( born Irene Sheila Book; 3 June 1928 \\u2013 28 September 2014) was a British politician and dental surgeon.\", \"She served one term each in the House of Commons and European Parliament as a Conservative.\", \"She was a native of Newcastle upon Tyne and attended Newcastle upon Tyne Central High School and the University of Durham.\"]], [\"Harriet Pelham-Holles, Duchess of Newcastle-upon-Tyne\", [\"Henrietta \\\"Harriet\\\" Pelham-Holles, Duchess of Newcastle-upon-Tyne (1701\\u2013 17 July 1776)was\", \"the wife of the British statesman and Prime Minister Thomas Pelham-Holles, 1st Duke of Newcastle-upon-Tyne.\", \"She was the daughter of Francis Godolphin, 2nd Earl of Godolphin and\\nLady Henrietta Churchill, 2nd Duchess of Marlborough and the granddaughter of Sidney Godolphin, 1st Earl of Godolphin and John Churchill, 1st Duke of Marlborough and Sarah Churchill, Duchess of Marlborough.\", \"Until her marriage she was known as Lady Harriet Godolphin.\", \"Like her husband, she was a devoted Whig and supporter of the Hanoverian succession.\", \"They married on 2 April 1717.\", \"During the 1720s, they became famous for throwing sumptuous parties, a tradition that continued for several decades.\", \"These were attended even by her husband's political opponents.\"]], [\"Freeman Hospital\", [\"The Freeman Hospital is an 800- bed tertiary referral centre in Newcastle upon Tyne, England.\", \"The hospital is managed by the Newcastle upon Tyne Hospitals NHS Foundation Trust and is a teaching hospital for the University of Newcastle upon Tyne.\"]], [\"Benwell\", [\"Benwell is an area in the West End of Newcastle upon Tyne, England.\"]]]",
+      "supporting_facts": "[[\"Harriet Pelham-Holles, Duchess of Newcastle-upon-Tyne\", 1], [\"Thomas Pelham-Holles, 1st Duke of Newcastle\", 4]]",
+      "evidences": "[[\"Harriet Pelham-Holles, Duchess of Newcastle-upon-Tyne\", \"spouse\", \"Thomas Pelham-Holles, 1st Duke of Newcastle-upon-Tyne\"], [\"Thomas Pelham-Holles, 1st Duke of Newcastle\", \"sibling\", \"Henry Pelham\"]]",
+      "answer": "Henry Pelham"
+    }
+  },
+  {
+    "task_id": "wiki_dev_6083",
+    "dataset": "2WikiMultiHopQA",
+    "question": "Which country the director of film Candida, Millionairess is from?",
+    "answer": "Spanish",
+    "raw": {
+      "_id": "0a5b81a20bdd11eba7f7acde48001122",
+      "type": "compositional",
+      "question": "Which country the director of film Candida, Millionairess is from?",
+      "context": "[[\"Luis Bay\\u00f3n Herrera\", [\"Luis Bay\\u00f3n Herrera (23 September 1889 \\u2013 30 March 1956) was a Spanish film director and screenwriter who worked in Argentine film of the 1940s and 1950s.\", \"He was \\\"one of the most important directors of the golden age of Argentine cinema\\\".\", \"Herrera was born in Bilbao, Spain.\", \"He directed some 40 different Argentine feature films and in the last few years of his career in the early 1950s he worked on Cuban production with films such as \\\"A La Habana me voy\\\" in 1951.\", \"He died in Buenos Aires in 1956, aged 66.\"]], [\"Candida, Millionairess\", [\"Candida, Millionairess  is a 1941 Argentine musical comedy film directed by Luis Bay\\u00f3n Herrera, who adapted the Pedro E. Pico play.\"]], [\"Brian Kennedy (gallery director)\", [\"Brian Patrick Kennedy( born 5 November 1961) is an Irish- born art museum director who has worked in Ireland and Australia, and now lives and works in the United States.\", \"He is currently the director of the Peabody Essex Museum.\", \"He was the director of the Toledo Museum of Art in Ohio from 2010 to 2019.\", \"He was the director of the Hood Museum of Art from 2005 to 2010, and the National Gallery of Australia( Canberra) from 1997- 2004.\"]], [\"Michael Govan\", [\"Michael Govan( born 1963) is the director of the Los Angeles County Museum of Art since 2006.\", \"Prior to this, Govan worked as the director of the Dia Art Foundation in New York City.\"]], [\"Dana Blankstein\", [\"Dana Blankstein- Cohen( born March 3, 1981) is the director of the Israeli Academy of Film and Television.\", \"She is a film director, and an Israeli culture entrepreneur.\"]], [\"Peter Levin\", [\"Peter Levin is an American director of film, television and theatre.\"]], [\"Ian Barry (director)\", [\"Ian Barry is an Australian director of film and TV.\"]], [\"John Donatich\", [\"John Donatich is the Director of Yale University Press.\"]], [\"John Farrell (businessman)\", [\"John Farrell is the director of YouTube in Latin America.\"]], [\"Olav Aaraas\", [\"Olav Aaraas( born 10 July 1950) is a Norwegian historian and museum director.\", \"He was born in Fredrikstad.\", \"From 1982 to 1993 he was the director of Sogn Folk Museum, from 1993 to 2010 he was the director of Maihaugen and from 2001 he has been the director of the Norwegian Museum of Cultural History.\", \"In 2010 he was decorated with the Royal Norwegian Order of St. Olav.\"]]]",
+      "supporting_facts": "[[\"Candida, Millionairess\", 0], [\"Luis Bay\\u00f3n Herrera\", 0]]",
+      "evidences": "[[\"Candida, Millionairess\", \"director\", \"Luis Bay\\u00f3n Herrera\"], [\"Luis Bay\\u00f3n Herrera\", \"country of citizenship\", \"Spanish\"]]",
+      "answer": "Spanish"
+    }
+  },
+  {
+    "task_id": "wiki_dev_1379",
+    "dataset": "2WikiMultiHopQA",
+    "question": "Who is Eleanor Of England, Countess Of Bar's father-in-law?",
+    "answer": "Theobald II, Count of Bar",
+    "raw": {
+      "_id": "ebd650640bae11ebab90acde48001122",
+      "type": "inference",
+      "question": "Who is Eleanor Of England, Countess Of Bar's father-in-law?",
+      "context": "[[\"Henry IV, Count of Bar\", [\"Henry IV of Bar( abt 1315 \\u2013 1344) was count of Bar from 1336 to 1344.\", \"His aunt, Joan of Bar, Countess of Surrey, governed Bar in his name during his minority.\", \"He was the son of Edward I of Bar and his wife Marie of Burgundy.\", \"He married Yolande of Dampierre( died 1395), a granddaughter of Robert III, Count of Flanders.\", \"Henry and Yolande had two sons:\"]], [\"Henry III, Count of Bar\", [\"Henry III of Bar (1259 \\u2013 Naples, September 1302) was Count of Bar from 1291 to 1302.\", \"He was the son of Theobald II, Count of Bar and Jeanne de Toucy.\", \"Henry's introduction to military life came as he was made a knight in a conflict between his father and the Bishop of Metz.\", \"He then served Frederick III, Duke of Lorraine.\", \"He was preparing to go on crusade when his father died.\", \"In 1284 Joan I of Navarre, Countess of Champagne married the future Philip IV of France.\", \"Henry's reaction was a marriage to Eleanor, daughter of Edward\", \"I of England.\", \"When war broke out in short order between France and England, Henry was drawn in.\", \"The fighting ceased after the 1301 Treaty of Bruges.\", \"Under its terms, Henry gave up some fortresses and paid homage to Philip for part of his lands, then called the Barrois mouvant.\", \"He also undertook to fight in Cyprus against the Muslim forces.\", \"Henry therefore made his way to the Kingdom of Naples.\", \"In assisting Charles II of Naples against the invading forces of Frederick II of Sicily, he was wounded in fighting, and died soon afterwards.\"]], [\"Urraca of Castile, Queen of Portugal\", [\"Urraca of Castile (1186/28 May 1187 \\u2013 3 November 1220) was a daughter of Alfonso VIII of Castile and Eleanor of England.\", \"Her maternal grandparents were Henry II of England and Eleanor of Aquitaine.\"]], [\"Margaret of Bar\", [\"Margaret of Bar( 1220\\u20131275) was a daughter of Henry II of Bar and his wife Philippa of Dreux.\", \"She was Countess of Luxembourg by her marriage to Henry V of Luxembourg.\", \"She is also known as\\\" Marguerite of Bar\\\".\"]], [\"Edward II, Count of Bar\", [\"Edward II of Bar( 1339 \\u2013 May 1352) was Henry IV of Bar's eldest son and successor as count of Bar( with Edward's mother Yolande of Flanders ruling as count during his minority, which ended on 10 October 1349).\", \"He had no male issue and was succeeded as count by his younger brother Robert I of Bar.\"]], [\"Joan of Bar, Countess of Surrey\", [\"Joan of Bar( died 1361) was a French- English noble.\", \"She acted as regent of the County of Bar from 1344 until 1353.\", \"She was a daughter of Henry III, Count of Bar and Eleanor of England, and niece of Edward II of England.\", \"She was unhappily married to John de Warenne, 7th Earl of Surrey.\", \"In 1345, Joan became the regent of Bar for her great- nephew Robert.\"]], [\"Eleanor of England, Queen of Castile\", [\"Eleanor of England( c. 1161 \\u2013 31 October 1214), was Queen of Castile and Toledo as wife of Alfonso VIII of Castile.\", \"She was the sixth child and second daughter of Henry II, King of England, and Eleanor of Aquitaine.\"]], [\"Ogawa Mataji\", [\"Viscount was a general in the early Imperial Japanese Army.\", \"He was also the father- in- law of Field Marshal Gen Sugiyama.\"]], [\"Eleanor of England, Countess of Leicester\", [\"Eleanor of England( also called Eleanor Plantagenet and Eleanor of Leicester)( 1215 \\u2013 13 April 1275) was the youngest child of John, King of England and Isabella of Angoul\\u00eame.\"]], [\"Eleanor of England, Countess of Bar\", [\"Eleanor of England (18 June 1269 \\u2013 29 August 1298) was an English princess, the eldest surviving daughter of King Edward I of England and his first wife, Queen Eleanor of Castile.\", \"What evidence exists for Eleanor's early years suggests that while her parents were absent on Crusade between 1270 and 1274, she became very close to her paternal grandmother, Eleanor of Provence, with whom she continued to spend a good deal of time.\", \"She was also close to her sickly brother Henry.\", \"On one Pentecost Eve, Henry and Eleanor were given two partridges for their dinner, for a special treat.\", \"For a long period Eleanor was betrothed to King Alfonso III of Aragon.\", \"Alfonso's parents were under papal interdict, however, because of their claims to the throne of Sicily, which were contrary to the papal donation of the Sicilian throne to Charles I of Naples, and despite the Aragonese ruler's repeated pleas that Edward I send his daughter to them for marriage, Edward refused to send her as long as the interdict remained in place.\", \"In 1282 he declined one such request by saying that his wife and mother felt the girl, who had just turned 13, was too young to be married, and that they wanted to wait another two years before sending her to Aragon.\", \"Alfonso died before the marriage could take place.\", \"Eleanor subsequently married the French nobleman, Henry III, Count of Bar on September 20, 1293, and had two children:\", \"According to Kenneth Panton, Eleanor is credited with a daughter called Eleanor (b.1285), who supposedly married a Welshman named Llywelyn ap Owain.\", \"She died at Ghent on 29 August 1298.\", \"Eleanor was buried in Westminster Abbey but the location of her grave in the Abbey is unknown.\"]]]",
+      "supporting_facts": "[[\"Eleanor of England, Countess of Bar\", 8], [\"Henry III, Count of Bar\", 1]]",
+      "evidences": "[[\"Eleanor of England, Countess of Bar\", \"spouse\", \"Henry III, Count of Bar\"], [\"Henry III, Count of Bar\", \"father\", \"Theobald II, Count of Bar\"]]",
+      "answer": "Theobald II, Count of Bar"
+    }
+  }
+]
