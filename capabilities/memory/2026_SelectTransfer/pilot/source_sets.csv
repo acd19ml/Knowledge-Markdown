@@ -1,3 +1,4 @@
 source_set_id,cluster,member_task_ids,entity_disjoint,lexical_overlap_note,note
 hp_bridge_set_01,bridge,hp_dev_2054|hp_dev_3245|hp_dev_1119|hp_dev_1668|hp_dev_4237,yes,"low overlap, mixed domains, no repeated core entities","clean Hotpot bridge set for Round 1 draft"
 hp_comparison_set_01,comparison,hp_dev_0478|hp_dev_4705|hp_dev_5052|hp_dev_2574|hp_dev_0989,yes,"low overlap, mixed comparison forms across shared attribute, ordering, quantity, and release-date questions","clean Hotpot comparison set for Round 1 draft after expansion batch 1"
+hp_relation_chain_bridge_set_01,bridge,hp_dev_7398|hp_dev_2485|hp_dev_1892|hp_dev_5315|hp_dev_7220,yes,"moderate overlap in kinship vocabulary but low entity overlap and diverse relation-chain templates","draft Hotpot relation-chain bridge set after Batch 2 final feasibility check"

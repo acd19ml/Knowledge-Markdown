@@ -1,0 +1,3 @@
+target_task_id,case_role,rerun_reason,note
+wiki_dev_2639,diagnostic,retest previous subtype-mismatch degradation,relation-chain target rerouted to subtype-matched relevant source
+wiki_dev_1379,diagnostic,test second relation-chain target under subtype-aware routing,paired companion case for minimal rerun

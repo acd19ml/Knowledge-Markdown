@@ -1,0 +1,6 @@
+task_id,source_set_id,question,original_cluster,bridge_subtype,subtype_confidence,subtype_note
+hp_dev_2054,hp_bridge_set_01,When did the park at which Tivolis Koncertsal is located open?,bridge,attribute_bridge,high,"venue -> park -> opening date; classic entity-to-attribute bridge"
+hp_dev_3245,hp_bridge_set_01,The school in which the Wilmslow Show is held is designated as what?,bridge,attribute_bridge,high,"event -> school -> designation; intermediate entity then institutional attribute"
+hp_dev_1119,hp_bridge_set_01,Who will Billy Howle be seen opposite in the upcoming British drama film directed by Dominic Cooke?,bridge,attribute_bridge,medium,"actor -> film -> co-star; still an entity-to-associated-fact lookup rather than a relation chain"
+hp_dev_1668,hp_bridge_set_01,Tommy's Honour was a drama film that included the actor who found success with what 2016 BBC miniseries?,bridge,attribute_bridge,high,"film -> actor -> TV work; intermediate entity then target attribute/fact"
+hp_dev_4237,hp_bridge_set_01,\"Tunak\", is a bhangra/pop love song by an artist born in which year ?,bridge,attribute_bridge,high,"song -> artist -> birth year; canonical entity-to-attribute bridge"

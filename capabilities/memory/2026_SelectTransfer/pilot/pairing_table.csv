@@ -6,6 +6,6 @@ wiki_dev_7019,bridge,hp_bridge_set_01,hp_comparison_set_01,0.00,0.14,safe,"relev
 wiki_dev_0123,comparison,hp_comparison_set_01,hp_bridge_set_01,0.00,0.18,safe,"relevant: same comparison structure after retrieving attributes; irrelevant: bridge source mismatched"
 wiki_dev_10727,comparison,hp_comparison_set_01,hp_bridge_set_01,0.00,0.16,safe,"relevant: same comparison pattern on release-date facts; irrelevant: bridge source mismatched"
 wiki_dev_12298,comparison,hp_comparison_set_01,hp_bridge_set_01,0.00,0.20,safe,"relevant: same comparison structure after retrieving attributes; irrelevant: bridge source mismatched"
-wiki_dev_2639,bridge,hp_bridge_set_01,hp_comparison_set_01,0.00,0.14,safe,"relevant: same bridge pattern via intermediate relation chain; irrelevant: comparison source mismatched"
+wiki_dev_2639,bridge,hp_relation_chain_bridge_set_01,hp_bridge_set_01,0.00,0.14,safe,"relevant: subtype-matched relation_chain bridge source; irrelevant: subtype-mismatched attribute_bridge source"
 wiki_dev_6083,bridge,hp_bridge_set_01,hp_comparison_set_01,0.00,0.25,safe,"relevant: same bridge pattern from film to director attribute; irrelevant: comparison source mismatched"
-wiki_dev_1379,bridge,hp_bridge_set_01,hp_comparison_set_01,0.00,0.10,safe,"relevant: same bridge pattern via spouse relation chain; irrelevant: comparison source mismatched"
+wiki_dev_1379,bridge,hp_relation_chain_bridge_set_01,hp_bridge_set_01,0.00,0.10,safe,"relevant: subtype-matched relation_chain bridge source; irrelevant: subtype-mismatched attribute_bridge source"

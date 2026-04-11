@@ -11,7 +11,7 @@
 ```text
 2026_SelectTransfer/
 ├── design/        # Why / What：项目定位、proposal、实验约定
-├── report/        # Progress report 素材与可直接使用的段落草稿
+├── report/        # Progress report、supporting layers、final report drafts
 ├── protocol/      # How：taxonomy、workflow、checklist、模板
 ├── rounds/        # Per-round experiment specs
 ├── pilot/         # 当前工作表：taxonomy / source set / pairing / notes
@@ -50,10 +50,20 @@
 
 ### `report/`
 
-面向课程 `progress report` 的写作素材，不重复实验细节，而是把当前问题、发现和决策整理成可直接粘贴的段落。
+这一层现在不再只是 `progress report` 素材，而是已经扩展成完整的报告装配区：
+
+- `progress report` 轮次分析
+- `L1 / L2 / L3` supporting layers
+- final report section drafts
+- assembled full-report drafts
+
+入口：
 
 - [report/README.md](./report/README.md)
-- [report/progress-report-draft.md](./report/progress-report-draft.md)
+- [report/final-report-round1-section-v2.md](./report/final-report-round1-section-v2.md)
+- [report/round1-evidence-map.md](./report/round1-evidence-map.md)
+- [report/round1-case-appendix.md](./report/round1-case-appendix.md)
+- [report/final-report-assembled-draft-v4.md](./report/final-report-assembled-draft-v4.md)
 
 ### `rounds/`
 
@@ -81,13 +91,17 @@
 
 ### `results/`
 
-阶段性输出和实验结果。当前已经有 sampling 阶段的中间产物。
+阶段性输出和实验结果。这里已经覆盖了从前期 sampling 到 `Round 1j patchback synthesis` 的整条结果链。
+
+入口：
 
 - [results/README.md](./results/README.md)
-- [results/01_sampling/taxonomy_round1_raw.csv](./results/01_sampling/taxonomy_round1_raw.csv)
-- [results/01_sampling/sampled_20_full.json](./results/01_sampling/sampled_20_full.json)
-- [results/02_hotpotqa_comparison_expansion/candidate_batch_for_taxonomy.csv](./results/02_hotpotqa_comparison_expansion/candidate_batch_for_taxonomy.csv)
-- [results/pilot_results.csv](./results/pilot_results.csv)
+- [results/04_pilot_run/](./results/04_pilot_run)
+- [results/05_round1b_run/](./results/05_round1b_run)
+- [results/10_round1g_run/](./results/10_round1g_run)
+- [results/11_round1h_run/](./results/11_round1h_run)
+- [results/12_round1i_run/](./results/12_round1i_run)
+- [results/13_round1j_summary/](./results/13_round1j_summary)
 
 ### `notebooks/`
 
@@ -99,6 +113,15 @@ Notebook 入口与运行说明。
 - [notebooks/03_delayed_reannotation_review.ipynb](./notebooks/03_delayed_reannotation_review.ipynb)
 - [notebooks/04_artifact_generation.ipynb](./notebooks/04_artifact_generation.ipynb)
 - [notebooks/05_pilot_run.ipynb](./notebooks/05_pilot_run.ipynb)
+- [notebooks/06_round1b_prompt_diagnosis.ipynb](./notebooks/06_round1b_prompt_diagnosis.ipynb)
+- [notebooks/07_round1c_allowed_aggregate_summary.ipynb](./notebooks/07_round1c_allowed_aggregate_summary.ipynb)
+- [notebooks/08_relation_chain_bridge_expansion.ipynb](./notebooks/08_relation_chain_bridge_expansion.ipynb)
+- [notebooks/09_relation_chain_bridge_expansion_batch2.ipynb](./notebooks/09_relation_chain_bridge_expansion_batch2.ipynb)
+- [notebooks/10_relation_chain_artifact_generation.ipynb](./notebooks/10_relation_chain_artifact_generation.ipynb)
+- [notebooks/11_round1g_relation_chain_minirun.ipynb](./notebooks/11_round1g_relation_chain_minirun.ipynb)
+- [notebooks/12_round1h_consolidation_diagnosis.ipynb](./notebooks/12_round1h_consolidation_diagnosis.ipynb)
+- [notebooks/13_round1i_kinship_operator_repair.ipynb](./notebooks/13_round1i_kinship_operator_repair.ipynb)
+- [notebooks/14_round1j_patchback_summary.ipynb](./notebooks/14_round1j_patchback_summary.ipynb)
 
 ### `artifacts/`
 
@@ -121,39 +144,52 @@ Notebook 入口与运行说明。
 
 基于当前目录内容，项目状态是：
 
-- 设计层已经基本稳定：`project-positioning`、`proposal`、`experiment-contract` 都已落盘
-- `sampling` 阶段已经有产物：`results/01_sampling/` 下已有 notebook、完整抽样 JSON 和 raw CSV
-- [pilot/taxonomy.csv](./pilot/taxonomy.csv) 已完成首轮 working taxonomy，当前总分布为 `bridge = 14`、`comparison = 21`
-- `HotpotQA comparison` 扩池 batch 1 已完成首轮标注，并已回写到主 taxonomy 表
-- [pilot/source_sets.csv](./pilot/source_sets.csv) 已写入两个 draft source sets：
-  - `hp_bridge_set_01`
-  - `hp_comparison_set_01`
-- [pilot/pairing_table.csv](./pilot/pairing_table.csv) 已有 Round 1 working draft，覆盖当前 10 个 `2WikiMultiHopQA` targets
-- delayed re-annotation 已完成，5 个边界 case 无标签变化
-- Round 1 输入已冻结到 [pilot/archive/](./pilot/archive/)：
-  - [pilot/archive/taxonomy_round1.csv](./pilot/archive/taxonomy_round1.csv)
-  - [pilot/archive/source_sets_round1.csv](./pilot/archive/source_sets_round1.csv)
-  - [pilot/archive/pairing_table_round1.csv](./pilot/archive/pairing_table_round1.csv)
-  - [pilot/archive/notes_round1.md](./pilot/archive/notes_round1.md)
-- [results/pilot_results.csv](./results/pilot_results.csv) 仍未开始写入 run 结果
-
-也就是说，当前已完成 artifact generation 和 review，准备进入 pilot run：
-
-- ~~第一轮 artifacts~~ -> 已生成（Qwen3.5-9B, 4 artifacts, all `generated`）
-- ~~artifact review~~ -> 已通过人工检查（2026-04-11）
-- ~~prompt scaffold~~ -> 已定义（`protocol/pilot-prompt-scaffold.md`）
-- ~~pre-run checklist~~ -> 7/7 项全部通过，GO 决定已记录
-- 第一轮 pilot runs -> **待执行**
-- `results/pilot_results.csv` 中的真实 run 结果 -> **待写入**
+- 设计层已经稳定：
+  - `project-positioning`
+  - `proposal`
+  - `experiment-contract`
+- Round 1 frozen inputs 已完成并归档到 [pilot/archive/](./pilot/archive/)
+- `Round 1b` prompt diagnosis 已完成：
+  - 结构化 `## Reasoning` / `## Final Answer` 输出已跑通
+  - raw outputs 与 process-level signals 已可观察
+- `Round 1c` 已完成 role-aware reinterpretation：
+  - 当前 6 个 smoke cases 不再被当作统一 benchmark 求平均
+- `Round 1d` 已确认：
+  - `bridge` 需要拆成 subtype
+  - `wiki_dev_2639` / `wiki_dev_1379` 是 `relation_chain_bridge`
+  - `hp_bridge_set_01` 实际更接近 `attribute_bridge`
+- `Round 1e` 已完成 source-side feasibility：
+  - `Batch 2` 找到了足够多的 `relation_chain_bridge` candidates
+  - 已构造 `hp_relation_chain_bridge_set_01`
+- `Round 1f` 已完成 reroute prep：
+  - [pilot/pairing_table.csv](./pilot/pairing_table.csv) 已将 `wiki_dev_2639` / `wiki_dev_1379` reroute 到新的 subtype-matched source
+- `Round 1g` 已完成：
+  - subtype-aware reroute 在 `wiki_dev_2639` 上修复了 relevant `episodic_trace`
+  - `wiki_dev_1379` 被确认为 ceiling / sanity case
+- `Round 1h` 已完成：
+  - relation-chain consolidation 的 formatting / branch wording 修复已验证
+  - failure 被进一步收缩成 `kinship operator interpretation`
+- `Round 1i` 已完成：
+  - operator-aware repair 使 `wiki_dev_2639` 上的 relevant consolidation 从 wrong 恢复为 correct
+- `Round 1j` 已完成：
+  - `wiki_dev_2639` 的 repaired evidence 已 patch back 到 synthesis 层
+  - 它不再应被写成 “relevant memory hurts” 的证据
+- final-report assembly 已进入收稿阶段：
+  - L1 narrative: [report/final-report-round1-section-v2.md](./report/final-report-round1-section-v2.md)
+  - L2 evidence map: [report/round1-evidence-map.md](./report/round1-evidence-map.md)
+  - L3 case appendix: [report/round1-case-appendix.md](./report/round1-case-appendix.md)
+  - current assembled draft: [report/final-report-assembled-draft-v4.md](./report/final-report-assembled-draft-v4.md)
 
 ## 当前最重要的下一步
 
-不要继续扩文档层级，也不要继续把问题做大。当前最重要的是：
+不要再继续围绕 `wiki_dev_2639` 做新的微调 rerun。当前最重要的是：
 
-1. 按 [protocol/pilot-prompt-scaffold.md](./protocol/pilot-prompt-scaffold.md) 实现 prompt assembly + scoring 脚本
-2. 先跑 1-2 个 case 验证 scaffold 能跑通
-3. 再按 [rounds/round_01_memory_form_pilot.md](./rounds/round_01_memory_form_pilot.md) 批量执行 pilot run
-4. 把 run 结果写入 [results/pilot_results.csv](./results/pilot_results.csv)
+1. 以 [report/final-report-assembled-draft-v4.md](./report/final-report-assembled-draft-v4.md) 作为当前 canonical draft
+2. 用 [results/13_round1j_summary/round1j_patchback_summary.md](./results/13_round1j_summary/round1j_patchback_summary.md) 约束 `wiki_dev_2639` 的最终解释
+3. 在最终课程报告里明确：
+   - coarse pairing granularity 会制造 false negative transfer evidence
+   - abstract memory 只有在 relation operator 被编码成 executable rule 时才真正可用
+4. 只在课程要求更强 empirical support 时，才考虑一个很小的 repaired validation subset
 
 当前 `artifact generation` 默认不再依赖 `OPENAI_API_KEY`，而是使用本地 Hugging Face 推理：
 

@@ -1,0 +1,2 @@
+target_task_id,case_role,diagnostic_focus,note
+wiki_dev_2639,diagnostic,relation_chain_consolidation_failure,only sensitive rerouted case where episodic repair worked but consolidation still failed

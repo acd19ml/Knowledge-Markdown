@@ -1,0 +1,20 @@
+{
+  "skill_name": "graduate-admissions-audit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "客户是香港本地生，本科读文化产业管理，均分未知，IELTS 6.5，想申请香港和英国的文化遗产或博物馆相关硕士。请先做项目初筛，再按官网提取语言、背景、学费、截止时间，并明确区分官方事实与论坛案例，输出带可点击来源的评估表。",
+      "expected_output": "Should build an auditable shortlist, separate official facts from community cases, avoid guessing GPA, and flag local-fee and language-rule nuances."
+    },
+    {
+      "id": 2,
+      "prompt": "客户本科是中国大陆双非计算机，均分83/100，暂无雅思，想申英国和澳洲的 Data Science 或 Business Analytics。请根据官方项目页筛选项目，并判断哪些项目现在只能做初筛、哪些可以进入较高置信度评估，所有结论都要标注来源。",
+      "expected_output": "Should separate eligibility from competitiveness, check UK list risk and Australia language pathway issues, and downgrade confidence because language score is missing."
+    },
+    {
+      "id": 3,
+      "prompt": "客户本科是商科，修过统计和 Python，GPA 3.4/4.0，托福 102，想申加拿大和香港的数据分析项目。请检查先修课、面试或测试、学费、以及近两年论坛中的录取和拒信案例，并说明哪些字段需要人工复核。",
+      "expected_output": "Should emphasize prerequisite review, collect both positive and adverse community evidence, and produce a manual review queue."
+    }
+  ]
+}

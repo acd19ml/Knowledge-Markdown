@@ -1,0 +1,11 @@
+run_id,target_task_id,split,condition,source_set_id,memory_attached,em,f1,token_usage,failure_status,reasoning_present,final_answer_present,memory_reference_type,parse_success
+r1g_no_memory_wiki_dev_2639,wiki_dev_2639,none,no_memory,none,false,1,1.0,1906,ok,1,1,implicit_or_none,1
+r1g_episodic_trace_wiki_dev_2639_relevant,wiki_dev_2639,relevant,episodic_trace,hp_relation_chain_bridge_set_01,true,1,1.0,2800,ok,1,1,implicit_or_none,1
+r1g_episodic_trace_wiki_dev_2639_irrelevant,wiki_dev_2639,irrelevant,episodic_trace,hp_bridge_set_01,true,0,0.0,2851,ok,1,1,implicit_or_none,1
+r1g_cross_episode_consolidation_wiki_dev_2639_relevant,wiki_dev_2639,relevant,cross_episode_consolidation,hp_relation_chain_bridge_set_01,true,0,0.0,4091,ok,1,0,explicit_use,1
+r1g_cross_episode_consolidation_wiki_dev_2639_irrelevant,wiki_dev_2639,irrelevant,cross_episode_consolidation,hp_bridge_set_01,true,0,0.0,2746,ok,1,1,implicit_or_none,1
+r1g_no_memory_wiki_dev_1379,wiki_dev_1379,none,no_memory,none,false,1,1.0,1617,ok,1,1,implicit_or_none,1
+r1g_episodic_trace_wiki_dev_1379_relevant,wiki_dev_1379,relevant,episodic_trace,hp_relation_chain_bridge_set_01,true,1,1.0,2518,ok,1,1,explicit_use,1
+r1g_episodic_trace_wiki_dev_1379_irrelevant,wiki_dev_1379,irrelevant,episodic_trace,hp_bridge_set_01,true,1,1.0,2438,ok,1,1,implicit_or_none,1
+r1g_cross_episode_consolidation_wiki_dev_1379_relevant,wiki_dev_1379,relevant,cross_episode_consolidation,hp_relation_chain_bridge_set_01,true,1,1.0,2322,ok,1,1,implicit_or_none,1
+r1g_cross_episode_consolidation_wiki_dev_1379_irrelevant,wiki_dev_1379,irrelevant,cross_episode_consolidation,hp_bridge_set_01,true,1,1.0,2298,ok,1,1,implicit_or_none,1

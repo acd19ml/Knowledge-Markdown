@@ -1,0 +1,4 @@
+interface:
+  display_name: "Graduate Admissions Audit"
+  short_description: "Audit graduate program fit with sources"
+  default_prompt: "Build an auditable graduate admissions shortlist and assessment from this client profile, with official facts, community evidence, and clear risk flags."

@@ -1,0 +1,5 @@
+task_id,current_role,question,original_cluster,bridge_subtype,subtype_confidence,subtype_note
+wiki_dev_0092,audit_case,Where was the director of film Lettre Ouverte born?,bridge,attribute_bridge,high,"film -> director -> birthplace; subtype matches current bridge source set even though benchmark answer is ambiguous"
+wiki_dev_7019,diagnostic_case,Which award the performer of song Constantemente Mía got?,bridge,attribute_bridge,medium,"song -> performer -> award; subtype matches source set but task is answer-granularity sensitive"
+wiki_dev_2639,diagnostic_case,Who is the sibling-in-law of Harriet Pelham-Holles, Duchess Of Newcastle-Upon-Tyne?,bridge,relation_chain_bridge,high,"person -> spouse -> sibling; target depends on relation-chain reasoning rather than entity-to-attribute lookup"
+wiki_dev_6083,boundary_case,Which country the director of film Candida, Millionairess is from?,bridge,attribute_bridge,high,"film -> director -> nationality; subtype matches source set but scoring boundary dominates"

@@ -9,3 +9,9 @@ These files change rarely after initial drafting.
 | [proposal.md](proposal.md) | Full experiment proposal (research questions, conditions, metrics) |
 | [proposal-summary.md](proposal-summary.md) | One-page course submission version |
 | [experiment-contract.md](experiment-contract.md) | 13 binding constraints: single-variable, freeze-before-run, split reporting, etc. |
+
+Current role of `design/`:
+
+- freeze the project's long-term motivation
+- define the scope of valid claims
+- constrain how later `rounds/`, `results/`, and `report/` can be interpreted

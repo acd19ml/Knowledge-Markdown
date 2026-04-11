@@ -1,0 +1,1584 @@
+[
+  {
+    "idx": 24,
+    "task_id": "hp_dev_0024",
+    "question": "What was the father of Kasper Schmeichel voted to be by the IFFHS in 1992?",
+    "answer": "World's Best Goalkeeper",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "father",
+    "support_titles": "Kasper Schmeichel|Kasper Schmeichel|Peter Schmeichel",
+    "context_titles_preview": "Sommeren '92|Pelé|IFFHS World's Best Club Coach|IFFHS World's Best Goalkeeper|Isaak Hassler|Goštautai",
+    "full_example": {
+      "question": "What was the father of Kasper Schmeichel voted to be by the IFFHS in 1992?",
+      "answer": "World's Best Goalkeeper",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Kasper Schmeichel",
+          "Kasper Schmeichel",
+          "Peter Schmeichel"
+        ],
+        "sent_id": [
+          0,
+          1,
+          0
+        ]
+      },
+      "context": {
+        "title": [
+          "Sommeren '92",
+          "Pelé",
+          "IFFHS World's Best Club Coach",
+          "IFFHS World's Best Goalkeeper",
+          "Isaak Hassler",
+          "Goštautai",
+          "Kasper Hvidt",
+          "Kasper Schmeichel",
+          "Gus Williams (musician)",
+          "Peter Schmeichel"
+        ],
+        "sentences": [
+          [
+            "Summer of '92 (Sommeren '92) is a Danish film directed by Kasper Barfoed.",
+            " The film is based on the 1992 UEFA European Football Championship, Denmark's greatest ever football triumph.",
+            " The team had qualified only after Yugoslavia was disqualified as a result of the breakup and warfare in that country.",
+            " The film examines the often difficult relationship between the team's coach Richard Møller Nielsen, and the Danish Football Association and leading players that nonetheless led to triumph in 1992."
+          ],
+          [
+            "Edson Arantes do Nascimento (] ; born 23 October 1940), known as Pelé (] ), is a retired Brazilian professional footballer who played as a forward.",
+            " He is widely regarded as the greatest football player of all time.",
+            " In 1999, he was voted World Player of the Century by the International Federation of Football History & Statistics (IFFHS).",
+            " That same year, Pelé was elected Athlete of the Century by the International Olympic Committee.",
+            " According to the IFFHS, Pelé is the most successful league goal-scorer in the world, scoring 1281 goals in 1363 games, which included unofficial friendlies and tour games.",
+            " During his playing days, Pelé was for a period the best-paid athlete in the world."
+          ],
+          [
+            "The IFFHS World's Best Club Coach is an association football award given annually, since 1996, to the most outstanding club coach as voted by the International Federation of Football History & Statistics (IFFHS).",
+            " The votes, in 1996, were cast by IFFHS's editorial staff as well as experts from 89 countries spanning six different continents.",
+            " Since then, the votes are now awarded by 81 experts and selected editorial offices from all of the continents."
+          ],
+          [
+            "The IFFHS World's Best Goalkeeper is a football award given annually since 1987 to the most outstanding goalkeeper of the year as voted by the International Federation of Football History & Statistics (IFFHS).",
+            " The votes are cast by IFFHS's editorial staff as well as experts from different continents.",
+            " currently the worlds best goalkeeper from 2013-2016 is Manuel Neuer."
+          ],
+          [
+            "Isaak Hassler (c. 1530, St. Joachimsthal – 14 July 1591, Nuremberg) was a German Lutheran organist and music teacher, mainly active in Nuremberg.",
+            " He is also notable as the father of the musicians Jakob Hassler, Hans Leo Hassler and Kasper Hassler."
+          ],
+          [
+            "Goštautai (Lithuanian plural form), masculine Goštautas and feminine form Goštautaitė (\"Polish\" original, after Kasper Niesiecki - Gastoldowie, later transformed into Gasztołdowie) were a Lithuanian noble family, one of the most influential magnate families during the 15th and early 16th centuries.",
+            " Their only serious rivals were the Kęsgailos, and from the end of the 15th century the fast rising in power and influence Radziwiłł family clan.",
+            " It appears from the Latin original spelling of their name Gastoldus which is a variation of \"castaldius\" that they had been close to the Grand Dukes and that their function was to oversee ducal demesne.",
+            " Most power family gained during the reign of Casimir Jagiellon.",
+            " The castaldius of Vytautas, Andrius Goštautas might have been a voivode of Vilnius and Kreva, and father of Jonas, appears to have been the precursor of the family growth.",
+            " The majority of the family's possessions (lands) were in the western part of the Duchy and eastern ethnic Lithuania.",
+            " After the death of the last scion of the family, Stanislovas Goštautas, the Polish King and Grand Duke of Lithuania Sigismund II Augustus inherited his possessions as a matter of right, per Grand Duchy of Lithuania law."
+          ],
+          [
+            "Kasper Hvidt (born 6 February 1976 in Copenhagen) is a Danish retired handball goalkeeper, who lastly played for KIF Kolding and previous Danish national team.",
+            " He was selected as the best keeper for the 2008 European Men's Handball Championship.",
+            " Hvidt was also voted as Goalkeeper of the Year March 20, 2009, second place was Thierry Omeyer from France."
+          ],
+          [
+            "Kasper Peter Schmeichel (] ; born 5 November 1986) is a Danish professional footballer who plays as a goalkeeper for Premier League club Leicester City and the Denmark national team.",
+            " He is the son of former Manchester United and Danish international goalkeeper Peter Schmeichel."
+          ],
+          [
+            "Kasper Gus Ntjalka Williams OAM, known as Gus Williams (20 June 1937 – 13 September 2010) was a country singer from Hermannsburg in Central Australia.",
+            " He was an Arrernte man, who was born in Alice Springs.",
+            " He was the father of country star Warren H Williams."
+          ],
+          [
+            "Peter Bolesław Schmeichel MBE (] ; born 18 November 1963) is a Danish former professional footballer who played as a goalkeeper, and was voted the IFFHS World's Best Goalkeeper in 1992 and 1993.",
+            " He is best remembered for his most successful years at English club Manchester United, whom he captained to the 1999 UEFA Champions League to complete the Treble, and for winning UEFA Euro 1992 with Denmark."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "idx": 28,
+    "task_id": "hp_dev_0028",
+    "question": "Kaiser Ventures corporation was founded by an American industrialist who became known as the father of modern American shipbuilding?",
+    "answer": "Henry J. Kaiser",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "father",
+    "support_titles": "Kaiser Ventures|Kaiser Ventures|Henry J. Kaiser",
+    "context_titles_preview": "New York Shipbuilding Corporation|Kaiser Shipyards|Eagle Mountain Railroad|Nutri Ventures – The Quest for the 7 Kingdoms|Edgar Kaiser Sr.|Kaiser Ventures",
+    "full_example": {
+      "question": "Kaiser Ventures corporation was founded by an American industrialist who became known as the father of modern American shipbuilding?",
+      "answer": "Henry J. Kaiser",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Kaiser Ventures",
+          "Kaiser Ventures",
+          "Henry J. Kaiser"
+        ],
+        "sent_id": [
+          0,
+          1,
+          0
+        ]
+      },
+      "context": {
+        "title": [
+          "New York Shipbuilding Corporation",
+          "Kaiser Shipyards",
+          "Eagle Mountain Railroad",
+          "Nutri Ventures – The Quest for the 7 Kingdoms",
+          "Edgar Kaiser Sr.",
+          "Kaiser Ventures",
+          "John Roach &amp; Sons",
+          "Neafie &amp; Levy",
+          "Edgar Kaiser Jr.",
+          "Henry J. Kaiser"
+        ],
+        "sentences": [
+          [
+            "The New York Shipbuilding Corporation (or New York Ship for short) was an American shipbuilding company that operated from 1899 to 1968, ultimately completing more than 500 vessels for the U.S. Navy, the United States Merchant Marine, the United States Coast Guard, and other maritime concerns.",
+            " At its peak during World War II, NYSB was the largest and most productive shipyard in the world.",
+            " Its best-known vessels include the destroyer  , the cruiser  , the aircraft carrier  , the nuclear-powered cargo ship NS \"Savannah\", and a quartet of cargo-passenger liners nicknamed the \"Four Aces\"."
+          ],
+          [
+            "The Kaiser Shipyards were seven major shipbuilding yards located on the United States west coast during World War II.",
+            " Kaiser ranked 20th among U.S. corporations in the value of wartime production contracts.",
+            " The shipyards were owned by the Kaiser Shipbuilding Company, a creation of American industrialist Henry J. Kaiser, (1882-1967), who established the shipbuilding company around 1939 in order to help meet the construction goals set by the United States Maritime Commission for merchant shipping."
+          ],
+          [
+            "The Eagle Mountain Railroad (EMRR) was a private railroad in California, owned by the Kaiser Steel Corporation, and is owned today by Kaiser Steel's successor, Kaiser Ventures, Inc. of Ontario, California."
+          ],
+          [
+            "Nutri Ventures (also known as Nutri Ventures – The Quest for the 7 Kingdoms) (Portuguese: Nutri Ventures - Em Busca dos 7 Reinos) is a Portuguese TV series produced by the Nutri Ventures Corporation that is distributed through Hulu Kids."
+          ],
+          [
+            "Edgar Fosburgh Kaiser Sr. (July 29, 1908 – December 7, 1981) was an American industrialist, who was Chairman of Kaiser Aluminum and Chemical Corporation, the Kaiser Cement Corporation and the Kaiser Steel Corporation."
+          ],
+          [
+            "Kaiser Ventures (formerly Kaiser Steel) corporation, headquartered in Ontario, California.",
+            " It was founded by Henry J. Kaiser to provide steel plate for the Pacific Coast shipbuilding industry, which expanded during World War II, then shrank, then expanded again during the Korean War.",
+            " California Shipbuilding Corporation on Terminal Island, California, was one of these shipyards which built hundreds of Liberty ships and Victory ships in World War II, and was also a project of Henry Kaiser.",
+            " Kaiser Steel was noted for making the most of its costly steelmaking inputs, and it captured, along with the U.S. Steel plant in Utah, much of the Pacific Coast steel market by the late 1950s.",
+            " Its assets included steelmaking plants in Napa, California (that it acquired from Basalt Rock Company in 1955) and Fontana, California (now operated by California Steel Industries), and a former open-pit iron ore mine at Eagle Mountain, California.",
+            " Steel manufactured was also used in Kaiser Motors."
+          ],
+          [
+            "John Roach & Sons was a major 19th-century American shipbuilding and manufacturing firm founded in 1864 by Irish-American immigrant John Roach.",
+            " Between 1871 and 1885, the company was the largest shipbuilding firm in the United States, building more iron ships than its next two major competitors combined.",
+            " It was also by far the largest contractor to the U.S. Navy during this period, and at its peak is said to have been the nation's largest employer behind the railroads."
+          ],
+          [
+            "Neafie, Levy & Co., commonly known as Neafie & Levy, was a Philadelphia shipbuilding and engineering firm that existed from the middle of the 19th to the beginning of the 20th century.",
+            " Described as America's \"first specialist marine engineers\", Neafie & Levy was probably the first company in the United States to combine the building of iron ships with the manufacture of steam engines to power them.",
+            " The company was also the largest supplier of screw propellers to other North American shipbuilding firms in its early years, and at its peak in the early 1870s was Philadelphia's busiest and most heavily capitalized shipbuilder."
+          ],
+          [
+            "Edgar Fosburgh Kaiser Jr. (July 5, 1942 – January 11, 2012) was an American-Canadian financier and a former owner of the Denver Broncos American football team.",
+            " He was born in Portland, Oregon on July 5, 1942 and is the grandson of shipbuilding industrialist Henry J. Kaiser.",
+            " He earned a BA degree from Stanford University and an MBA degree from Harvard University.",
+            " Kaiser served as a White House Fellow and as a Special Assistant to President Lyndon B. Johnson, President Richard M. Nixon, and as a Special Assistant to U.S. Secretary of the Interior Walter J. Hickel.",
+            " He became a Canadian citizen in 1980.",
+            " He died on January 11, 2012."
+          ],
+          [
+            "Henry John Kaiser (May 9, 1882 – August 24, 1967) was an American industrialist who became known as the father of modern American shipbuilding.",
+            " He established the Kaiser Shipyards, which built Liberty ships during World War II, after which he formed Kaiser Aluminum and Kaiser Steel.",
+            " Kaiser organized Kaiser Permanente health care for his workers and their families.",
+            " He led Kaiser-Frazer followed by Kaiser Motors, automobile companies known for the safety of their designs.",
+            " Kaiser was involved in large construction projects such as civic centers and dams, and invested in real estate.",
+            " With his wealth, he established the Kaiser Family Foundation, a nonprofit, non-partisan, charitable organization."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "idx": 124,
+    "task_id": "hp_dev_0124",
+    "question": "The youngest daughter of Lady Mary-Gaye Curzon stars with Douglas Smith and Lucien Laviscount  in what 2017 film?",
+    "answer": "The Bye Bye Man",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "daughter",
+    "support_titles": "The Bye Bye Man|The Bye Bye Man|Cressida Bonas",
+    "context_titles_preview": "Princess Olga of Hanover|Chainsaw (Scream Queens)|Sian Powers|One Night in Istanbul|Gelston Castle|Lady Alexandra Curzon",
+    "full_example": {
+      "question": "The youngest daughter of Lady Mary-Gaye Curzon stars with Douglas Smith and Lucien Laviscount  in what 2017 film?",
+      "answer": "The Bye Bye Man",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "The Bye Bye Man",
+          "The Bye Bye Man",
+          "Cressida Bonas"
+        ],
+        "sent_id": [
+          0,
+          1,
+          1
+        ]
+      },
+      "context": {
+        "title": [
+          "Princess Olga of Hanover",
+          "Chainsaw (Scream Queens)",
+          "Sian Powers",
+          "One Night in Istanbul",
+          "Gelston Castle",
+          "Lady Alexandra Curzon",
+          "Love Beats Rhymes",
+          "Bottom of the World (film)",
+          "Cressida Bonas",
+          "The Bye Bye Man"
+        ],
+        "sentences": [
+          [
+            "Princess Olga of Hanover and Cumberland (German: \"Olga Adelaide Louise Marie Alexandrina Agnes Prinzessin von Hannover und Cumberland\" ; 11 July 1884 – 21 September 1958) was the youngest daughter of Ernest Augustus, Crown Prince of Hanover (1845–1923) and Princess Thyra of Denmark (1853–1933), the youngest daughter of Christian IX of Denmark (1818–1906) and Louise of Hesse-Kassel (1817–1898).",
+            " Olga was a great-great-granddaughter of George III of the United Kingdom (1738–1820) and Charlotte of Mecklenburg-Strelitz (1744–1818)."
+          ],
+          [
+            "\"Chainsaw\" is the third episode of the horror black comedy series \"Scream Queens\".",
+            " It premiered on September 29, 2015 on Fox.",
+            " The episode was both directed and written by Ian Brennan.",
+            " In this episode, the Red Devil continues the terror on campus using a chainsaw.",
+            " Chanel (Emma Roberts) finds a new project in Hester (Lea Michele), and Dean Munsch (Jamie Lee Curtis) appoints a new Wallace University mascot while trying to separate Gigi (Nasim Pedrad) and Wes (Oliver Hudson)'s budding relationship as Chad (Glen Powell) and Earl Grey (Lucien Laviscount) lead their fraternity on a witch hunt for the Red Devil."
+          ],
+          [
+            "Sian Powers is a fictional character from the British ITV soap opera, \"Coronation Street\", portrayed by Sacha Parkinson.",
+            " Sian was introduced as a love interest for Sophie Webster (Brooke Vincent).",
+            " Sian joined the cast of \"Coronation Street\" alongside Ben Richardson (Lucien Laviscount) in January 2009 as Sophie's schoolmates.",
+            " They soon form a new group of teenagers along with Ryan Connor (Ben Thompson).",
+            " Sian and girlfriend Sophie are \"Coronation Street's\" first lesbian couple.",
+            " It was announced on 29 May 2011 that Parkinson had quit her role, and she made her last on screen appearance on 30 December 2011."
+          ],
+          [
+            "One Night in Istanbul, also known as One Night in Istanbul: The Movie, is a British comedy-drama film, directed by James Marquand and produced/written by Nicky Allt.",
+            " The film stars Steven Waddington, Paul Barber, Lucien Laviscount, Samantha Womack, and Ingvar Eggert Sigurðsson.",
+            " It is based on the play of the same name by Nicky Allt."
+          ],
+          [
+            "Gelston Castle, located between Castle Douglas and Kirkcudbright, in Dumfries and Galloway, Great Britain, was built for Sir William Douglas of Castle Douglas, who had acquired the lands of Gelston in 1799.",
+            " However, Sir William Douglas died without issue in 1809 and his property was divided between various nieces and nephews, with Gelston going to the youngest daughter of his brother James, Mathilda Douglas.",
+            " In 1813 Mathilda married William Maitland, and their family continued to preside over the estate for most of the 19th Century.",
+            " Gelston then became the property of the Galliers-Pratts who retained the castle for pheasant shooting, and from whom it was requisitioned during World War II.",
+            " During this time it served as a home for handicapped boys evacuated from Glasgow, before the roof was removed once this use had ceased."
+          ],
+          [
+            "Lady Alexandra Naldera Curzon, CBE (20 March/April 1904 – 7 August 1995), was the third daughter of George Curzon, 1st Marquess Curzon of Kedleston and Viceroy of India, and Lord Curzon's first wife, the American mercantile heiress, Mary Victoria Curzon, Baroness Curzon of Kedleston (née Leiter).",
+            " She was named after her godmother, Queen Alexandra and her place of conception, Naldehra, India.",
+            " She and her two older sisters were memorialized by Anne de Courcy in \"The Viceroy's Daughters: The Lives of the Curzon Sisters\"."
+          ],
+          [
+            "Love Beats Rhymes (working title \"Coco\") is an upcoming American musical drama film directed by RZA.",
+            " The film stars Azealia Banks as a twenty five-year-old female rapper from Brooklyn, New York who wants to pursue a music career.",
+            " The film also stars Lorraine Toussaint, Jill Scott, Lucien Laviscount, MC Jin, Hana Mae Lee, and Common.",
+            " The film is awaiting release by CodeBlack Films and Lionsgate."
+          ],
+          [
+            "Bottom of the World is a 2017 drama film.",
+            " It was directed by Richard Sears, written by Brian Gottlieb and stars Jena Malone, Douglas Smith and Ted Levine."
+          ],
+          [
+            "Cressida Curzon Bonas (born 18 February 1989) is an English actress, dancer and model.",
+            " She is the youngest daughter of Lady Mary-Gaye Curzon and entrepreneur Jeffrey Bonas, and a granddaughter of Edward Curzon, 6th Earl Howe."
+          ],
+          [
+            "The Bye Bye Man is a 2017 American supernatural horror film directed by Stacy Title and written by Jonathan Penner, based on the chapter \"The Bridge to Body Island\" in Robert Damon Schneck's book \"The President's Vampire\".",
+            " The film stars Douglas Smith, Lucien Laviscount, Cressida Bonas, Doug Jones, Carrie-Anne Moss, Faye Dunaway and Jenna Kanell."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "idx": 198,
+    "task_id": "hp_dev_0198",
+    "question": "What amount was the settlement that the character from the Son of al Quada got in 2017?",
+    "answer": "$10.5 million",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "son",
+    "support_titles": "Son of al Qaeda|Omar Khadr",
+    "context_titles_preview": "Duty to settle|Fraley v. Facebook, Inc.|Nilmoni Tagore|Al Utouriya|Damian Wayne|Kasia Al Thani",
+    "full_example": {
+      "question": "What amount was the settlement that the character from the Son of al Quada got in 2017?",
+      "answer": "$10.5 million",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Son of al Qaeda",
+          "Omar Khadr"
+        ],
+        "sent_id": [
+          0,
+          2
+        ]
+      },
+      "context": {
+        "title": [
+          "Duty to settle",
+          "Fraley v. Facebook, Inc.",
+          "Nilmoni Tagore",
+          "Al Utouriya",
+          "Damian Wayne",
+          "Kasia Al Thani",
+          "Parás, Nuevo León",
+          "List of largest pharmaceutical settlements",
+          "Tell El Sakan",
+          "Mana Al Otaiba"
+        ],
+        "sentences": [
+          [
+            "A liability insurance company's duty to settle is defined as an implied obligation to by the insurer to a policyholder and to a claimant to attempt \"in good faith to effectuate prompt, fair, and equitable settlements of claims in which liability has become reasonably clear.\"",
+            " To the surprise of many, a typical liability insurance policy makes no express contractual promise to settle.",
+            " In California, \"an insurer, who wrongfully refuses to accept a reasonable settlement within the policy limits is liable for the entire judgment against the insured even if it exceeds the policy limits.\"",
+            " A rationale for this duty is that \"[w]hen an offer is made to settle a claim in excess of policy limits for an amount within policy limits, a genuine and immediate conflict of interest arises between carrier and assured.\"",
+            " \"An insurer who denies coverage does so at its own risk.",
+            " Such factors as a belief that the policy does not provide coverage, should not affect a decision as to whether the settlement offer in question is a reasonable one.\"",
+            " \"It is the duty of the insurer to keep the insured informed of settlement offers.\" \"",
+            "[A]n insurer potentially can be liable for unreasonably coercing an insured to contribute to a settlement fund.\""
+          ],
+          [
+            "Fraley, et al. v. Facebook, Inc., et al. is a class action lawsuit filed in California against Facebook alleging misappropriation of Facebook users' names and likenesses in advertisements called \"Sponsored Stories\".",
+            " The case resulted in the parties reaching a settlement.",
+            " Settlement checks in the amount of $15.00 were distributed to class members beginning November 17, 2016."
+          ],
+          [
+            "Nilmoni Tagore (1721-1791) was a scion of Tagore family who, founded the Jorasanko branch of Tagore family leaving the old house of Pathuriaghata.",
+            " In year 1758, he started to build the, what is now known as Jorasanko Thakur Bari.",
+            " Nilmoni and Darpnarayan were two sons of Jairam Thakur, who was employed with British East India Company.",
+            " While Darpnarayan developed his business and lands, Nilmoni chose to serve British and rose to the Serishtadarship of District Court.",
+            " He received an amount of Rupees One lakh from his brother Darpnarayan, as a settlement amount of family dispute and shifted to Jorasanko and built house there."
+          ],
+          [
+            "Al Utouriya is a settlement in Qatar, located in the municipality of Al-Shahaniya.",
+            " It used to be part of the Al Jemailiya municipality before the municipality was incorporated into Al Rayyan.",
+            " In 2014, the settlement was incorporated into the newly-created Al-Shahaniya Municipality."
+          ],
+          [
+            "Damian Wayne or Damian al Ghul (Arabic: داميان الغول) is a fictional superhero and at times antihero appearing in American comic books published by DC Comics, commonly in association with Batman.",
+            " He is the son of Batman and Talia al Ghul (Arabic: تاليا الغول), and thus, the grandson of Batman villain Ra's al Ghul.",
+            " The character originally appeared as an unnamed infant in the 1987 story \"\", which at that time was not considered canon.",
+            " Following this, various alternate universe stories dealt with the character's life, giving him various names.",
+            " In 2006, the character was reinterpreted as Damian Wayne by Grant Morrison, and introduced into the main continuity in \"Batman\" #655, the first issue of the \"Batman and Son\" story arc.",
+            " Damian Wayne is the fifth character to assume the role of Robin, Batman's vigilante partner."
+          ],
+          [
+            "Kasia Al Thani (born in Kraków, Poland) was the third wife of Abdelaziz bin Khalifa Al Thani, the son of Khalifa bin Hamad Al Thani.",
+            " She grew up in Los Angeles, United States and holds Barack Obama in high regard.",
+            " She met her future husband in Paris (who since 1992 lived in exile in France), allegedly converted to Islam (she doesn't wear the hijab), they married and she became his third wife.",
+            " They have three daughters together: Sheikha Malak, Sheika Yasmin and Sheikha Reem.",
+            " In 2007/2008, she launched a luxury gift shopping website called Savoir-Faire.",
+            "com.",
+            " She discovered fraudulent activity on her husband's account at Barclays Bank in Marbella and spearheaded a €50m/£40m legal action against the bank.",
+            " In 2009, Barclays settled for an undisclosed amount.",
+            " Afterwards, she filed for divorce.",
+            " She resides in Paris, France, rarerly visits the Middle East and doesn't consider herself Qatari.",
+            " In 2012, she recommended to her close friend Baptiste Giabiconi, to date Katy Perry."
+          ],
+          [
+            "Parás is a rural municipal town in the state of Nuevo León, Mexico, founded on February 17, 1851.",
+            " It lies southwest of the Falcón Reservoir in Tamaulipas.",
+            " It was founded in what was known as \"Rancho Huizachal de los Canales\".",
+            " The name \"Parás\" is derived from Jose María Parás y Ballesteros, the first constitutional governor of Nuevo León.",
+            " Prior to the settlement the land was Gualeno Indian Tribe Territory and left many artifact the biggest being Piedras Pintas just a few miles northwest of the town.",
+            " The town is small in size but it has many smaller settlements and ranches under municipality jurisdiction.",
+            " The people of Parás live of ranching and agriculture.",
+            " The population is not large at all due to the amount of people who fleeted throughout the years to the U.S. seeking employment.",
+            " The town is usually at its fullest of capacity during American holidays when its residents go back home.",
+            " It is well known for the increasing amount of whitetail deer, bringing in hunters from all over.",
+            " It is also known for its local festivities, the biggest being on the following Saturday of its anniversary February 17.",
+            " The town celebrates by making a \"cabalgata\" a horse trail ride from its neighboring town Agualeguas back to the town.",
+            " The festival has many of the town's traditional dishes example: Pansaje, cabrito en sangre, dulce de frijol, tamales de venado, milk candies, sweet bread, etc.",
+            " Then at night the day comes to an end with a dance at the Club Femenil in front of the town's plaza with live music Norteno bands like Los Rancheritos del Topo Chico or an Orchestra band like JLB y Cia.",
+            " The plaza is popular being located in the center of the town surrounded by two churches, the dance hall, food marts, elementary school and the city hall."
+          ],
+          [
+            "The following is a list of the 20 largest settlements reached between the United States Department of Justice and pharmaceutical companies from 1991 to 2012, ordered by the size of the total settlement.",
+            " The settlement amount includes both the civil (False Claims Act) settlement and criminal fine.",
+            " Glaxo's $3 billion settlement included the largest civil, False Claims Act settlement on record, and Pfizer’s $2.3 billion settlement including a record-breaking $1.3 billion criminal fine.",
+            " Legal claims against the pharmaceutical industry have varied widely over the past two decades, including Medicare and Medicaid fraud, off-label promotion, and inadequate manufacturing practices.",
+            " With respect to off-label promotion, specifically, a federal court recognized off-label promotion as a violation of the False Claims Act for the first time in Franklin v. Parke-Davis, leading to a $430 million settlement."
+          ],
+          [
+            "Tell El Sakan was an important ancient Egyptian maritime settlement during the early Bronze Age, situated at the mouth of wadi Ghazzeh.",
+            " Its geographical situation endowed it with a position of importance at the crossroads on the land based trade routes to Arabia, the Egyptian empire to the south and the Canaan region to the north.",
+            " The site (dated between 3500-2350 BCE) appears to be the predecessor to the Tell al-'Ajjul settlement, where geomorphological dynamics of the estuary caused settlement trans-location or abandonment.",
+            " The site dates from a period prior to the Egyptian military domination of the Levant.",
+            " The pottery finds at Tell es-Sakan along with Tell al-'Ajjul shows a strong ancient Egyptian link to the area, while the Bronze Age settlement at Taur Ikhbeineh has revealed a more localised pottery production with Egyptian-Canaanite interaction."
+          ],
+          [
+            "Mana Al Otaiba (Arabic: مانع العتيبه‎ ‎ ) was born on 15 May 1946 to Saeed Al Otaiba in Abu Dhabi in the United Arab Emirates.",
+            " Little else is known about Al Otaiba's personal life.",
+            " Al Otaiba is the former Minister of Petroleum and Mineral Resources of the United Arab Emirates under the Presidency of Sheikh Zayed bin Sultan Al Nahyan.",
+            " Al Otaiba then became his Personal Adviser until the president's death, after which he became the Private Advisor to Sheikh Khalifa bin Zayed Al Nahyan , as well as a member of the Royal Moroccan Academy under King Hassan II.",
+            " His son is Yousef Al Otaiba."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "idx": 256,
+    "task_id": "hp_dev_0256",
+    "question": "What year did Roy Rogers and his third wife star in a film directed by Frank McDonald?",
+    "answer": "1945",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "wife",
+    "support_titles": "Along the Navajo Trail (film)|Dale Evans",
+    "context_titles_preview": "Don't Fence Me In (film)|Apache Rose|Song of Arizona|Along the Navajo Trail (film)|Rainbow Over Texas|Sons of the Pioneers (film)",
+    "full_example": {
+      "question": "What year did Roy Rogers and his third wife star in a film directed by Frank McDonald?",
+      "answer": "1945",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Along the Navajo Trail (film)",
+          "Dale Evans"
+        ],
+        "sent_id": [
+          0,
+          1
+        ]
+      },
+      "context": {
+        "title": [
+          "Don't Fence Me In (film)",
+          "Apache Rose",
+          "Song of Arizona",
+          "Along the Navajo Trail (film)",
+          "Rainbow Over Texas",
+          "Sons of the Pioneers (film)",
+          "Lights of Old Santa Fe",
+          "San Fernando Valley (film)",
+          "Frank McDonald (director)",
+          "My Pal Trigger"
+        ],
+        "sentences": [
+          [
+            "Don't Fence Me In is a 1945 American western film directed by John English and starring Roy Rogers, George \"Gabby\" Hayes and Dale Evans.",
+            " The film was part of the long-running series of Roy Rogers films produced by the Hollywood studio Republic Pictures."
+          ],
+          [
+            "Apache Rose is a 1947 American Trucolor Western film directed by William Witney and starring Roy Rogers.",
+            " It was the first Roy Rogers Western shot in the process though most copies on DVD are in monochrome."
+          ],
+          [
+            "Song of Arizona is a 1946 American Western film directed by Frank McDonald and starring Roy Rogers."
+          ],
+          [
+            "Along the Navajo Trail is a 1945 American western film directed by Frank McDonald and starring Roy Rogers, George 'Gabby' Hayes and Dale Evans.",
+            " The film's story was based on a William Colt MacDonald novel.",
+            " The film marked the debut of the Cuban actress Estelita Rodriguez, who Republic Pictures then began to build up into a star.",
+            " Its title song is \"Along the Navajo Trail\", an instrumental version of which appears with the opening credits, with a brief vocal version during the last twenty seconds of the film.",
+            " The first few bars of the song are used as background music in several chase scenes."
+          ],
+          [
+            "Rainbow Over Texas is a film from 1946 in which Roy Rogers plays himself as a famous cowboy-singer returning to Texas.",
+            " Directed by Frank McDonald from a story by Max Brand, it co-stars George \"Gabby\" Hayes and Dale Evans."
+          ],
+          [
+            "Sons of the Pioneers is a 1942 American Western film directed by Joseph Kane and starring Roy Rogers, George 'Gabby' Hayes and Bob Nolan.",
+            " The film was part of the long-running series of Roy Rogers films produced by the Hollywood studio Republic Pictures."
+          ],
+          [
+            "Lights of Old Santa Fe is a 1944 American Western Musical film directed by Frank McDonald with a screenplay by Gordon Kahn and Bob Williams.",
+            " The film stars Roy Rogers and Dale Evans in a story about a rodeo owner and her struggle to make her show a success.",
+            " When her rodeo is sabotaged by a rival showman, Rogers brings the perpetrator to justice."
+          ],
+          [
+            "San Fernando Valley is a 1944 American western film directed by John English and starring Roy Rogers, Dale Evans and Jean Porter.",
+            " The film was part of the long-running series of Roy Rogers films produced by Republic Pictures."
+          ],
+          [
+            "Frank McDonald (November 9, 1899 Baltimore, Maryland – March 8, 1980 Oxnard, California) was an American film and television director, active from 1935 to 1966.",
+            " He directed more than 100 films, including many Westerns starring Gene Autry and Roy Rogers, and numerous TV show episodes.",
+            " He is interred at Conejo Mountain Memorial Park in Camarillo, California."
+          ],
+          [
+            "My Pal Trigger is a 1946 American Western musical film directed by Frank McDonald.",
+            " The screenplay by Jack Townley and John K. Butler was based upon a story by Paul Gangelin.",
+            " The film stars Roy Rogers, Dale Evans, George “Gabby” Hayes, Jack Holt, and Trigger in a story about the origin of Rogers's mount, and their deep and faithful bond.",
+            " The film features several musical numbers for Rogers, Evans, and Bob Nolan and the Sons of the Pioneers."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "idx": 369,
+    "task_id": "hp_dev_0369",
+    "question": "Erica Packer was the second wife of what Australian businessman?",
+    "answer": "James Packer",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "wife",
+    "support_titles": "Erica Packer|James Packer",
+    "context_titles_preview": "Erica Packer|Brian Cook (football administrator)|Crazy John's|Dipangkorn Rasmijoti|Leg of mutton nude|James Packer",
+    "full_example": {
+      "question": "Erica Packer was the second wife of what Australian businessman?",
+      "answer": "James Packer",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Erica Packer",
+          "James Packer"
+        ],
+        "sent_id": [
+          1,
+          0
+        ]
+      },
+      "context": {
+        "title": [
+          "Erica Packer",
+          "Brian Cook (football administrator)",
+          "Crazy John's",
+          "Dipangkorn Rasmijoti",
+          "Leg of mutton nude",
+          "James Packer",
+          "Trevor Kennedy",
+          "Polygamy in Morocco",
+          "Alan Cransberg",
+          "Ben Roberts-Smith"
+        ],
+        "sentences": [
+          [
+            "Erica Georgia Packer (née Baxter; born 10 November 1977) is an Australian singer and model.",
+            " She was the second wife of Australia's eighth richest man, James Packer."
+          ],
+          [
+            "Brian Carlyle Cook (born 14 November 1955) is a Scottish-born Australian businessman and former Australian rules football player and coach who is the current Chief Executive Officer (CEO) of the Geelong Football Club in the Australian Football League (AFL).",
+            " Cook played for a number of different clubs in several Australian states and territories, including the Box Hill Football Club in the Victorian Football Association (VFA), the Melbourne Football Club in the Victorian Football League (VFL), and the East Perth and Subiaco Football Clubs in the Western Australian National Football League (WANFL), and later captain-coached the Ainslie Football Club in the Australian Capital Territory Football League (ACTFL).",
+            " After his retirement from coaching, Cook occupied positions with the Australian Sports Commission and the West Australian Football Commission, before being appointed CEO of the West Coast Eagles in 1990.",
+            " He quit this position in 1999 to take up the same role with Geelong."
+          ],
+          [
+            "Crazy John's was a mobile phone retail chain in Australia started by Turkish Australian businessman John Ilhan.",
+            " Crazy John's was the largest independent phone retailer in Australia, employing more than 400 people with more than 60 retail stores.",
+            " Following his death in 2007, Ilhan's wife Patricia sold her stake in the company to Vodafone Australia, now a part of Vodafone Hutchison Australia.",
+            " Originally a dealer of Telstra Mobile, Crazy John's became a Mobile Virtual Network Operator through the Vodafone Australia network, dealing directly with customers and offering its own competitive mobile phone deals and plans."
+          ],
+          [
+            "Prince Dipangkorn Rasmijoti (born 29 April 2005; Thai: ทีปังกรรัศมีโชติ ; rtgs: \"Thipangkon Ratsamichot\" ;  ] ) is a member of the country's Chakri dynasty and heir presumptive to the throne of Thailand.",
+            " He is the fifth son of King Vajiralongkorn.",
+            " His mother is Srirasmi Suwadee, the king's third legal wife.",
+            " His father also has a daughter by his first wife and five children (four sons and a daughter) by his second wife; all the children of the second wife were born before the then-crown prince married their mother but after the Crown Prince married her the 5 children were legitimised by marriage.",
+            " After the Crown Prince divorced his second wife in 1996, he disowned her sons.",
+            " Thus, Dipangkorn is the only recognised son of the king."
+          ],
+          [
+            "Double Nude Portrait: The Artist and his Second Wife 1937 (also known as the Leg of mutton nude portrait) is an oil on canvas painting by British artist Stanley Spencer.",
+            " It depicts Spencer and his soon-to-be second wife, Patricia Preece, beside a raw leg of lamb.",
+            " The painting is sexually charged: Spencer's second wife was a lesbian in a long-term relationship when they married, and their marriage was never consummated.",
+            " The painting is held by the Tate Gallery, which describes it as \"probably now Spencer's most famous picture\"."
+          ],
+          [
+            "James Douglas Packer (born 8 September 1967) is an Australian businessman and investor."
+          ],
+          [
+            "Trevor Kennedy (born Trevor John Kennedy; born in Perth, Western Australia, on 24 June 1942) is an Australian businessman and company director.",
+            " He has served on the board of directors of many Australian companies, including Consolidated Press Holdings and Qantas.",
+            " He is a former journalist and right-hand man of Kerry Packer and a former business associate of Malcolm Turnbull, current leader of the Australian Parliamentary Liberal Party and the 29th Prime Minister of Australia."
+          ],
+          [
+            "Polygamy in Morocco is legal, but very uncommon due to restrictions that were introduced by the government in 2004 that mandated financial qualifications a husband must meet in order to marry a second wife.",
+            " In addition, a husband must have written permission from his current wife before marrying a second wife.",
+            " Breaking these rules and marrying without permission from one's current wife can and has resulted in arrests."
+          ],
+          [
+            "Alan John Cransberg (born 22 September 1958) is an Australian businessman and former Australian rules footballer who is the current chairman of the West Coast Eagles in the Australian Football League, as well as a member of the boards of several other organisations.",
+            " Cransberg grew up in Bunbury, Western Australia, attending Bunbury Senior High School.",
+            " He played for the South Bunbury Football Club in the South West Football League (SWFL), before being recruited by the Swan Districts Football Club in the Perth-based Western Australian National Football League (WANFL) prior to the 1976 season.",
+            " Cransberg went on to play 115 games for Swan Districts, mainly playing as a defender.",
+            " He played at centre half-back in Swan Districts' 1982 premiership team, and also played in the premiership side the following season, retiring after the 1983 season to concentrate on his business career.",
+            " Cransberg graduated from the University of Western Australia in 1980 with an honours degree in civil engineering.",
+            " He joined Alcoa Australia after his graduation, and held various planning, engineering and managerial positions from 1981 to 1997, before being appointed location manager of the company's Pinjarra alumina refinery in 1998."
+          ],
+          [
+            "Benjamin \"Ben\" Roberts-Smith, (born 1 November 1978) is an Australian businessman, former Australian Army soldier, and a recipient of the Victoria Cross for Australia (VC), the highest award in the Australian honours system.",
+            " Roberts-Smith was awarded the VC for his actions during a helicopter assault into Tizak on 11 June 2010 as part of an offensive in the Shah Wali Kot region while serving with the Special Air Service Regiment in Afghanistan.",
+            " The medal, together with his Medal for Gallantry awarded during a tour of Afghanistan in 2006, made Roberts-Smith the most highly decorated member of the Australian Defence Force.",
+            " He was presented with the VC by the Governor-General of Australia, Quentin Bryce, at a ceremony in Perth on 23 January 2011.",
+            " He was also later awarded a Commendation for Distinguished Service for his leadership as a patrol commander during a 2012 tour of Afghanistan."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "idx": 448,
+    "task_id": "hp_dev_0448",
+    "question": "What is the name of the film starring Rose McGowan and features the character Earl McGraw's daughter?",
+    "answer": "Planet Terror",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "daughter",
+    "support_titles": "Earl and Edgar McGraw|Earl and Edgar McGraw|Planet Terror",
+    "context_titles_preview": "The Pastor's Wife (film)|Scream (1996 film)|Emotional Technology|Earl and Edgar McGraw|Conan the Barbarian (2011 film)|Amy Blue",
+    "full_example": {
+      "question": "What is the name of the film starring Rose McGowan and features the character Earl McGraw's daughter?",
+      "answer": "Planet Terror",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Earl and Edgar McGraw",
+          "Earl and Edgar McGraw",
+          "Planet Terror"
+        ],
+        "sent_id": [
+          0,
+          6,
+          2
+        ]
+      },
+      "context": {
+        "title": [
+          "The Pastor's Wife (film)",
+          "Scream (1996 film)",
+          "Emotional Technology",
+          "Earl and Edgar McGraw",
+          "Conan the Barbarian (2011 film)",
+          "Amy Blue",
+          "Devil in the Flesh (1998 film)",
+          "Paige Matthews",
+          "The Doom Generation",
+          "Dead Awake (2010 film)"
+        ],
+        "sentences": [
+          [
+            "The Pastor's Wife is a 2011 biographical television film, starring Rose McGowan as Mary Winkler and based on the true crime book of the same title by author Diane Fanning.",
+            " It premiered on Saturday, November 5, at 8 pm ET/PT on the Lifetime Network."
+          ],
+          [
+            "Scream is a 1996 American slasher film written by Kevin Williamson and directed by Wes Craven.",
+            " The film stars David Arquette, Neve Campbell, Courteney Cox, Matthew Lillard, Rose McGowan, Skeet Ulrich, and Drew Barrymore.",
+            " Released on December 20, 1996, \"Scream\" follows the character of Sidney Prescott (Campbell), a high school student in the fictional town of Woodsboro, California, who becomes the target of a mysterious killer known as Ghostface.",
+            " The film combined black comedy and \"whodunit\" mystery with the violence of the slasher genre to satirize the clichés of the horror film genre popularized in films such as \"Halloween\" and \"Friday the 13th\".",
+            " The film was considered unique at the time of its release for featuring characters who were aware of real world horror films and openly discussed the clichés that \"Scream\" attempted to subvert."
+          ],
+          [
+            "Emotional Technology is the fourth studio album by electronica artist BT.",
+            " Transitioning towards a poppier sound, the album features some of BT's well-known hits, including \"Somnambulist\", \"The Force of Gravity\" and \"Superfabulous\".",
+            " \"Somnambulist\", also known as \"Simply Being Loved\", holds the Guinness World Record for most vocal edits in a single track, with 6,178 in the album version.",
+            " The album features vocal performances by JC Chasez, Rose McGowan, and Transeau himself, among others."
+          ],
+          [
+            "Earl McGraw and his son Edgar McGraw are two fictional characters played by Michael Parks and James Parks.",
+            " They appear in several feature films by Robert Rodriguez and Quentin Tarantino, including the \"From Dusk till Dawn\" franchise, \"\", and in various works from the \"Grindhouse\" project.",
+            " Despite being killed off in his first appearance in \"From Dusk till Dawn\", various characters named Earl and Edgar have returned in several other films from Rodriguez and Tarantino.",
+            " Talking with a heavy Texas accent and delivering profanity laden dialogue, the Earl character often serves as comic relief.",
+            " He and Edgar are consistently portrayed as Texas Rangers.",
+            " Edgar is portrayed by James Parks, the real-life son of Michael Parks.",
+            " Earl has a daughter who is introduced in the \"Grindhouse\" films, named Dakota, played by Marley Shelton, who plays a large role in \"Planet Terror\".",
+            " Dakota also appears in the portrayed by Nicky Whelan."
+          ],
+          [
+            "Conan the Barbarian is a 2011 American sword and sorcery film based on the character of the same name created by Robert E. Howard.",
+            " The film is a new interpretation of the \"Conan\" mythology, and is not related to the films featuring Arnold Schwarzenegger.",
+            " It stars Jason Momoa in the title role, alongside Rachel Nichols, Rose McGowan, Stephen Lang, Ron Perlman, and Bob Sapp with Marcus Nispel directing."
+          ],
+          [
+            "Amy Blue is a British alternative rock band composed of Simon Chatterton (guitar), JP Rutter (guitar), Lex Sampson (drums) and Tom Parr (bass).",
+            " The group's name was inspired by Rose McGowan's character in the 1995 Gregg Araki movie \"The Doom Generation\"."
+          ],
+          [
+            "Devil in the Flesh is a 1998 American thriller film starring Rose McGowan.",
+            " The film was also released under the title \"Dearly Devoted\".",
+            " It was co-scripted by Kelly Carlin-McCall but is not based on the twice-filmed Raymond Radiguet novel \"Le Diable au corps\" (\"The Devil in the Flesh\")."
+          ],
+          [
+            "Paige Matthews is a fictional character from the American television series \"Charmed\", played by Rose McGowan from October 4, 2001 until May 21, 2006.",
+            " The character was created by executive producer Brad Kern as a replacement for lead character Prue Halliwell, following the departure of actress Shannen Doherty.",
+            " Paige is introduced in season four as the fiercely independent younger half-sister of the show's remaining female leads, sisters Piper (Holly Marie Combs) and Phoebe Halliwell (Alyssa Milano).",
+            " Like her sisters, Paige is a witch, and more specifically, one of the \"Charmed Ones\"—three of the most powerful witches of all time.",
+            " Paige is introduced as the secret love child of the Halliwell sisters' mother Patty (Finola Hughes) and her \"whitelighter\" (guardian angel) Sam Wilder (Scott Jaeck), making Paige both a witch and whitelighter.",
+            " She was given up at birth and raised by her adoptive parents."
+          ],
+          [
+            "The Doom Generation is a 1995 American dark comedy film written and directed by Gregg Araki.",
+            " It stars James Duval, Rose McGowan, and Johnathon Schaech.",
+            " The film follows two troubled teenage lovers Amy Blue (McGowan) and Jordan White (Duval) who pick up a young handsome drifter named Xavier Red (Schaech).",
+            " After he accidentally kills a store's clerk, the trio embarks on a journey full of sex, violence, and people from Amy's past.",
+            " Billed as \"A Heterosexual Movie by Gregg Araki\", \"The Doom Generation\" is the second film in the director's trilogy known as the \"Teenage Apocalypse Trilogy\", the first being \"Totally Fucked Up\" (1993) and the last one \"Nowhere\" (1997).",
+            " The characters of Amy Blue and Jordan White are based on the Mark Beyer comic strip \"Amy and Jordan\"."
+          ],
+          [
+            "Dead Awake is a 2010 mystery film starring Nick Stahl, Rose McGowan, and Amy Smart.",
+            " The film was previously titled \"Dylan's Wake\"."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "idx": 503,
+    "task_id": "hp_dev_0503",
+    "question": "What is the birthday of this Anglo-Irish actress, courtean, and mistress, who was the mother to the illegitimate daughter of King William IV?",
+    "answer": "22 November",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "mother|daughter",
+    "support_titles": "Elizabeth Hay, Countess of Erroll|Dorothea Jordan",
+    "context_titles_preview": "Dorothea Jordan|Elizabeth Hay, Countess of Erroll|Lady Mary Fox|Lord Frederick FitzClarence|Lady Augusta Gordon|John Crichton-Stuart, 5th Marquess of Bute",
+    "full_example": {
+      "question": "What is the birthday of this Anglo-Irish actress, courtean, and mistress, who was the mother to the illegitimate daughter of King William IV?",
+      "answer": "22 November",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Elizabeth Hay, Countess of Erroll",
+          "Dorothea Jordan"
+        ],
+        "sent_id": [
+          0,
+          0
+        ]
+      },
+      "context": {
+        "title": [
+          "Dorothea Jordan",
+          "Elizabeth Hay, Countess of Erroll",
+          "Lady Mary Fox",
+          "Lord Frederick FitzClarence",
+          "Lady Augusta Gordon",
+          "John Crichton-Stuart, 5th Marquess of Bute",
+          "Wilhelmina FitzClarence, Countess of Munster",
+          "Amelia Cary, Viscountess Falkland",
+          "Sophia Sidney, Baroness De L'Isle and Dudley",
+          "Regency Act 1830"
+        ],
+        "sentences": [
+          [
+            "Dorothea Jordan (22 November 17615 July 1816) was an Anglo-Irish actress, courtesan, and the mistress and companion of the future King William IV of the United Kingdom, for 20 years while he was Duke of Clarence.",
+            " Together they had ten illegitimate children, all of whom took the surname \"FitzClarence\"."
+          ],
+          [
+            "Elizabeth Hay, Countess of Erroll (17 January 1801 – 16 January 1856; born Elizabeth FitzClarence) was an illegitimate daughter of King William IV of the United Kingdom and Dorothea Jordan.",
+            " She married William Hay, 18th Earl of Erroll, and became Countess of Erroll on 4 December 1820 at age 19.",
+            " Due to Hay's parentage, William Hay became Lord Steward of the Household.",
+            " Elizabeth and William Hay married at St George's, Hanover Square.",
+            " Hay is pictured in a FitzClarence family portrait in House of Dun and kept a stone thrown at her father William IV and the gloves he wore on opening his first Parliament as mementos.",
+            " She died in Edinburgh, Scotland."
+          ],
+          [
+            "Lady Mary Fox (née FitzClarence; 19 December 1798 – 13 July 1864) was an illegitimate daughter of King William IV of the United Kingdom by his mistress Dorothea Jordan.",
+            " In later life she became a writer."
+          ],
+          [
+            "Lieutenant-General Lord Frederick FitzClarence, GCH (9 December 1799 – 30 October 1854) was a British Army officer as well as being the illegitimate third son of King William IV and his mistress, Dorothea Jordan."
+          ],
+          [
+            "Lady Augusta Gordon (\"née\" FitzClarence; 17 November 1803 – 8 December 1865) was a British noblewoman.",
+            " Born the fourth illegitimate daughter of William IV of the United Kingdom (then Duke of Clarence) by his long-time mistress Dorothea Jordan, she grew up at their Bushy House residence in Teddington.",
+            " Augusta had four sisters and five brothers all surnamed FitzClarence.",
+            " Soon after their father became monarch, the FitzClarence children were raised to the ranks of younger children of a marquess."
+          ],
+          [
+            "John Crichton-Stuart, 5th Marquess of Bute (4 August 1907 – 14 August 1956) was the son of John Crichton-Stuart, 4th Marquess of Bute and Augusta Bellingham.",
+            " On his father's side, the 5th Marquess was a direct male-line descendant of Robert II of Scotland through John Stewart, his illegitimate son by Moira Leitch.",
+            " On his mother's side, the 5th Marquess was a descendant of William IV of the United Kingdom through Elizabeth Hay, Countess of Erroll, one of his illegitimate daughters by his mistress, Dorothea Jordan.",
+            " As such, the 5th Marquess was the first member of the Bute family to be descended from William IV."
+          ],
+          [
+            "Wilhelmina FitzClarence, Countess of Munster (\"née\" Kennedy-Erskine; 27 June 1830 – 9 October 1906) was a British peeress and novelist.",
+            " Her mother, Lady Augusta FitzClarence, was an illegitimate daughter of William IV of the United Kingdom; Wilhelmina, also known as Mina, was born the day after William's succession as monarch.",
+            " She travelled as a young girl throughout Europe, visiting the courts of France and Hanover.",
+            " In 1855, Mina married her first cousin William FitzClarence, 2nd Earl of Munster; they would have nine children, including the 3rd and 4th Earls of Munster."
+          ],
+          [
+            "Amelia Cary, Viscountess Falkland (21 March 1807 – 2 July 1858) was a British noblewoman.",
+            " Born the fifth illegitimate daughter of William IV of the United Kingdom (then Duke of Clarence) by his long-time mistress Dorothea Jordan.",
+            " Amelia had four sisters and five brothers all surnamed FitzClarence.",
+            " Soon after their father became monarch, the FitzClarence children were raised to the ranks of younger children of a marquess.",
+            " A granddaughter of George III, Amelia was named after her aunt Princess Amelia."
+          ],
+          [
+            "Sophia Sidney, Baroness De L'Isle and Dudley (\"née\" FitzClarence; 4 March 1795 – 10 April 1837) was the eldest illegitimate daughter of William IV of the United Kingdom and his longtime mistress Dorothea Jordan.",
+            " She was married to Philip Sidney, 1st Baron De L'Isle and Dudley, and had four surviving children.",
+            " Shortly before her death in 1837, she served as State Housekeeper in Kensington Palace."
+          ],
+          [
+            "The Regency Act 1830 (1 Will.4 c.2) was an Act of the Parliament of the United Kingdom passed to cater for the event that King William IV died while the next person in line to the throne was not yet aged 18.",
+            " It provided for a regency until the new monarch reached the age of 18, and also would have enabled a posthumous child of King William IV to replace Queen Victoria on the throne.",
+            " However, the Act never came into force, because William was not survived by a legitimate child and Victoria became queen at the age of 18 in 1837."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "idx": 686,
+    "task_id": "hp_dev_0686",
+    "question": "What was the proper name of the husband of Lollia Paullina?",
+    "answer": "Gaius Julius Caesar Augustus Germanicus",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "husband",
+    "support_titles": "Lollia Paulina|Caligula",
+    "context_titles_preview": "Proper name (philosophy)|Collis (planetary nomenclature)|Proper name mark|Somali name|Masarjawaih|Antonomasia",
+    "full_example": {
+      "question": "What was the proper name of the husband of Lollia Paullina?",
+      "answer": "Gaius Julius Caesar Augustus Germanicus",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Lollia Paulina",
+          "Caligula"
+        ],
+        "sent_id": [
+          0,
+          0
+        ]
+      },
+      "context": {
+        "title": [
+          "Proper name (philosophy)",
+          "Collis (planetary nomenclature)",
+          "Proper name mark",
+          "Somali name",
+          "Masarjawaih",
+          "Antonomasia",
+          "Farshid",
+          "Lollia Paulina",
+          "Free City of Greyhawk",
+          "Descriptivist theory of names"
+        ],
+        "sentences": [
+          [
+            "In the philosophy of language a proper name, for example the names of persons or places, is a name which is ordinarily taken to uniquely identify its referent in the world.",
+            " As such it presents particular challenges for theories of meaning and it has become a central problem in analytical philosophy.",
+            " The common sense view was originally formulated by John Stuart Mill in \"A System of Logic\" where he defines it as \"a word that answers the purpose of showing what thing it is that we are talking about but not of telling anything about it\".",
+            " This view was criticized when philosophers applied principles of formal logic to linguistic propositions.",
+            " Gottlob Frege pointed out that proper names may apply to imaginary and inexistent entities without becoming meaningless, and he showed that sometimes more than one proper name may identify the same entity without having the same \"sense\", so that the phrase \"Homer believed the morning star was the evening star\" could be meaningful and not tautological in spite of the fact that the morning star and the evening star identifies the same referent.",
+            " This example became known as Frege's Puzzle and is a central issue in the theory of proper names."
+          ],
+          [
+            "Collis (plural: colles, from the Latin word for \"hill\") is a small hill or knob on a celestial body.",
+            " The term is used in planetary nomenclature: it is a part of international proper names of such features.",
+            " Like other generic terms, it is capitalized and stands after the proper name (for example, \"Bilbo Colles\"; the only exception is \"Colles Nili\" on Mars).",
+            " As of 2015, only groups of the hills have names, and the term is used only in plural."
+          ],
+          [
+            "In Chinese writing, a proper name mark (Simplified Chinese: 专名号, zhuānmínghào; Traditional Chinese: 專名號) is an underline used to mark proper names, such as the names of people, places, dynasties, organizations.",
+            " The related book name mark (Simplified Chinese: 书名号, shūmínghào; Traditional Chinese: 書名號)， indicated by a wavy underline (﹏﹏) is used to mark the titles of publications or texts."
+          ],
+          [
+            "In Somali society, each individual has a given name.",
+            " Sometimes it is presented along with the father's given name, and sometimes the paternal grandfather's given name is attached as well.",
+            " For example Axmed Yusuf Qaasim would be a person whose given name is \"Axmed\", whose father's proper name was \"Yusuf\" and whose grandfather's name was \"Qaasim\".",
+            " Most names are of Islamic roots (e.g. Muhammed, Hassan, Ali, Ibrahim) whilst others are cultural (e.g. Guleed, Ashkir) ."
+          ],
+          [
+            "Māsarjawaih (Arabic: ماسرجويه‎ ‎ ) was one of the earliest Jewish physicians of Persian origin, and the earliest translator from the Syriac; he lived in Basra about 683 (Anno Hegirae 64).",
+            " His name, distorted, has been transmitted in European sources; it has not yet been satisfactorily explained.",
+            " Neuda (in \"Orient, Lit.\"",
+            " vi.",
+            " 132) compares the name \"\"Masarjawaih\"\" with the Hebrew proper name \"\"Mesharsheya\"\"; but the ending \"\"-waih\"\" points to a Persian origin.",
+            " The form \"\"Masarjis\"\" has been compared with the Christian proper name \"\"Mar Serjis\"\"; but it is not known that Masarjis embraced either Christianity or Islam."
+          ],
+          [
+            "In rhetoric, antonomasia is a kind of metonymy in which an epithet or phrase takes the place of a proper name, such as \"the little corporal\" for Napoleon I.",
+            " Conversely, antonomasia can also be using a proper name as an archetypal name, to express a generic idea."
+          ],
+          [
+            "Farshid (or Farsheed) is one of the most ancient Persian proper names whose philological background could be traced back even in Old Persian scriptures.",
+            " It consists from two morphemes far ( = splendour, shine) + shîd (= sun, sun beams).",
+            " In this manner we could translate the Old Persian proper name Farshid/Farsheed as Sunshine or the splendor or the pomp of the sun."
+          ],
+          [
+            "Lollia Paulina, also known as Lollia Paullina (15-49) was a Roman Empress for six months in 38 as the third wife and consort of the Roman emperor Caligula.",
+            " Outside of her term as a Roman Empress, she was a noble Roman woman who lived in the Roman Empire of the 1st century."
+          ],
+          [
+            "The Free City of Greyhawk, also known as Greyhawk City and the \"Gem of the Flanaess,\" is a fictional city-state in the \"World of Greyhawk\" campaign setting for the \"Dungeons & Dragons\" fantasy roleplaying game.",
+            " Since the setting was originally published in a folio and then again in a boxed set that were both titled \"World of Greyhawk\", the word \"Greyhawk\" is often used to describe the entire campaign world setting, although the proper name for that part of the world is the Flanaess.",
+            " Sometimes the lands controlled by the Free City are also referred to as Greyhawk, though the proper term for the region is the Domain of Greyhawk."
+          ],
+          [
+            "The descriptivist theory of proper names is that the meaning or semantic content of a proper name is identical to the descriptions associated with it by speakers, while their referents are determined to be the objects that satisfy these descriptions.",
+            " Bertrand Russell and Gottlob Frege have both been associated with the descriptivist theory, which is sometimes called the Frege–Russell theory."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "idx": 789,
+    "task_id": "hp_dev_0789",
+    "question": "What is the name of the daughter of the Irish entertainer in the girl band Maxi, Dick and Twink?",
+    "answer": "Chloë Alexandra Adele Emily Agnew",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "daughter",
+    "support_titles": "Adele King|Adele King|Chloë Agnew",
+    "context_titles_preview": "Joe Dolan (disambiguation)|Adele King|Maxi (singer)|TBC (band)|Maxi, Dick and Twink|Richie Kavanagh",
+    "full_example": {
+      "question": "What is the name of the daughter of the Irish entertainer in the girl band Maxi, Dick and Twink?",
+      "answer": "Chloë Alexandra Adele Emily Agnew",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Adele King",
+          "Adele King",
+          "Chloë Agnew"
+        ],
+        "sent_id": [
+          0,
+          1,
+          0
+        ]
+      },
+      "context": {
+        "title": [
+          "Joe Dolan (disambiguation)",
+          "Adele King",
+          "Maxi (singer)",
+          "TBC (band)",
+          "Maxi, Dick and Twink",
+          "Richie Kavanagh",
+          "Guy Richards Smit",
+          "Rebecca Chamberlain",
+          "John Linehan (entertainer)",
+          "Atemi Oyungu"
+        ],
+        "sentences": [
+          [
+            "Joe Dolan (1939–2007) was an Irish entertainer, recorder and singer of easy listening songs."
+          ],
+          [
+            "Adèle King (born Adèle Condron-King, 4 April 1951) is an Irish entertainer better known as Twink from her time as a member of a group called Maxi, Dick and Twink which was a girl band in Ireland in the late 1960s and 1970s.",
+            " She is the mother of singer Chloë Agnew from the group Celtic Woman."
+          ],
+          [
+            "Maxi (born 23 February 1950) is an Irish radio disc-jockey and producer; actress, journalist and singer.",
+            " She came to fame in Ireland as part of the popular girl group, Maxi, Dick and Twink, in the late 1960s."
+          ],
+          [
+            "TBC (styled as tbc), are a Christian girl band who were launched by Innervation Trust in 2004, as a \"flagship\" girl band alongside their brother band Thebandwithnoname.",
+            " Innervation Trust is a Christian charity that exists to recruit and resource schools teams, dubbed \"Collectives\", each dedicated to a major city in the UK.",
+            " Innervation Trust is the product of Mark Pennells and Zarc Porter, a songwriter/producer partnership also credited with writing most of the music for, and co-founding, the World Wide Message Tribe.",
+            " After 7 years of promoting the Collective bands throughout every region of the UK, they were replaced by the primary school project, Pop Connection.",
+            " This has since been replaced by iSingPOP.",
+            " iSingPOP works in primary schools and will spend a week teaching all the children a number of songs (usually 7) as a choir and the next week will perform these songs in their local church or activity hall/centre with an audience.",
+            " They also have a recording day to make their very own album."
+          ],
+          [
+            "Maxi, Dick and Twink were an all-girl singing trio in Ireland in the late 1960s and early 1970s.",
+            " Maxi is Irene McCoubrey (born 23 February 1950), Dick is Barbara Dixon (born 4 April 1952) and Twink is Adele King (born 4 April 1951)."
+          ],
+          [
+            "Richie Kavanagh (born 19 March 1949) is an Irish entertainer who writes and performs his own songs.",
+            " Famous for the song \"Aon Focal Eile\", he now has a number of hits to his name.",
+            " Richie was born and raised in the Raheenwood area of Fenagh, Muine Bheag, County Carlow in Ireland where he still currently resides.",
+            " Despite Psoriasis crippling Richie’s hands at the age of 44, he went on to harness his talents as a singer/songwriter and burst onto the national entertainment scene with the song Aon Focal Eile.",
+            " Tony Keogh in Southeast Radio was the first man to play the CD and when Gerry Ryan began playing it on his morning show, the song became a runaway hit."
+          ],
+          [
+            "Guy Richards Smit (born 1970) is an American performance artist, painter, and singer-songwriter in the band Maxi Geil!",
+            " & PlayColt.",
+            " He has shown at the Museum of Modern Art in New York, and in London, Los Angeles, Madrid, Valencia, Paris, Dublin, and Havana, among other places.",
+            " He is represented by Charlie James Gallery in Los Angeles."
+          ],
+          [
+            "Rebecca E. Chamberlain is a visual artist and vocalist in the New York art band Maxi Geil!",
+            " & Playcolt.",
+            " She has exhibited her work in New York City, Boston, Los Angeles, Philadelphia, Jersey City, Amsterdam and Bologna, Italy, and been reviewed in the \"New York Times, Artforum, Art in America, Tema Celeste\" and \"Flash Art.\"",
+            " She is currently represented by DODGEgallery in New York."
+          ],
+          [
+            "John Joseph Linehan, MBE (born 1952, Belfast, Northern Ireland) is a Northern Irish entertainer, most known for his drag queen character May McFettridge.",
+            " Linehan has, in character, been a long-running feature on local radio and television, as well as a regular pantomime dame."
+          ],
+          [
+            "Carol Atemi Oyungu is a Kenyan singer, songwriter and entertainer.",
+            " She made her first mark up by being in girl band Intu until 2007 when they each decided to go solo.",
+            " In 2003, she joined Eric Wainaina, as an assistant vocal harmony provider for his band.",
+            " Oyungu released her first single \"Happy\" in 2004 and her debut album \"Hatimaye\" in 2008, and her second studio album \"Manzili\" in 2013."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "idx": 832,
+    "task_id": "hp_dev_0832",
+    "question": "What was Terry Owen's son's profession after retiring from football?",
+    "answer": "racehorse breeder and owner",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "son",
+    "support_titles": "Terry Owen|Michael Owen",
+    "context_titles_preview": "Mark Skinner|James L. Terry|Adam Owen|Alfred Owen|Owen (name)|Fish Karma",
+    "full_example": {
+      "question": "What was Terry Owen's son's profession after retiring from football?",
+      "answer": "racehorse breeder and owner",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Terry Owen",
+          "Michael Owen"
+        ],
+        "sent_id": [
+          1,
+          1
+        ]
+      },
+      "context": {
+        "title": [
+          "Mark Skinner",
+          "James L. Terry",
+          "Adam Owen",
+          "Alfred Owen",
+          "Owen (name)",
+          "Fish Karma",
+          "John Alexander (footballer, born 1955)",
+          "Alexandru Ene",
+          "Terry Durham",
+          "Terry Daniher"
+        ],
+        "sentences": [
+          [
+            "Mark T. Skinner (September 13, 1813 – September 16, 1887) was an American politician, attorney, and philanthropist from Vermont.",
+            " The son of a powerful Vermont politician, Skinner decided to follow his father's profession of law.",
+            " He moved west to Chicago, Illinois and was named City Attorney for Chicago and United States Attorney for the Illinois District.",
+            " In 1846, Skinner was elected to a term in the Illinois House of Representatives.",
+            " During the Civil War, during which he lost his only son, Skinner served on the United States Sanitary Commission and oversaw a similar organization in Chicago.",
+            " After retiring from law and politics, he managed real estate and focused on charitable endeavors."
+          ],
+          [
+            "James L. Terry is a Lieutenant General (Ret) in the United States Army.",
+            " He was born in Chatsworth, Georgia on May 14, 1957.",
+            " In 1978, he graduated from North Georgia College and through ROTC, commissioned into the Infantry.",
+            " Terry has commanded at multiple levels across the Army.",
+            " Terry's last assignment was as the commanding general of United States Army Central, retiring 17 November 2015.",
+            " Terry served as the last commander of V Corps before its inactivation in 2013.",
+            " While commanding V Corps, he concurrently served as Commander, International Security Assistance Force Joint Command (IJC), and as deputy commander of United States Forces Afghanistan.",
+            " He was the Commanding General of the 10th Mountain Division (Light Infantry) from 2009 to 2011."
+          ],
+          [
+            "Adam Owen Ph.D (born 5 September 1980 in Wrexham) is a Welsh football coach.",
+            " Owen currently works for Lechia Gdańsk, Poland as Director of Performance & Assistant Manager working alongside manager and Polish football legend Piotr Nowak.",
+            " Owen attained a doctorate in Sport Science through Lyon.1 University (Claude Bernard) in France, having previously completed his M.Phil degree in Sport & Exercise Science.",
+            " Owen has produced many contemporary research publications & book chapters becoming a leading researcher in the area of 'Football Science'.",
+            " Owen also holds the UEFA Professional Coaching Licence."
+          ],
+          [
+            "Sir Alfred George Beech Owen (1909–1975) was the son of Alfred Ernest Owen (who in 1910 became the sole-proprietor of the British engineering company Rubery Owen & Co).",
+            " Sir Alfred was educated at Emmanuel College, Cambridge and after the death of his father in 1929 he became, jointly with his brother, managing director of the Rubery Owen Group."
+          ],
+          [
+            "Owen is an anglicized variant of the Welsh name Owain.",
+            " Owen is a traditional Welsh surname in the United Kingdom.",
+            " Historically in Welsh Owen is spelt Owain and the Irish name is spelt Eóghan/Eoin.",
+            " Etymologists consider it to be cognate with \"Eugene\" meaning \"noble-born\".",
+            " The name may appear as both a personal name and as a surname (with or without the \"s\" as in \"Owens\" (\"son of Owen\"))."
+          ],
+          [
+            "Fish Karma (real name Terry Owen, b. 1959) is an American punk rock/comedy rock/folk rock musician from Tucson, Arizona."
+          ],
+          [
+            "John Alexander (born 5 October 1955) is an English former footballer who holds the post of club secretary at Manchester United.",
+            " Born in Liverpool, Alexander began his football career with a club called Ulysses, before being picked up by Millwall, for whom he made his league debut in 1976.",
+            " After scoring twice in 15 appearances over the course of two years with Millwall, he moved to Reading; he enjoyed greater success with Reading, scoring nine goals in 25 games.",
+            " In 1981, he joined Northampton Town, but spent just one season with them before retiring from football at the age of 26 in 1982.",
+            " Upon retiring from football, Alexander got a job with the BBC, but he later returned to football as club secretary at Watford.",
+            " In 2000, he took up the same post at Tottenham Hotspur, spending 10 years there before applying for the same job at Manchester United, where he would replace the retiring Ken Ramsden.",
+            " He took over at Manchester United on 1 July 2010.",
+            " He is the uncle of Liverpool player Trent Alexander-Arnold."
+          ],
+          [
+            "Alexandru Ene (19 September 1928 – 22 May 2011) was a Romanian football striker.",
+            " He started playing football at Olympia Bucureşti from 1941 to 1947, then he went to Metalul Bucharest making there his senior debut, and between 1951 and 1960 he played at Dinamo Bucharest.",
+            " He assert himself as a remarkable man of goals, succeeding in 1955 to win the Romanian League the first title in Dinamo's history.",
+            " He scored 98 goals for Dinamo.",
+            " After retiring, he made leading positions in football, as vice president of the club Dinamo (1971–1973).",
+            " During that time, after 1960, worked mainly on the line of his profession economist in the Ministry of Interior."
+          ],
+          [
+            "Terry Durham was an internationally known abstract and figurative artist and poet who had exhibitions throughout the world.",
+            " Terry was born on 24 September 1936 in East Ardsley, West Yorkshire, where he spent his formative years and died on the 6th December 2013 in the town of Alora, Andalucia, Spain.",
+            " Mostly self-taught, he studied and was greatly inspired by the works of Paul Klee and a wide range of other European artists such as Picasso, Gauguin, and Matisse.",
+            " He attended the Leeds College of Art before pursuing painting as his profession."
+          ],
+          [
+            "Terrence \"Terry\" John Daniher (born 15 August 1957) is a former Australian rules footballer who played with the South Melbourne and Essendon Football Clubs in the Australian Football League (AFL).",
+            " Terry was also an assistant coach for the Essendon, Collingwood, St Kilda and Carlton Football Clubs.",
+            " Terry's brothers, Neale, Anthony and Chris, also played for Essendon in the AFL.",
+            " He is a member of the Australian Football Hall of Fame and the Wagga Wagga Sporting Hall of Fame and is a Champion of Essendon.",
+            " Terry is currently the owner of Terry Daniher Cleaning Services, a cleaning company based in Melbourne."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "idx": 907,
+    "task_id": "hp_dev_0907",
+    "question": "What is the name of the father of Childericus?",
+    "answer": "Merovech",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "father",
+    "support_titles": "Childeric I|Merovingian dynasty",
+    "context_titles_preview": "List of Coptic saints|Abraham (surname)|Childeric I|Amir Gulistan Janjua|Ansing|Eleazar ben Pedat",
+    "full_example": {
+      "question": "What is the name of the father of Childericus?",
+      "answer": "Merovech",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Childeric I",
+          "Merovingian dynasty"
+        ],
+        "sent_id": [
+          0,
+          2
+        ]
+      },
+      "context": {
+        "title": [
+          "List of Coptic saints",
+          "Abraham (surname)",
+          "Childeric I",
+          "Amir Gulistan Janjua",
+          "Ansing",
+          "Eleazar ben Pedat",
+          "Javanese name",
+          "Hun Hunahpu",
+          "Zaynab (name)",
+          "Clementine Deymann"
+        ],
+        "sentences": [
+          [
+            "As this, O Lord, is the command of your Only-Begotten Son, that we share in the commemoration of your saints, graciously accord, O Lord, to remember all the saints who have pleased you since the beginning: our holy fathers the patriarchs, the prophets, the apostles, the preachers, the evangelists, the martyrs, the confessors and all the spirits of the righteous who were consummated in the faith.",
+            " Most of all, the pure, full of glory, ever-virgin, holy Theotokos, Saint Mary, who in truth, gave birth to God the Logos.",
+            " And Saint John the forerunner, baptist and martyr; Saint Stephen the archdeacon, the protomartyr; the beholder-of-God Saint Mark, the evangelist the apostle and martyr; the patriarch Saint Severus; our teacher Dioscorus; Saint Athanasius the Apostolic; Saint Peter the priest-martyr and the high priest; Saint John Chrysostom, Saint Theodosuius, Saint Theophilus, Saint Demetrius, Saint Cyril, Saint Basil, Saint Gregory the theologian, Saint Gregory the wonder-worker, Saint Gregory the Armenian; the three hundred and eighteen assembled at Nicea, the one hundred at Ephesus; our righteous father great Abba Antony, the righteous Abba Paul, the three saints Abba Macarii, and all their children the cross-bearers, our father Abba John the hegomen; our father Abba Pishoi the righteous perfect man, the beloved of our good Saviour; our father Abba Paul of Tammoh and Ezekiel his disciple; my masters the Roman fathers Saints Maximus and Domitius; the forty nine martyrs the elders of Shiheet; the strong Saint Abba Moses; John Kame the priest; our father Abba Daniel the hegomen; our father Abba Isidore the priest; our father Abba Pachom, of the Koinonia, and Theodore his disciple; our father Abba Shenoute the archimandrite and Abba Wissa his disciple.",
+            " And all choir of your saints, through whose prayers and supplications, have mercy on us all and save us, for the sake of your holy name, which is called upon us."
+          ],
+          [
+            "Abraham is a surname.",
+            " It can be of Jewish, English, French, German, Dutch, Irish, Welsh, Cornish, Breton, and other origins.",
+            " It is derived from the Hebrew personal name \"Avraham\", borne by the biblical patriarch Abraham, revered by Jews as a founding father of the Jewish people (Gen. 11-25), and by Muslims as founder of all Semitic peoples (see Abraham).",
+            " The name is explained in Genesis 17:5 as being derived from the Hebrew \"av hamon goyim\" \"father of a multitude of nations\".",
+            " It was commonly used as a given name among Christians in the Middle Ages, and has always been a popular Jewish given name.",
+            " The English name \"Abram\" is often a short form of Abraham, but it can also be a shortened version of \"Adburgham\", which comes from a place name.",
+            " As an Irish name, it was adopted as an approximation (in sound, not meaning) of the Gaelic name \"Mac an Bhreitheamhan\" \"son of the judge\".",
+            " The German name \"Brahm\" is often a short form of Abraham, but it can also be a topographic name signifying someone who lived near a bramble thicket (from the Middle High German \"brāme\").",
+            " The name \"Braham\" has been used as an Anglicization of both Abraham and its patronymic Abrahams by Ashkenazi Jews in the British Isles (see John Braham).",
+            " Abraham has also been used as an Anglicization of the equivalent Arabic surname \"Ibrāhīm\" (see Ibrahim (name))."
+          ],
+          [
+            "Childeric I (French: \"Childéric\" , Latin: \"Childericus\" , reconstructed Frankish: \"*Hildirīk\"; 440 – 481/482) was a Merovingian king of the Salian Franks and the father of Clovis I, who would unite the Franks and found the Merovingian dynasty."
+          ],
+          [
+            "Brigadier (R) Amir Gulistan Janjua, SI, was a former governor of the Khyber-Pakhtunkhwa of Pakistan.",
+            " He born in a village name Gorha Rajgan tehsil Choa Saiden Shah district Chakwal.",
+            "His father name was Capt.Raja Feroz Khan Janjua, and his uncle's name Capt.(R) Saif Ali Khan Janjua OBI, Capt.(R)Lehrasab Khan Janjua OBI, H/Lt.",
+            "Sher Afghan Janjua (TK-I)the best hockey/football player and Athlete.They were Army soldier and belong to a marshal family Chakwal.",
+            " He was named Amer Gulistan cause he said news of his birth reached his father while his father won a decisive battle (while on duty in army)in a place name Gulistan,"
+          ],
+          [
+            "Ansing is the village in Washim district of Vidarbh region of Maharashtra.",
+            " This is specific name which relates ancient history of Sage Shringi Rishi.",
+            " Ansing is the corrupt name of Ek-Shring (one horn).",
+            " Vibhandak, the father of Shring Riashi, had a baby boy from deer he copulated in the forest.",
+            " So shameful was he about his act that he hid the boy from rest of the world.",
+            " The boy had a Shring (horn) on his head.",
+            " Therefore he got the name Shring Rishi.",
+            " Vibhandak used to met him alone & never allowed him to met anyone else.",
+            " Shringi Rishi was given all education by his father.",
+            " But never saw human being.",
+            " One day some girls wandered into forest & this was the first interaction of Shring Rishi to humans.",
+            " He was unhappy with his father but father explained him the facts.",
+            " Shring Rishi was the one who did Putrakameshti yadnya for Raja Dashrath, after which Ram, Lakshman, Bharat & Shatrughna were born.",
+            " There is an ancient temple of Shring Rishi in Ansing."
+          ],
+          [
+            "Eleazar ben Pedat (Hebrew: רבי אלעזר בן פדת‎ ‎ ) was a Jewish Talmudist, known as an amora, in the Land of Israel, of the 4th generation (first half of the 4th century).",
+            " He was his father's pupil (Ber.",
+            " 77b; M. Ḳ.",
+            " 20a) and the assistant lecturer (\"amora\") of R. Assi.",
+            " If the latter asked him to repeat any of his father's sentences, if he himself had heard them from the lips of his father, he introduced them with the words: \"So says my teacher in the name of my father\", but in other cases he said: \"So says my teacher in the name of R. Eleazar.\"",
+            " He transmitted also sentences in the name of his father (Yer.",
+            " Yoma 39d) and of R. Hoshaiah (Oshaya) (Yer.",
+            " Suk.",
+            " 54d)."
+          ],
+          [
+            "Javanese people have various systems for naming.",
+            " Some Javanese, especially those from older generations, have only one name and no surname.",
+            " Others use their father's names as well as their own, in a similar manner to European patronymics. For example, Abdurrahman Wahid's name is derived from Wahid Hasyim, his father, an independence fighter and minister.",
+            " In turn, Wahid Hasyim's name was derived from his father named Hasyim Asyari, a famous cleric and founder of the Nahdlatul Ulama organization.",
+            " Another example is former president Megawati Sukarnoputri; the last part of the name is a patronymic, meaning \"Sukarno's daughter\"."
+          ],
+          [
+            "According to the Popol Vuh, Hun Hunahpu (pronounced ] ), or 'Head-Apu I' (a calendrical name), is the father of the Maya Hero Twins, Head-Apu and Xbalanque.",
+            " As their shared calendrical day name suggests, Head-Apu I is first and foremost the father of Head-Apu.",
+            " He is also stated to be the father of the twins' half-brothers, the patrons of the artisans and writers, Hun-Chowen and Hun-Batz (see Howler monkey gods).",
+            " Head-Apu I is paired with his brother, Vucub-Hunahpu 'Head-Apu VII'.",
+            " The brothers were tricked in the Dark House by the lords of the Underworld (Xibalba) and sacrificed.",
+            " Head-Apu I's head was suspended in a trophy tree and changed to a calabash.",
+            " Its spittle (i.e., the juice of the calabash) impregnated a daughter of one of the lords of Xibalba, Xquic.",
+            " She fled the underworld and conceived the Twins.",
+            " After defeating the lords of the Underworld, the Twins recovered the remains of their father and father's brother, but could not resuscitate them."
+          ],
+          [
+            "Zaynab (also spelled Zainab, Zeinab, Zinab, and in other ways; Arabic: زينب‎ ‎ , ] ) is a female given name meaning \"a father's precious jewel\", or \"the adornment/beauty of the father\".",
+            " It is derived from the Arabic root words \"zeenah\" Arabic: زينة‎ ‎ (meaning adornment, beauty) and \"ab\" Arabic: الآب‎ ‎ (meaning father).",
+            " It can also mean \"fragrant flower\".",
+            " It is also closely connected to the Hebrew name 'Zenyeb' (Zeyn-abi/Zeyn-aba) which means 'Pride of [her] father'."
+          ],
+          [
+            "Clementine Deymann was a priest and prison chaplain.",
+            " Born at Stavern, Oldenburg, Germany, 24 June 1844; died at Phoenix, Arizona, U. S. A., 4 December 1896.",
+            " He came to America with his parents in 1863, studied at Teutopolis, Illinois, received the habit of St. Francis and the name Clementine at the same place, 8 December 1867, finished his theological studies, and was ordained priest at St. Louis, Missouri, 19 May 1872.",
+            " Father Clementine was stationed as professor at the college of Teutopolis until July, 1879, when he was transferred to Joliet, to act as chaplain of the State prison.",
+            " At Joliet he was also spiritual director of the School Sisters of St. Francis.",
+            " In August, 1880, he was appointed superior and pastor of the German parish of Joliet, and in July, 1882, he received a like position at Chillicothe, Missouri.",
+            " In 1885 and in 1891 Father Clementine was elected definitor of the Franciscan province of the Sacred Heart; in 1886 he was made superior of the boys' orphanage at Watsonville, California.",
+            " He was appointed 22 July 1896, the first commissary for the newly erected Franciscan commissariat of the Pacific Coast, but died shortly after receiving this office and was buried at Santa Barbara.",
+            " Father Clementine was a very industrious man, who in his spare time translated a number of useful works, some of which have been published.",
+            " Among these are: \"The Seraphic Octave\", or \"Retreat\" (1883); \"Life of St. Francisco Solano\"; \"Life of Blessed Crescentia Hoess\"; \"May Devotions\" (1884).",
+            " His original writings are: \"Manual for the Sisters of the Third Order\" (1884); \"St. Francis Manual\" (1884).",
+            " He also wrote for several periodicals, and left in manuscript translations from the Spanish of the lives of Father Junípero Serra and Father Antonio Margil."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "idx": 919,
+    "task_id": "hp_dev_0919",
+    "question": "What character in \"Father Ted\" was played by an actor who starred in Death in Paradise?",
+    "answer": "Father Dougal McGuire",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "father",
+    "support_titles": "Death in Paradise (TV series)|Ardal O'Hanlon",
+    "context_titles_preview": "Ardal O'Hanlon|Ben Keaton|Dermot Morgan|Think Fast, Father Ted|&quot;Good Luck, Father Ted&quot;|List of Father Ted characters",
+    "full_example": {
+      "question": "What character in \"Father Ted\" was played by an actor who starred in Death in Paradise?",
+      "answer": "Father Dougal McGuire",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Death in Paradise (TV series)",
+          "Ardal O'Hanlon"
+        ],
+        "sent_id": [
+          0,
+          1
+        ]
+      },
+      "context": {
+        "title": [
+          "Ardal O'Hanlon",
+          "Ben Keaton",
+          "Dermot Morgan",
+          "Think Fast, Father Ted",
+          "&quot;Good Luck, Father Ted&quot;",
+          "List of Father Ted characters",
+          "A Christmassy Ted",
+          "Kicking Bishop Brennan Up the Arse",
+          "Father Ted Crilly",
+          "Are You Right There Father Ted?"
+        ],
+        "sentences": [
+          [
+            "Ardal O'Hanlon ( ; born 8 October 1965) is an Irish comedian and actor.",
+            " He played Father Dougal McGuire in \"Father Ted\", George Sunday/Thermoman in \"My Hero\", and DI Jack Mooney in \"Death in Paradise\"."
+          ],
+          [
+            "Ben Keaton (born 1956) is an Irish actor who appeared as Jeff Brannigan in ITV soap opera \"Emmerdale\".",
+            " He appeared in BBC's \"Casualty\" playing the part of Spencer between 1999-2002.",
+            " He guest starred as Father Austin Purcell in \"Think Fast, Father Ted\", an episode of the Channel 4's sitcom \"Father Ted\".",
+            " He had a small part in the British film \"East is East\" as a priest."
+          ],
+          [
+            "Dermot John Morgan (31 March 1952 – 28 February 1998) was an Irish comedian, actor and previously a schoolteacher, who achieved international renown for his role as Father Ted Crilly in the Channel 4 sitcom \"Father Ted\"."
+          ],
+          [
+            "\"Think Fast, Father Ted\" is the second episode of the second series of the Channel 4 sitcom \"Father Ted\".",
+            " The title is a play on the novel \"Think Fast, Mr. Moto\" by John P. Marquand, and the film of the same title starring Peter Lorre."
+          ],
+          [
+            "\"Good Luck, Father Ted\" is the first episode to be aired of the Channel 4 sitcom \"Father Ted\"."
+          ],
+          [
+            "Father Ted is a sitcom produced by independent production company Hat Trick Productions for British broadcaster Channel 4, running for three series and a special from 21 April 1995 until 1 May 1998 over 25 episodes.",
+            " The main characters comprised Father Ted Crilly (Dermot Morgan) and his fellow priests Father Dougal McGuire (Ardal O'Hanlon) and Father Jack Hackett (Frank Kelly), all exiled on Craggy Island living together with the fourth main character, housekeeper Mrs Doyle (Pauline McLynn).",
+            " All four actors appeared from the first to the last episodes, from \"Good Luck, Father Ted\" to \"Going to America\".",
+            " Pauline McLynn also played a nun in \"Flight Into Terror\", in which Mrs Doyle appears only briefly."
+          ],
+          [
+            "\"A Christmassy Ted\" is an episode of the Channel 4 sitcom \"Father Ted\".",
+            " It is the 17th episode overall and was broadcast between the second and third series.",
+            " This episode is 55 minutes long, as opposed to the usual 21-22 mins of all other \"Father Ted\" episodes.",
+            " It was aired on Christmas Eve, seven months after the second series had ended.",
+            " Due to the popularity of this episode, it still gets repeated on Channel 4, RTÉ Two and More4 around Christmas every year."
+          ],
+          [
+            "\"Kicking Bishop Brennan Up the Arse\" is the sixth episode of the third series of the sitcom \"Father Ted\", and the 23rd episode overall.",
+            " It originally aired on Channel 4 on 17 April 1998; its story continues from the previous episode, \"Escape from Victory\".",
+            " In the episode, the main character Father Ted Crilly must kick his strict and overbearing superior Bishop Brennan in the buttocks (\"up the arse\") as a forfeit set in the previous episode by Father Dick Byrne for cheating at a football match."
+          ],
+          [
+            "Father Ted Crilly is the title character of the Channel 4 sitcom \"Father Ted\".",
+            " Created by Graham Linehan and Arthur Mathews, Ted was portrayed by comedian Dermot Morgan for the programme's three series.",
+            " The character is a morally dubious Roman Catholic priest exiled to Craggy Island, a small island off the coast of Galway."
+          ],
+          [
+            "\"Are You Right There Father Ted?\"",
+            " is the first episode of the third series of the Channel 4 television sitcom \"Father Ted\", and the 18th episode overall.",
+            " It is notable for being the first episode aired after the death of Dermot Morgan, who had died the day after filming for the final episode had been completed.",
+            " As a mark of respect to Morgan, the original transmission of the first episode was delayed by a week."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "idx": 963,
+    "task_id": "hp_dev_0963",
+    "question": "Peter Marc Jacobson is best known as the co-creator of the popular sitcom \"The Nanny\", which he created and wrote with his then wife an actress born in which year ?",
+    "answer": "1957",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "wife",
+    "support_titles": "Peter Marc Jacobson|Fran Drescher",
+    "context_titles_preview": "Bill Lawrence (TV producer)|Norby (TV series)|Lesley Joseph|List of The Nanny episodes|Happily Divorced|Peter Marc Jacobson",
+    "full_example": {
+      "question": "Peter Marc Jacobson is best known as the co-creator of the popular sitcom \"The Nanny\", which he created and wrote with his then wife an actress born in which year ?",
+      "answer": "1957",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Peter Marc Jacobson",
+          "Fran Drescher"
+        ],
+        "sent_id": [
+          1,
+          0
+        ]
+      },
+      "context": {
+        "title": [
+          "Bill Lawrence (TV producer)",
+          "Norby (TV series)",
+          "Lesley Joseph",
+          "List of The Nanny episodes",
+          "Happily Divorced",
+          "Peter Marc Jacobson",
+          "Marta Kauffman",
+          "The Nanny (season 1)",
+          "List of Happily Divorced episodes",
+          "Doris Hare"
+        ],
+        "sentences": [
+          [
+            "William Van Duzer \"Bill\" Lawrence IV (born December 26, 1968) is an American screenwriter, producer, and director.",
+            " He is best known as the creator of the series \"Scrubs\", co-creator of \"Cougar Town\" and co-creator of \"Spin City\".",
+            " He was also co-creator of the short-lived animated series \"Clone High\", in which he voiced the leader of the shadowy figures, and is the co-creator of \"Ground Floor\", which ran on TBS.",
+            " He has written for many other shows including \"Friends\", \"The Nanny\", and \"Boy Meets World\"."
+          ],
+          [
+            "Norby is an American sitcom television series that aired from January 5 until April 6, 1955 on NBC.",
+            " This was one of the first regular weekly series broadcast by NBC in its new all-electronic compatible color system, which had been approved by the FCC in 1953.",
+            " \"Norby\" starred veteran film actor David Wayne, and was created by writer David Swift, then best known as the creator of the popular sitcom \"Mister Peepers\".",
+            " Eastman Kodak was the program's sponsor, and it was filmed in Eastmancolor.",
+            " The series ended when Kodak pulled its sponsorship due to the high costs of filming \"Norby\" in color."
+          ],
+          [
+            "Lesley Diana Joseph (born 14 October 1945) is an English actress and broadcaster, best known for playing Dorien Green in the television popular sitcom \"Birds of a Feather\" from 1989 to 1998 and then again since 2014."
+          ],
+          [
+            "\"The Nanny\" is an American television sitcom that aired for six seasons on CBS from 1993 to 1999.",
+            " Created and produced by Fran Drescher and Peter Marc Jacobson, the series starred Drescher as Fran Fine, a Queens native who is hired by widower Maxwell \"Max\" Sheffield (Charles Shaughnessy) to be the nanny of his three children Margaret (Nicholle Tom), Brighton (Benjamin Salisbury), and Grace (Madeline Zima).",
+            " The series also starred Lauren Lane as C.C. Babcock, Max's business associate, and Daniel Davis as Niles, the family's butler."
+          ],
+          [
+            "Happily Divorced is an American sitcom created by Fran Drescher and her ex-husband Peter Marc Jacobson.",
+            " Inspired by their experiences, the series, which became TV Land's third original scripted series following \"Hot in Cleveland\" and \"Retired at 35\", ran from June 15, 2011, to February 13, 2013, and revolves around a Los Angeles florist who finds out her husband of 18 years is gay.",
+            " The series was canceled after two seasons on August 23, 2013."
+          ],
+          [
+            "Peter Marc Jacobson (born October 27, 1957) is an American television writer, director and producer, and actor.",
+            " He is best known as the co-creator of the popular sitcom \"The Nanny\", which he created and wrote with his then wife actress Fran Drescher, who was the star of the series.",
+            " He was often credited as Peter Marc in his early acting roles."
+          ],
+          [
+            "Marta Fran Kauffman (born September 21, 1956) is an American writer and TV producer, best known as the co-creator of the popular sitcom \"Friends\", alongside David Crane.",
+            " Both Kauffman and Crane were also executive producers of the show, along with Kevin Bright.",
+            " Kauffman and Crane also produced \"Veronica's Closet\", starring Kirstie Alley, and \"Jesse\", starring Christina Applegate.",
+            " From 2005–2006 she was an executive producer on \"Related\".",
+            " Both writers were the creators of the 1990 HBO series \"Dream On\".",
+            " Marta Kauffman also studied Acting at The Neighborhood Playhouse School of the Theater in New York City."
+          ],
+          [
+            "The first season of \"The Nanny\", an American situational comedy television series, aired on CBS from November 3, 1993 to May 16, 1994.",
+            " The series was created by actress Fran Drescher and her-then husband Peter Marc Jacobson and developed by Prudence Fraser and Robert Sternin.",
+            " Produced by Sternin and Fraser Ink and TriStar Television, the series features Drescher, Jacobson, Fraser, Sternin, Caryn Lucas and Diane Wilk as executive producers.",
+            " Most of the season's episodes aired on Wednesdays at 8:30 pm while the first few aired on Wednesdays at 8:00 pm."
+          ],
+          [
+            "\"Happily Divorced\" is an American sitcom created for TV Land by Fran Drescher and Peter Marc Jacobson, based upon their own real-life experiences.",
+            " It is TV Land's third sitcom after \"Hot in Cleveland\" and \"Retired at 35\".",
+            " Fran Drescher stars as Fran, a Los Angeles florist who finds out her husband Peter (John Michael Higgins), to whom she has been married for eighteen years, is gay.",
+            " Naturally, they get a divorce but, because of their tight financial situation, they continue to live in the same house together.",
+            " The series is based on Drescher and Jacobson's real-life divorce and his eventual coming out.",
+            " The series ran from June 15, 2011 to February 13, 2013.",
+            " On August 23, 2013, TV Land cancelled the series after two seasons.",
+            " A total of thirty-four episodes were produced and aired."
+          ],
+          [
+            "Doris Hare, MBE (1 March 1905 – 30 May 2000) was a British actress, singer, dancer and comedian, active in New York and London, as well as Scotland, she is best known for being the second actress to portray Mrs Mabel \"Mum\" Butler in the popular sitcom \"On the Buses\" alongside Reg Varney."
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "idx": 1073,
+    "task_id": "hp_dev_1073",
+    "question": "What kind of comedian was Michael Mclntyre's father?",
+    "answer": "Canadian comedian",
+    "raw_type": "bridge",
+    "level": "hard",
+    "matched_relation_terms": "father",
+    "support_titles": "Ray Cameron (comedian)|Michael McIntyre",
+    "context_titles_preview": "World Kindness Day|Polybus of Corinth|Deep Fried Man|Michael Barrymore|Michael Redmond (comedian)|Fathers (book)",
+    "full_example": {
+      "question": "What kind of comedian was Michael Mclntyre's father?",
+      "answer": "Canadian comedian",
+      "type": "bridge",
+      "level": "hard",
+      "supporting_facts": {
+        "title": [
+          "Ray Cameron (comedian)",
+          "Michael McIntyre"
+        ],
+        "sent_id": [
+          0,
+          0
+        ]
+      },
+      "context": {
+        "title": [
+          "World Kindness Day",
+          "Polybus of Corinth",
+          "Deep Fried Man",
+          "Michael Barrymore",
+          "Michael Redmond (comedian)",
+          "Fathers (book)",
+          "Detours (2016 film)",
+          "David Koechner",
+          "A Kind of Magic",
+          "1974 aluminum cent"
+        ],
+        "sentences": [
+          [
+            "World Kindness Day is an international observance on 13 November.",
+            " It was introduced in 1998 by the World Kindness Movement a coalition of nations kindness NGOs.",
+            " It is observed in many countries, including Canada, Japan, Australia, Nigeria and United Arab Emirates.",
+            " In 2009, Singapore observed the day for the first time.",
+            " Italy and India also observed the day.",
+            " In the UK it is fronted by David Jamilly co-founded Kindness Day UK.",
+            " In 2010 at the request of Michael Lloyd—White the NSW Federation Parents and Citizens Association wrote to the Minister of The NSW Department of Education to place World Kindness Day on the NSW School Calendar.",
+            " In 2012 At the request of the Chairman of World Kindness Australia, World Kindness Day was placed on the Federal School Calendar and the then Minister of School Education, Early Childhood, and Youth The Hon Peter Garrett, provided a Declaration of Support for World Kindness Australia and placed World Kindness Day on the National School Calendar for over 9000 schools.",
+            " Schools across the globe are now celebrating World Kindness Day and work with local NGOs such as the Be Kind People Project and Life Vest Inside In the USA.",
+            " In 2012 Australia Her Excellency Prof Marie Bashir Governor of NSW hosted an event for the first time at Government House to celebrate World kindness Day and accepted a Cool To Be Kind Award from year 3&4 students.",
+            " Australian Councils representing over 1.3 million residents have also signed Declarations of Support for World Kindness Australia placing World Kindness Day on the Council Calendar of Events.",
+            " Events include THE BIG HUG, handing out Kindness Cards, Global Flashmob, which was coordinated by Orly Wahba from USA which was held in 15 countries and 33 cities with its images of the event making the big screens in New York City.",
+            " Canada celebrates with The Kindness Concert and in Singapore in 2009, 45,000 yellowflowers were given away.",
+            " World Kindness Day is to highlight good deeds in the community focusing on the positive power and the common thread of kindness which binds us.",
+            " Kindness is a fundamental part of the human condition which bridges the divides of race religion, politics, gender and zip codes.",
+            " Kindness Cards are also an ongoing activity which can either be passed on to recognize an act of kindness and or ask that an act of kindness be done.",
+            " Approaches are being made to the United Nations by the peak global body, The World Kindness Movement to have World Kindness Day officially recognized and its members unanimously sign a Declaration of Support for World Kindness."
+          ],
+          [
+            "Polybus (Greek: Πόλυβος ) is a figure in Greek mythology.",
+            " He was the king of Corinth and husband of either Merope or Periboea.",
+            " He raised Oedipus as his adopted son, who had been abandoned by his parents Laius and Jocasta of Thebes in Greece.",
+            " Polybus was the true father of Alcinoe.",
+            " In virtually all accounts of the mythology, when Oedipus reached adolescence, he consulted with the Delphic Oracle, who told him \"You shall kill your father and marry your mother\".",
+            " Obviously horrified and disgusted with such a prophecy, Oedipus imposed self-exile upon himself and kept away from Corinth, as he resolved never to murder King Polybus, who had been a kind father to him.",
+            " Oedipus was also understandably disgusted the act of murdering Polybus and claiming his wife for himself, as he had no unnatural attraction to Queen Merope.",
+            " Many years later, after Oedipus won the kingship of Thebes by defeating the Sphinx, did another plague befall Thebes.",
+            " King Oedipus, in his effort to find the cause of plague due to a patricide, revealed that he was told in his teen years that he was destined to murder his father, and sent a spy to Corinth to see who is currently on the throne.",
+            " The news of Polybus' death by natural causes was announced by the messenger to Jocasta in Sophocles' \"Oedipus Rex\", in which it is mistakenly taken to mean that Oedipus did not kill his father.",
+            " This would mean that the prophecy that Oedipus would murder his father and marry his mother would be false, and Oedipus expresses relief that he did not commit such a heinous act.",
+            " Since Polybus was in fact his adoptive father, Oedipus could and did kill his true father, King Laius, and fulfill the prophecy.",
+            " Oedipus never knew his true destiny until the final parts of the play."
+          ],
+          [
+            "Daniel Friedman (born 9 January 1981), known on stage as Deep Fried Man, is a South African musical comedian and writer based in Johannesburg.",
+            " He describes what he does as \"stand-up comedy with a guitar\".",
+            " He adopted his stage name, a play on his real name, because \"it went along with the kind of musical comedy I wanted to do, which was an unhealthy kind of comedy\"."
+          ],
+          [
+            "Michael Ciaran Parker (born 4 May 1952), better known by his stage name Michael Barrymore, is an English comedian and television presenter of game shows and light entertainment programmes on British television in the 1980s, 1990s and 2000s.",
+            " These included \"Strike It Lucky\", \"My Kind of People\", \"My Kind of Music\" and \"Kids Say the Funniest Things\"."
+          ],
+          [
+            "Michael Redmond (born October 1950) is an Irish stand-up comedian from Blackrock, Dublin, known for playing Father Stone in the \"Father Ted\" episode \"Entertaining Father Stone\".",
+            " He has a deadpan style of delivery and has been described as the \"possessor of comedy's most mournful moustache\"."
+          ],
+          [
+            "Fathers.",
+            " Subtitled \"A Literary Anthology\", this is a collection of 49 personal father essays and poems by such eminent writers as Margaret Atwood, Angela Carter, Bruce Chatwin, Winston Churchill, Seamus Heaney, Doris Lessing and Philip Roth.",
+            " In the introduction to the book, the editor, Andre Gerard, suggests that personal writing about fathers is a relatively new phenomenon, one for which he proposes the name of patremoir, and he traces the origins of this kind of writing back to Edmund Gosse’s Father and Son.",
+            " According to Gerard, Gosse helped make it possible to speak intimately and openly about the father."
+          ],
+          [
+            "Detours is a 2016 road-trip comedy about a newly single New Yorker who must relocate to Florida for a new job; she travels south with her widowed father and her mother’s ashes in a coffee can.",
+            " \"Detours\" was directed by Robert McCaskill from a script by Mara Lesemann (additionally known for Surviving Family).",
+            " The movie starred Tara Westwood and Carlo Fiorletta; the supporting cast included Richard Kind, Michael Cerveris, Phyllis Somerville, Kim Director, and Paul Sorvino.",
+            " Cerveris also contributed several original songs to the soundtrack."
+          ],
+          [
+            "David Michael Koechner ( ; born August 24, 1962) is an American actor and comedian, best known for playing roles such as Champ Kind in the \"\" films and Todd Packer on NBC's \"The Office\"."
+          ],
+          [
+            "A Kind of Magic is the twelfth studio album by the British rock band Queen, released on 3 June 1986 by EMI Records in the UK and by Capitol Records in the US.",
+            " It was their first studio album to be recorded digitally, and is based on the soundtrack to the film \"Highlander\", the first in a series directed by Russell Mulcahy.",
+            " \"A Kind of Magic\" was Queen's first album to be released since they had been acclaimed for their performance at the 1985 Live Aid concert.",
+            " It was an immediate hit in the UK, going straight to number one and selling 100,000 copies in its first week.",
+            " It remained in the UK charts for 63 weeks, selling about six million copies worldwide (600,000 in the UK alone).",
+            " The album spawned four hit singles: the album's title track \"A Kind of Magic\", \"One Vision\", \"Friends Will Be Friends\", and \"Who Wants to Live Forever\", which features an orchestra conducted by Michael Kamen, while the last track, \"Princes of the Universe\", is the theme song to \"Highlander\"."
+          ],
+          [
+            "The 1974 aluminum cent was a one-cent coin proposed by the United States Mint in 1973.",
+            " It was composed of an alloy of aluminum and trace metals, and intended to replace the predominantly copper–zinc cent due to the rising costs of coin production in the traditional bronze alloy.",
+            " 1,571,167 were struck in anticipation of release, but none were released into circulation.",
+            " Examples were passed out to US Congressmen in a bid to win favor in switching to the new alloy.",
+            " When the proposed aluminum cent was rejected, the Mint recalled and destroyed the examples.",
+            " A few aluminum cents not returned to the Mint are believed to remain in existence.",
+            " One example was donated to the Smithsonian Institution, while another was alleged to have been found by a US Capitol Police Officer.",
+            " A 1974-D specimen was found in January 2014 by Randall Lawrence, who said it was a retirement gift to his father, who worked at the Mint in Denver.",
+            " Randall planned on selling it in a public auction, but the Mint demanded its return, saying that the coin was never authorized for release and therefore remains U.S. Government property.",
+            " Lawrence (and his business partner at their coin store, Michael McConnell) ultimately surrendered the coin when the Mint showed that the aluminum penny had never been authorized to be struck in Denver, and there was no evidence that the coin had been a gift of any kind."
+          ]
+        ]
+      }
+    }
+  }
+]

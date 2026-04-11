@@ -1,0 +1,3 @@
+source_set_id,artifact_type,status,model,backend,output_file,char_count,error
+hp_relation_chain_bridge_set_01,episodic_trace,generated,Qwen/Qwen3.5-9B,huggingface_transformers,/root/2026_SelectTransfer/artifacts/hp_relation_chain_bridge_set_01/episodic_trace.md,3467,
+hp_relation_chain_bridge_set_01,cross_episode_consolidation,generated,Qwen/Qwen3.5-9B,huggingface_transformers,/root/2026_SelectTransfer/artifacts/hp_relation_chain_bridge_set_01/cross_episode_consolidation.md,3369,

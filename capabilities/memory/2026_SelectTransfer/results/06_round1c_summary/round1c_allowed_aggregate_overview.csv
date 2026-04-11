@@ -1,0 +1,4 @@
+subset_bucket,task_count,run_count,memory_runs,memory_verbalized_runs,explicit_use_runs,explicit_reject_runs,outcome_changed_runs,improved_runs,degraded_runs
+process_sanity,2,12,8,3,2,1,0,0,0
+diagnostic,2,12,8,0,0,0,7,2,5
+audit_boundary,2,12,8,2,1,1,0,0,0

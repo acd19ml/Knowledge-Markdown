@@ -1,0 +1,5 @@
+source_round,condition,split,source_set_id,em,f1,pred_answer,failure_status,memory_reference_type,reasoning_present,final_answer_present,note
+round1i,cross_episode_consolidation,irrelevant,hp_bridge_set_01,0,0.0,Cannot be determined from the provided context.,ok,implicit_or_none,1,1,subtype-aware irrelevant consolidation after operator repair round
+round1i,cross_episode_consolidation,relevant,hp_relation_chain_bridge_set_01,1,1.0,Henry Pelham,ok,explicit_use,1,1,operator-repaired relevant consolidation
+round1g,episodic_trace,irrelevant,hp_bridge_set_01,0,0.0,Cannot be determined from the provided context.,ok,implicit_or_none,1,1,subtype-aware rerun result
+round1g,episodic_trace,relevant,hp_relation_chain_bridge_set_01,1,1.0,Henry Pelham,ok,implicit_or_none,1,1,subtype-aware rerun result

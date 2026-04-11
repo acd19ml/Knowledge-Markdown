@@ -40,3 +40,9 @@
 - 当前 working CSV 可以修改，但进入 [archive/](archive/) 后不得再改
 - 如果某轮中途改了 taxonomy、pairing 或指标定义，必须开新版本，不得假装还是同一轮
 - 所有实验约束以 [../design/experiment-contract.md](../design/experiment-contract.md) 为准
+
+当前 working 层与 `archive/` 的关系：
+
+- `archive/` 保存的是 Round 1 frozen inputs
+- `pilot/source_sets.csv` 和 `pilot/pairing_table.csv` 现在已经包含后续 relation-chain subtype repair 的 working updates
+- 如果要复现最初 Round 1 frozen setup，请优先读 `archive/`

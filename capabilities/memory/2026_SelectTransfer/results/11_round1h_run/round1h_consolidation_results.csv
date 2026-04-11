@@ -1,0 +1,5 @@
+run_id,target_task_id,condition,source_set_id,em,f1,token_usage,failure_status,reasoning_present,final_answer_present,memory_reference_type,parse_success
+r1h_no_memory_wiki_dev_2639,wiki_dev_2639,no_memory,none,1,1.0,1906,ok,1,1,implicit_or_none,1
+r1h_original_relevant_consolidation_wiki_dev_2639,wiki_dev_2639,original_relevant_consolidation,hp_relation_chain_bridge_set_01,0,0.0,4091,ok,1,0,explicit_use,1
+r1h_revised_relevant_consolidation_wiki_dev_2639,wiki_dev_2639,revised_relevant_consolidation,hp_relation_chain_bridge_set_01,0,0.0,2549,ok,1,1,implicit_or_none,1
+r1h_irrelevant_consolidation_wiki_dev_2639,wiki_dev_2639,irrelevant_consolidation,hp_bridge_set_01,0,0.0,2746,ok,1,1,implicit_or_none,1
